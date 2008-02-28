@@ -21,11 +21,29 @@ Note that this code will blow away the initial comment block in your models if i
 previously added by annotate models, so you don't want to add additional text to an automatically 
 created comment block.
 
+Install
+=======
+
+  sudo gem install sake annotate_models
+  sake -i http://github.com/ctran/annotate_models/tree/master/tasks/deployment.rake?raw=true
+  
+Usage
+=====
+
+  sake annotate_models
+
+Source
+======
+
+  http://github.com/ctran/annotate_models
+  
+  
 Author:
    Dave Thomas
    Pragmatic Programmers, LLC
-   
-Released under the same license as Ruby. No Support. No Warranty.
+
+Released under the same license as Ruby. No Support. No Warranty. 
+
 
 Modifications by:
  - alex@pivotallabs.com
