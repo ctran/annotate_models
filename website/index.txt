@@ -10,7 +10,7 @@ h2. Installing
 
 <pre syntax="ruby">
   sudo gem install annotate_models
-  sake -i http://github.com/ctran/annotate_models/tree/master/tasks/deployment.rake?raw=true
+  sake -i http://github.com/ctran/annotate_models/tree/master/tasks/annotate.rake?raw=true
 </pre>
 
 h2. The basics
