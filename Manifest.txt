@@ -12,6 +12,7 @@ script/destroy
 script/generate
 script/txt2html
 setup.rb
+tasks/annotate.rake
 tasks/deployment.rake
 tasks/environment.rake
 tasks/website.rake

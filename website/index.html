@@ -31,9 +31,9 @@
 <div id="main">
 
     <h1>annotate_models</h1>
-    <div id="version" class="clickable" onclick='document.location = "http://rubyforge.org/projects/annotate_models"; return false'>
+    <div id="version" class="clickable" onclick='document.location = "http://rubyforge.org/projects/annotate-models"; return false'>
       <p>Get Version</p>
-      <a href="http://rubyforge.org/projects/annotate_models" class="numbers">0.0.1</a>
+      <a href="http://rubyforge.org/projects/annotate-models" class="numbers">1.0.0</a>
     </div>
     <h1>&#x2192; &#8216;annotate_models&#8217;</h1>
 
@@ -44,31 +44,36 @@
 	<h2>Installing</h2>
 
 
-	<p><pre class='syntax'><span class="ident">sudo</span> <span class="ident">gem</span> <span class="ident">install</span> <span class="ident">annotate_models</span></pre></p>
+	<p><pre class='syntax'>
+  <span class="ident">sudo</span> <span class="ident">gem</span> <span class="ident">install</span> <span class="ident">annotate_models</span>
+  <span class="ident">sake</span> <span class="punct">-</span><span class="ident">i</span> <span class="ident">http</span><span class="punct">:/</span><span class="regex"></span><span class="punct">/</span><span class="ident">github</span><span class="punct">.</span><span class="ident">com</span><span class="punct">/</span><span class="ident">ctran</span><span class="punct">/</span><span class="ident">annotate_models</span><span class="punct">/</span><span class="ident">tree</span><span class="punct">/</span><span class="ident">master</span><span class="punct">/</span><span class="ident">tasks</span><span class="punct">/</span><span class="ident">deployment</span><span class="punct">.</span><span class="ident">rake?raw</span><span class="punct">=</span><span class="constant">true</span>
+</pre></p>
 
 
-	<h2>The basics</h2>
+	<h2>The basics
+Add a comment summarizing the current schema to the top of each ActiveRecord model source file.</h2>
+
+
+	<p>This was created by Dave Thomas as a Rails plugin.  
+This is now a gem that can be used together with <a href="http://errtheblog.com/posts/60-sake-bomb">Sake</a></p>
 
 
 	<h2>Demonstration of usage</h2>
 
 
-	<h2>Forum</h2>
-
-
-	<p><a href="http://groups.google.com/group/annotate_models">http://groups.google.com/group/annotate_models</a></p>
-
-
-	<p><span class="caps">TODO</span> &#8211; create Google Group &#8211; annotate_models</p>
+	<p>Go to your <span class="caps">RAILS</span>_ROOT dir, then run <code>sake annotate_models</code></p>
 
 
 	<h2>How to submit patches</h2>
 
 
-	<p>Read the <a href="http://drnicwilliams.com/2007/06/01/8-steps-for-fixing-other-peoples-code/">8 steps for fixing other people&#8217;s code</a> and for section <a href="http://drnicwilliams.com/2007/06/01/8-steps-for-fixing-other-peoples-code/#8b-google-groups">8b: Submit patch to Google Groups</a>, use the Google Group above.</p>
+	<p>See <a href="http://drnicwilliams.com/2008/02/03/using-git-within-a-team/">Using Git within a project</a></p>
 
 
-	<p>The trunk repository is <code>svn://rubyforge.org/var/svn/annotate_models/trunk</code> for anonymous access.</p>
+	<p>The trunk repository is <code>http://github.com/ctran/annotate_models</code>.</p>
+
+
+	<p>A svn mirror is on rubyforge <code>svn://rubyforge.org/var/svn/annotate-models/trunk</code></p>
 
 
 	<h2>License</h2>
@@ -80,9 +85,9 @@
 	<h2>Contact</h2>
 
 
-	<p>Comments are welcome. Send an email to <a href="mailto:FIXME"><span class="caps">FIXME</span> full name</a> email via the <a href="http://groups.google.com/group/annotate_models">forum</a></p>
+	<p>Comments are welcome. Send an email to <a href="mailto:ctran@pragmaquest.com">Cuong Tran</a></p>
     <p class="coda">
-      <a href="FIXME email">FIXME full name</a>, 27th February 2008<br>
+      <a href="ctran@pragmaquest.com">Cuong Tran</a>, 28th February 2008<br>
       Theme extended from <a href="http://rb2js.rubyforge.org/">Paul Battley</a>
     </p>
 </div>

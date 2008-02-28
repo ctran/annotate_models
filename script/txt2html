@@ -14,7 +14,7 @@ require 'erb'
 require File.dirname(__FILE__) + '/../lib/annotate_models/version.rb'
 
 version  = AnnotateModels::VERSION::STRING
-download = 'http://rubyforge.org/projects/annotate_models'
+download = 'http://rubyforge.org/projects/annotate-models'
 
 class Fixnum
   def ordinal

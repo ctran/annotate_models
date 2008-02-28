@@ -1,9 +1,6 @@
-$:.unshift File.dirname(__FILE__)
-
 module AnnotateModels
-  RAILS_ROOT = '.'
-  MODEL_DIR   = File.join(RAILS_ROOT, "app/models")
-  FIXTURE_DIR = File.join(RAILS_ROOT, "test/fixtures")
+  MODEL_DIR   = "app/models"
+  FIXTURE_DIR = "test/fixtures"
   PREFIX = "== Schema Information"
 
   # Simple quoting for the default column value
