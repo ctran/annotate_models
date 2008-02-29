@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 load 'Rakefile'
 require 'tasks/annotate'
 
