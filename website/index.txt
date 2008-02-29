@@ -13,6 +13,7 @@ h2. Installing
 </pre>
 
 h2. The basics
+
 Add a comment summarizing the current schema to the top of each ActiveRecord model source file.
 
 This was created by Dave Thomas as a Rails plugin.  
