@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
-load 'Rakefile'
-require 'tasks/annotate'
+require 'annotate_models/tasks'
 
 Rake::Task['annotate_models'].invoke
 

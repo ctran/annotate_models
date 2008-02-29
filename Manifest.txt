@@ -7,6 +7,7 @@ config/hoe.rb
 config/requirements.rb
 lib/annotate_models.rb
 lib/annotate_models/version.rb
+lib/annotate_models/tasks.rb
 log/debug.log
 script/destroy
 script/generate
