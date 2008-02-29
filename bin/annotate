@@ -1,0 +1,5 @@
+load 'Rakefile'
+require 'tasks/annotate'
+
+Rake::Task['annotate_models'].invoke
+

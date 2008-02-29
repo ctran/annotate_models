@@ -25,12 +25,11 @@ Install
 =======
 
   sudo gem install sake annotate_models
-  sake -i http://github.com/ctran/annotate_models/tree/master/tasks/annotate.rake?raw=true
   
 Usage
 =====
-
-  sake annotate_models
+  cd [your project]
+  annotate
 
 Source
 ======

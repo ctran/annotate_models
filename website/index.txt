@@ -10,18 +10,17 @@ h2. Installing
 
 <pre syntax="ruby">
   sudo gem install annotate_models
-  sake -i http://github.com/ctran/annotate_models/tree/master/tasks/annotate.rake?raw=true
 </pre>
 
 h2. The basics
 Add a comment summarizing the current schema to the top of each ActiveRecord model source file.
 
 This was created by Dave Thomas as a Rails plugin.  
-This is now a gem that can be used together with "Sake":http://errtheblog.com/posts/60-sake-bomb
+This is now a gem that can run from command line
 
 h2. Demonstration of usage
 
-Go to your RAILS_ROOT dir, then run <code>sake annotate_models</code>
+Go to your RAILS_ROOT dir, then run <code>annotate</code>
 
 h2. How to submit patches
 
