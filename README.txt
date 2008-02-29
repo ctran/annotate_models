@@ -1,5 +1,4 @@
-AnnotateModels
-==============
+== AnnotateModels
 
 Add a comment summarizing the current schema to the top of each ActiveRecord model source file.
 
@@ -21,29 +20,27 @@ Note that this code will blow away the initial comment block in your models if i
 previously added by annotate models, so you don't want to add additional text to an automatically 
 created comment block.
 
-Install
-=======
+== Install
 
   sudo gem install sake annotate_models
   
-Usage
-=====
+== Usage
+
   cd [your project]
   annotate
 
-Source
-======
+== Source
 
   http://github.com/ctran/annotate_models
   
   
-Author:
+== Author
    Dave Thomas
    Pragmatic Programmers, LLC
 
 Released under the same license as Ruby. No Support. No Warranty. 
 
 
-Modifications by:
+== Modifications
  - alex@pivotallabs.com
  - ctran@pragmaquest.com

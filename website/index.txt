@@ -1,6 +1,6 @@
-h1. annotate_models
+h1. annotate-models
 
-h1. &#x2192; 'annotate_models'
+h1. &#x2192; 'annotate-models'
 
 
 h2. What
@@ -9,7 +9,7 @@ h2. What
 h2. Installing
 
 <pre syntax="ruby">
-  sudo gem install annotate_models
+  sudo gem install annotate-models
 </pre>
 
 h2. The basics

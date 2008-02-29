@@ -3,7 +3,7 @@ require 'annotate_models/version'
 AUTHOR = 'Dave Thomas'  # can also be an array of Authors
 EMAIL = "ctran@pragmaquest.com"
 DESCRIPTION = "Add a comment summarizing the current schema to the top of each ActiveRecord model source file"
-GEM_NAME = 'annotate_models' # what ppl will type to install your gem
+GEM_NAME = 'annotate-models' # what ppl will type to install your gem
 RUBYFORGE_PROJECT = 'annotate-models' # The unix name for your project
 HOMEPATH = "http://#{RUBYFORGE_PROJECT}.rubyforge.org"
 DOWNLOAD_PATH = "http://rubyforge.org/projects/#{RUBYFORGE_PROJECT}"
