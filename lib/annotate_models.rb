@@ -65,10 +65,10 @@ module AnnotateModels
   # on the columns and their types) and put it at the front
   # of the model and fixture source files.
 
-  def self.annotate(klass, header)
+  def self.annotate(klass, file, header)
     info = get_schema_info(klass, header)
 
-    model_file_name = File.join(MODEL_DIR, klass.name.underscore + ".rb")
+    model_file_name = File.join(MODEL_DIR, file)
     annotate_one_file(model_file_name, info)
 
     fixture_file_name = File.join(FIXTURE_DIR, klass.table_name + ".yml")
@@ -80,7 +80,7 @@ module AnnotateModels
   # the underscore or CamelCase versions of model names.
   # Otherwise we take all the model files in the 
   # app/models directory.
-  def self.get_model_names
+  def self.get_model_files
     models = ARGV.dup
     models.shift
 
@@ -91,12 +91,24 @@ module AnnotateModels
     end
     models
   end
+  
+  # Retrieve the classes belonging to the model names we're asked to process
+  # Check for namespaced models in subdirectories as well as models
+  # in subdirectories without namespacing.
+  def self.get_model_class(file)
+    model = file.gsub(/\.rb$/, '').camelize
+    parts = model.split('::')
+    begin
+      parts.inject(Object) {|klass, part| klass.const_get(part) }
+    rescue LoadError
+      Object.const_get(parts.last)
+    end
+  end
 
   # We're passed a name of things that might be 
   # ActiveRecord models. If we can find the class, and
   # if its a subclass of ActiveRecord::Base,
   # then pas it to the associated block
-
   def self.do_annotations
     header = PREFIX.dup
     version = ActiveRecord::Migrator.current_version rescue 0
@@ -105,18 +117,16 @@ module AnnotateModels
     end
 
     annotated = []
-    self.get_model_names.each do |m|
-      class_name = m.sub(/\.rb$/,'').camelize
+    self.get_model_files.each do |file|
       begin
-        klass = class_name.split('::').inject(Object){ |klass,part| klass.const_get(part) }
+        klass = get_model_class(file)
         if klass < ActiveRecord::Base && !klass.abstract_class?
-          annotated << class_name
-          self.annotate(klass, header)
+          annotated << klass
+          self.annotate(klass, file, header)
         end
       rescue Exception => e
-        puts "Unable to annotate #{class_name}: #{e.message}"
+        puts "Unable to annotate #{file}: #{e.message}"
       end
-
     end
     puts "Annotated #{annotated.join(', ')}"
   end
