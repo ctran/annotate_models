@@ -1,10 +1,11 @@
 module AnnotateModels
+  class << self
   MODEL_DIR   = "app/models"
   FIXTURE_DIR = "test/fixtures"
   PREFIX = "== Schema Information"
 
   # Simple quoting for the default column value
-  def quote(value)
+  def self.quote(value)
     case value
       when NilClass                 then "NULL"
       when TrueClass                then "TRUE"
@@ -21,7 +22,7 @@ module AnnotateModels
   # to create a comment block containing a line for
   # each column. The line contains the column name,
   # the type (and length), and any optional attributes
-  def get_schema_info(klass, header)
+  def self.get_schema_info(klass, header)
     info = "# #{header}\n#\n"
     info << "# Table name: #{klass.table_name}\n#\n"
 
@@ -48,7 +49,7 @@ module AnnotateModels
   # a schema info block (a comment starting
   # with "Schema as of ..."), remove it first.
 
-  def annotate_one_file(file_name, info_block)
+  def self.annotate_one_file(file_name, info_block)
     if File.exist?(file_name)
       content = File.read(file_name)
 
@@ -65,7 +66,7 @@ module AnnotateModels
   # on the columns and their types) and put it at the front
   # of the model and fixture source files.
 
-  def annotate(klass, file, header)
+  def self.annotate(klass, file, header)
     info = get_schema_info(klass, header)
 
     model_file_name = File.join(MODEL_DIR, file)
@@ -80,7 +81,7 @@ module AnnotateModels
   # the underscore or CamelCase versions of model names.
   # Otherwise we take all the model files in the 
   # app/models directory.
-  def get_model_files
+  def self.get_model_files
     models = ARGV.dup
     models.shift
 
@@ -95,7 +96,7 @@ module AnnotateModels
   # Retrieve the classes belonging to the model names we're asked to process
   # Check for namespaced models in subdirectories as well as models
   # in subdirectories without namespacing.
-  def get_model_class(file)
+  def self.get_model_class(file)
     model = file.gsub(/\.rb$/, '').camelize
     parts = model.split('::')
     begin
@@ -109,7 +110,7 @@ module AnnotateModels
   # ActiveRecord models. If we can find the class, and
   # if its a subclass of ActiveRecord::Base,
   # then pas it to the associated block
-  def do_annotations
+  def self.do_annotations
     header = PREFIX.dup
     version = ActiveRecord::Migrator.current_version rescue 0
     if version > 0
