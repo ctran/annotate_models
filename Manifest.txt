@@ -8,6 +8,7 @@ config/requirements.rb
 lib/annotate_models.rb
 lib/annotate_models/version.rb
 lib/annotate_models/tasks.rb
+lib/tasks/annotate.rake
 log/debug.log
 script/destroy
 script/generate
