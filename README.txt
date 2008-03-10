@@ -22,7 +22,7 @@ created comment block.
 
 == Install
 
-  sudo gem install sake annotate-models
+  sudo gem install annotate-models
   
 == Usage
 
