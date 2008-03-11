@@ -33,14 +33,14 @@ created comment block.
 
   http://github.com/ctran/annotate_models
   
-  
 == Author
    Dave Thomas
    Pragmatic Programmers, LLC
 
 Released under the same license as Ruby. No Support. No Warranty. 
 
-
 == Modifications
  - alex@pivotallabs.com
  - ctran@pragmaquest.com
+ - Jack Danger at http://6brand.com/
+
