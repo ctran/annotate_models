@@ -112,10 +112,6 @@ module AnnotateModels
     # then pas it to the associated block
     def do_annotations
       header = PREFIX.dup
-      version = ActiveRecord::Migrator.current_version rescue 0
-      if version > 0
-        header << "\n# Schema version: #{version}"
-      end
 
       annotated = []
       get_model_files.each do |file|
