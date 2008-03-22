@@ -1,7 +1,7 @@
 module AnnotateModels
   class << self
     MODEL_DIR   = "app/models"
-    FIXTURE_DIR = "test/fixtures"
+    FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
     PREFIX = "== Schema Information"
 
     # Simple quoting for the default column value
@@ -49,7 +49,7 @@ module AnnotateModels
     # a schema info block (a comment starting
     # with "Schema as of ..."), remove it first.
 
-    def annotate_one_file(file_name, info_block)
+    def annotate_one_file(file_name, info_block, options={})
       if File.exist?(file_name)
         content = File.read(file_name)
 
@@ -57,7 +57,18 @@ module AnnotateModels
         content.sub!(/^# #{PREFIX}.*?\n(#.*\n)*\n/, '')
 
         # Write it back
-        File.open(file_name, "w") { |f| f.puts info_block + content }
+        new_content = options[:position] == "before" ? (info_block + content) : (content + info_block)
+        File.open(file_name, "w") { |f| f.puts new_content }
+      end
+    end
+    
+    def remove_annotation_of_file(file_name)
+      if File.exist?(file_name)
+        content = File.read(file_name)
+
+        content.sub!(/^# #{PREFIX}.*?\n(#.*\n)*\n/, '')
+        
+        File.open(file_name, "w") { |f| f.puts content }
       end
     end
 
@@ -66,14 +77,16 @@ module AnnotateModels
     # on the columns and their types) and put it at the front
     # of the model and fixture source files.
 
-    def annotate(klass, file, header)
+    def annotate(klass, file, header,options={})
       info = get_schema_info(klass, header)
 
       model_file_name = File.join(MODEL_DIR, file)
-      annotate_one_file(model_file_name, info)
+      annotate_one_file(model_file_name, info, options.merge(:position=>(options[:position_in_class] || options[:position])))
 
-      fixture_file_name = File.join(FIXTURE_DIR, klass.table_name + ".yml")
-      annotate_one_file(fixture_file_name, info)
+      FIXTURE_DIRS.each do |dir|
+        fixture_file_name = File.join(dir,klass.table_name + ".yml")
+        annotate_one_file(fixture_file_name, info, options.merge(:position=>(options[:position_in_fixture] || options[:position]))) if File.exist?(fixture_file_name)
+      end
     end
 
     # Return a list of the model files to annotate. If we have
@@ -84,7 +97,7 @@ module AnnotateModels
     def get_model_files
       models = ARGV.dup
       models.shift
-
+      models.reject!{|m| m.starts_with?("position=")}
       if models.empty?
         Dir.chdir(MODEL_DIR) do
           models = Dir["**/*.rb"]
@@ -110,7 +123,7 @@ module AnnotateModels
     # ActiveRecord models. If we can find the class, and
     # if its a subclass of ActiveRecord::Base,
     # then pas it to the associated block
-    def do_annotations
+    def do_annotations(options={})
       header = PREFIX.dup
       version = ActiveRecord::Migrator.current_version rescue 0
       if version > 0
@@ -123,13 +136,36 @@ module AnnotateModels
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
             annotated << klass
-            annotate(klass, file, header)
+            annotate(klass, file, header,options)
           end
         rescue Exception => e
           puts "Unable to annotate #{file}: #{e.message}"
         end
       end
       puts "Annotated #{annotated.join(', ')}"
+    end
+    
+    def remove_annotations
+      deannotated = []
+      get_model_files.each do |file|
+        begin
+          klass = get_model_class(file)
+          if klass < ActiveRecord::Base && !klass.abstract_class?
+            deannotated << klass
+            
+            model_file_name = File.join(MODEL_DIR, file)
+            remove_annotation_of_file(model_file_name)
+            
+            FIXTURE_DIRS.each do |dir|
+              fixture_file_name = File.join(dir,klass.table_name + ".yml")
+              remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)
+            end
+          end
+        rescue Exception => e
+          puts "Unable to annotate #{file}: #{e.message}"
+        end
+      end
+      puts "Removed annotaion from: #{deannotated.join(', ')}"
     end
   end
 end
