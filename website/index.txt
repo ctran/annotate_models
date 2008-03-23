@@ -21,13 +21,17 @@ This is now a gem that can run from command line
 
 h2. Demonstration of usage
 
-Go to your RAILS_ROOT dir, then run <code>annotate</code>
+Go to your project dir (RAILS_ROOT), then run: <code>annotate</code>
+
+To remove annotations: <code>annotate -d</code>
+
+To add annotations at the end of files: <code>annotate -p after</code>
 
 h2. How to submit patches
 
 See "Using Git within a project":http://drnicwilliams.com/2008/02/03/using-git-within-a-team/
 
-The trunk repository is <code>http://github.com/ctran/annotate_models</code>.
+The trunk repository is <code>http://github.com/ctran/annotate_models</code>
 
 A svn mirror is on rubyforge <code>svn://rubyforge.org/var/svn/annotate-models/trunk</code>
 

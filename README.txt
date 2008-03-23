@@ -28,6 +28,9 @@ created comment block.
 
   cd [your project]
   annotate
+  annotate -d
+  annotate -p [before|after]
+  annotate -h
 
 == Source
 
@@ -41,6 +44,7 @@ Released under the same license as Ruby. No Support. No Warranty.
 
 == Modifications
  - alex@pivotallabs.com
- - ctran@pragmaquest.com
- - Jack Danger at http://6brand.com/
+ - Cuong Tran - http://github.com/ctran
+ - Jack Danger - http://github.com/JackDanger
+ - Michael Bumann - http://github.com/bumi
 

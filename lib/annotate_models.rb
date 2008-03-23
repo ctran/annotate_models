@@ -46,9 +46,14 @@ module AnnotateModels
     end
 
     # Add a schema block to a file. If the file already contains
-    # a schema info block (a comment starting
-    # with "Schema as of ..."), remove it first.
-
+    # a schema info block (a comment starting with "Schema as of ..."), remove it first.
+    #
+    # === Options (opts)
+    #  :position<Symbol>:: where to place the annotated section in fixture or model file, 
+    #                      "before" or "after". Default is "before".
+    #  :position_in_class<Symbol>:: where to place the annotated section in model file
+    #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
+    #
     def annotate_one_file(file_name, info_block, options={})
       if File.exist?(file_name)
         content = File.read(file_name)
@@ -57,7 +62,7 @@ module AnnotateModels
         content.sub!(/^# #{PREFIX}.*?\n(#.*\n)*\n/, '')
 
         # Write it back
-        new_content = options[:position] == "before" ? (info_block + content) : (content + info_block)
+        new_content = options[:position] == "after" ? (content + info_block) : (info_block + content)
         File.open(file_name, "w") { |f| f.puts new_content }
       end
     end
