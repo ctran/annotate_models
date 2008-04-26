@@ -143,7 +143,11 @@ module AnnotateModels
           puts "Unable to annotate #{file}: #{e.message}"
         end
       end
-      puts "Annotated #{annotated.join(', ')}"
+      if annotated.empty?
+        puts "Nothing to annotate!"
+      else
+        puts "Annotated #{annotated.join(', ')}"
+      end
     end
     
     def remove_annotations
