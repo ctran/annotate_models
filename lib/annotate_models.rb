@@ -46,7 +46,7 @@ module AnnotateModels
     end
 
     # Add a schema block to a file. If the file already contains
-    # a schema info block (a comment starting with "Schema as of ..."), remove it first.
+    # a schema info block (a comment starting with "== Schema Information"), remove it first.
     #
     # === Options (opts)
     #  :position<Symbol>:: where to place the annotated section in fixture or model file, 
@@ -140,14 +140,18 @@ module AnnotateModels
         begin
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
-            annotated << klass
             annotate(klass, file, header,options)
+            annotated << klass
           end
         rescue Exception => e
           puts "Unable to annotate #{file}: #{e.message}"
         end
       end
-      puts "Annotated #{annotated.join(', ')}"
+      if annotated.empty?
+        puts "Nothing annotated!"
+      else
+        puts "Annotated #{annotated.join(', ')}"
+      end
     end
     
     def remove_annotations
@@ -170,7 +174,7 @@ module AnnotateModels
           puts "Unable to annotate #{file}: #{e.message}"
         end
       end
-      puts "Removed annotaion from: #{deannotated.join(', ')}"
+      puts "Removed annotation from: #{deannotated.join(', ')}"
     end
   end
 end

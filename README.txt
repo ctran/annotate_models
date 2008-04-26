@@ -2,7 +2,7 @@
 
 Add a comment summarizing the current schema to the top of each ActiveRecord model source file.
 
-  # Schema as of Sun Feb 26 21:58:32 CST 2006 (schema version 7)
+  # == Schema Information
   #
   #  id                  :integer(11)   not null
   #  quantity            :integer(11)   
@@ -47,4 +47,4 @@ Released under the same license as Ruby. No Support. No Warranty.
  - Cuong Tran - http://github.com/ctran
  - Jack Danger - http://github.com/JackDanger
  - Michael Bumann - http://github.com/bumi
-
+ - Henrik Nyh - http://github.com/henrik
