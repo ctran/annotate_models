@@ -144,7 +144,7 @@ module AnnotateModels
         end
       end
       if annotated.empty?
-        puts "Nothing to annotate!"
+        puts "Nothing annotated!"
       else
         puts "Annotated #{annotated.join(', ')}"
       end
