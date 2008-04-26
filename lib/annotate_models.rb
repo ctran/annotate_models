@@ -46,7 +46,7 @@ module AnnotateModels
     end
 
     # Add a schema block to a file. If the file already contains
-    # a schema info block (a comment starting with "Schema as of ..."), remove it first.
+    # a schema info block (a comment starting with "== Schema Information"), remove it first.
     #
     # === Options (opts)
     #  :position<Symbol>:: where to place the annotated section in fixture or model file, 
