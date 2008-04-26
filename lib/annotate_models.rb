@@ -170,7 +170,7 @@ module AnnotateModels
           puts "Unable to annotate #{file}: #{e.message}"
         end
       end
-      puts "Removed annotaion from: #{deannotated.join(', ')}"
+      puts "Removed annotation from: #{deannotated.join(', ')}"
     end
   end
 end
