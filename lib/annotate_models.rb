@@ -136,8 +136,8 @@ module AnnotateModels
         begin
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
-            annotated << klass
             annotate(klass, file, header,options)
+            annotated << klass
           end
         rescue Exception => e
           puts "Unable to annotate #{file}: #{e.message}"
