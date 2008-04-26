@@ -47,4 +47,4 @@ Released under the same license as Ruby. No Support. No Warranty.
  - Cuong Tran - http://github.com/ctran
  - Jack Danger - http://github.com/JackDanger
  - Michael Bumann - http://github.com/bumi
-
+ - Henrik Nyh - http://github.com/henrik
