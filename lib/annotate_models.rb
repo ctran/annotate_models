@@ -62,7 +62,7 @@ module AnnotateModels
         content.sub!(/^# #{PREFIX}.*?\n(#.*\n)*\n/, '')
 
         # Write it back
-        new_content = options[:position] == "after" ? (content + info_block) : (info_block + content)
+        new_content = options[:position] == "after" ? (content + "\n" + info_block) : (info_block + content)
         File.open(file_name, "w") { |f| f.puts new_content }
       end
     end
