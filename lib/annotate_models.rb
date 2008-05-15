@@ -56,14 +56,17 @@ module AnnotateModels
     #
     def annotate_one_file(file_name, info_block, options={})
       if File.exist?(file_name)
-        content = File.read(file_name)
+        old_content = File.read(file_name)
 
         # Remove old schema info
-        content.sub!(/^# #{PREFIX}.*?\n(#.*\n)*\n/, '')
+        raw_content = old_content.sub(/^# #{PREFIX}.*?\n(#.*\n)*\n/, '')
 
         # Write it back
-        new_content = options[:position] == "after" ? (content + info_block) : (info_block + content)
+        new_content = options[:position] == "after" ? (raw_content + info_block) : (info_block + raw_content)
         File.open(file_name, "w") { |f| f.puts new_content }
+        
+        # Return whether the content changed
+        old_content != new_content
       end
     end
     
@@ -86,12 +89,14 @@ module AnnotateModels
       info = get_schema_info(klass, header)
 
       model_file_name = File.join(MODEL_DIR, file)
-      annotate_one_file(model_file_name, info, options.merge(:position=>(options[:position_in_class] || options[:position])))
+      content_changed = annotate_one_file(model_file_name, info, options.merge(:position=>(options[:position_in_class] || options[:position])))
 
       FIXTURE_DIRS.each do |dir|
         fixture_file_name = File.join(dir,klass.table_name + ".yml")
         annotate_one_file(fixture_file_name, info, options.merge(:position=>(options[:position_in_fixture] || options[:position]))) if File.exist?(fixture_file_name)
       end
+      
+      content_changed
     end
 
     # Return a list of the model files to annotate. If we have
@@ -136,8 +141,8 @@ module AnnotateModels
         begin
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
-            annotate(klass, file, header, options)
-            annotated << klass
+            # Only append if the annotation changed
+            annotated << klass if annotate(klass, file, header, options)
           end
         rescue Exception => e
           puts "Unable to annotate #{file}: #{e.message}"
