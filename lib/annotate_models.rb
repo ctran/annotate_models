@@ -46,7 +46,10 @@ module AnnotateModels
     end
 
     # Add a schema block to a file. If the file already contains
-    # a schema info block (a comment starting with "== Schema Information"), remove it first.
+    # a schema info block (a comment starting with "== Schema Information"), check if it
+    # matches the block that is already there. If so, leave it be. If not, remove the old
+    # info block and write a new one.
+    # Returns true or false depending on whether the file was modified.
     #
     # === Options (opts)
     #  :position<Symbol>:: where to place the annotated section in fixture or model file, 
@@ -56,14 +59,25 @@ module AnnotateModels
     #
     def annotate_one_file(file_name, info_block, options={})
       if File.exist?(file_name)
-        content = File.read(file_name)
+        old_content = File.read(file_name)
 
-        # Remove old schema info
-        content.sub!(/^# #{PREFIX}.*?\n(#.*\n)*\n/, '')
+        # Ignore the Schema version line because it changes with each migration
+        header = Regexp.new(/(^# Table name:.*?\n(#.*\n)*\n)/)
+        old_header = old_content.match(header).to_s
+        new_header = info_block.match(header).to_s
+        
+        if old_header == new_header
+          false
+        else
+          # Remove old schema info
+          old_content.sub!(/^# #{PREFIX}.*?\n(#.*\n)*\n/, '')
 
-        # Write it back
-        new_content = options[:position] == "after" ? (content + "\n" + info_block) : (info_block + content)
-        File.open(file_name, "wb") { |f| f.puts new_content }
+          # Write it back
+          new_content = options[:position] == "after" ? (old_content + "\n" + info_block) : (info_block + old_content)
+
+          File.open(file_name, "w") { |f| f.puts new_content }
+          true
+        end
       end
     end
     
@@ -73,7 +87,7 @@ module AnnotateModels
 
         content.sub!(/^# #{PREFIX}.*?\n(#.*\n)*\n/, '')
         
-        File.open(file_name, "wb") { |f| f.puts content }
+        File.open(file_name, "w") { |f| f.puts content }
       end
     end
 
@@ -81,17 +95,23 @@ module AnnotateModels
     # info block (basically a comment containing information
     # on the columns and their types) and put it at the front
     # of the model and fixture source files.
+    # Returns true or false depending on whether the source
+    # files were modified.
 
     def annotate(klass, file, header,options={})
       info = get_schema_info(klass, header)
+      annotated = false
 
       model_file_name = File.join(MODEL_DIR, file)
-      annotate_one_file(model_file_name, info, options.merge(:position=>(options[:position_in_class] || options[:position])))
+      if annotate_one_file(model_file_name, info, options.merge(:position=>(options[:position_in_class] || options[:position])))
+        annotated = true
+      end
 
       FIXTURE_DIRS.each do |dir|
         fixture_file_name = File.join(dir,klass.table_name + ".yml")
         annotate_one_file(fixture_file_name, info, options.merge(:position=>(options[:position_in_fixture] || options[:position]))) if File.exist?(fixture_file_name)
       end
+      annotated
     end
 
     # Return a list of the model files to annotate. If we have
@@ -140,8 +160,9 @@ module AnnotateModels
         begin
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
-            annotate(klass, file, header,options)
-            annotated << klass
+            if annotate(klass, file, header,options)
+              annotated << klass
+            end
           end
         rescue Exception => e
           puts "Unable to annotate #{file}: #{e.message}"
