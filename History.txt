@@ -1,10 +1,6 @@
-== 1.0.2 2008-03-22
+== 1.0.4 2008-09-04
 
-* Add contributions from Michael Bumann (http://github.com/bumi)
-  * added an option "position" to choose to put the annotation, 
-  * spec/fixtures now also get annotated
-  * added a task to remove the annotations
-  * these options can be specified from command line as -d and -p [before|after]
+* Only update modified models since last run, thanks to sant0sk1
 
 == 1.0.3 2008-05-02
 
@@ -12,4 +8,12 @@
   * Remove trailing whitespace
   * More intuitive info messages
   * Update README file with update-to-date example
+
+== 1.0.2 2008-03-22
+
+* Add contributions from Michael Bumann (http://github.com/bumi)
+  * added an option "position" to choose to put the annotation, 
+  * spec/fixtures now also get annotated
+  * added a task to remove the annotations
+  * these options can be specified from command line as -d and -p [before|after]
 
