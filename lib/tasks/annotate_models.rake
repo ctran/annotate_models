@@ -1,6 +1,6 @@
 desc "Add schema information (as comments) to model and fixture files"
 task :annotate_models => :environment do
-  require 'annotate_models/annotate_models'
+  require 'annotate/annotate_models'
   options={}
   options[:position_in_class] = ENV['position_in_class'] || ENV['position']
   options[:position_in_fixture] = ENV['position_in_fixture'] || ENV['position']  

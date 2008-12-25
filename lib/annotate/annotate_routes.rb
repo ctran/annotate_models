@@ -20,8 +20,8 @@ module AnnotateRoutes
   PREFIX = "#== Route Info"
   
   def self.do_annotate 
-    routes_rb = File.join(RAILS_ROOT, "config/routes.rb")
-    header = PREFIX + "\n# Generated on #{Time.now}"
+    routes_rb = File.join("config", "routes.rb")
+    header = PREFIX + "\n# Generated on #{Time.now}\n#"
     if File.exists? routes_rb
       routes_map = `rake routes`
       routes_map = routes_map.split("\n")

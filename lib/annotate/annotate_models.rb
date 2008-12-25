@@ -1,14 +1,18 @@
 module AnnotateModels
   class << self
+    # Annotate Models plugin use this header
+    COMPAT_PREFIX = "== Schema Info"
+    PREFIX = "== Schema Information"
+    
     MODEL_DIR   = "app/models"
     FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
-    UNIT_TEST_DIR     = File.join(RAILS_ROOT, "test/unit"  )
-    SPEC_MODEL_DIR    = File.join(RAILS_ROOT, "spec/models")
+    # File.join for windows reverse bar compat?
+    # I dont use windows, can`t test
+    UNIT_TEST_DIR     = File.join("test", "unit"  )
+    SPEC_MODEL_DIR    = File.join("spec", "models")
     # Object Daddy http://github.com/flogic/object_daddy/tree/master
-    EXEMPLARS_DIR     = File.join(RAILS_ROOT, "spec/exemplars")
-    PREFIX = "== Schema Information"
-    # Annotate Models as plugin use this header
-    COMPAT_PREFIX = "== Schema Info"
+    EXEMPLARS_DIR     = File.join("spec", "exemplars")
+    
 
     # Simple quoting for the default column value
     def quote(value)
