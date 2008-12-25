@@ -7,6 +7,7 @@ module AnnotateModels
     # Object Daddy http://github.com/flogic/object_daddy/tree/master
     EXEMPLARS_DIR     = File.join(RAILS_ROOT, "spec/exemplars")
     PREFIX = "== Schema Information"
+    COMPAT_PREFIX = "== Schema Info"
 
     # Simple quoting for the default column value
     def quote(value)
@@ -79,7 +80,7 @@ module AnnotateModels
           false
         else
           # Remove old schema info
-          old_content.sub!(/^# #{PREFIX}.*?\n(#.*\n)*\n/, '')
+          old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
 
           # Write it back
           new_content = options[:position] == "before" ?  (info_block + old_content) : (old_content + "\n" + info_block)
@@ -94,7 +95,7 @@ module AnnotateModels
       if File.exist?(file_name)
         content = File.read(file_name)
 
-        content.sub!(/^# #{PREFIX}.*?\n(#.*\n)*\n/, '')
+        content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
         
         File.open(file_name, "w") { |f| f.puts content }
       end
@@ -188,7 +189,7 @@ module AnnotateModels
       if annotated.empty?
         puts "Nothing annotated!"
       else
-        puts "Annotated (#{annotated.length}) #{annotated.join(', ')}"
+        puts "Annotated (#{annotated.length}): #{annotated.join(', ')}"
       end
     end
     

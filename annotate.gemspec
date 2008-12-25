@@ -2,24 +2,24 @@
 
 Gem::Specification.new do |s|
   s.name = %q{annotate}
-  s.version = "2.0.8"
+  s.version = "2.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["FIXME full name"]
+  s.authors = ["Marcos Piccinini"]
   s.date = %q{2008-12-25}
   s.default_executable = %q{annotate}
-  s.description = %q{}
-  s.email = ["FIXME email"]
+  s.description = %q{Annotates Rails Models and Routes}
+  s.email = ["x@nofxx.com"]
   s.executables = ["annotate"]
   s.extra_rdoc_files = ["History.txt", "License.txt", "Manifest.txt", "README.rdoc"]
   s.files = ["History.txt", "License.txt", "Manifest.txt", "README.rdoc", "Rakefile", "annotate.gemspec", "bin/annotate", "config/hoe.rb", "config/requirements.rb", "lib/annotate.rb", "lib/annotate_models/annotate_models.rb", "lib/annotate_routes/annotate_routes.rb", "lib/tasks/annotate_models.rake", "lib/tasks/annotate_routes.rake", "script/console", "script/destroy", "script/generate", "setup.rb", "spec/annotate_spec.rb", "spec/spec.opts", "spec/spec_helper.rb", "tasks/rspec.rake"]
   s.has_rdoc = true
-  s.homepage = %q{  sudo gem install nofxx-annotate}
+  s.homepage = %q{http://github.com/nofxx/annotate}
   s.rdoc_options = ["--main", "README.rdoc"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{annotate}
   s.rubygems_version = %q{1.3.1}
-  s.summary = %q{}
+  s.summary = %q{Annotates Rails Models and Routes}
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION

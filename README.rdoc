@@ -106,7 +106,7 @@ AnnotateModels mods by:
 
 AnnotateRoutes originally by:
 
-  Gavin Montague ( http://github.com/Govan/annotate-routes )
+  Gavin Montague ( http://github.com/govan/annotate-routes )
 
 
 == Forked from:

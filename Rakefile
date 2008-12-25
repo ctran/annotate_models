@@ -4,15 +4,13 @@ require File.dirname(__FILE__) + '/lib/annotate'
 # Generate all the Rake tasks
 # Run 'rake -T' to see list of generated tasks (from gem root directory)
 $hoe = Hoe.new('annotate', Annotate::VERSION) do |p|
-  p.developer('FIXME full name', 'FIXME email')
+  p.developer('Marcos Piccinini', 'x@nofxx.com')
   p.changes              = p.paragraphs_of("History.txt", 0..1).join("\n\n")
-  p.rubyforge_name       = p.name # TODO this is default value
-  #p.summary
+  p.rubyforge_name       = p.name 
+  p.url                  = "http://github.com/nofxx/annotate"
+  p.summary              = "Annotates Rails Models and Routes"
+  p.description          = "Annotates Rails Models and Routes"
   
-  
-  # p.extra_deps         = [
-  #   ['activesupport','>= 2.0.2'],
-  # ]
   p.extra_dev_deps = [
     ['newgem', ">= #{::Newgem::VERSION}"]
   ]
