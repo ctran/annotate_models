@@ -13,3 +13,15 @@
   * More intuitive info messages
   * Update README file with update-to-date example
 
+== 2.0.0 2008-12-25
+
+* Add annotate_models plugin fork additions
+  * Annotates Rspec and Test Unit models
+  * Annotates Object Daddy exemplars
+  * Annotates geometrical columns
+* Add AnnotateRoutes rake task
+* Up gem structure to newgem defaults
+
+
+
+

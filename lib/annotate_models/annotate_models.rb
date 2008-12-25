@@ -7,6 +7,7 @@ module AnnotateModels
     # Object Daddy http://github.com/flogic/object_daddy/tree/master
     EXEMPLARS_DIR     = File.join(RAILS_ROOT, "spec/exemplars")
     PREFIX = "== Schema Information"
+    # Annotate Models as plugin use this header
     COMPAT_PREFIX = "== Schema Info"
 
     # Simple quoting for the default column value
@@ -44,7 +45,9 @@ module AnnotateModels
         else
           col_type << "(#{col.limit})" if col.limit
         end
-        
+       
+        # Check out if we got a geometric column
+        # and print the type and SRID
         if col.respond_to?(:geometry_type)
           attrs << "#{col.geometry_type}, #{col.srid}"
         end  
@@ -85,7 +88,7 @@ module AnnotateModels
           # Write it back
           new_content = options[:position] == "before" ?  (info_block + old_content) : (old_content + "\n" + info_block)
 
-          File.open(file_name, "w") { |f| f.puts new_content }
+          File.open(file_name, "wb") { |f| f.puts new_content }
           true
         end
       end
@@ -97,7 +100,7 @@ module AnnotateModels
 
         content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
         
-        File.open(file_name, "w") { |f| f.puts content }
+        File.open(file_name, "wb") { |f| f.puts content }
       end
     end
 
@@ -123,7 +126,6 @@ module AnnotateModels
         File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
         File.join(EXEMPLARS_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy     
       ].each { |file| annotate_one_file(file, info) }
-
 
       FIXTURE_DIRS.each do |dir|
         fixture_file_name = File.join(dir,klass.table_name + ".yml")
