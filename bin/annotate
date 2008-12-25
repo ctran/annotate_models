@@ -1,14 +1,16 @@
 #!/usr/bin/env ruby
 
 require 'optparse'
-require 'annotate_models/tasks'
+require 'annotate'
 
-task = "annotate_models"
+task = :annotate_models
 
 OptionParser.new do |opts|
   opts.banner = "Usage: annotate [options]"
-  opts.on('-d', '--delete') { task = "remove_annotation" }
+  opts.on('-d', '--delete') { task = :remove_annotation }
   opts.on('-p', '--position [before|after]', ['before', 'after']) { |p| ENV['position'] = p }
+  opts.on('-r', '--routes') { task = :annotate_routes }
+  opts.on('-v', '--version') { puts "Annotate v#{Annotate::VERSION}"; exit }
 end.parse!
 
 Rake::Task[task].invoke

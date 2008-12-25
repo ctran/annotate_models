@@ -1,0 +1,125 @@
+     _
+    /_|      _/__/_ 
+   (  |/)/)()/(//(-
+   ________________
+
+
+Add a comment summarizing the current schema to the bottom of each 
+ActiveRecord model, test file and fixture.
+If you are using Object Daddy, it`ll annotate your example files too.
+
+ # == Schema Info
+ # Schema version: 20081001061831
+ #
+ # Table name: line_item
+ #
+ #  id                  :integer(11)    not null, primary key
+ #  quantity            :integer(11)    not null
+ #  product_id          :integer(11)    not null
+ #  unit_price          :float
+ #  order_id            :integer(11)
+ #
+
+  class LineItem < ActiveRecord::Base
+    belongs_to :product
+   . . .
+   
+Annotates geometrical columns, geom type and srid, when using SpatialAdapter or PostgisAdapter:
+
+ # == Schema Info
+ # Schema version: 20081213204851
+ #
+ # Table name: trips
+ #
+ #  local           :geometry        point, 4326
+ #  path            :geometry        line_string, 4326
+          
+
+== INSTALL
+
+  sudo gem install nofxx-annotate
+
+
+== HOW TO USE:
+
+To annotate all your models:
+
+  cd /path/to/app
+  annotate
+
+To annotate routes.rb:
+
+  annotate -r
+
+
+More:
+
+  annotate -h
+
+
+To migrate & annotate (TODO):
+
+
+Options:
+
+Annotate on the head of the file:
+
+  annotate -p [before|after]
+
+  
+== WARNING
+
+Note that this code will blow away the initial/final comment
+block in your models if it looks like it was previously added
+by annotate models, so you don't want to add additional text
+to an automatically created comment block.
+
+        * * Back up your model files before using... * *
+        
+== LINKS
+
+* Factory Girl => http://github.com/thoughtbot/factory_girl (NOT IMPLEMENTED)
+* Object Daddy => http://github.com/flogic/object_daddy
+
+* SpatialAdapter => http://github.com/pdeffendol/spatial_adapter
+* PostgisAdapter => http://github.com/nofxx/postgis_adapter
+
+
+== TODO
+
+* Spec 
+
+
+== LICENSE:
+
+Original code by:
+
+  Dave Thomas -- Pragmatic Programmers, LLC
+
+Refactored, improved and maintained by:
+
+  Marcos Piccinini ( http://github.com/nofxx/annotate )
+
+AnnotateModels mods by:
+
+  Alexander Semyonov ( http://github.com/rotuka/annotate_models )
+
+AnnotateRoutes originally by:
+
+  Gavin Montague ( http://github.com/Govan/annotate-routes )
+
+
+== Forked from:
+
+  http://github.com/ctran/annotate_models
+  
+
+== Modifications
+ - alex@pivotallabs.com
+ - Cuong Tran - http://github.com/ctran
+ - Jack Danger - http://github.com/JackDanger
+ - Michael Bumann - http://github.com/bumi
+ - Henrik Nyh - http://github.com/henrik
+
+
+Released under the same license as Ruby. No Support. No Warranty.

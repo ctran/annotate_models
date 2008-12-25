@@ -2,6 +2,10 @@ module AnnotateModels
   class << self
     MODEL_DIR   = "app/models"
     FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
+    UNIT_TEST_DIR     = File.join(RAILS_ROOT, "test/unit"  )
+    SPEC_MODEL_DIR    = File.join(RAILS_ROOT, "spec/models")
+    # Object Daddy http://github.com/flogic/object_daddy/tree/master
+    EXEMPLARS_DIR     = File.join(RAILS_ROOT, "spec/exemplars")
     PREFIX = "== Schema Information"
 
     # Simple quoting for the default column value
@@ -39,6 +43,11 @@ module AnnotateModels
         else
           col_type << "(#{col.limit})" if col.limit
         end
+        
+        if col.respond_to?(:geometry_type)
+          attrs << "#{col.geometry_type}, #{col.srid}"
+        end  
+        
         info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
       end
 
@@ -73,7 +82,7 @@ module AnnotateModels
           old_content.sub!(/^# #{PREFIX}.*?\n(#.*\n)*\n/, '')
 
           # Write it back
-          new_content = options[:position] == "after" ? (old_content + "\n" + info_block) : (info_block + old_content)
+          new_content = options[:position] == "before" ?  (info_block + old_content) : (old_content + "\n" + info_block)
 
           File.open(file_name, "w") { |f| f.puts new_content }
           true
@@ -101,11 +110,19 @@ module AnnotateModels
     def annotate(klass, file, header,options={})
       info = get_schema_info(klass, header)
       annotated = false
-
+      model_name = klass.name.underscore
       model_file_name = File.join(MODEL_DIR, file)
-      if annotate_one_file(model_file_name, info, options.merge(:position=>(options[:position_in_class] || options[:position])))
+      if annotate_one_file(model_file_name, info, options.merge(
+              :position=>(options[:position_in_class] || options[:position])))
         annotated = true
       end
+
+      [
+        File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
+        File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
+        File.join(EXEMPLARS_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy     
+      ].each { |file| annotate_one_file(file, info) }
+
 
       FIXTURE_DIRS.each do |dir|
         fixture_file_name = File.join(dir,klass.table_name + ".yml")
@@ -171,7 +188,7 @@ module AnnotateModels
       if annotated.empty?
         puts "Nothing annotated!"
       else
-        puts "Annotated #{annotated.join(', ')}"
+        puts "Annotated (#{annotated.length}) #{annotated.join(', ')}"
       end
     end
     
