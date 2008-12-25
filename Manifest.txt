@@ -5,8 +5,6 @@ README.rdoc
 Rakefile
 annotate.gemspec
 bin/annotate
-config/hoe.rb
-config/requirements.rb
 lib/annotate.rb
 lib/annotate_models/annotate_models.rb
 lib/annotate_routes/annotate_routes.rb
@@ -27,8 +25,6 @@ README.rdoc
 Rakefile
 annotate.gemspec
 bin/annotate
-config/hoe.rb
-config/requirements.rb
 lib/annotate.rb
 lib/annotate_models/annotate_models.rb
 lib/annotate_routes/annotate_routes.rb
@@ -49,8 +45,6 @@ README.rdoc
 Rakefile
 annotate.gemspec
 bin/annotate
-config/hoe.rb
-config/requirements.rb
 lib/annotate.rb
 lib/annotate_models/annotate_models.rb
 lib/annotate_routes/annotate_routes.rb
