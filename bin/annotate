@@ -13,4 +13,8 @@ OptionParser.new do |opts|
   opts.on('-v', '--version') { puts "Annotate v#{Annotate::VERSION}"; exit }
 end.parse!
 
-Rake::Task[task].invoke
+begin
+  Rake::Task[task].invoke
+rescue NameError => e
+  puts "Can`t find Rake. Are we in a Rails folder?"
+end

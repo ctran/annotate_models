@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{annotate}
-  s.version = "2.2.2"
+  s.version = "2.2.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Marcos Piccinini"]
-  s.date = %q{2008-12-25}
+  s.date = %q{2008-12-26}
   s.default_executable = %q{annotate}
   s.description = %q{Annotates Rails Models and Routes}
   s.email = ["x@nofxx.com"]
