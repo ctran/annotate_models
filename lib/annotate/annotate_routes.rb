@@ -17,21 +17,22 @@
 # Released under the same license as Ruby. No Support. No Warranty.module AnnotateRoutes
 #
 module AnnotateRoutes 
-  PREFIX = "#== Route Info"
+  PREFIX = "#== Route Map"
   
   def self.do_annotate 
     routes_rb = File.join("config", "routes.rb")
-    header = PREFIX + "\n# Generated on #{Time.now}\n#"
+    header = PREFIX + "\n# Generated on #{Time.now.strftime("%d %b %Y %H:%M")}\n#"
     if File.exists? routes_rb
       routes_map = `rake routes`
       routes_map = routes_map.split("\n")
       routes_map.shift # remove the first line of rake routes which is just a file path
       routes_map = routes_map.inject(header){|sum, line| sum<<"\n# "<<line}
       content = File.read(routes_rb)
-      content = content.split(/^#== Route Info.*?\n/)#, '')
+      content, old = content.split(/^#== Route .*?\n/)
       File.open(routes_rb, "wb") do |f| 
-        f.puts content[0] + "\n\n" + routes_map 
+        f.puts content.sub!(/\n?\z/, "\n") + routes_map 
       end
+      puts "Route file annotated."
     else
       puts "Can`t find routes.rb"
     end
