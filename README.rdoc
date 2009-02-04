@@ -1,0 +1,88 @@
+== AnnotateModels
+
+Add a comment summarizing the current schema to the bottom of each 
+ActiveRecord model, fixture file.
+
+If you are using Object Daddy, it`ll annotate your example files too.
+
+ # == Schema Info
+ #
+ # Table name: line_items
+ #
+ #  id                  :integer(11)    not null, primary key
+ #  quantity            :integer(11)    not null
+ #  product_id          :integer(11)    not null
+ #  unit_price          :float
+ #  order_id            :integer(11)
+ #
+
+  class LineItem < ActiveRecord::Base
+    belongs_to :product
+   . . .
+   
+Annotates geometrical columns, geom type and srid, when using SpatialAdapter or PostgisAdapter:
+
+ # == Schema Info
+ #
+ # Table name: trips
+ #
+ #  local           :geometry        point, 4326
+ #  path            :geometry        line_string, 4326
+          
+== Warning
+
+Note that this code will blow away the initial/final comment
+block in your models if it looks like it was previously added
+by annotate models, so you don't want to add additional text
+to an automatically created comment block.
+
+       * * Back up your model files before using... * *
+         
+== Install
+
+  sudo gem install nofxx-annotate
+
+== Usage
+
+To annotate all your models:
+
+  cd /path/to/app
+  annotate
+
+To annotate routes.rb:
+
+  annotate -r
+
+More:
+
+  annotate -h
+
+Add annotation at the beginning or end of the file:
+
+  annotate -p [before|after]
+  
+Remove annotations:
+
+  annotate -d
+          
+== LICENSE:
+
+Released under the same license as Ruby. No Support. No Warranty.
+
+== Author:
+
+Original code by:
+
+  Dave Thomas -- Pragmatic Programmers, LLC
+
+Modifications by:
+
+ - alex@pivotallabs.com
+ - Cuong Tran - http://github.com/ctran
+ - Jack Danger - http://github.com/JackDanger
+ - Michael Bumann - http://github.com/bumi
+ - Henrik Nyh - http://github.com/henrik
+ - Marcos Piccinini - http://github.com/nofxx
+
+and many others that I may have missed to add.
+
