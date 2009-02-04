@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.email = ["ctran@pragmaquest.com"]
   s.executables = ["annotate"]
   s.extra_rdoc_files = ["History.txt", "License.txt", "Manifest.txt", "README.rdoc"]
-  s.files = ["History.txt", "License.txt", "Manifest.txt", "README.rdoc", "Rakefile", "annotate.gemspec", "bin/annotate", "lib/annotate.rb", "lib/annotate/annotate_models.rb", "lib/annotate/annotate_routes.rb", "lib/tasks/annotate_models.rake", "lib/tasks/annotate_routes.rake", "script/console", "script/destroy", "script/generate", "setup.rb", "spec/annotate/annotate_models_spec.rb", "spec/annotate/annotate_routes_spec.rb", "spec/annotate_spec.rb", "spec/spec.opts", "spec/spec_helper.rb", "tasks/rspec.rake"]
+  s.files = ["History.txt", "License.txt", "Manifest.txt", "README.rdoc", "Rakefile", "annotate_models.gemspec", "bin/annotate", "lib/annotate.rb", "lib/annotate/annotate_models.rb", "lib/annotate/annotate_routes.rb", "lib/tasks/annotate_models.rake", "lib/tasks/annotate_routes.rake", "script/console", "script/destroy", "script/generate", "setup.rb", "spec/annotate/annotate_models_spec.rb", "spec/annotate/annotate_routes_spec.rb", "spec/annotate_spec.rb", "spec/spec.opts", "spec/spec_helper.rb", "tasks/rspec.rake"]
   s.has_rdoc = true
   s.homepage = %q{http://github.com/ctran/annotate_models}
   s.rdoc_options = ["--main", "README.rdoc"]
