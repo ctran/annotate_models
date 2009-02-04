@@ -1,2 +1,6 @@
-pkg
-doc
+.DS_Store
+doc/*
+rdoc/*
+coverage/*
+spec/debug.log
+pkg/*

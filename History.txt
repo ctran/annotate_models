@@ -1,3 +1,12 @@
+== 2.0 2009-02-03
+
+* Add annotate_models plugin fork additions
+  * Annotates Rspec and Test Unit models
+  * Annotates Object Daddy exemplars
+  * Annotates geometrical columns
+* Add AnnotateRoutes rake task
+* Up gem structure to newgem defaults
+
 == 1.0.4 2008-09-04
 
 * Only update modified models since last run, thanks to sant0sk1
