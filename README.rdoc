@@ -40,7 +40,14 @@ to an automatically created comment block.
          
 == Install
 
-  sudo gem install nofxx-annotate
+From rubyforge:
+
+  sudo gem install annotate
+  
+From github:
+
+  gem sources -a http://gems.github.com
+  sudo gem install ctran-annotate
 
 == Usage
 
