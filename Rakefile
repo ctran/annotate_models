@@ -6,7 +6,7 @@ require 'lib/annotate'
 $hoe = Hoe.new('annotate', Annotate::VERSION) do |p|
   p.developer('Cuong Tran', 'ctran@pragmaquest.com')
   p.changes              = p.paragraphs_of("History.txt", 0..1).join("\n\n")
-  p.rubyforge_name       = p.name 
+  p.rubyforge_name       = 'annotate-models'
   p.url                  = "http://github.com/ctran/annotate_models"
   p.summary              = "Annotates Rails Models, routes, and others"
   p.description          = "Annotates Rails Models, routes, and others"

@@ -2,7 +2,7 @@ unless defined?(Annotate)
   $:.unshift(File.dirname(__FILE__))
 
   module Annotate
-    VERSION = '2.0.0'
+    VERSION = '2.0.1'
   end
 
   begin
