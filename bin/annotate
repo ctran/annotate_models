@@ -11,6 +11,7 @@ OptionParser.new do |opts|
   opts.on('-p', '--position [before|after]', ['before', 'after']) { |p| ENV['position'] = p }
   opts.on('-r', '--routes') { task = :annotate_routes }
   opts.on('-v', '--version') { puts "Annotate v#{Annotate::VERSION}"; exit }
+  opts.on('-m', '--show-migration') { ENV['include_version'] = "yes" }
 end.parse!
 
 begin
