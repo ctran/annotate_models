@@ -168,9 +168,12 @@ module AnnotateModels
     # then pas it to the associated block
     def do_annotations(options={})
       header = PREFIX.dup
-      version = ActiveRecord::Migrator.current_version rescue 0
-      if version > 0
-        header << "\n# Schema version: #{version}"
+
+      if options[:include_version]
+        version = ActiveRecord::Migrator.current_version rescue 0
+        if version > 0
+          header << "\n# Schema version: #{version}"
+        end        
       end
 
       annotated = []
@@ -183,7 +186,7 @@ module AnnotateModels
             end
           end
         rescue Exception => e
-          puts "Unable to annotate #{file}: #{e.message}"
+          puts "Unable to annotate #{file}: #{e.message} (#{e.backtrace.first})"
         end
       end
       if annotated.empty?
