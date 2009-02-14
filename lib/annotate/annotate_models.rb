@@ -39,7 +39,7 @@ module AnnotateModels
       max_size = klass.column_names.collect{|name| name.size}.max + 1
       klass.columns.each do |col|
         attrs = []
-        attrs << "default(#{quote(col.default)})" if col.default
+        attrs << "default(#{quote(col.default)})" unless col.default.nil?
         attrs << "not null" unless col.null
         attrs << "primary key" if col.name == klass.primary_key
 
