@@ -73,6 +73,8 @@ module AnnotateModels
     #                      "before" or "after". Default is "before".
     #  :position_in_class<Symbol>:: where to place the annotated section in model file
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
+    #  :position_in_others<Symbol>:: where to place the annotated section in the rest of
+    #                      supported files
     #
     def annotate_one_file(file_name, info_block, options={})
       if File.exist?(file_name)
@@ -128,8 +130,8 @@ module AnnotateModels
       [
         File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
         File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
-        File.join(EXEMPLARS_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy     
-      ].each { |file| annotate_one_file(file, info) }
+        File.join(EXEMPLARS_DIR,      "#{model_name}_exemplar.rb"), # Object Daddy
+      ].each { |file| annotate_one_file(file, info, options.merge(:position=>(options[:position_in_others] || options[:position]))) }
 
       FIXTURE_DIRS.each do |dir|
         fixture_file_name = File.join(dir,klass.table_name + ".yml")
