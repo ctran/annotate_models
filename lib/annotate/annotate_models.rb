@@ -159,7 +159,13 @@ module AnnotateModels
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
     def get_model_class(file)
-      file.gsub(/\.rb$/, '').camelize.constantize
+      model = file.gsub(/\.rb$/, '').camelize
+      parts = model.split('::')
+      begin
+        parts.inject(Object) {|klass, part| klass.const_get(part) }
+      rescue LoadError
+        Object.const_get(parts.last)
+      end
     end
 
     # We're passed a name of things that might be
