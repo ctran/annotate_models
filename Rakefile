@@ -1,5 +1,5 @@
 %w[rubygems rake rake/clean fileutils newgem rubigen].each { |f| require f }
-require 'lib/annotate'
+require File.dirname(__FILE__) + '/lib/annotate'
 
 # Generate all the Rake tasks
 # Run 'rake -T' to see list of generated tasks (from gem root directory)
@@ -21,7 +21,7 @@ $hoe = Hoe.new('annotate', Annotate::VERSION) do |p|
   p.rsync_args = '-av --delete --ignore-errors'
 end
 
-require 'newgem/tasks'
+require 'newgem/tasks' # load /tasks/*.rake
 Dir['tasks/**/*.rake'].each { |t| load t }
 
 # TODO - want other tests/tasks run by default? Add them to the list

@@ -6,6 +6,7 @@ task :annotate_models => :environment do
   options[:position_in_fixture] = ENV['position_in_fixture'] || ENV['position']  || :before
   options[:show_indexes] = ENV['show_indexes'] 
   options[:model_dir] = ENV['model_dir']
+  options[:include_version] = ENV['include_version']
   AnnotateModels.do_annotations(options)
 end
 
