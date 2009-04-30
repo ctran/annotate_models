@@ -4,6 +4,7 @@ task :annotate_models => :environment do
   options={}
   options[:position_in_class] = ENV['position_in_class'] || ENV['position'] || :before
   options[:position_in_fixture] = ENV['position_in_fixture'] || ENV['position']  || :before
+  options[:model_dir] = ENV['model_dir']
   AnnotateModels.do_annotations(options)
 end
 

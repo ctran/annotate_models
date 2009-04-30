@@ -4,7 +4,6 @@ module AnnotateModels
     COMPAT_PREFIX = "== Schema Info"
     PREFIX = "== Schema Information"
     
-    MODEL_DIR   = "app/models"
     FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
     # File.join for windows reverse bar compat?
     # I dont use windows, can`t test
@@ -13,6 +12,13 @@ module AnnotateModels
     # Object Daddy http://github.com/flogic/object_daddy/tree/master
     EXEMPLARS_DIR     = File.join("spec", "exemplars")
     
+    def model_dir
+      @model_dir || "app/models"
+    end
+    
+    def model_dir=(dir)
+      @model_dir = dir
+    end
 
     # Simple quoting for the default column value
     def quote(value)
@@ -119,7 +125,7 @@ module AnnotateModels
       info = get_schema_info(klass, header)
       annotated = false
       model_name = klass.name.underscore
-      model_file_name = File.join(MODEL_DIR, file)
+      model_file_name = File.join(model_dir, file)
       if annotate_one_file(model_file_name, info, options.merge(
               :position=>(options[:position_in_class] || options[:position])))
         annotated = true
@@ -142,13 +148,13 @@ module AnnotateModels
     # command line arguments, they're assumed to be either
     # the underscore or CamelCase versions of model names.
     # Otherwise we take all the model files in the
-    # app/models directory.
+    # model_dir directory.
     def get_model_files
       models = ARGV.dup
       models.shift
       models.reject!{|m| m.starts_with?("position=")}
       if models.empty?
-        Dir.chdir(MODEL_DIR) do
+        Dir.chdir(model_dir) do
           models = Dir["**/*.rb"]
         end
       end
@@ -159,6 +165,7 @@ module AnnotateModels
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
     def get_model_class(file)
+      require "#{model_dir}/#{file}"
       model = file.gsub(/\.rb$/, '').camelize
       parts = model.split('::')
       begin
@@ -181,6 +188,10 @@ module AnnotateModels
           header << "\n# Schema version: #{version}"
         end        
       end
+      
+      if options[:model_dir]
+        self.model_dir = options[:model_dir]
+      end
 
       annotated = []
       get_model_files.each do |file|
@@ -202,7 +213,10 @@ module AnnotateModels
       end
     end
     
-    def remove_annotations
+    def remove_annotations(options={})
+      if options[:model_dir]
+        self.model_dir = options[:model_dir]
+      end
       deannotated = []
       get_model_files.each do |file|
         begin
@@ -210,7 +224,7 @@ module AnnotateModels
           if klass < ActiveRecord::Base && !klass.abstract_class?
             deannotated << klass
             
-            model_file_name = File.join(MODEL_DIR, file)
+            model_file_name = File.join(model_dir, file)
             remove_annotation_of_file(model_file_name)
             
             FIXTURE_DIRS.each do |dir|

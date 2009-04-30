@@ -5,11 +5,14 @@ task :annotate_models => :environment do
   options[:position_in_class] = ENV['position_in_class'] || ENV['position']
   options[:position_in_fixture] = ENV['position_in_fixture'] || ENV['position']  
   options[:include_version] = ENV['include_version']
+  options[:model_dir] = ENV['model_dir']
   AnnotateModels.do_annotations(options)
 end
 
 desc "Remove schema information from model and fixture files"
 task :remove_annotation => :environment do
   require 'annotate_models'
-  AnnotateModels.remove_annotations
+  options={}
+  options[:model_dir] = ENV['model_dir']
+  AnnotateModels.remove_annotations(options)
 end
