@@ -60,18 +60,17 @@ To annotate routes.rb:
 
   annotate -r
 
-More:
+More options:
 
-  annotate -h
+  Usage: annotate [options]
+      -d, --delete                     Remove annotations from all model files
+      -p, --position [before|after]    Place the annotations at the top (before) or the bottom (after) of the model file
+      -r, --routes                     Annotate routes.rb with the output of 'rake routes'
+      -v, --version                    Show the current version of this gem
+      -m, --show-migration             Include the migration version number in the annotation
+      -i, --show-indexes               List the table's database indexes in the annotation
+          --model-dir dir              Annotate model files stored in dir rather than app/models
 
-Add annotation at the beginning or end of the file:
-
-  annotate -p [before|after]
-  
-Remove annotations:
-
-  annotate -d
-          
 == LICENSE:
 
 Released under the same license as Ruby. No Support. No Warranty.
@@ -84,7 +83,7 @@ Original code by:
 
 Modifications by:
 
- - alex@pivotallabs.com
+ - Alex Chaffee - http://github.com/alexch - alex@pivotallabs.com
  - Cuong Tran - http://github.com/ctran
  - Jack Danger - http://github.com/JackDanger
  - Michael Bumann - http://github.com/bumi
