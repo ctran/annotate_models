@@ -38,7 +38,7 @@ module AnnotateModels
     # to create a comment block containing a line for
     # each column. The line contains the column name,
     # the type (and length), and any optional attributes
-    def get_schema_info(klass, header)
+    def get_schema_info(klass, header, options = {})
       info = "# #{header}\n#\n"
       info << "# Table name: #{klass.table_name}\n#\n"
 
@@ -65,7 +65,24 @@ module AnnotateModels
         info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
       end
 
+      if options[:show_indexes]
+        info << get_index_info(klass)
+      end
+
       info << "#\n\n"
+    end
+
+    def get_index_info(klass)
+      index_info = "#\n# Indexes\n#\n"
+
+      indexes = klass.connection.indexes(klass.table_name)
+      return "" if indexes.empty?
+
+      max_size = indexes.collect{|index| index.name.size}.max + 1
+      indexes.each do |index|
+        index_info << sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{index.columns.join(",")})", index.unique ? "UNIQUE" : "").rstrip + "\n"
+      end
+      return index_info
     end
 
     # Add a schema block to a file. If the file already contains
@@ -122,7 +139,7 @@ module AnnotateModels
     # files were modified.
 
     def annotate(klass, file, header,options={})
-      info = get_schema_info(klass, header)
+      info = get_schema_info(klass, header, options)
       annotated = false
       model_name = klass.name.underscore
       model_file_name = File.join(model_dir, file)

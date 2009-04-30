@@ -12,6 +12,7 @@ OptionParser.new do |opts|
   opts.on('-r', '--routes') { task = :annotate_routes }
   opts.on('-v', '--version') { puts "Annotate v#{Annotate::VERSION}"; exit }
   opts.on('-m', '--show-migration') { ENV['include_version'] = "yes" }
+  opts.on('-i', '--show-indexes') { ENV['show_indexes'] = "yes" }
   opts.on('--model-dir dir') {|dir| ENV['model_dir'] = dir }
 end.parse!
 
