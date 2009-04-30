@@ -11,5 +11,7 @@ end
 desc "Remove schema information from model and fixture files"
 task :remove_annotation => :environment do
   require 'annotate/annotate_models'
-  AnnotateModels.remove_annotations
+  options={}
+  options[:model_dir] = ENV['model_dir']
+  AnnotateModels.remove_annotations(options)
 end

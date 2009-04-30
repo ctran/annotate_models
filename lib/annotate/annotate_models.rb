@@ -214,7 +214,9 @@ module AnnotateModels
     end
     
     def remove_annotations(options={})
+      p options
       if options[:model_dir]
+        puts "removing"
         self.model_dir = options[:model_dir]
       end
       deannotated = []
