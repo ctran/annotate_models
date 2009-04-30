@@ -6,4 +6,5 @@ rescue LoadError
   require 'spec'
 end
 
-require File.dirname(__FILE__) + '/../lib/annotate'
+$:.unshift(File.dirname(__FILE__) + '/../lib')
+require 'annotate'

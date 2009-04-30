@@ -14,9 +14,8 @@ OptionParser.new do |opts|
   opts.on('-m', '--show-migration') { ENV['include_version'] = "yes" }
 end.parse!
 
-begin
+if Annotate.load_tasks
   Rake::Task[task].invoke
-  #TODO: rescue only rake error
-rescue NameError => e
-  puts "Can`t find Rake. Are we in a Rails folder?"
+else
+  STDERR.puts "Can't find Rakefile. Are we in a Rails folder?"
 end
