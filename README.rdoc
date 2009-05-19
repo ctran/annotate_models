@@ -72,7 +72,7 @@ More options:
           --model-dir dir              Annotate model files stored in dir rather than app/models
 
 If you install annotate_models as a plugin, it will automatically 
-adjust your <tt>rake migrate</tt> tasks so that they update the
+adjust your <tt>rake db:migrate</tt> tasks so that they update the
 annotations in your model files for you once the migration is
 completed.
 
