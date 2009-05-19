@@ -169,7 +169,7 @@ module AnnotateModels
     def get_model_files
       models = ARGV.dup
       models.shift
-      models.reject!{|m| m.starts_with?("position=")}
+      models.reject!{|m| m.match(/^(.*)=/)}
       if models.empty?
         Dir.chdir(model_dir) do
           models = Dir["**/*.rb"]
@@ -220,7 +220,7 @@ module AnnotateModels
             end
           end
         rescue Exception => e
-          puts "Unable to annotate #{file}: #{e.message} (#{e.backtrace.first})"
+          puts "Unable to annotate #{file}: #{e.message}"
         end
       end
       if annotated.empty?
