@@ -195,8 +195,14 @@ module AnnotateModels
     # We're passed a name of things that might be
     # ActiveRecord models. If we can find the class, and
     # if its a subclass of ActiveRecord::Base,
-    # then pas it to the associated block
+    # then pass it to the associated block
     def do_annotations(options={})
+      if options[:require]
+        options[:require].each do |path|
+          require path
+        end
+      end
+      
       header = PREFIX.dup
 
       if options[:include_version]
@@ -224,14 +230,13 @@ module AnnotateModels
         end
       end
       if annotated.empty?
-        puts "Nothing annotated!"
+        puts "Nothing annotated."
       else
         puts "Annotated (#{annotated.length}): #{annotated.join(', ')}"
       end
     end
     
     def remove_annotations(options={})
-      p options
       if options[:model_dir]
         puts "removing"
         self.model_dir = options[:model_dir]
@@ -256,6 +261,16 @@ module AnnotateModels
         end
       end
       puts "Removed annotation from: #{deannotated.join(', ')}"
+    end
+  end
+end
+
+# monkey patches
+
+module ::ActiveRecord
+  class Base
+    def self.method_missing(name, *args)
+      # ignore this, so unknown/unloaded macros won't cause parsing to fail
     end
   end
 end

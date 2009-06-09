@@ -1,5 +1,7 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 require 'annotate/annotate_models'
+require 'rubygems'
+require 'activesupport'
 
 describe AnnotateModels do
 
@@ -38,6 +40,43 @@ describe AnnotateModels do
 
 EOS
 
+  end
+  
+  describe "#get_model_class" do
+    module ::ActiveRecord
+      class Base
+      end
+    end
+
+    def create(file, body="hi")
+      File.open(@dir + '/' + file, "w") do |f|
+        f.puts(body)
+      end
+    end
+
+    before :all do
+      require "tmpdir"
+      @dir = Dir.tmpdir + "/#{Time.now.to_i}" + "/annotate_models"
+      FileUtils.mkdir_p(@dir)
+      AnnotateModels.model_dir = @dir
+      create('foo.rb', <<-EOS)
+        class Foo < ActiveRecord::Base
+        end      
+      EOS
+      create('foo_with_macro.rb', <<-EOS)
+        class FooWithMacro < ActiveRecord::Base
+          acts_as_awesome :yah
+        end
+      EOS
+    end
+    it "should work" do
+      klass = AnnotateModels.get_model_class("foo.rb")
+      klass.name.should == "Foo"
+    end
+    it "should not care about unknown macros" do
+      klass = AnnotateModels.get_model_class("foo_with_macro.rb")
+      klass.name.should == "FooWithMacro"
+    end
   end
 
 end
