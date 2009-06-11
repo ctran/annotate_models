@@ -3,8 +3,6 @@ module AnnotateModels
     # Annotate Models plugin use this header
     COMPAT_PREFIX = "== Schema Info"
     PREFIX = "== Schema Information"
-    
-    MODEL_DIR   = "app/models"
     FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
     # File.join for windows reverse bar compat?
     # I dont use windows, can`t test
@@ -12,7 +10,14 @@ module AnnotateModels
     SPEC_MODEL_DIR    = File.join("spec", "models")
     # Object Daddy http://github.com/flogic/object_daddy/tree/master
     EXEMPLARS_DIR     = File.join("spec", "exemplars")
-    
+
+    def model_dir
+      @model_dir || "app/models"
+    end
+
+    def model_dir=(dir)
+      @model_dir = dir
+    end
 
     # Simple quoting for the default column value
     def quote(value)
@@ -32,7 +37,7 @@ module AnnotateModels
     # to create a comment block containing a line for
     # each column. The line contains the column name,
     # the type (and length), and any optional attributes
-    def get_schema_info(klass, header)
+    def get_schema_info(klass, header, options = {})
       info = "# #{header}\n#\n"
       info << "# Table name: #{klass.table_name}\n#\n"
 
@@ -49,17 +54,34 @@ module AnnotateModels
         else
           col_type << "(#{col.limit})" if col.limit
         end
-       
+
         # Check out if we got a geometric column
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
           attrs << "#{col.geometry_type}, #{col.srid}"
-        end  
-        
+        end
+
         info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
       end
 
+      if options[:show_indexes]
+        info << get_index_info(klass)
+      end
+
       info << "#\n\n"
+    end
+
+    def get_index_info(klass)
+      index_info = "#\n# Indexes\n#\n"
+
+      indexes = klass.connection.indexes(klass.table_name)
+      return "" if indexes.empty?
+
+      max_size = indexes.collect{|index| index.name.size}.max + 1
+      indexes.each do |index|
+        index_info << sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{index.columns.join(",")})", index.unique ? "UNIQUE" : "").rstrip + "\n"
+      end
+      return index_info
     end
 
     # Add a schema block to a file. If the file already contains
@@ -69,7 +91,7 @@ module AnnotateModels
     # Returns true or false depending on whether the file was modified.
     #
     # === Options (opts)
-    #  :position<Symbol>:: where to place the annotated section in fixture or model file, 
+    #  :position<Symbol>:: where to place the annotated section in fixture or model file,
     #                      "before" or "after". Default is "before".
     #  :position_in_class<Symbol>:: where to place the annotated section in model file
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
@@ -84,7 +106,7 @@ module AnnotateModels
         header = Regexp.new(/(^# Table name:.*?\n(#.*\n)*\n)/)
         old_header = old_content.match(header).to_s
         new_header = info_block.match(header).to_s
-        
+
         if old_header == new_header
           false
         else
@@ -92,20 +114,20 @@ module AnnotateModels
           old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
 
           # Write it back
-          new_content = options[:position] == "before" ?  (info_block + old_content) : (old_content + "\n" + info_block)
+          new_content = ((options[:position] || :before).to_sym == :before) ?  (info_block + old_content) : (old_content + "\n" + info_block)
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           true
         end
       end
     end
-    
+
     def remove_annotation_of_file(file_name)
       if File.exist?(file_name)
         content = File.read(file_name)
 
         content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
-        
+
         File.open(file_name, "wb") { |f| f.puts content }
       end
     end
@@ -118,10 +140,10 @@ module AnnotateModels
     # files were modified.
 
     def annotate(klass, file, header,options={})
-      info = get_schema_info(klass, header)
+      info = get_schema_info(klass, header, options)
       annotated = false
       model_name = klass.name.underscore
-      model_file_name = File.join(MODEL_DIR, file)
+      model_file_name = File.join(model_dir, file)
       if annotate_one_file(model_file_name, info, options.merge(
               :position=>(options[:position_in_class] || options[:position])))
         annotated = true
@@ -130,8 +152,8 @@ module AnnotateModels
       [
         File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
         File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
-        File.join(EXEMPLARS_DIR,      "#{model_name}_exemplar.rb"), # Object Daddy
-      ].each { |file| annotate_one_file(file, info, options.merge(:position=>(options[:position_in_others] || options[:position]))) }
+        File.join(EXEMPLARS_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy
+      ].each { |file| annotate_one_file(file, info) }
 
       FIXTURE_DIRS.each do |dir|
         fixture_file_name = File.join(dir,klass.table_name + ".yml")
@@ -144,23 +166,24 @@ module AnnotateModels
     # command line arguments, they're assumed to be either
     # the underscore or CamelCase versions of model names.
     # Otherwise we take all the model files in the
-    # app/models directory.
+    # model_dir directory.
     def get_model_files
       models = ARGV.dup
       models.shift
       models.reject!{|m| m.starts_with?("position=")}
       if models.empty?
-        Dir.chdir(MODEL_DIR) do
+        Dir.chdir(model_dir) do
           models = Dir["**/*.rb"]
         end
       end
       models
     end
-  
+
     # Retrieve the classes belonging to the model names we're asked to process
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
     def get_model_class(file)
+      require "#{model_dir}/#{file}" # this is for non-rails projects, which don't get Rails auto-require magic
       model = file.gsub(/\.rb$/, '').camelize
       parts = model.split('::')
       begin
@@ -176,9 +199,16 @@ module AnnotateModels
     # then pas it to the associated block
     def do_annotations(options={})
       header = PREFIX.dup
-      version = ActiveRecord::Migrator.current_version rescue 0
-      if version > 0
-        header << "\n# Schema version: #{version}"
+
+      if options[:include_version]
+        version = ActiveRecord::Migrator.current_version rescue 0
+        if version > 0
+          header << "\n# Schema version: #{version}"
+        end
+      end
+
+      if options[:model_dir]
+        self.model_dir = options[:model_dir]
       end
 
       annotated = []
@@ -191,7 +221,7 @@ module AnnotateModels
             end
           end
         rescue Exception => e
-          puts "Unable to annotate #{file}: #{e.message}"
+          puts "Unable to annotate #{file}: #{e.message} (#{e.backtrace.first})"
         end
       end
       if annotated.empty?
@@ -200,18 +230,23 @@ module AnnotateModels
         puts "Annotated (#{annotated.length}): #{annotated.join(', ')}"
       end
     end
-    
-    def remove_annotations
+
+    def remove_annotations(options={})
+      p options
+      if options[:model_dir]
+        puts "removing"
+        self.model_dir = options[:model_dir]
+      end
       deannotated = []
       get_model_files.each do |file|
         begin
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
             deannotated << klass
-            
-            model_file_name = File.join(MODEL_DIR, file)
+
+            model_file_name = File.join(model_dir, file)
             remove_annotation_of_file(model_file_name)
-            
+
             FIXTURE_DIRS.each do |dir|
               fixture_file_name = File.join(dir,klass.table_name + ".yml")
               remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)

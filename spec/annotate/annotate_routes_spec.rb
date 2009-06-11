@@ -25,7 +25,7 @@ describe AnnotateRoutes do
         File.should_receive(:exists?).with("config/routes.rb").and_return(true)
         AnnotateRoutes.should_receive(:`).with("rake routes").and_return("bad line\ngood line")
         File.should_receive(:open).with("config/routes.rb", "wb").and_yield(mock_file)
-        AnnotateRoutes.should_receive(:puts).with("Route map annotated.")
+        AnnotateRoutes.should_receive(:puts).with("Route file annotated.")
       end
 
       it "should annotate and add a newline!" do

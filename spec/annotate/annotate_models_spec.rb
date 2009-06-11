@@ -27,8 +27,16 @@ describe AnnotateModels do
       :columns => [
         mock_column(:type => "integer", :default => nil, :null => false, :name => "id", :limit => nil),
         mock_column(:type => "string", :default => nil, :null => false, :name => "name", :limit => 50)
-      ]), "Hello").should eql("# Hello\n#\n# Table name: users\n#\n#  id    :integer         not null, primary key\n#  id    :integer         not null, primary key\n#\n\n")
+      ]), "Schema Info").should eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id    :integer         not null, primary key
+#  id    :integer         not null, primary key
+#
 
+EOS
 
   end
 

@@ -4,17 +4,17 @@ require File.dirname(__FILE__) + '/lib/annotate'
 # Generate all the Rake tasks
 # Run 'rake -T' to see list of generated tasks (from gem root directory)
 $hoe = Hoe.new('annotate', Annotate::VERSION) do |p|
-  p.developer('Marcos Piccinini', 'x@nofxx.com')
+  p.developer('Cuong Tran', 'ctran@pragmaquest.com')
   p.changes              = p.paragraphs_of("History.txt", 0..1).join("\n\n")
-  p.rubyforge_name       = p.name 
-  p.url                  = "http://github.com/nofxx/annotate"
-  p.summary              = "Annotates Rails Models and Routes"
-  p.description          = "Annotates Rails Models and Routes"
-  
+  p.rubyforge_name       = 'annotate-models'
+  p.url                  = "http://github.com/ctran/annotate_models"
+  p.summary              = "Annotates Rails Models, routes, and others"
+  p.description          = "Annotates Rails Models, routes, and others"
+
   p.extra_dev_deps = [
     ['newgem', ">= #{::Newgem::VERSION}"]
   ]
-  
+
   p.clean_globs |= %w[**/.DS_Store tmp *.log]
   path = (p.rubyforge_name == p.name) ? p.rubyforge_name : "\#{p.rubyforge_name}/\#{p.name}"
   p.remote_rdoc_dir = File.join(path.gsub(/^#{p.rubyforge_name}\/?/,''), 'rdoc')
