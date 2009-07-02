@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{annotate}
-  s.version = "2.3.0"
+  s.version = "2.3.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Cuong Tran", "Marcos Piccinini"]
-  s.date = %q{2009-06-11}
+  s.date = %q{2009-07-02}
   s.default_executable = %q{annotate}
   s.email = %q{x@nofxx.com}
   s.executables = ["annotate"]
@@ -18,6 +18,8 @@ Gem::Specification.new do |s|
      "History.txt",
      "README.rdoc",
      "Rakefile",
+     "VERSION.yml",
+     "annotate.gemspec",
      "bin/annotate",
      "lib/annotate.rb",
      "lib/annotate/annotate_models.rb",
@@ -33,7 +35,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/nofxx/annotate}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.3}
+  s.rubygems_version = %q{1.3.4}
   s.summary = %q{Annotates Rails Models, routes, and others}
   s.test_files = [
     "spec/annotate/annotate_models_spec.rb",

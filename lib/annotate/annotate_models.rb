@@ -10,6 +10,8 @@ module AnnotateModels
     SPEC_MODEL_DIR    = File.join("spec", "models")
     # Object Daddy http://github.com/flogic/object_daddy/tree/master
     EXEMPLARS_DIR     = File.join("spec", "exemplars")
+    # Machinist http://github.com/notahat/machinist
+    BLUEPRINT         = File.join("spec", "blueprint")
 
     def model_dir
       @model_dir || "app/models"
@@ -114,7 +116,7 @@ module AnnotateModels
           old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
 
           # Write it back
-          new_content = options[:position].to_sym == :before ?  (info_block + old_content) : (old_content + "\n" + info_block)
+          new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           true
