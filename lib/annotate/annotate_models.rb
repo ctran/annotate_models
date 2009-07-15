@@ -3,7 +3,7 @@ module AnnotateModels
     # Annotate Models plugin use this header
     COMPAT_PREFIX = "== Schema Info"
     PREFIX = "== Schema Information"
-    
+
     FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
     # File.join for windows reverse bar compat?
     # I dont use windows, can`t test
@@ -11,11 +11,11 @@ module AnnotateModels
     SPEC_MODEL_DIR    = File.join("spec", "models")
     # Object Daddy http://github.com/flogic/object_daddy/tree/master
     EXEMPLARS_DIR     = File.join("spec", "exemplars")
-    
+
     def model_dir
       @model_dir || "app/models"
     end
-    
+
     def model_dir=(dir)
       @model_dir = dir
     end
@@ -55,13 +55,13 @@ module AnnotateModels
         else
           col_type << "(#{col.limit})" if col.limit
         end
-       
+
         # Check out if we got a geometric column
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
           attrs << "#{col.geometry_type}, #{col.srid}"
-        end  
-        
+        end
+
         info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
       end
 
@@ -92,7 +92,7 @@ module AnnotateModels
     # Returns true or false depending on whether the file was modified.
     #
     # === Options (opts)
-    #  :position<Symbol>:: where to place the annotated section in fixture or model file, 
+    #  :position<Symbol>:: where to place the annotated section in fixture or model file,
     #                      "before" or "after". Default is "before".
     #  :position_in_class<Symbol>:: where to place the annotated section in model file
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
@@ -105,7 +105,8 @@ module AnnotateModels
         header = Regexp.new(/(^# Table name:.*?\n(#.*\n)*\n)/)
         old_header = old_content.match(header).to_s
         new_header = info_block.match(header).to_s
-        
+
+        old_header = ""
         if old_header == new_header
           false
         else
@@ -120,13 +121,13 @@ module AnnotateModels
         end
       end
     end
-    
+
     def remove_annotation_of_file(file_name)
       if File.exist?(file_name)
         content = File.read(file_name)
 
         content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
-        
+
         File.open(file_name, "wb") { |f| f.puts content }
       end
     end
@@ -151,8 +152,8 @@ module AnnotateModels
       [
         File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
         File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
-        File.join(EXEMPLARS_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy     
-      ].each { |file| annotate_one_file(file, info) }
+        File.join(EXEMPLARS_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy
+      ].each { |file| annotate_one_file(file, info, options.merge(:position=>(options[:position_in_fixture] || options[:position]))) }
 
       FIXTURE_DIRS.each do |dir|
         fixture_file_name = File.join(dir,klass.table_name + ".yml")
@@ -177,7 +178,7 @@ module AnnotateModels
       end
       models
     end
-  
+
     # Retrieve the classes belonging to the model names we're asked to process
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
@@ -203,9 +204,9 @@ module AnnotateModels
         version = ActiveRecord::Migrator.current_version rescue 0
         if version > 0
           header << "\n# Schema version: #{version}"
-        end        
+        end
       end
-      
+
       if options[:model_dir]
         self.model_dir = options[:model_dir]
       end
@@ -229,7 +230,7 @@ module AnnotateModels
         puts "Annotated (#{annotated.length}): #{annotated.join(', ')}"
       end
     end
-    
+
     def remove_annotations(options={})
       p options
       if options[:model_dir]
@@ -242,10 +243,10 @@ module AnnotateModels
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
             deannotated << klass
-            
+
             model_file_name = File.join(model_dir, file)
             remove_annotation_of_file(model_file_name)
-            
+
             FIXTURE_DIRS.each do |dir|
               fixture_file_name = File.join(dir,klass.table_name + ".yml")
               remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)
