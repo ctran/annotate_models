@@ -1,3 +1,9 @@
+== Fork of AnnotateModels
+
+I forked AnnotateModels to fix what I'm guessing is a bug - options (including position) were not being passed when annotating spec, test, or exemplar files. This resulted in my models having annotations at the bottom of my models but at the top of my specs, which was frustrating.
+
+This version of AnnotateModels will pass all options to the method annotate_one_file when annotating models and specs (or tests, or exemplars, whatever you use). Otherwise this version is exactly the same as the original!
+
 == AnnotateModels
 
 Add a comment summarizing the current schema to the bottom of each 
