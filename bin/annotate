@@ -13,6 +13,7 @@ OptionParser.new do |opts|
   opts.on('-v', '--version', "Show the current version of this gem") { puts "Annotate v#{Annotate::VERSION}"; exit }
   opts.on('-m', '--show-migration', "Include the migration version number in the annotation") { ENV['include_version'] = "yes" }
   opts.on('-i', '--show-indexes', "List the table's database indexes in the annotation") { ENV['show_indexes'] = "yes" }
+  opts.on('-s', '--sort', "Sort columns alphabetically (rather than listing in creation order)") { ENV['sort'] = "yes" }
   opts.on('--model-dir dir', "Annotate model files stored in dir rather than app/models") {|dir| ENV['model_dir'] = dir }
 end.parse!
 

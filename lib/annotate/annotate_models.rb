@@ -43,6 +43,7 @@ module AnnotateModels
       info << "# Table name: #{klass.table_name}\n#\n"
 
       max_size = klass.column_names.collect{|name| name.size}.max + 1
+      cols = []
       klass.columns.each do |col|
         attrs = []
         attrs << "default(#{quote(col.default)})" if col.default
@@ -62,8 +63,10 @@ module AnnotateModels
           attrs << "#{col.geometry_type}, #{col.srid}"
         end  
         
-        info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
+        cols << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
       end
+      cols.sort! if options[:sort]
+      info << cols.join
 
       if options[:show_indexes]
         info << get_index_info(klass)
