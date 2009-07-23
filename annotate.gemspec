@@ -5,16 +5,16 @@ Gem::Specification.new do |s|
   s.version = "2.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Cuong Tran"]
-  s.date = %q{2009-05-06}
+  s.authors = ["Tony Day"]
+  s.date = %q{2009-07-23}
   s.default_executable = %q{annotate}
   s.description = %q{Annotates Rails Models, routes, and others}
-  s.email = ["ctran@pragmaquest.com"]
+  s.email = ["tonyd@panztell.com"]
   s.executables = ["annotate"]
   s.extra_rdoc_files = ["History.txt", "README.rdoc"]
   s.files = ["History.txt", "README.rdoc", "Rakefile", "annotate_models.gemspec", "bin/annotate", "lib/annotate.rb", "lib/annotate/annotate_models.rb", "lib/annotate/annotate_routes.rb", "lib/tasks/annotate_models.rake", "lib/tasks/annotate_routes.rake"]
   s.has_rdoc = true
-  s.homepage = %q{http://github.com/ctran/annotate_models}
+  s.homepage = %q{http://github.com/tonyday/annotate_models}
   s.rdoc_options = ["--main", "README.rdoc"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{annotate-models}
@@ -37,3 +37,4 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<hoe>, [">= 1.8.0"])
   end
 end
+
