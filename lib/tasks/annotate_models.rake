@@ -4,10 +4,10 @@ task :annotate_models => :environment do
   options={}
   options[:position_in_class] = ENV['position_in_class'] || ENV['position'] || :before
   options[:position_in_fixture] = ENV['position_in_fixture'] || ENV['position']  || :before
-  options[:show_indexes] = ENV['show_indexes'] 
+  options[:show_indexes] = ENV['show_indexes']
   options[:model_dir] = ENV['model_dir']
   options[:include_version] = ENV['include_version']
-  options[:sort] = ENV['sort']
+  options[:no_sort] = ENV['no_sort']
   AnnotateModels.do_annotations(options)
 end
 
