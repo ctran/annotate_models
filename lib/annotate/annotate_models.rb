@@ -10,7 +10,8 @@ module AnnotateModels
     UNIT_TEST_DIR     = File.join("test", "unit"  )
     SPEC_MODEL_DIR    = File.join("spec", "models")
     # Object Daddy http://github.com/flogic/object_daddy/tree/master
-    EXEMPLARS_DIR     = File.join("spec", "exemplars")
+    EXEMPLARS_SPEC_DIR     = File.join("spec", "exemplars")
+    EXEMPLARS_TEST_DIR     = File.join("test", "exemplars")
     
     def model_dir
       @model_dir || "app/models"
@@ -151,7 +152,8 @@ module AnnotateModels
       [
         File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
         File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
-        File.join(EXEMPLARS_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy     
+        File.join(EXEMPLARS_TEST_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy     
+        File.join(EXEMPLARS_SPEC_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy     
       ].each { |file| annotate_one_file(file, info) }
 
       FIXTURE_DIRS.each do |dir|
