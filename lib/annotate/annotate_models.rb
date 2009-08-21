@@ -64,6 +64,17 @@ module AnnotateModels
           attrs << "#{col.geometry_type}, #{col.srid}"
         end
 
+        # Check if the column has indices and print "indexed" if true
+        # If the indice include another colum, print it too.
+        if options[:simple_indexes] # Check out if this column is indexed
+          indices = klass.connection.indexes(klass.table_name)
+          if indices = indices.select { |ind| ind.columns.include? col.name }
+            indices.each do |ind|
+              ind = ind.columns.reject! { |i| i == col.name }
+              attrs << (ind.length == 0 ? "indexed" : "indexed => [#{ind.join(", ")}]")
+            end
+          end
+        end
         info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
       end
 
