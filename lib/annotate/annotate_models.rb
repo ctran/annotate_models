@@ -8,10 +8,11 @@ module AnnotateModels
     # I dont use windows, can`t test
     UNIT_TEST_DIR     = File.join("test", "unit"  )
     SPEC_MODEL_DIR    = File.join("spec", "models")
+    EXEMPLARS_TEST_DIR     = File.join("test", "exemplars")
     # Object Daddy http://github.com/flogic/object_daddy/tree/master
-    EXEMPLARS_DIR     = File.join("spec", "exemplars")
+    EXEMPLARS_SPEC_DIR     = File.join("spec", "exemplars")
     # Machinist http://github.com/notahat/machinist
-    BLUEPRINT         = File.join("spec", "blueprint")
+    BLUEPRINTS_DIR         = File.join("test", "blueprints")
 
     def model_dir
       @model_dir || "app/models"
@@ -152,9 +153,11 @@ module AnnotateModels
       end
 
       [
-        File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
-        File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
-        File.join(EXEMPLARS_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy
+        File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"),      # test
+        File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"),      # spec
+        File.join(EXEMPLARS_TEST_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
+        File.join(EXEMPLARS_SPEC_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
+        File.join(BLUEPRINTS_DIR,     "#{model_name}_blueprint.rb"), # Machinist Blueprints
       ].each { |file| annotate_one_file(file, info) }
 
       FIXTURE_DIRS.each do |dir|
@@ -205,7 +208,7 @@ module AnnotateModels
           require path
         end
       end
-      
+
       header = PREFIX.dup
 
       if options[:include_version]
