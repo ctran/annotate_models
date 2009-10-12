@@ -51,10 +51,18 @@ From github:
 
 == Usage
 
-To annotate all your models:
+To annotate all your models, tests, and fixtures:
 
   cd /path/to/app
   annotate
+
+To annotate your models and tests:
+
+  annotate --exclude fixtures
+
+To annotate just your models:
+
+  annotate --exclude tests,fixtures
 
 To annotate routes.rb:
 
@@ -69,6 +77,7 @@ More options:
       -v, --version                    Show the current version of this gem
       -m, --show-migration             Include the migration version number in the annotation
       -i, --show-indexes               List the table's database indexes in the annotation
+      -e, --exclude [fixtures,tests]   Do not annotate fixtures, test files, or both
           --model-dir dir              Annotate model files stored in dir rather than app/models
 
 == LICENSE:
