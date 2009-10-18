@@ -1,32 +1,30 @@
-== Fork of AnnotateModels
+== Annotate (aka AnnotateModels)
 
-I forked AnnotateModels to fix what I'm guessing is a bug - options (including position) were not being passed when annotating spec, test, or exemplar files. This resulted in my models having annotations at the bottom of my models but at the top of my specs, which was frustrating.
+Add a comment summarizing the relevant portion of the current schema to the top or bottom of your...
 
-This version of AnnotateModels will pass all options to the method annotate_one_file when annotating models and specs (or tests, or exemplars, whatever you use). Otherwise this version is exactly the same as the original!
+  * ActiveRecord models
+  * Fixture files
+  * Tests and Specs
+  * Object Daddy exemplars
 
-== AnnotateModels
+The schema comment looks like this:
 
-Add a comment summarizing the current schema to the bottom of each 
-ActiveRecord model, fixture file.
+   # == Schema Info
+   #
+   # Table name: line_items
+   #
+   #  id                  :integer(11)    not null, primary key
+   #  quantity            :integer(11)    not null
+   #  product_id          :integer(11)    not null
+   #  unit_price          :float
+   #  order_id            :integer(11)
+   #
 
-If you are using Object Daddy, it`ll annotate your example files too.
+    class LineItem < ActiveRecord::Base
+      belongs_to :product
+     . . .
 
- # == Schema Info
- #
- # Table name: line_items
- #
- #  id                  :integer(11)    not null, primary key
- #  quantity            :integer(11)    not null
- #  product_id          :integer(11)    not null
- #  unit_price          :float
- #  order_id            :integer(11)
- #
-
-  class LineItem < ActiveRecord::Base
-    belongs_to :product
-   . . .
-   
-Annotates geometrical columns, geom type and srid, when using SpatialAdapter or PostgisAdapter:
+It also annotates geometrical columns, geom type and srid, when using SpatialAdapter or PostgisAdapter:
 
  # == Schema Info
  #
@@ -34,6 +32,8 @@ Annotates geometrical columns, geom type and srid, when using SpatialAdapter or 
  #
  #  local           :geometry        point, 4326
  #  path            :geometry        line_string, 4326
+
+Also, if you pass the -r option, it'll annotate routes.rb with the output of "rake routes".
           
 == Warning
 
@@ -52,12 +52,14 @@ From rubyforge:
   
 From github:
 
-  gem sources -a http://gems.github.com
-  sudo gem install ctran-annotate
+  git clone git://github.com/ctran/annotate_models.git annotate
+  cd annotate
+  rake gem
+  sudo gem install pkg/annotate-*.gem
 
 == Usage
 
-To annotate all your models, tests, and fixtures:
+To annotate all your models, tests, fixtures, etc.:
 
   cd /path/to/app
   annotate
