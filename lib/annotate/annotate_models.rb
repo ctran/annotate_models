@@ -148,17 +148,24 @@ module AnnotateModels
         annotated = true
       end
 
-      [
-        File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
-        File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
-        File.join(EXEMPLARS_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy     
-      ].each { |file| annotate_one_file(file, info) }
+      annotate_tests(info, model_name) unless ENV['exclude_tests']
+      annotate_fixtures(info, klass, options) unless ENV['exclude_fixtures']
+      annotated
+    end
 
+    def annotate_tests(info, model_name)
+      [
+              File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
+              File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
+              File.join(EXEMPLARS_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy
+      ].each { |file| annotate_one_file(file, info) }
+    end
+
+    def annotate_fixtures(info, klass, options)
       FIXTURE_DIRS.each do |dir|
-        fixture_file_name = File.join(dir,klass.table_name + ".yml")
+        fixture_file_name = File.join(dir, klass.table_name + ".yml")
         annotate_one_file(fixture_file_name, info, options.merge(:position=>(options[:position_in_fixture] || options[:position]))) if File.exist?(fixture_file_name)
       end
-      annotated
     end
 
     # Return a list of the model files to annotate. If we have
@@ -250,7 +257,7 @@ module AnnotateModels
             
             model_file_name = File.join(model_dir, file)
             remove_annotation_of_file(model_file_name)
-            
+
             FIXTURE_DIRS.each do |dir|
               fixture_file_name = File.join(dir,klass.table_name + ".yml")
               remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)

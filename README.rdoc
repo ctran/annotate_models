@@ -51,10 +51,18 @@ From github:
 
 == Usage
 
-To annotate all your models:
+To annotate all your models, tests, and fixtures:
 
   cd /path/to/app
   annotate
+
+To annotate your models and tests:
+
+  annotate --exclude fixtures
+
+To annotate just your models:
+
+  annotate --exclude tests,fixtures
 
 To annotate routes.rb:
 
@@ -70,6 +78,8 @@ More options:
       -m, --show-migration             Include the migration version number in the annotation
       -i, --show-indexes               List the table's database indexes in the annotation
           --model-dir dir              Annotate model files stored in dir rather than app/models
+      -R, --require path               Additional files to require before loading models
+      -e, --exclude [tests,fixtures]   Do not annotate fixtures, test files, or both
 
 == LICENSE:
 
@@ -84,7 +94,7 @@ Original code by:
 Modifications by:
 
  - Alex Chaffee - http://github.com/alexch - alex@pivotallabs.com
- - Cuong Tran - http://github.com/ctran
+ - Cuong Tran - http://github.com/ctran - ctran@pragmaquest.com
  - Jack Danger - http://github.com/JackDanger
  - Michael Bumann - http://github.com/bumi
  - Henrik Nyh - http://github.com/henrik
@@ -92,3 +102,4 @@ Modifications by:
 
 and many others that I may have missed to add.
 
+Primary maintainers: Cuong Tran and Alex Chaffee
