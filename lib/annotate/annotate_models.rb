@@ -178,8 +178,15 @@ module AnnotateModels
       models.shift
       models.reject!{|m| m.starts_with?("position=")}
       if models.empty?
-        Dir.chdir(model_dir) do
-          models = Dir["**/*.rb"]
+        begin
+          Dir.chdir(model_dir) do
+            models = Dir["**/*.rb"]
+          end
+        rescue SystemCallError
+          puts "No models found in directory '#{model_dir}'."
+          puts "Either specify models on the command line, or use the --model-dir option."
+          puts "Call 'annotate --help' for more info."
+          exit 1;
         end
       end
       models
@@ -194,7 +201,7 @@ module AnnotateModels
       parts = model.split('::')
       begin
         parts.inject(Object) {|klass, part| klass.const_get(part) }
-      rescue LoadError
+      rescue LoadError, NameError
         Object.const_get(parts.last)
       end
     end
@@ -233,7 +240,8 @@ module AnnotateModels
             end
           end
         rescue Exception => e
-          puts "Unable to annotate #{file}: #{e.message} (#{e.backtrace.first})"
+          puts "Unable to annotate #{file}: #{e.inspect}"
+          puts ""
         end
       end
       if annotated.empty?
