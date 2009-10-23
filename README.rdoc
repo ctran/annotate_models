@@ -107,6 +107,9 @@ Modifications by:
  - Michael Bumann - http://github.com/bumi
  - Henrik Nyh - http://github.com/henrik
  - Marcos Piccinini - http://github.com/nofxx
+ - Neal Clark - http://github.com/nclark
+ - Jacqui Maher - http://github.com/jacqui
+ - Nick Plante - http://github.com/zapnap - http://blog.zerosum.org
 
 and many others that I may have missed to add.
 
