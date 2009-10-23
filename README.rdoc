@@ -89,6 +89,11 @@ More options:
       -R, --require path               Additional files to require before loading models
       -e, --exclude [tests,fixtures]   Do not annotate fixtures, test files, or both
 
+If you install annotate_models as a plugin, it will automatically
+adjust your <tt>rake db:migrate</tt> tasks so that they update the
+annotations in your model files for you once the migration is
+completed.
+
 == LICENSE:
 
 Released under the same license as Ruby. No Support. No Warranty.

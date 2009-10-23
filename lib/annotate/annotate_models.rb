@@ -185,7 +185,7 @@ module AnnotateModels
     def get_model_files
       models = ARGV.dup
       models.shift
-      models.reject!{|m| m.starts_with?("position=")}
+      models.reject!{|m| m.match(/^(.*)=/)}
       if models.empty?
         begin
           Dir.chdir(model_dir) do
