@@ -1,11 +1,12 @@
 == Annotate (aka AnnotateModels)
 
-Add a comment summarizing the relevant portion of the current schema to the top or bottom of your...
+Add a comment summarizing the current schema to the top or bottom of each of your...
 
   * ActiveRecord models
   * Fixture files
   * Tests and Specs
   * Object Daddy exemplars
+  * Machinist blueprints
 
 The schema comment looks like this:
 
@@ -34,22 +35,13 @@ It also annotates geometrical columns, geom type and srid, when using SpatialAda
  #  path            :geometry        line_string, 4326
 
 Also, if you pass the -r option, it'll annotate routes.rb with the output of "rake routes".
-          
-== Warning
 
-Note that this code will blow away the initial/final comment
-block in your models if it looks like it was previously added
-by annotate models, so you don't want to add additional text
-to an automatically created comment block.
-
-       * * Back up your model files before using... * *
-         
-== Install
+== INSTALL
 
 From rubyforge:
 
   sudo gem install annotate
-  
+
 From github:
 
   git clone git://github.com/ctran/annotate_models.git annotate
@@ -57,7 +49,7 @@ From github:
   rake gem
   sudo gem install pkg/annotate-*.gem
 
-== Usage
+== USAGE
 
 To annotate all your models, tests, fixtures, etc.:
 
@@ -76,23 +68,44 @@ To annotate routes.rb:
 
   annotate -r
 
-More options:
+To automatically annotate after running 'rake db:migrate':
+  
+  [needs more clarity] unpack the gem into vendor/plugins, or maybe vendor/gems, or maybe just require tasks/migrate.rake.
 
-  Usage: annotate [options]
-      -d, --delete                     Remove annotations from all model files
-      -p, --position [before|after]    Place the annotations at the top (before) or the bottom (after) of the model file
-      -r, --routes                     Annotate routes.rb with the output of 'rake routes'
-      -v, --version                    Show the current version of this gem
-      -m, --show-migration             Include the migration version number in the annotation
-      -i, --show-indexes               List the table's database indexes in the annotation
-          --model-dir dir              Annotate model files stored in dir rather than app/models
-      -R, --require path               Additional files to require before loading models
-      -e, --exclude [tests,fixtures]   Do not annotate fixtures, test files, or both
+== OPTIONS
 
-If you install annotate_models as a plugin, it will automatically
-adjust your <tt>rake db:migrate</tt> tasks so that they update the
-annotations in your model files for you once the migration is
-completed.
+    Usage: annotate [options] [model_file]*
+        -d, --delete                     Remove annotations from all model files
+        -p, --position [before|after]    Place the annotations at the top (before) or the bottom (after) of the model file
+        -r, --routes                     Annotate routes.rb with the output of 'rake routes'
+        -v, --version                    Show the current version of this gem
+        -m, --show-migration             Include the migration version number in the annotation
+        -i, --show-indexes               List the table's database indexes in the annotation
+            --model-dir dir              Annotate model files stored in dir rather than app/models
+        -R, --require path               Additional files to require before loading models
+        -e, --exclude [tests,fixtures]   Do not annotate fixtures, test files, or both
+
+  If you install annotate_models as a plugin, it will automatically
+  adjust your <tt>rake db:migrate</tt> tasks so that they update the
+  annotations in your model files for you once the migration is
+  completed.
+
+
+== WARNING
+
+Note that this code will blow away the initial/final comment
+block in your models if it looks like it was previously added
+by annotate models, so you don't want to add additional text
+to an automatically created comment block.
+
+        * * Back up your model files before using... * *
+
+== LINKS
+
+* Factory Girl => http://github.com/thoughtbot/factory_girl (NOT IMPLEMENTED)
+* Object Daddy => http://github.com/flogic/object_daddy
+* SpatialAdapter => http://github.com/pdeffendol/spatial_adapter
+* PostgisAdapter => http://github.com/nofxx/postgis_adapter
 
 == LICENSE:
 
@@ -104,6 +117,23 @@ Original code by:
 
   Dave Thomas -- Pragmatic Programmers, LLC
 
+AnnotateModels mods by:
+
+  Alexander Semyonov ( http://github.com/rotuka/annotate_models )
+
+AnnotateRoutes originally by:
+
+  Gavin Montague ( http://github.com/govan/annotate-routes )
+
+
+== Forked from:
+
+  http://github.com/ctran/annotate_models
+
+
+== Modifications
+ - alex@pivotallabs.com
+=======
 Modifications by:
 
  - Alex Chaffee - http://github.com/alexch - alex@pivotallabs.com
@@ -118,4 +148,10 @@ Modifications by:
 
 and many others that I may have missed to add.
 
+<<<<<<< HEAD
 Primary maintainers: Cuong Tran and Alex Chaffee
+=======
+== This fork
+
+  Marcos Piccinini ( http://github.com/nofxx/annotate )
+>>>>>>> nofxx/master

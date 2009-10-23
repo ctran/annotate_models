@@ -23,6 +23,7 @@ describe AnnotateModels do
   it "should get schema info" do
 
     AnnotateModels.get_schema_info(mock_klass(
+      :connection => mock("Conn", :indexes => []),
       :table_name => "users",
       :primary_key => "id",
       :column_names => ["id","login"],
@@ -41,7 +42,7 @@ describe AnnotateModels do
 EOS
 
   end
-  
+
   describe "#get_model_class" do
     module ::ActiveRecord
       class Base
@@ -61,7 +62,7 @@ EOS
       AnnotateModels.model_dir = @dir
       create('foo.rb', <<-EOS)
         class Foo < ActiveRecord::Base
-        end      
+        end
       EOS
       create('foo_with_macro.rb', <<-EOS)
         class FooWithMacro < ActiveRecord::Base

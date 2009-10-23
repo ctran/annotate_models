@@ -25,7 +25,7 @@ OptionParser.new do |opts|
 
   opts.on('-v', '--version', 
   "Show the current version of this gem") do 
-    puts "annotate v#{Annotate::VERSION}"; exit
+    puts "annotate v#{Annotate.version}"; exit
   end
 
   opts.on('-m', '--show-migration', 
@@ -36,6 +36,11 @@ OptionParser.new do |opts|
   opts.on('-i', '--show-indexes', 
   "List the table's database indexes in the annotation") do   
     ENV['show_indexes'] = "yes"
+  end
+
+  opts.on('-s', '--simple-indexes',
+  "Concat the column's related indexes in the annotation") do
+    ENV['simple_indexes'] = "yes"
   end
 
   opts.on('--model-dir dir', 

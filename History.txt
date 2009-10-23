@@ -31,8 +31,7 @@
 == 1.0.2 2008-03-22
 
 * Add contributions from Michael Bumann (http://github.com/bumi)
-  * added an option "position" to choose to put the annotation, 
+  * added an option "position" to choose to put the annotation,
   * spec/fixtures now also get annotated
   * added a task to remove the annotations
   * these options can be specified from command line as -d and -p [before|after]
-

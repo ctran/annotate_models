@@ -10,7 +10,10 @@ module AnnotateModels
     UNIT_TEST_DIR     = File.join("test", "unit"  )
     SPEC_MODEL_DIR    = File.join("spec", "models")
     # Object Daddy http://github.com/flogic/object_daddy/tree/master
-    EXEMPLARS_DIR     = File.join("spec", "exemplars")
+    EXEMPLARS_TEST_DIR     = File.join("test", "exemplars")
+    EXEMPLARS_SPEC_DIR     = File.join("spec", "exemplars")
+    # Machinist http://github.com/notahat/machinist
+    BLUEPRINTS_DIR         = File.join("test", "blueprints")
 
     def model_dir
       @model_dir || "app/models"
@@ -45,7 +48,7 @@ module AnnotateModels
       max_size = klass.column_names.collect{|name| name.size}.max + 1
       klass.columns.each do |col|
         attrs = []
-        attrs << "default(#{quote(col.default)})" if col.default
+        attrs << "default(#{quote(col.default)})" unless col.default.nil?
         attrs << "not null" unless col.null
         attrs << "primary key" if col.name == klass.primary_key
 
@@ -60,6 +63,18 @@ module AnnotateModels
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
           attrs << "#{col.geometry_type}, #{col.srid}"
+        end
+
+        # Check if the column has indices and print "indexed" if true
+        # If the indice include another colum, print it too.
+        if options[:simple_indexes] # Check out if this column is indexed
+          indices = klass.connection.indexes(klass.table_name)
+          if indices = indices.select { |ind| ind.columns.include? col.name }
+            indices.each do |ind|
+              ind = ind.columns.reject! { |i| i == col.name }
+              attrs << (ind.length == 0 ? "indexed" : "indexed => [#{ind.join(", ")}]")
+            end
+          end
         end
 
         info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
@@ -96,6 +111,8 @@ module AnnotateModels
     #                      "before" or "after". Default is "before".
     #  :position_in_class<Symbol>:: where to place the annotated section in model file
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
+    #  :position_in_others<Symbol>:: where to place the annotated section in the rest of
+    #                      supported files
     #
     def annotate_one_file(file_name, info_block, options={})
       if File.exist?(file_name)
@@ -106,7 +123,6 @@ module AnnotateModels
         old_header = old_content.match(header).to_s
         new_header = info_block.match(header).to_s
 
-        old_header = ""
         if old_header == new_header
           false
         else
@@ -114,7 +130,7 @@ module AnnotateModels
           old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
 
           # Write it back
-          new_content = ((options[:position] || :before).to_sym == :before) ?  (info_block + old_content) : (old_content + "\n" + info_block)
+          new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           true
@@ -144,7 +160,7 @@ module AnnotateModels
       model_name = klass.name.underscore
       model_file_name = File.join(model_dir, file)
 
-      if annotate_one_file(model_file_name, info, options_with_position(:position_in_class))
+      if annotate_one_file(model_file_name, info, options_with_position(options, :position_in_class))
         annotated = true
       end
  
@@ -153,18 +169,24 @@ module AnnotateModels
           File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
           File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
         ].each do |file| 
-          annotate_one_file(file, info, options_with_position(:position_in_fixture))
+          # todo: add an option "position_in_test" -- or maybe just ask if anyone ever wants different positions for model vs. test vs. fixture
+          annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
         end
       end
 
       unless ENV['exclude_fixtures']
-        file = File.join(EXEMPLARS_DIR, "#{model_name}_exemplar.rb")   # Object Daddy
-        annotate_one_file(file, info, options_with_position(:position_in_fixture))
+        [
+        File.join(EXEMPLARS_TEST_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
+        File.join(EXEMPLARS_SPEC_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
+        File.join(BLUEPRINTS_DIR,     "#{model_name}_blueprint.rb"), # Machinist Blueprints
+        ].each do |file| 
+          annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
+        end
 
         FIXTURE_DIRS.each do |dir|
           fixture_file_name = File.join(dir,klass.table_name + ".yml")
           if File.exist?(fixture_file_name)
-            annotate_one_file(fixture_file_name, info, options_with_position(:position_in_fixture))         
+            annotate_one_file(fixture_file_name, info, options_with_position(options, :position_in_fixture))         
           end
         end
       end
@@ -173,7 +195,7 @@ module AnnotateModels
     end
     
     # position = :position_in_fixture or :position_in_class
-    def options_with_position(position_in)
+    def options_with_position(options, position_in)
       options.merge(:position=>(options[position_in] || options[:position]))
     end
 
@@ -225,7 +247,7 @@ module AnnotateModels
           require path
         end
       end
-      
+
       header = PREFIX.dup
 
       if options[:include_version]
@@ -251,6 +273,7 @@ module AnnotateModels
         rescue Exception => e
           puts "Unable to annotate #{file}: #{e.inspect}"
           puts ""
+          puts e.backtrace.join("\n\t")
         end
       end
       if annotated.empty?
