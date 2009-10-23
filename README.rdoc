@@ -27,12 +27,12 @@ The schema comment looks like this:
 
 It also annotates geometrical columns, geom type and srid, when using SpatialAdapter or PostgisAdapter:
 
- # == Schema Info
- #
- # Table name: trips
- #
- #  local           :geometry        point, 4326
- #  path            :geometry        line_string, 4326
+   # == Schema Info
+   #
+   # Table name: trips
+   #
+   #  local           :geometry        point, 4326
+   #  path            :geometry        line_string, 4326
 
 Also, if you pass the -r option, it'll annotate routes.rb with the output of "rake routes".
 
@@ -72,6 +72,11 @@ To automatically annotate after running 'rake db:migrate':
   
   [needs more clarity] unpack the gem into vendor/plugins, or maybe vendor/gems, or maybe just require tasks/migrate.rake.
 
+If you install annotate_models as a plugin, it will automatically
+adjust your <tt>rake db:migrate</tt> tasks so that they update the
+annotations in your model files for you once the migration is
+completed.
+
 == OPTIONS
 
     Usage: annotate [options] [model_file]*
@@ -81,14 +86,10 @@ To automatically annotate after running 'rake db:migrate':
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
         -i, --show-indexes               List the table's database indexes in the annotation
+        -s, --simple-indexes             Concat the column's related indexes in the annotation
             --model-dir dir              Annotate model files stored in dir rather than app/models
         -R, --require path               Additional files to require before loading models
         -e, --exclude [tests,fixtures]   Do not annotate fixtures, test files, or both
-
-  If you install annotate_models as a plugin, it will automatically
-  adjust your <tt>rake db:migrate</tt> tasks so that they update the
-  annotations in your model files for you once the migration is
-  completed.
 
 
 == WARNING
@@ -111,29 +112,13 @@ to an automatically created comment block.
 
 Released under the same license as Ruby. No Support. No Warranty.
 
-== Author:
+== AUTHOR:
 
-Original code by:
+Original code by: Dave Thomas -- Pragmatic Programmers, LLC
+Overhauled by: Alex Chaffee
+Gemmed by: Cuong Tran
+Maintained by: Alex Chaffee and Cuong Tran
 
-  Dave Thomas -- Pragmatic Programmers, LLC
-
-AnnotateModels mods by:
-
-  Alexander Semyonov ( http://github.com/rotuka/annotate_models )
-
-AnnotateRoutes originally by:
-
-  Gavin Montague ( http://github.com/govan/annotate-routes )
-
-
-== Forked from:
-
-  http://github.com/ctran/annotate_models
-
-
-== Modifications
- - alex@pivotallabs.com
-=======
 Modifications by:
 
  - Alex Chaffee - http://github.com/alexch - alex@pivotallabs.com
@@ -145,13 +130,9 @@ Modifications by:
  - Neal Clark - http://github.com/nclark
  - Jacqui Maher - http://github.com/jacqui
  - Nick Plante - http://github.com/zapnap - http://blog.zerosum.org
-
+ - Pedro Visintin - http://github.com/peterpunk - http://www.pedrovisintin.com
+ - Bob Potter - http://github.com/bpot
+ - Gavin Montague - http://github.com/govan/
+ - Alexander Semyonov - http://github.com/rotuka/
+ 
 and many others that I may have missed to add.
-
-<<<<<<< HEAD
-Primary maintainers: Cuong Tran and Alex Chaffee
-=======
-== This fork
-
-  Marcos Piccinini ( http://github.com/nofxx/annotate )
->>>>>>> nofxx/master

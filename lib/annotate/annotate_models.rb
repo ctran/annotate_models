@@ -273,7 +273,8 @@ module AnnotateModels
         rescue Exception => e
           puts "Unable to annotate #{file}: #{e.inspect}"
           puts ""
-          puts e.backtrace.join("\n\t")
+# todo: check if all backtrace lines are in "gems" -- if so, it's an annotate bug, so print the whole stack trace.
+#          puts e.backtrace.join("\n\t")  
         end
       end
       if annotated.empty?
