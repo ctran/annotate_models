@@ -217,6 +217,12 @@ module AnnotateModels
               fixture_file_name = File.join(dir,klass.table_name + ".yml")
               remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)
             end
+            
+            [ File.join(UNIT_TEST_DIR, "#{klass.name.underscore}_test.rb"),
+              File.join(SPEC_MODEL_DIR,"#{klass.name.underscore}_spec.rb")].each do |file|
+              remove_annotation_of_file(file) if File.exist?(file)
+            end
+            
           end
         rescue Exception => e
           puts "Unable to annotate #{file}: #{e.message}"
