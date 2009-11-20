@@ -7,6 +7,7 @@ Add a comment summarizing the current schema to the top or bottom of each of you
   * Tests and Specs
   * Object Daddy exemplars
   * Machinist blueprints
+  * Thoughtbot's factory_girl factories (test/factories/<model>_factory.rb files)
 
 The schema comment looks like this:
 
@@ -46,8 +47,8 @@ From github:
 
   git clone git://github.com/ctran/annotate_models.git annotate
   cd annotate
-  rake gem
-  sudo gem install pkg/annotate-*.gem
+  gem build annotate.gemspec
+  sudo gem install annotate-<version>.gem
 
 == USAGE
 
@@ -89,7 +90,8 @@ completed.
         -s, --simple-indexes             Concat the column's related indexes in the annotation
             --model-dir dir              Annotate model files stored in dir rather than app/models
         -R, --require path               Additional files to require before loading models
-        -e, --exclude [tests,fixtures]   Do not annotate fixtures, test files, or both
+        -e [tests,fixtures,factories]    Do not annotate fixtures, test files, and/or factories
+            --exclude
 
 
 == WARNING
@@ -103,7 +105,7 @@ to an automatically created comment block.
 
 == LINKS
 
-* Factory Girl => http://github.com/thoughtbot/factory_girl (NOT IMPLEMENTED)
+* Factory Girl => http://github.com/thoughtbot/factory_girl
 * Object Daddy => http://github.com/flogic/object_daddy
 * SpatialAdapter => http://github.com/pdeffendol/spatial_adapter
 * PostgisAdapter => http://github.com/nofxx/postgis_adapter
@@ -134,5 +136,6 @@ Modifications by:
  - Bob Potter - http://github.com/bpot
  - Gavin Montague - http://github.com/govan/
  - Alexander Semyonov - http://github.com/rotuka/
+ - Nathan Brazil - http://github.com/bitaxis/
  
 and many others that I may have missed to add.
