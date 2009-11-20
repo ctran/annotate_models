@@ -14,6 +14,8 @@ module AnnotateModels
     EXEMPLARS_SPEC_DIR     = File.join("spec", "exemplars")
     # Machinist http://github.com/notahat/machinist
     BLUEPRINTS_DIR         = File.join("test", "blueprints")
+    # Factory Girl http://github.com/thoughtbot/factory_girl
+    FACTORIES_DIR          = File.join("test", "factories")
 
     def model_dir
       @model_dir || "app/models"
@@ -130,7 +132,7 @@ module AnnotateModels
           old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
 
           # Write it back
-          new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
+          new_content = ((options[:position] || :before).to_sym == :before) ?  (info_block + old_content) : (old_content + "\n" + info_block)
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           true
@@ -188,6 +190,14 @@ module AnnotateModels
           if File.exist?(fixture_file_name)
             annotate_one_file(fixture_file_name, info, options_with_position(options, :position_in_fixture))         
           end
+        end
+      end
+
+      unless ENV['exclude_factories']
+        [
+          File.join(FACTORIES_DIR, "#{model_name}_factory.rb"), # test/factories
+        ].each do |file| 
+          annotate_one_file(file, info, options_with_position(options, :position_in_factory))
         end
       end
       
@@ -306,6 +316,10 @@ module AnnotateModels
             
             [ File.join(UNIT_TEST_DIR, "#{klass.name.underscore}_test.rb"),
               File.join(SPEC_MODEL_DIR,"#{klass.name.underscore}_spec.rb")].each do |file|
+              remove_annotation_of_file(file) if File.exist?(file)
+            end
+            
+            [ File.join(FACTORIES_DIR, "#{klass.name.underscore}_factory.rb")].each do |file|
               remove_annotation_of_file(file) if File.exist?(file)
             end
             

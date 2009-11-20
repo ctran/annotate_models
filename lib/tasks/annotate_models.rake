@@ -3,6 +3,7 @@ task :annotate_models => :environment do
   require 'annotate/annotate_models'
   options={}
   options[:position_in_class] = ENV['position_in_class'] || ENV['position'] || :before
+  options[:position_in_factory] = ENV['position_in_factory'] || ENV['position']  || :before
   options[:position_in_fixture] = ENV['position_in_fixture'] || ENV['position']  || :before
   options[:show_indexes] = ENV['show_indexes']
   options[:simple_indexes] = ENV['simple_indexes']

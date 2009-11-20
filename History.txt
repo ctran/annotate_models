@@ -1,3 +1,8 @@
+== 2.4.1 2009-11-20
+
+* Annotates thoughtbot's factory_girl factories (test/factories/<model>_factory.rb)
+* Move default annotation position back to top
+
 == 2.1 2009-10-18
 
 * New options
