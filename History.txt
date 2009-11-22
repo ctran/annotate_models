@@ -1,3 +1,7 @@
+== 2.4.2 2009-11-21
+
+* Annotates (spec|test)/factories/<model>_factory.rb files
+
 == 2.4.1 2009-11-20
 
 * Annotates thoughtbot's factory_girl factories (test/factories/<model>_factory.rb)

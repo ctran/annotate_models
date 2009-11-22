@@ -15,7 +15,8 @@ module AnnotateModels
     # Machinist http://github.com/notahat/machinist
     BLUEPRINTS_DIR         = File.join("test", "blueprints")
     # Factory Girl http://github.com/thoughtbot/factory_girl
-    FACTORIES_DIR          = File.join("test", "factories")
+    SPEC_FACTORIES_DIR     = File.join("spec", "factories")
+    TEST_FACTORIES_DIR     = File.join("test", "factories")
 
     def model_dir
       @model_dir || "app/models"
@@ -195,7 +196,8 @@ module AnnotateModels
 
       unless ENV['exclude_factories']
         [
-          File.join(FACTORIES_DIR, "#{model_name}_factory.rb"), # test/factories
+          File.join(SPEC_FACTORIES_DIR, "#{model_name}_factory.rb"), # spec/factories
+          File.join(TEST_FACTORIES_DIR, "#{model_name}_factory.rb"), # test/factories
         ].each do |file| 
           annotate_one_file(file, info, options_with_position(options, :position_in_factory))
         end
@@ -319,7 +321,8 @@ module AnnotateModels
               remove_annotation_of_file(file) if File.exist?(file)
             end
             
-            [ File.join(FACTORIES_DIR, "#{klass.name.underscore}_factory.rb")].each do |file|
+            [ File.join(SPEC_FACTORIES_DIR, "#{klass.name.underscore}_factory.rb"),
+              File.join(TEST_FACTORIES_DIR, "#{klass.name.underscore}_factory.rb")].each do |file|
               remove_annotation_of_file(file) if File.exist?(file)
             end
             
