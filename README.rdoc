@@ -7,7 +7,7 @@ Add a comment summarizing the current schema to the top or bottom of each of you
   * Tests and Specs
   * Object Daddy exemplars
   * Machinist blueprints
-  * Thoughtbot's factory_girl factories (test/factories/<model>_factory.rb files)
+  * Thoughtbot's factory_girl factories, i.e. the (spec|test)/factories/<model>_factory.rb files
 
 The schema comment looks like this:
 
