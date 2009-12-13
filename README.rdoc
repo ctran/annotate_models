@@ -77,6 +77,9 @@ adjust your <tt>rake db:migrate</tt> tasks so that they update the
 annotations in your model files for you once the migration is
 completed.
 
+Warning: ImageMagick installs a tool called `annotate` too (if you're using MacPorts it's in `/opt/local/bin/annotate`. So if you see Usage: annotate imagein.jpg imageout.jpg then put `/usr/bin` ahead on the path and you'll get ours instead. 
+
+
 == OPTIONS
 
     Usage: annotate [options] [model_file]*
@@ -118,6 +121,7 @@ Original code by: Dave Thomas -- Pragmatic Programmers, LLC
 Overhauled by: Alex Chaffee
 Gemmed by: Cuong Tran
 Maintained by: Alex Chaffee and Cuong Tran
+Homepage: http://github.com/ctran/annotate_models
 
 Modifications by:
 

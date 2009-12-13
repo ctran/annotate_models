@@ -1,3 +1,8 @@
+== 2.4.0 2009-12-13
+
+* Incorporated lots of patches from the Github community, including support for Blueprints fixtures
+* Several bug fixes
+
 == 2.1 2009-10-18
 
 * New options
