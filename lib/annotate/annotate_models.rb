@@ -3,21 +3,22 @@ module AnnotateModels
     # Annotate Models plugin use this header
     COMPAT_PREFIX = "== Schema Info"
     PREFIX = "== Schema Information"
+    
     FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
     # File.join for windows reverse bar compat?
     # I dont use windows, can`t test
     UNIT_TEST_DIR     = File.join("test", "unit"  )
     SPEC_MODEL_DIR    = File.join("spec", "models")
-    EXEMPLARS_TEST_DIR     = File.join("test", "exemplars")
     # Object Daddy http://github.com/flogic/object_daddy/tree/master
     EXEMPLARS_SPEC_DIR     = File.join("spec", "exemplars")
-    # Machinist http://github.com/notahat/machinist
+    SPEC_BLUEPRINTS_DIR     = File.join("spec", "models", "blueprints")
+    EXEMPLARS_TEST_DIR     = File.join("test", "exemplars")
     BLUEPRINTS_DIR         = File.join("test", "blueprints")
 
     def model_dir
       @model_dir || "app/models"
     end
-
+    
     def model_dir=(dir)
       @model_dir = dir
     end
@@ -47,7 +48,7 @@ module AnnotateModels
       max_size = klass.column_names.collect{|name| name.size}.max + 1
       klass.columns.each do |col|
         attrs = []
-        attrs << "default(#{quote(col.default)})" unless col.default.nil?
+        attrs << "default(#{quote(col.default)})" if col.default
         attrs << "not null" unless col.null
         attrs << "primary key" if col.name == klass.primary_key
 
@@ -57,24 +58,13 @@ module AnnotateModels
         else
           col_type << "(#{col.limit})" if col.limit
         end
-
+       
         # Check out if we got a geometric column
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
           attrs << "#{col.geometry_type}, #{col.srid}"
-        end
-
-        # Check if the column has indices and print "indexed" if true
-        # If the indice include another colum, print it too.
-        if options[:simple_indexes] # Check out if this column is indexed
-          indices = klass.connection.indexes(klass.table_name)
-          if indices = indices.select { |ind| ind.columns.include? col.name }
-            indices.each do |ind|
-              ind = ind.columns.reject! { |i| i == col.name }
-              attrs << (ind.length == 0 ? "indexed" : "indexed => [#{ind.join(", ")}]")
-            end
-          end
-        end
+        end  
+        
         info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
       end
 
@@ -105,12 +95,10 @@ module AnnotateModels
     # Returns true or false depending on whether the file was modified.
     #
     # === Options (opts)
-    #  :position<Symbol>:: where to place the annotated section in fixture or model file,
+    #  :position<Symbol>:: where to place the annotated section in fixture or model file, 
     #                      "before" or "after". Default is "before".
     #  :position_in_class<Symbol>:: where to place the annotated section in model file
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
-    #  :position_in_others<Symbol>:: where to place the annotated section in the rest of
-    #                      supported files
     #
     def annotate_one_file(file_name, info_block, options={})
       if File.exist?(file_name)
@@ -120,7 +108,7 @@ module AnnotateModels
         header = Regexp.new(/(^# Table name:.*?\n(#.*\n)*\n)/)
         old_header = old_content.match(header).to_s
         new_header = info_block.match(header).to_s
-
+        
         if old_header == new_header
           false
         else
@@ -128,20 +116,20 @@ module AnnotateModels
           old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
 
           # Write it back
-          new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
+          new_content = ((options[:position] || :before).to_sym == :before) ?  (info_block + old_content) : (old_content + "\n" + info_block)
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           true
         end
       end
     end
-
+    
     def remove_annotation_of_file(file_name)
       if File.exist?(file_name)
         content = File.read(file_name)
 
         content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
-
+        
         File.open(file_name, "wb") { |f| f.puts content }
       end
     end
@@ -164,11 +152,12 @@ module AnnotateModels
       end
 
       [
-        File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"),      # test
-        File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"),      # spec
-        File.join(EXEMPLARS_TEST_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
-        File.join(EXEMPLARS_SPEC_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
-        File.join(BLUEPRINTS_DIR,     "#{model_name}_blueprint.rb"), # Machinist Blueprints
+        File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
+        File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
+        File.join(EXEMPLARS_TEST_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy     
+        File.join(EXEMPLARS_SPEC_DIR,      "#{model_name}_exemplar.rb"),   # Object Daddy     
+        File.join(BLUEPRINTS_DIR,      "#{model_name}_blueprint.rb"),   # Machinist blueprint
+        File.join(SPEC_BLUEPRINTS_DIR,      "#{model_name}_blueprint.rb"),   # Spec Machinist blueprint
       ].each { |file| annotate_one_file(file, info) }
 
       FIXTURE_DIRS.each do |dir|
@@ -194,12 +183,12 @@ module AnnotateModels
       end
       models
     end
-
+  
     # Retrieve the classes belonging to the model names we're asked to process
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
     def get_model_class(file)
-      require File.expand_path("#{model_dir}/#{file}") # this is for non-rails projects, which don't get Rails auto-require magic
+      require "#{model_dir}/#{file}" # this is for non-rails projects, which don't get Rails auto-require magic
       model = file.gsub(/\.rb$/, '').camelize
       parts = model.split('::')
       begin
@@ -212,23 +201,17 @@ module AnnotateModels
     # We're passed a name of things that might be
     # ActiveRecord models. If we can find the class, and
     # if its a subclass of ActiveRecord::Base,
-    # then pass it to the associated block
+    # then pas it to the associated block
     def do_annotations(options={})
-      if options[:require]
-        options[:require].each do |path|
-          require path
-        end
-      end
-
       header = PREFIX.dup
 
       if options[:include_version]
         version = ActiveRecord::Migrator.current_version rescue 0
         if version > 0
           header << "\n# Schema version: #{version}"
-        end
+        end        
       end
-
+      
       if options[:model_dir]
         self.model_dir = options[:model_dir]
       end
@@ -247,13 +230,14 @@ module AnnotateModels
         end
       end
       if annotated.empty?
-        puts "Nothing annotated."
+        puts "Nothing annotated!"
       else
         puts "Annotated (#{annotated.length}): #{annotated.join(', ')}"
       end
     end
-
+    
     def remove_annotations(options={})
+      p options
       if options[:model_dir]
         puts "removing"
         self.model_dir = options[:model_dir]
@@ -264,10 +248,10 @@ module AnnotateModels
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
             deannotated << klass
-
+            
             model_file_name = File.join(model_dir, file)
             remove_annotation_of_file(model_file_name)
-
+            
             FIXTURE_DIRS.each do |dir|
               fixture_file_name = File.join(dir,klass.table_name + ".yml")
               remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)
@@ -278,16 +262,6 @@ module AnnotateModels
         end
       end
       puts "Removed annotation from: #{deannotated.join(', ')}"
-    end
-  end
-end
-
-# monkey patches
-
-module ::ActiveRecord
-  class Base
-    def self.method_missing(name, *args)
-      # ignore this, so unknown/unloaded macros won't cause parsing to fail
     end
   end
 end
