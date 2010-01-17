@@ -1,3 +1,6 @@
+== 2.4.1 2009-10-18
+* Change bin/annotate to bin/annotate-rails to solve a conflict with 
+
 == 2.1 2009-10-18
 
 * New options
