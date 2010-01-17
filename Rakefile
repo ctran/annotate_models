@@ -9,7 +9,7 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "annotate"
-    gem.executables = "annotate"
+    gem.executables = "annotate-rails"
     gem.summary = "Annotates Rails Models, routes, fixtures, and others based on the database schema."
     gem.description = gem.summary
     gem.email = ["alex@stinky.com", 'ctran@pragmaquest.com', "x@nofxx.com"]
