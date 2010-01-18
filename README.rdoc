@@ -40,14 +40,14 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of "ra
 
 From rubyforge:
 
-  sudo gem install annotate
+  sudo gem install masa-iwasaki-annotate
 
 From github:
 
-  git clone git://github.com/ctran/annotate_models.git annotate
+  git clone git://github.com/masa-iwasaki/annotate_models.git annotate
   cd annotate
   rake gem
-  sudo gem install pkg/annotate-*.gem
+  sudo gem install pkg/annotate-masa-iwasaki-*.gem
 
 == USAGE
 

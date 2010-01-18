@@ -4,15 +4,15 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{annotate}
+  s.name = %q{masa-iwasaki-annotate}
   s.version = "2.4.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini"]
+  s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini", "Masatoshi Iwasaki"]
   s.date = %q{2010-01-18}
   s.default_executable = %q{annotate-rails}
-  s.description = %q{Annotates Rails Models, routes, fixtures, and others based on the database schema.}
-  s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com"]
+  s.description = %q{Rename an executable file from 'annotate' to 'annotate-rails' to avoid conflict with gdlib2}
+  s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com", "mstshiwasaki@gmail.com"]
   s.executables = ["annotate-rails"]
   s.extra_rdoc_files = [
     "README.rdoc"
@@ -34,10 +34,9 @@ Gem::Specification.new do |s|
      "spec/spec_helper.rb",
      "tasks/migrate.rake"
   ]
-  s.homepage = %q{http://github.com/ctran/annotate}
+  s.homepage = %q{http://github.com/masa-iwasaki/annotate}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubyforge_project = %q{annotate}
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{Annotates Rails Models, routes, fixtures, and others based on the database schema.}
   s.test_files = [

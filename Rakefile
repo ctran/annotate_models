@@ -8,24 +8,22 @@ task :default => [:spec]
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "annotate"
+    gem.name = "masa-iwasaki-annotate"
     gem.executables = "annotate-rails"
     gem.summary = "Annotates Rails Models, routes, fixtures, and others based on the database schema."
-    gem.description = gem.summary
-    gem.email = ["alex@stinky.com", 'ctran@pragmaquest.com', "x@nofxx.com"]
-    gem.homepage = "http://github.com/ctran/annotate"
-    gem.authors = ['Cuong Tran', "Alex Chaffee", "Marcos Piccinini"]
+    gem.description = "Rename an executable file from 'annotate' to 'annotate-rails' to avoid conflict with gdlib2"
+    gem.email = ["alex@stinky.com", 'ctran@pragmaquest.com', "x@nofxx.com", 'mstshiwasaki@gmail.com']
+    gem.homepage = "http://github.com/masa-iwasaki/annotate"
+    gem.authors = ['Cuong Tran', "Alex Chaffee", "Marcos Piccinini", 'Masatoshi Iwasaki']
     gem.files =  FileList["[A-Z]*.*", "{bin,lib,tasks,spec}/**/*"]
-    gem.rubyforge_project = "annotate"
-    
     # note that Jeweler automatically reads the version from VERSION.yml
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
-  
+
   Jeweler::RubyforgeTasks.new do |rubyforge|
     rubyforge.doc_task = "rdoc"
   end
-  
+
 rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"
 end
