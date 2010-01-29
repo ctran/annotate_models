@@ -7,13 +7,18 @@ module AnnotateModels
     FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
     # File.join for windows reverse bar compat?
     # I dont use windows, can`t test
-    UNIT_TEST_DIR     = File.join("test", "unit"  )
-    SPEC_MODEL_DIR    = File.join("spec", "models")
+
+    UNIT_TEST_DIR         = File.join("test", "unit"  )
+    SPEC_MODEL_DIR        = File.join("spec", "models")
     # Object Daddy http://github.com/flogic/object_daddy/tree/master
-    EXEMPLARS_TEST_DIR     = File.join("test", "exemplars")
-    EXEMPLARS_SPEC_DIR     = File.join("spec", "exemplars")
+    EXEMPLARS_TEST_DIR    = File.join("test", "exemplars")
+    EXEMPLARS_SPEC_DIR    = File.join("spec", "exemplars")
     # Machinist http://github.com/notahat/machinist
-    BLUEPRINTS_DIR         = File.join("test", "blueprints")
+    BLUEPRINTS_TEST_DIR   = File.join("test", "blueprints")
+    BLUEPRINTS_SPEC_DIR   = File.join("spec", "blueprints")
+    # Factory Girl http://github.com/thoughtbot/factory_girl
+    FACTORY_GIRL_TEST_DIR = File.join("test", "factories")
+    FACTORY_GIRL_SPEC_DIR = File.join("spec", "factories")
 
     def model_dir
       @model_dir || "app/models"
@@ -176,9 +181,12 @@ module AnnotateModels
 
       unless ENV['exclude_fixtures']
         [
-        File.join(EXEMPLARS_TEST_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
-        File.join(EXEMPLARS_SPEC_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
-        File.join(BLUEPRINTS_DIR,     "#{model_name}_blueprint.rb"), # Machinist Blueprints
+        File.join(EXEMPLARS_TEST_DIR,     "#{model_name}_exemplar.rb"),  # Object Daddy
+        File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),  # Object Daddy
+        File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"), # Machinist Blueprints
+        File.join(BLUEPRINTS_SPEC_DIR,    "#{model_name}_blueprint.rb"), # Machinist Blueprints
+        File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),   # Factory Girl Factories
+        File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),   # Factory Girl Factories
         ].each do |file| 
           annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
         end
