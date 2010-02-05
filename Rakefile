@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'rake'
 require 'lib/annotate'
 
@@ -17,15 +16,15 @@ begin
     gem.authors = ['Cuong Tran', "Alex Chaffee", "Marcos Piccinini"]
     gem.files =  FileList["[A-Z]*.*", "{bin,lib,tasks,spec}/**/*"]
     gem.rubyforge_project = "annotate"
-    
+
     # note that Jeweler automatically reads the version from VERSION.yml
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
-  
+
   Jeweler::RubyforgeTasks.new do |rubyforge|
     rubyforge.doc_task = "rdoc"
   end
-  
+
 rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"
 end
