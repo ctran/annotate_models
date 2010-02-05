@@ -4,13 +4,30 @@ require 'rubygems'
 require 'activesupport'
 
 describe AnnotateModels do
+  def mock_class(table_name, primary_key, columns)
+    options = {
+      :connection   => mock("Conn", :indexes => []),
+      :table_name   => table_name,
+      :primary_key  => primary_key.to_s,
+      :column_names => columns.map { |col| col.name.to_s },
+      :columns      => columns
+    }
 
-  def mock_klass(stubs={})
-    @mock_file ||= mock("Klass", stubs)
+    mock("An ActiveRecord class", options)
   end
 
-  def mock_column(stubs={})
-    @mock_column ||= mock("Column", stubs)
+  def mock_column(name, type, options={})
+    default_options = {
+      :limit   => nil,
+      :null    => false,
+      :default => nil
+    }
+
+    stubs = default_options.dup
+    stubs.merge!(options)
+    stubs.merge!(:name => name, :type => type)
+
+    mock("Column", stubs)
   end
 
   it { AnnotateModels.quote(nil).should eql("NULL") }
@@ -21,22 +38,18 @@ describe AnnotateModels do
   it { AnnotateModels.quote(1e-20).should eql("1.0e-20") }
 
   it "should get schema info" do
+    klass = mock_class(:users, :id, [
+      mock_column(:id, :integer),
+      mock_column(:name, :string, :limit => 50)
+    ])
 
-    AnnotateModels.get_schema_info(mock_klass(
-      :connection => mock("Conn", :indexes => []),
-      :table_name => "users",
-      :primary_key => "id",
-      :column_names => ["id","login"],
-      :columns => [
-        mock_column(:type => "integer", :default => nil, :null => false, :name => "id", :limit => nil),
-        mock_column(:type => "string", :default => nil, :null => false, :name => "name", :limit => 50)
-      ]), "Schema Info").should eql(<<-EOS)
+    AnnotateModels.get_schema_info(klass, "Schema Info").should eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
 #
-#  id    :integer         not null, primary key
-#  id    :integer         not null, primary key
+#  id   :integer         not null, primary key
+#  name :string(50)      not null
 #
 
 EOS
