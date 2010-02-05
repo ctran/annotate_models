@@ -2,8 +2,11 @@ require File.dirname(__FILE__) + '/../spec_helper.rb'
 require 'annotate/annotate_models'
 require 'rubygems'
 require 'activesupport'
+require 'fakefs/spec_helpers'
 
 describe AnnotateModels do
+  include FakeFS::SpecHelpers
+
   def mock_class(table_name, primary_key, columns)
     options = {
       :connection   => mock("Conn", :indexes => []),
@@ -93,4 +96,24 @@ EOS
     end
   end
 
+  describe "annotating a file" do
+    it "should annotate the file before the model if position == 'before'" do
+      file_content = "class User < ActiveRecord::Base; end"
+
+      File.open("user.rb", "w") do |f|
+        f << file_content
+      end
+
+      klass = mock_class(:users, :id, [
+        mock_column(:id, :integer),
+        mock_column(:name, :string, :limit => 50)
+      ])
+
+      schema_info = AnnotateModels.get_schema_info(klass, "Schema Info")
+
+      AnnotateModels.annotate_one_file("user.rb", schema_info, {:position => "before"})
+
+      File.read("user.rb").should == "#{schema_info}#{file_content}\n"
+    end
+  end
 end
