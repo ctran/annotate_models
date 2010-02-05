@@ -115,5 +115,24 @@ EOS
 
       File.read("user.rb").should == "#{schema_info}#{file_content}\n"
     end
+
+    it "should annotate before if given :position => :before" do
+      file_content = "class User < ActiveRecord::Base; end"
+
+      File.open("user.rb", "w") do |f|
+        f << file_content
+      end
+
+      klass = mock_class(:users, :id, [
+        mock_column(:id, :integer),
+        mock_column(:name, :string, :limit => 50)
+      ])
+
+      schema_info = AnnotateModels.get_schema_info(klass, "Schema Info")
+
+      AnnotateModels.annotate_one_file("user.rb", schema_info, {:position => :before})
+
+      File.read("user.rb").should == "#{schema_info}#{file_content}\n"
+    end
   end
 end
