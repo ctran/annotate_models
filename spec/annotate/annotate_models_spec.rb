@@ -97,42 +97,37 @@ EOS
   end
 
   describe "annotating a file" do
-    it "should annotate the file before the model if position == 'before'" do
-      file_content = "class User < ActiveRecord::Base; end"
-
-      File.open("user.rb", "w") do |f|
-        f << file_content
-      end
-
-      klass = mock_class(:users, :id, [
+    before do
+      @file_name = "user.rb"
+      @file_content = "class User < ActiveRecord::Base; end"
+      @klass = mock_class(:users, :id, [
         mock_column(:id, :integer),
         mock_column(:name, :string, :limit => 50)
       ])
+    end
 
-      schema_info = AnnotateModels.get_schema_info(klass, "Schema Info")
+    def write_file
+      File.open("user.rb", "w") do |f|
+        f << @file_content
+      end
+    end
+
+    it "should annotate the file before the model if position == 'before'" do
+      write_file
+      schema_info = AnnotateModels.get_schema_info(@klass, "Schema Info")
 
       AnnotateModels.annotate_one_file("user.rb", schema_info, {:position => "before"})
 
-      File.read("user.rb").should == "#{schema_info}#{file_content}\n"
+      File.read("user.rb").should == "#{schema_info}#{@file_content}\n"
     end
 
     it "should annotate before if given :position => :before" do
-      file_content = "class User < ActiveRecord::Base; end"
+      write_file
+      schema_info = AnnotateModels.get_schema_info(@klass, "Schema Info")
 
-      File.open("user.rb", "w") do |f|
-        f << file_content
-      end
+      AnnotateModels.annotate_one_file(@file_name, schema_info, {:position => :before})
 
-      klass = mock_class(:users, :id, [
-        mock_column(:id, :integer),
-        mock_column(:name, :string, :limit => 50)
-      ])
-
-      schema_info = AnnotateModels.get_schema_info(klass, "Schema Info")
-
-      AnnotateModels.annotate_one_file("user.rb", schema_info, {:position => :before})
-
-      File.read("user.rb").should == "#{schema_info}#{file_content}\n"
+      File.read("user.rb").should == "#{schema_info}#{@file_content}\n"
     end
   end
 end
