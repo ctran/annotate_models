@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 require 'annotate/annotate_models'
-require 'activesupport'
+require 'active_support'
 require 'fakefs/spec_helpers'
 
 describe AnnotateModels do
