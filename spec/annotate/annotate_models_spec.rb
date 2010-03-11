@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 require 'annotate/annotate_models'
 require 'rubygems'
-require 'activesupport'
+require 'active_support'
 
 describe AnnotateModels do
 
