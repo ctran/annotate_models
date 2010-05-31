@@ -59,7 +59,7 @@ module AnnotateModels
         if col_type == "decimal"
           col_type << "(#{col.precision}, #{col.scale})"
         else
-          col_type << "(#{col.limit})" if col.limit
+          col_type << "(#{col.limit})" if (col.limit && col_type != "integer")
         end
 
         # Check out if we got a geometric column
