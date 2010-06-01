@@ -18,6 +18,10 @@ module AnnotateModels
     SPEC_FACTORIES_DIR     = File.join("spec", "factories")
     TEST_FACTORIES_DIR     = File.join("test", "factories")
 
+    # Don't show limit (#) on these column types
+    # Example: show "integer" instead of "integer(4)"
+    NO_LIMIT_COL_TYPES = ["integer", "boolean"]
+
     def model_dir
       @model_dir || "app/models"
     end
@@ -59,7 +63,9 @@ module AnnotateModels
         if col_type == "decimal"
           col_type << "(#{col.precision}, #{col.scale})"
         else
-          col_type << "(#{col.limit})" if (col.limit && col_type != "integer")
+          if (col.limit)
+            col_type << "(#{col.limit})" unless NO_LIMIT_COL_TYPES.include?(col_type)
+          end
         end
 
         # Check out if we got a geometric column
