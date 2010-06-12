@@ -80,4 +80,62 @@ EOS
     end
   end
 
+  describe "#remove_annotation_of_file" do
+    def create(file, body="hi")
+      File.open(@dir + '/' + file, "w") do |f|
+        f.puts(body)
+      end
+    end
+    def content(file)
+      File.read(@dir + '/' + file)
+    end
+
+    before :all do
+      require "tmpdir"
+      @dir = Dir.tmpdir + "/#{Time.now.to_i}" + "/annotate_models"
+      FileUtils.mkdir_p(@dir)
+      create("before.rb", <<-EOS)
+# == Schema Information
+#
+# Table name: foo
+#
+#  id                  :integer         not null, primary key
+#  created_at          :datetime
+#  updated_at          :datetime
+#
+
+class Foo < ActiveRecord::Base
+end
+      EOS
+      create("after.rb", <<-EOS)
+class Foo < ActiveRecord::Base
+end
+
+# == Schema Information
+#
+# Table name: foo
+#
+#  id                  :integer         not null, primary key
+#  created_at          :datetime
+#  updated_at          :datetime
+#
+
+      EOS
+    end
+    it "should remove before annotate" do
+      AnnotateModels.remove_annotation_of_file(@dir + '/' + "before.rb")
+      content("before.rb").should == <<-EOS
+class Foo < ActiveRecord::Base
+end
+      EOS
+    end
+    it "should remove after annotate" do
+      AnnotateModels.remove_annotation_of_file(@dir + '/' + "after.rb")
+      content("after.rb").should == <<-EOS
+class Foo < ActiveRecord::Base
+end
+      EOS
+    end
+  end
+
 end

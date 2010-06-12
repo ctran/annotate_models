@@ -127,7 +127,7 @@ module AnnotateModels
           false
         else
           # Remove old schema info
-          old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
+          old_content.sub!(/^\n?# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
 
           # Write it back
           new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
@@ -142,7 +142,7 @@ module AnnotateModels
       if File.exist?(file_name)
         content = File.read(file_name)
 
-        content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
+        content.sub!(/^\n?# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
 
         File.open(file_name, "wb") { |f| f.puts content }
       end
