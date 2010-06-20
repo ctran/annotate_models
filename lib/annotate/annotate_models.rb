@@ -134,7 +134,7 @@ module AnnotateModels
           old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
 
           # Write it back
-          new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
+          new_content = options[:position].to_s == 'after' ? (old_content + "\n" + info_block) : (info_block + old_content) 
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           true
@@ -189,15 +189,13 @@ module AnnotateModels
         ].each do |file| 
           annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
         end
-
         FIXTURE_DIRS.each do |dir|
-          fixture_file_name = File.join(dir,klass.table_name + ".yml")
+          fixture_file_name = File.join(dir,(klass.table_name || "")  + ".yml")
           if File.exist?(fixture_file_name)
             annotate_one_file(fixture_file_name, info, options_with_position(options, :position_in_fixture))         
           end
         end
       end
-      
       annotated
     end
     
@@ -307,7 +305,7 @@ module AnnotateModels
             remove_annotation_of_file(model_file_name)
 
             FIXTURE_DIRS.each do |dir|
-              fixture_file_name = File.join(dir,klass.table_name + ".yml")
+              fixture_file_name = File.join(dir,(klass.table_name || "")  + ".yml")
               remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)
             end
             
