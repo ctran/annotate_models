@@ -9,6 +9,7 @@ describe AnnotateModels do
     require "tmpdir"
     @dir = Dir.tmpdir + "/#{Time.now.to_i}" + "/annotate_models"
     FileUtils.mkdir_p(@dir)
+    AnnotateModels.model_dir = @dir
   end
   
   module ::ActiveRecord
@@ -51,8 +52,7 @@ describe AnnotateModels do
 #
 
 EOS
-        
-        AnnotateModels.model_dir = @dir
+
         @user_file = create('user.rb', <<-EOS)
 class User < ActiveRecord::Base
 end
@@ -73,6 +73,7 @@ end
     end
   
     it "should write the schema before (default)" do
+      ARGV.stub!(:dup).and_return []
       AnnotateModels.stub!(:get_schema_info).and_return @schema_info
       AnnotateModels.do_annotations
       File.read(@user_file).should eql(<<-EOF)
@@ -91,6 +92,7 @@ EOF
    end
    
    it "should write the schema after" do
+     ARGV.stub!(:dup).and_return []
      AnnotateModels.stub!(:get_schema_info).and_return @schema_info
      AnnotateModels.do_annotations(:position => :after)
      File.read(@user_file).should eql(<<-EOF)
