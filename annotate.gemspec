@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini"]
-  s.date = %q{2009-12-14}
+  s.date = %q{2010-03-11}
   s.default_executable = %q{annotate}
   s.description = %q{Annotates Rails Models, routes, fixtures, and others based on the database schema.}
   s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com"]

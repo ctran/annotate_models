@@ -1,7 +1,8 @@
+#encoding: utf-8
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 require 'annotate/annotate_models'
 require 'rubygems'
-require 'activesupport'
+require 'active_support'
 
 describe AnnotateModels do
   
@@ -124,6 +125,12 @@ EOF
           acts_as_awesome :yah
         end
       EOS
+      create('foo_with_utf8.rb', <<-EOS)
+        #encoding: utf-8
+        class FooWithUtf8 < ActiveRecord::Base
+          UTF8STRINGS = %w[résumé façon âge]
+        end
+      EOS
     end
     
     it "should work" do
@@ -136,6 +143,10 @@ EOF
       klass.name.should == "FooWithMacro"
     end
     
+    it "should not complain of invalid multibyte char (USASCII)" do
+      klass = AnnotateModels.get_model_class("foo_with_utf8.rb")
+      klass.name.should == "FooWithUtf8"      
+    end
   end
 
 end
