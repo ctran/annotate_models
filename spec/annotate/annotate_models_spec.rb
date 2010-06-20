@@ -3,29 +3,11 @@ require File.dirname(__FILE__) + '/../spec_helper.rb'
 require 'annotate/annotate_models'
 require 'active_support'
 require 'fakefs/spec_helpers'
+require 'tmpdir'
 
 describe AnnotateModels do
   include FakeFS::SpecHelpers
-  
-  before(:all) do
-    require "tmpdir"
-    @dir = Dir.tmpdir + "/#{Time.now.to_i}" + "/annotate_models"
-    FileUtils.mkdir_p(@dir)
-    AnnotateModels.model_dir = @dir
-  end
-  
-  module ::ActiveRecord
-    class Base
-    end
-  end
-  
-  def create(file, body="hi")
-    File.open(@dir + '/' + file, "w") do |f|
-      f.puts(body)
-    end
-    @dir + '/' + file
-  end
-  
+    
   def mock_class(table_name, primary_key, columns)
     options = {
       :connection   => mock("Conn", :indexes => []),
@@ -78,8 +60,20 @@ EOS
   end
   
   describe "#get_model_class" do
+
+    def create(file, body="hi")
+      path = @dir + '/' + file
+      File.open(path, "w") do |f|
+        f.puts(body)
+      end
+      path
+    end
     
     before :all do     
+      @dir = File.join Dir.tmpdir, "annotate_models"
+      FileUtils.mkdir_p(@dir)
+      AnnotateModels.model_dir = @dir
+
       create('foo.rb', <<-EOS)
         class Foo < ActiveRecord::Base
         end
@@ -174,36 +168,43 @@ end
 
   describe "annotating a file" do
     before do
-      @file_name = "user.rb"
-      @file_content = "class User < ActiveRecord::Base; end"
+      @file_name    = "user.rb"
+      @file_content = <<-EOS
+class User < ActiveRecord::Base
+end
+      EOS
+      File.open(@file_name, "wb") { |f| f.write @file_content }
       @klass = mock_class(:users, :id, [
                                         mock_column(:id, :integer),
                                         mock_column(:name, :string, :limit => 50)
                                        ])
-    end
-
-    def write_file
-      File.open("user.rb", "w") do |f|
-        f << @file_content
-      end
+      @schema_info = AnnotateModels.get_schema_info(@klass, "== Schema Info")
     end
 
     it "should annotate the file before the model if position == 'before'" do
-      write_file
-      schema_info = AnnotateModels.get_schema_info(@klass, "Schema Info")
-
-      AnnotateModels.annotate_one_file("user.rb", schema_info, :position => "before")
-
-      File.read("user.rb").should == "#{schema_info}#{@file_content}\n"
+      AnnotateModels.annotate_one_file(@file_name, @schema_info, :position => "before")
+      File.read(@file_name).should == "#{@schema_info}#{@file_content}"
     end
 
     it "should annotate before if given :position => :before" do
-      write_file
-      schema_info = AnnotateModels.get_schema_info(@klass, "Schema Info")
+      AnnotateModels.annotate_one_file(@file_name, @schema_info, :position => :before)
+      File.read(@file_name).should == "#{@schema_info}#{@file_content}"
+    end
 
-      AnnotateModels.annotate_one_file(@file_name, schema_info, :position => :before)
+    it "should annotate before if given :position => :after" do
+      AnnotateModels.annotate_one_file(@file_name, @schema_info, :position => :after)
+      File.read(@file_name).should == "#{@file_content}\n#{@schema_info}"
+    end
 
-      File.read("user.rb").should == "#{schema_info}#{@file_content}\n"
+    it "should update annotate position" do
+      AnnotateModels.annotate_one_file(@file_name, @schema_info, :position => :before)
+
+      another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer),]),
+                                                           "== Schema Info")
+
+      AnnotateModels.annotate_one_file(@file_name, another_schema_info, :position => :after)
+
+      File.read(@file_name).should == "#{@file_content}\n#{another_schema_info}"
     end
   end
 end
