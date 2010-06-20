@@ -57,7 +57,7 @@ OptionParser.new do |opts|
     end
   end
 
-  opts.on('-e', '--exclude [tests,fixtures]', Array, "Do not annotate fixtures, test files, or both") do |exclusions|
+  opts.on('-e', '--exclude [tests,fixtures,factories]', Array, "Do not annotate fixtures, test files, and/or factories") do |exclusions|
     exclusions.each { |exclusion| ENV["exclude_#{exclusion}"] = "yes" }
   end
 
