@@ -1,10 +1,11 @@
 #encoding: utf-8
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 require 'annotate/annotate_models'
-require 'rubygems'
 require 'active_support'
+require 'fakefs/spec_helpers'
 
 describe AnnotateModels do
+  include FakeFS::SpecHelpers
   
   before(:all) do
     require "tmpdir"
@@ -14,23 +15,41 @@ describe AnnotateModels do
   end
   
   module ::ActiveRecord
-     class Base
-     end
-   end
-   
-   def create(file, body="hi")
-     File.open(@dir + '/' + file, "w") do |f|
-       f.puts(body)
-     end
-     @dir + '/' + file
-   end
-   
-  def mock_klass(stubs={})
-     mock("Klass", stubs)
+    class Base
+    end
+  end
+  
+  def create(file, body="hi")
+    File.open(@dir + '/' + file, "w") do |f|
+      f.puts(body)
+    end
+    @dir + '/' + file
+  end
+  
+  def mock_class(table_name, primary_key, columns)
+    options = {
+      :connection   => mock("Conn", :indexes => []),
+      :table_name   => table_name,
+      :primary_key  => primary_key.to_s,
+      :column_names => columns.map { |col| col.name.to_s },
+      :columns      => columns
+    }
+
+    mock("An ActiveRecord class", options)
   end
 
-  def mock_column(stubs={})
-     mock("Column", stubs)
+  def mock_column(name, type, options={})
+    default_options = {
+      :limit   => nil,
+      :null    => false,
+      :default => nil
+    }
+
+    stubs = default_options.dup
+    stubs.merge!(options)
+    stubs.merge!(:name => name, :type => type)
+
+    mock("Column", stubs)
   end
 
   it { AnnotateModels.quote(nil).should eql("NULL") }
@@ -40,10 +59,13 @@ describe AnnotateModels do
   it { AnnotateModels.quote(25.6).should eql("25.6") }
   it { AnnotateModels.quote(1e-20).should eql("1.0e-20") }
   
-  describe "schema info" do
+  it "should get schema info" do
+    klass = mock_class(:users, :id, [
+                                     mock_column(:id, :integer),
+                                     mock_column(:name, :string, :limit => 50)
+                                    ])
 
-    before(:each) do
-@schema_info =  <<-EOS
+    AnnotateModels.get_schema_info(klass, "Schema Info").should eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -53,69 +75,11 @@ describe AnnotateModels do
 #
 
 EOS
-
-        @user_file = create('user.rb', <<-EOS)
-class User < ActiveRecord::Base
-end
-        EOS
-      @mock = mock_klass(
-        :connection => mock("Conn", :indexes => []),
-        :table_name => "users",
-        :primary_key => "id",
-        :column_names => ["id","name"],
-        :columns => [
-          mock_column(:type => "integer", :default => nil, :null => false, :name => "id", :limit => nil),
-          mock_column(:type => "string", :default => nil, :null => false, :name => "name", :limit => 50)
-        ])
-    end
- 
-    it "should get schema info" do
-      AnnotateModels.get_schema_info(@mock , "Schema Info").should eql(@schema_info)
-    end
+  end
   
-    it "should write the schema before (default)" do
-      ARGV.stub!(:dup).and_return []
-      AnnotateModels.stub!(:get_schema_info).and_return @schema_info
-      AnnotateModels.do_annotations
-      File.read(@user_file).should eql(<<-EOF)
-# Schema Info
-#
-# Table name: users
-#
-#  id   :integer         not null, primary key
-#  name :string(50)      not null
-#
-
-class User < ActiveRecord::Base
-end
-EOF
-          
-   end
-   
-   it "should write the schema after" do
-     ARGV.stub!(:dup).and_return []
-     AnnotateModels.stub!(:get_schema_info).and_return @schema_info
-     AnnotateModels.do_annotations(:position => :after)
-     File.read(@user_file).should eql(<<-EOF)
-class User < ActiveRecord::Base
-end
-
-# Schema Info
-#
-# Table name: users
-#
-#  id   :integer         not null, primary key
-#  name :string(50)      not null
-#
-
-EOF
-
-      end
- end
- 
   describe "#get_model_class" do
- 
-     before :all do     
+    
+    before :all do     
       create('foo.rb', <<-EOS)
         class Foo < ActiveRecord::Base
         end
@@ -151,18 +115,16 @@ EOF
 
   describe "#remove_annotation_of_file" do
     def create(file, body="hi")
-      File.open(@dir + '/' + file, "w") do |f|
+      File.open(file, "w") do |f|
         f.puts(body)
       end
     end
+
     def content(file)
-      File.read(@dir + '/' + file)
+      File.read(file)
     end
 
-    before :all do
-      require "tmpdir"
-      @dir = Dir.tmpdir + "/#{Time.now.to_i}" + "/annotate_models"
-      FileUtils.mkdir_p(@dir)
+    it "should remove before annotate" do
       create("before.rb", <<-EOS)
 # == Schema Information
 #
@@ -176,6 +138,16 @@ EOF
 class Foo < ActiveRecord::Base
 end
       EOS
+
+      AnnotateModels.remove_annotation_of_file("before.rb")
+
+      content("before.rb").should == <<-EOS
+class Foo < ActiveRecord::Base
+end
+      EOS
+    end
+
+    it "should remove after annotate" do
       create("after.rb", <<-EOS)
 class Foo < ActiveRecord::Base
 end
@@ -190,16 +162,9 @@ end
 #
 
       EOS
-    end
-    it "should remove before annotate" do
-      AnnotateModels.remove_annotation_of_file(@dir + '/' + "before.rb")
-      content("before.rb").should == <<-EOS
-class Foo < ActiveRecord::Base
-end
-      EOS
-    end
-    it "should remove after annotate" do
-      AnnotateModels.remove_annotation_of_file(@dir + '/' + "after.rb")
+
+      AnnotateModels.remove_annotation_of_file("after.rb")
+
       content("after.rb").should == <<-EOS
 class Foo < ActiveRecord::Base
 end
@@ -207,4 +172,38 @@ end
     end
   end
 
+  describe "annotating a file" do
+    before do
+      @file_name = "user.rb"
+      @file_content = "class User < ActiveRecord::Base; end"
+      @klass = mock_class(:users, :id, [
+                                        mock_column(:id, :integer),
+                                        mock_column(:name, :string, :limit => 50)
+                                       ])
+    end
+
+    def write_file
+      File.open("user.rb", "w") do |f|
+        f << @file_content
+      end
+    end
+
+    it "should annotate the file before the model if position == 'before'" do
+      write_file
+      schema_info = AnnotateModels.get_schema_info(@klass, "Schema Info")
+
+      AnnotateModels.annotate_one_file("user.rb", schema_info, :position => "before")
+
+      File.read("user.rb").should == "#{schema_info}#{@file_content}\n"
+    end
+
+    it "should annotate before if given :position => :before" do
+      write_file
+      schema_info = AnnotateModels.get_schema_info(@klass, "Schema Info")
+
+      AnnotateModels.annotate_one_file(@file_name, schema_info, :position => :before)
+
+      File.read("user.rb").should == "#{schema_info}#{@file_content}\n"
+    end
+  end
 end

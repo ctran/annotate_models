@@ -58,7 +58,7 @@ module AnnotateModels
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
         attrs << "not null" unless col.null
-        attrs << "primary key" if col.name == klass.primary_key
+        attrs << "primary key" if col.name.to_sym == klass.primary_key.to_sym
 
         col_type = col.type.to_s
         if col_type == "decimal"
@@ -173,12 +173,12 @@ module AnnotateModels
       if annotate_one_file(model_file_name, info, options_with_position(options, :position_in_class))
         annotated = true
       end
- 
+
       unless ENV['exclude_tests']
         [
           File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
           File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
-        ].each do |file| 
+        ].each do |file|
           # todo: add an option "position_in_test" -- or maybe just ask if anyone ever wants different positions for model vs. test vs. fixture
           annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
         end
@@ -198,7 +198,7 @@ module AnnotateModels
         FIXTURE_DIRS.each do |dir|
           fixture_file_name = File.join(dir,(klass.table_name || "")  + ".yml")
           if File.exist?(fixture_file_name)
-            annotate_one_file(fixture_file_name, info, options_with_position(options, :position_in_fixture))         
+            annotate_one_file(fixture_file_name, info, options_with_position(options, :position_in_fixture))
           end
         end
       end
@@ -214,7 +214,7 @@ module AnnotateModels
 
       annotated
     end
-    
+
     # position = :position_in_fixture or :position_in_class
     def options_with_position(options, position_in)
       options.merge(:position=>(options[position_in] || options[:position]))
@@ -321,7 +321,7 @@ module AnnotateModels
               fixture_file_name = File.join(dir,(klass.table_name || "")  + ".yml")
               remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)
             end
-            
+
             [ File.join(UNIT_TEST_DIR, "#{klass.name.underscore}_test.rb"),
               File.join(SPEC_MODEL_DIR,"#{klass.name.underscore}_spec.rb")].each do |file|
               remove_annotation_of_file(file) if File.exist?(file)
