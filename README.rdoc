@@ -1,3 +1,12 @@
+This is a crude hacked version of Annotate, which accomplishes one
+task: I renders the Schema Information as RDoc Format, so that a
+subsequent `rake doc:app` will include the Schema Information in the
+generated documentation.
+
+This version is incompatible with previous Versions of Annotate and
+doesn't not come with any helpers to bridge that gap.
+
+
 == Annotate (aka AnnotateModels)
 
 Add a comment summarizing the current schema to the top or bottom of each of your...

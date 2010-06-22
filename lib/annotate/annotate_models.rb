@@ -1,8 +1,10 @@
 module AnnotateModels
   class << self
     # Annotate Models plugin use this header
-    COMPAT_PREFIX = "== Schema Info"
+
     PREFIX = "== Schema Information"
+    END_MARK = "== Schema Information End"
+    PATTERN = /^##{PREFIX}\n(#.*\n)*#--\n##{END_MARK}\n#\+\+\n/
 
     FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
     # File.join for windows reverse bar compat?
@@ -42,10 +44,10 @@ module AnnotateModels
     # each column. The line contains the column name,
     # the type (and length), and any optional attributes
     def get_schema_info(klass, header, options = {})
-      info = "# #{header}\n#\n"
-      info << "# Table name: #{klass.table_name}\n#\n"
+      info = "##{header}\n#\n"
+      info << "#Table name: #{klass.table_name}\n#\n"
 
-      max_size = klass.column_names.collect{|name| name.size}.max + 1
+      max_size = klass.column_names.collect{|name| name.size}.max + 5
       klass.columns.each do |col|
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
@@ -77,14 +79,17 @@ module AnnotateModels
           end
         end
 
-        info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
+        a = ([col_type] + attrs).join(", ")
+        line = sprintf("#%-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col.name}*::", a).rstrip + "\n"
+        # puts line
+        info << line
       end
 
       if options[:show_indexes]
         info << get_index_info(klass)
       end
 
-      info << "#\n\n"
+      info << "#--\n#== Schema Information End\n#++\n"
     end
 
     def get_index_info(klass)
@@ -119,15 +124,18 @@ module AnnotateModels
         old_content = File.read(file_name)
 
         # Ignore the Schema version line because it changes with each migration
-        header = Regexp.new(/(^# Table name:.*?\n(#.*\n)*\n)/)
+        header = Regexp.new(/(^#Table name:.*?\n(#.*\n)*)/)
         old_header = old_content.match(header).to_s
         new_header = info_block.match(header).to_s
+
+        # puts "old_header: #{old_header}"
+        # puts "new_header: #{new_header}"
 
         if old_header == new_header
           false
         else
           # Remove old schema info
-          old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
+          old_content.sub!(PATTERN, '')
 
           # Write it back
           new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
@@ -142,7 +150,7 @@ module AnnotateModels
       if File.exist?(file_name)
         content = File.read(file_name)
 
-        content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
+        content.sub!(PATTERN, '')
 
         File.open(file_name, "wb") { |f| f.puts content }
       end
@@ -263,6 +271,7 @@ module AnnotateModels
 
       annotated = []
       get_model_files.each do |file|
+        # puts "---------------- file: #{file}"
         begin
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
