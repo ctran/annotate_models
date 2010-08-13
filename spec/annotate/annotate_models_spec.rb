@@ -79,4 +79,56 @@ EOS
     end
   end
 
+  describe "annotating one file already annotated but schema was changed" do
+    def create(file, body="hi")
+      File.open(@dir + '/' + file, "w") do |f|
+        f.puts(body)
+      end
+    end
+
+    before :all do
+      require "tmpdir"
+      @dir = Dir.tmpdir + "/#{Time.now.to_i}" + "/annotate_models"
+      FileUtils.mkdir_p(@dir)
+      AnnotateModels.model_dir = @dir
+      create('foo.rb', <<-EOS)
+class Foo < ActiveRecord::Base
+end
+# == Schema Information
+#
+# Table name: users
+#
+#  id    :integer         primary key
+#  name  :string
+#
+EOS
+    end
+
+    it 'should replace old annotation' do
+      info_block = <<-EOS
+# == Schema Information
+#
+# Table name: users
+#
+#  id    :integer         primary key
+#  name  :string
+#  new   :string
+#
+EOS
+      AnnotateModels.annotate_one_file(@dir + '/foo.rb', info_block).should be_true
+      File.read(@dir + '/foo.rb').should == <<-EOS
+class Foo < ActiveRecord::Base
+end
+# == Schema Information
+#
+# Table name: users
+#
+#  id    :integer         primary key
+#  name  :string
+#  new   :string
+#
+EOS
+    end
+  end
+
 end
