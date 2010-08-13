@@ -84,7 +84,7 @@ module AnnotateModels
         info << get_index_info(klass)
       end
 
-      info << "#\n\n"
+      info << "#\n"
     end
 
     def get_index_info(klass)
@@ -119,7 +119,7 @@ module AnnotateModels
         old_content = File.read(file_name)
 
         # Ignore the Schema version line because it changes with each migration
-        header = Regexp.new(/(^# Table name:.*?\n(#.*\n)*\n)/)
+        header = Regexp.new(/(^# Table name:.*?\n(#.*\n)*)/)
         old_header = old_content.match(header).to_s
         new_header = info_block.match(header).to_s
 
@@ -130,7 +130,7 @@ module AnnotateModels
           old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
 
           # Write it back
-          new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
+          new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + info_block)
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           true

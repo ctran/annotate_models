@@ -38,7 +38,6 @@ describe AnnotateModels do
 #  id    :integer         not null, primary key
 #  id    :integer         not null, primary key
 #
-
 EOS
 
   end

@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'rake'
 require 'lib/annotate'
+require 'yaml'
 
 # want other tests/tasks run by default? Add them to the list
 task :default => [:spec]
