@@ -5,10 +5,10 @@
 
 Gem::Specification.new do |s|
   s.name = %q{annotate}
-  s.version = "2.4.0"
+  s.version = "2.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini"]
+  s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini", "Mark Bates"]
   s.date = %q{2009-10-23}
   s.default_executable = %q{annotate}
   s.description = %q{Annotates Rails Models, routes, fixtures, and others based on the database schema.}
@@ -27,12 +27,12 @@ Gem::Specification.new do |s|
      "lib/annotate/annotate_routes.rb",
      "lib/tasks/annotate_models.rake",
      "lib/tasks/annotate_routes.rake",
+     "lib/tasks/migrate.rake",
      "spec/annotate/annotate_models_spec.rb",
      "spec/annotate/annotate_routes_spec.rb",
      "spec/annotate_spec.rb",
      "spec/spec.opts",
-     "spec/spec_helper.rb",
-     "tasks/migrate.rake"
+     "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/ctran/annotate}
   s.rdoc_options = ["--charset=UTF-8"]
