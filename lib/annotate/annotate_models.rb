@@ -1,28 +1,28 @@
 module AnnotateModels
+  # Annotate Models plugin use this header
+  COMPAT_PREFIX = "== Schema Info"
+  PREFIX = "== Schema Information"
+
+  FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
+  # File.join for windows reverse bar compat?
+  # I dont use windows, can`t test
+  UNIT_TEST_DIR         = File.join("test", "unit"  )
+  SPEC_MODEL_DIR        = File.join("spec", "models")
+  # Object Daddy http://github.com/flogic/object_daddy/tree/master
+  EXEMPLARS_TEST_DIR    = File.join("test", "exemplars")
+  EXEMPLARS_SPEC_DIR    = File.join("spec", "exemplars")
+  # Machinist http://github.com/notahat/machinist
+  BLUEPRINTS_TEST_DIR   = File.join("test", "blueprints")
+  BLUEPRINTS_SPEC_DIR   = File.join("spec", "blueprints")
+  # Factory Girl http://github.com/thoughtbot/factory_girl
+  FACTORY_GIRL_TEST_DIR = File.join("test", "factories")
+  FACTORY_GIRL_SPEC_DIR = File.join("spec", "factories")
+
+  # Don't show limit (#) on these column types
+  # Example: show "integer" instead of "integer(4)"
+  NO_LIMIT_COL_TYPES = ["integer", "boolean"]
+
   class << self
-    # Annotate Models plugin use this header
-    COMPAT_PREFIX = "== Schema Info"
-    PREFIX = "== Schema Information"
-
-    FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
-    # File.join for windows reverse bar compat?
-    # I dont use windows, can`t test
-    UNIT_TEST_DIR         = File.join("test", "unit"  )
-    SPEC_MODEL_DIR        = File.join("spec", "models")
-    # Object Daddy http://github.com/flogic/object_daddy/tree/master
-    EXEMPLARS_TEST_DIR    = File.join("test", "exemplars")
-    EXEMPLARS_SPEC_DIR    = File.join("spec", "exemplars")
-    # Machinist http://github.com/notahat/machinist
-    BLUEPRINTS_TEST_DIR   = File.join("test", "blueprints")
-    BLUEPRINTS_SPEC_DIR   = File.join("spec", "blueprints")
-    # Factory Girl http://github.com/thoughtbot/factory_girl
-    FACTORY_GIRL_TEST_DIR = File.join("test", "factories")
-    FACTORY_GIRL_SPEC_DIR = File.join("spec", "factories")
-
-    # Don't show limit (#) on these column types
-    # Example: show "integer" instead of "integer(4)"
-    NO_LIMIT_COL_TYPES = ["integer", "boolean"]
-
     def model_dir
       @model_dir || "app/models"
     end
