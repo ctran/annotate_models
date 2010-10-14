@@ -1,7 +1,9 @@
 module AnnotateModels
   # Annotate Models plugin use this header
   COMPAT_PREFIX = "== Schema Info"
-  PREFIX = "== Schema Information"
+  PREFIX        = "== Schema Information"
+  END_MARK      = "== Schema Information End"
+  PATTERN       = /^\n?# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/
 
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
@@ -51,10 +53,12 @@ module AnnotateModels
     # each column. The line contains the column name,
     # the type (and length), and any optional attributes
     def get_schema_info(klass, header, options = {})
-      info = "# #{header}\n#\n"
-      info << "# Table name: #{klass.table_name}\n#\n"
+      info = "# #{header}\n"
+      info<< "#\n"
+      info<< "# Table name: #{klass.table_name}\n"
+      info<< "#\n"
 
-      max_size = klass.column_names.collect{|name| name.size}.max + 1
+      max_size = klass.column_names.map{|name| name.size}.max + (ENV['format_rdoc'] ? 5 : 1)
       klass.columns.each do |col|
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
@@ -88,14 +92,24 @@ module AnnotateModels
           end
         end
 
-        info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
+        if ENV['format_rdoc']
+          info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col.name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+        else
+          info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
+        end
       end
 
       if options[:show_indexes]
         info << get_index_info(klass)
       end
 
-      info << "#\n\n"
+      if ENV['format_rdoc']
+        info << "#--\n"
+        info << "# #{END_MARK}\n"
+        info << "#++\n\n"
+      else
+        info << "#\n\n"
+      end
     end
 
     def get_index_info(klass)
@@ -138,7 +152,7 @@ module AnnotateModels
           false
         else
           # Remove old schema info
-          old_content.sub!(/^\n?# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
+          old_content.sub!(PATTERN, '')
 
           # Write it back
           new_content = options[:position].to_s == 'after' ? (old_content + "\n" + info_block) : (info_block + old_content)
@@ -153,7 +167,7 @@ module AnnotateModels
       if File.exist?(file_name)
         content = File.read(file_name)
 
-        content.sub!(/^\n?# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
+        content.sub!(PATTERN, '')
 
         File.open(file_name, "wb") { |f| f.puts content }
       end

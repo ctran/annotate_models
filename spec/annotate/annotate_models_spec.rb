@@ -7,7 +7,7 @@ require 'tmpdir'
 
 describe AnnotateModels do
   include FakeFS::SpecHelpers
-    
+
   def mock_class(table_name, primary_key, columns)
     options = {
       :connection   => mock("Conn", :indexes => []),
@@ -40,7 +40,7 @@ describe AnnotateModels do
   it { AnnotateModels.quote(25).should eql("25") }
   it { AnnotateModels.quote(25.6).should eql("25.6") }
   it { AnnotateModels.quote(1e-20).should eql("1.0e-20") }
-  
+
   it "should get schema info" do
     klass = mock_class(:users, :id, [
                                      mock_column(:id, :integer),
@@ -58,7 +58,27 @@ describe AnnotateModels do
 
 EOS
   end
-  
+
+  it "should get schema info as RDoc" do
+    klass = mock_class(:users, :id, [
+                                     mock_column(:id, :integer),
+                                     mock_column(:name, :string, :limit => 50)
+                                    ])
+    ENV.stub!(:[]).with('format_rdoc').and_return(true)
+    AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX).should eql(<<-EOS)
+# #{AnnotateModels::PREFIX}
+#
+# Table name: users
+#
+# *id*::   <tt>integer, not null, primary key</tt>
+# *name*:: <tt>string(50), not null</tt>
+#--
+# #{AnnotateModels::END_MARK}
+#++
+
+EOS
+  end
+
   describe "#get_model_class" do
 
     def create(file, body="hi")
@@ -68,8 +88,8 @@ EOS
       end
       path
     end
-    
-    before :all do     
+
+    before :all do
       @dir = File.join Dir.tmpdir, "annotate_models"
       FileUtils.mkdir_p(@dir)
       AnnotateModels.model_dir = @dir
@@ -90,20 +110,20 @@ EOS
         end
       EOS
     end
-    
+
     it "should work" do
       klass = AnnotateModels.get_model_class("foo.rb")
       klass.name.should == "Foo"
     end
-    
+
     it "should not care about unknown macros" do
       klass = AnnotateModels.get_model_class("foo_with_macro.rb")
       klass.name.should == "FooWithMacro"
     end
-    
+
     it "should not complain of invalid multibyte char (USASCII)" do
       klass = AnnotateModels.get_model_class("foo_with_utf8.rb")
-      klass.name.should == "FooWithUtf8"      
+      klass.name.should == "FooWithUtf8"
     end
   end
 

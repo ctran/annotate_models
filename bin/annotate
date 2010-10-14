@@ -61,6 +61,10 @@ OptionParser.new do |opts|
     exclusions.each { |exclusion| ENV["exclude_#{exclusion}"] = "yes" }
   end
 
+  opts.on('-f', '--format [bare|rdoc]', ['bare', 'rdoc'], 'rdoc: render Schema Infomation as RDoc') do |fmt|
+    ENV['format_#{fmt}'] = 'yes'
+  end
+
 end.parse!
 
 if Annotate.load_tasks
