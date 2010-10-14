@@ -200,15 +200,6 @@ module AnnotateModels
         end
       end
 
-      unless ENV['exclude_factories']
-        [
-         File.join(FACTORY_GIRL_SPEC_DIR, "#{model_name}_factory.rb"), # spec/factories
-         File.join(FACTORY_GIRL_TEST_DIR, "#{model_name}_factory.rb"), # test/factories
-        ].each do |file|
-          annotate_one_file(file, info, options_with_position(options, :position_in_factory))
-        end
-      end
-
       annotated
     end
 
@@ -315,16 +306,13 @@ module AnnotateModels
             remove_annotation_of_file(model_file_name)
 
             [
-             File.join(UNIT_TEST_DIR,    "#{klass.name.underscore}_test.rb"),
-             File.join(SPEC_MODEL_DIR,   "#{klass.name.underscore}_spec.rb"),
-             File.join(FIXTURE_TEST_DIR, "#{klass.table_name}.yml"),    # fixture
-             File.join(FIXTURE_SPEC_DIR, "#{klass.table_name}.yml"),    # fixture
+             File.join(UNIT_TEST_DIR,          "#{klass.name.underscore}_test.rb"),
+             File.join(SPEC_MODEL_DIR,         "#{klass.name.underscore}_spec.rb"),
+             File.join(FIXTURE_TEST_DIR,       "#{klass.table_name}.yml"),    # fixture
+             File.join(FIXTURE_SPEC_DIR,       "#{klass.table_name}.yml"),    # fixture
+             File.join(FACTORY_GIRL_SPEC_DIR,  "#{klass.name.underscore}_factory.rb"),
+             File.join(FACTORY_GIRL_TEST_DIR,  "#{klass.name.underscore}_factory.rb"),
             ].each do |file|
-              remove_annotation_of_file(file) if File.exist?(file)
-            end
-
-            [ File.join(FACTORY_GIRL_SPEC_DIR, "#{klass.name.underscore}_factory.rb"),
-              File.join(FACTORY_GIRL_TEST_DIR, "#{klass.name.underscore}_factory.rb")].each do |file|
               remove_annotation_of_file(file) if File.exist?(file)
             end
 
