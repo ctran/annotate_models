@@ -3,11 +3,12 @@ module AnnotateModels
   COMPAT_PREFIX = "== Schema Info"
   PREFIX = "== Schema Information"
 
-  FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
   UNIT_TEST_DIR         = File.join("test", "unit"  )
   SPEC_MODEL_DIR        = File.join("spec", "models")
+  FIXTURE_TEST_DIR      = File.join("test", "fixtures")
+  FIXTURE_SPEC_DIR      = File.join("spec", "fixtures")
   # Object Daddy http://github.com/flogic/object_daddy/tree/master
   EXEMPLARS_TEST_DIR    = File.join("test", "exemplars")
   EXEMPLARS_SPEC_DIR    = File.join("spec", "exemplars")
@@ -180,12 +181,14 @@ module AnnotateModels
          File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
         ].each do |file|
           # todo: add an option "position_in_test" -- or maybe just ask if anyone ever wants different positions for model vs. test vs. fixture
-          annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
+          annotate_one_file(file, info, options_with_position(options, :position_in_fixture)) if File.exist?(file)
         end
       end
 
       unless ENV['exclude_fixtures']
         [
+         File.join(FIXTURE_TEST_DIR,       "#{klass.table_name}.yml"),    # fixture
+         File.join(FIXTURE_SPEC_DIR,       "#{klass.table_name}.yml"),    # fixture
          File.join(EXEMPLARS_TEST_DIR,     "#{model_name}_exemplar.rb"),  # Object Daddy
          File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),  # Object Daddy
          File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"), # Machinist Blueprints
@@ -193,13 +196,7 @@ module AnnotateModels
          File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),   # Factory Girl Factories
          File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),   # Factory Girl Factories
         ].each do |file|
-          annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
-        end
-        FIXTURE_DIRS.each do |dir|
-          fixture_file_name = File.join(dir,(klass.table_name || "")  + ".yml")
-          if File.exist?(fixture_file_name)
-            annotate_one_file(fixture_file_name, info, options_with_position(options, :position_in_fixture))
-          end
+          annotate_one_file(file, info, options_with_position(options, :position_in_fixture)) if File.exist?(file)
         end
       end
 
@@ -317,13 +314,12 @@ module AnnotateModels
             model_file_name = File.join(model_dir, file)
             remove_annotation_of_file(model_file_name)
 
-            FIXTURE_DIRS.each do |dir|
-              fixture_file_name = File.join(dir,(klass.table_name || "")  + ".yml")
-              remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)
-            end
-
-            [ File.join(UNIT_TEST_DIR, "#{klass.name.underscore}_test.rb"),
-              File.join(SPEC_MODEL_DIR,"#{klass.name.underscore}_spec.rb")].each do |file|
+            [
+             File.join(UNIT_TEST_DIR,    "#{klass.name.underscore}_test.rb"),
+             File.join(SPEC_MODEL_DIR,   "#{klass.name.underscore}_spec.rb"),
+             File.join(FIXTURE_TEST_DIR, "#{klass.table_name}.yml"),    # fixture
+             File.join(FIXTURE_SPEC_DIR, "#{klass.table_name}.yml"),    # fixture
+            ].each do |file|
               remove_annotation_of_file(file) if File.exist?(file)
             end
 
