@@ -27,12 +27,12 @@ Gem::Specification.new do |s|
      "lib/annotate/annotate_routes.rb",
      "lib/tasks/annotate_models.rake",
      "lib/tasks/annotate_routes.rake",
+     "lib/tasks/migrate.rake",
      "spec/annotate/annotate_models_spec.rb",
      "spec/annotate/annotate_routes_spec.rb",
      "spec/annotate_spec.rb",
      "spec/spec.opts",
-     "spec/spec_helper.rb",
-     "tasks/migrate.rake"
+     "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/ctran/annotate}
   s.rdoc_options = ["--charset=UTF-8"]
