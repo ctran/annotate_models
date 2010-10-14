@@ -34,14 +34,14 @@ module AnnotateModels
     # Simple quoting for the default column value
     def quote(value)
       case value
-        when NilClass                 then "NULL"
-        when TrueClass                then "TRUE"
-        when FalseClass               then "FALSE"
-        when Float, Fixnum, Bignum    then value.to_s
+      when NilClass                 then "NULL"
+      when TrueClass                then "TRUE"
+      when FalseClass               then "FALSE"
+      when Float, Fixnum, Bignum    then value.to_s
         # BigDecimals need to be output in a non-normalized form and quoted.
-        when BigDecimal               then value.to_s('F')
-        else
-          value.inspect
+      when BigDecimal               then value.to_s('F')
+      else
+        value.inspect
       end
     end
 
@@ -140,7 +140,7 @@ module AnnotateModels
           old_content.sub!(/^\n?# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
 
           # Write it back
-          new_content = options[:position].to_s == 'after' ? (old_content + "\n" + info_block) : (info_block + old_content) 
+          new_content = options[:position].to_s == 'after' ? (old_content + "\n" + info_block) : (info_block + old_content)
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           true
@@ -176,8 +176,8 @@ module AnnotateModels
 
       unless ENV['exclude_tests']
         [
-          File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
-          File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
+         File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
+         File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
         ].each do |file|
           # todo: add an option "position_in_test" -- or maybe just ask if anyone ever wants different positions for model vs. test vs. fixture
           annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
@@ -186,13 +186,13 @@ module AnnotateModels
 
       unless ENV['exclude_fixtures']
         [
-        File.join(EXEMPLARS_TEST_DIR,     "#{model_name}_exemplar.rb"),  # Object Daddy
-        File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),  # Object Daddy
-        File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"), # Machinist Blueprints
-        File.join(BLUEPRINTS_SPEC_DIR,    "#{model_name}_blueprint.rb"), # Machinist Blueprints
-        File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),   # Factory Girl Factories
-        File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),   # Factory Girl Factories
-        ].each do |file| 
+         File.join(EXEMPLARS_TEST_DIR,     "#{model_name}_exemplar.rb"),  # Object Daddy
+         File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),  # Object Daddy
+         File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"), # Machinist Blueprints
+         File.join(BLUEPRINTS_SPEC_DIR,    "#{model_name}_blueprint.rb"), # Machinist Blueprints
+         File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),   # Factory Girl Factories
+         File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),   # Factory Girl Factories
+        ].each do |file|
           annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
         end
         FIXTURE_DIRS.each do |dir|
@@ -205,8 +205,8 @@ module AnnotateModels
 
       unless ENV['exclude_factories']
         [
-          File.join(FACTORY_GIRL_SPEC_DIR, "#{model_name}_factory.rb"), # spec/factories
-          File.join(FACTORY_GIRL_TEST_DIR, "#{model_name}_factory.rb"), # test/factories
+         File.join(FACTORY_GIRL_SPEC_DIR, "#{model_name}_factory.rb"), # spec/factories
+         File.join(FACTORY_GIRL_TEST_DIR, "#{model_name}_factory.rb"), # test/factories
         ].each do |file|
           annotate_one_file(file, info, options_with_position(options, :position_in_factory))
         end
