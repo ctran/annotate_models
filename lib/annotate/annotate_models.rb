@@ -302,16 +302,21 @@ module AnnotateModels
           if klass < ActiveRecord::Base && !klass.abstract_class?
             deannotated << klass
 
+            model_name = klass.name.underscore
             model_file_name = File.join(model_dir, file)
             remove_annotation_of_file(model_file_name)
 
             [
-             File.join(UNIT_TEST_DIR,          "#{klass.name.underscore}_test.rb"),
-             File.join(SPEC_MODEL_DIR,         "#{klass.name.underscore}_spec.rb"),
+             File.join(UNIT_TEST_DIR,          "#{model_name}_test.rb"),
+             File.join(SPEC_MODEL_DIR,         "#{model_name}_spec.rb"),
              File.join(FIXTURE_TEST_DIR,       "#{klass.table_name}.yml"),    # fixture
              File.join(FIXTURE_SPEC_DIR,       "#{klass.table_name}.yml"),    # fixture
-             File.join(FACTORY_GIRL_SPEC_DIR,  "#{klass.name.underscore}_factory.rb"),
-             File.join(FACTORY_GIRL_TEST_DIR,  "#{klass.name.underscore}_factory.rb"),
+             File.join(EXEMPLARS_TEST_DIR,     "#{model_name}_exemplar.rb"),  # Object Daddy
+             File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),  # Object Daddy
+             File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"), # Machinist Blueprints
+             File.join(BLUEPRINTS_SPEC_DIR,    "#{model_name}_blueprint.rb"), # Machinist Blueprints
+             File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),   # Factory Girl Factories
+             File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),   # Factory Girl Factories
             ].each do |file|
               remove_annotation_of_file(file) if File.exist?(file)
             end
