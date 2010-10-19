@@ -56,11 +56,13 @@ module AnnotateModels
       info = "# #{header}\n"
       info<< "#\n"
       info<< "# Table name: #{klass.table_name}\n"
+      info<< "# Human name: #{klass.model_name.human}\n" unless klass.model_name.human(:default => "").blank?
       info<< "#\n"
 
       max_size = klass.column_names.map{|name| name.size}.max + (ENV['format_rdoc'] ? 5 : 1)
       klass.columns.each do |col|
         attrs = []
+        attrs << "'#{klass.human_attribute_name(col.name)}'" unless klass.human_attribute_name(col.name, :default => "").blank?
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
         attrs << "not null" unless col.null
         attrs << "primary key" if col.name.to_sym == klass.primary_key.to_sym
