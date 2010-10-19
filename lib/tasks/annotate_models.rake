@@ -9,6 +9,8 @@ task :annotate_models => :environment do
   options[:model_dir] = ENV['model_dir']
   options[:include_version] = ENV['include_version']
   options[:require] = ENV['require'] ? ENV['require'].split(',') : []
+  options[:exclude_tests] = ENV['exclude_tests']
+  options[:exclude_fixtures] = ENV['exclude_fixtures']
   AnnotateModels.do_annotations(options)
 end
 
