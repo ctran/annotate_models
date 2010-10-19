@@ -43,8 +43,9 @@ module AnnotateModels
     # the type (and length), and any optional attributes
     def get_schema_info(klass, header, options = {})
       info = "# #{header}\n#\n"
-      info << "# Table name: #{klass.table_name}\n#\n"
+      info << "# Table name: #{klass.table_name}\n"
       info << "# Human name: #{klass.model_name.human}\n" unless klass.model_name.human(:default => "").blank?
+      info << "#\n"
 
       max_size = klass.column_names.collect{|name| name.size}.max + 1
       klass.columns.each do |col|
