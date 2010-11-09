@@ -78,9 +78,9 @@ module AnnotateModels
         info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
       end
 
-      if options[:show_indexes]
+      # if options[:show_indexes]
         info << get_index_info(klass)
-      end
+      # end
 
       info << "#\n\n"
     end
@@ -128,8 +128,9 @@ module AnnotateModels
           old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
 
           # Write it back
-          new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
-
+          # new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
+          new_content = info_block + old_content
+          
           File.open(file_name, "wb") { |f| f.puts new_content }
           true
         end
@@ -220,7 +221,8 @@ module AnnotateModels
         end
       end
 
-      header = PREFIX.dup
+      # header = PREFIX.dup
+      header = COMPAT_PREFIX.dup
 
       if options[:include_version]
         version = ActiveRecord::Migrator.current_version rescue 0
