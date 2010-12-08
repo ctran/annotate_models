@@ -46,7 +46,7 @@ From github:
 
   git clone git://github.com/ctran/annotate_models.git annotate
   cd annotate
-  rake gem
+  rake build
   sudo gem install pkg/annotate-*.gem
 
 == USAGE

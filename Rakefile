@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'rake'
-require 'lib/annotate'
+require File.dirname(__FILE__) + '/lib/annotate'
 
 # want other tests/tasks run by default? Add them to the list
 task :default => [:spec]
@@ -30,17 +30,17 @@ rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"
 end
 
-require 'spec/rake/spectask'
-Spec::Rake::SpecTask.new(:spec) do |spec|
-  spec.libs << 'lib' << 'spec'
-  spec.spec_files = FileList['spec/**/*_spec.rb']
-end
-
-Spec::Rake::SpecTask.new(:rcov) do |spec|
-  spec.libs << 'lib' << 'spec'
-  spec.pattern = 'spec/**/*_spec.rb'
-  spec.rcov = true
-end
+# require 'rspec'
+# Spec::Rake::SpecTask.new(:spec) do |spec|
+#   spec.libs << 'lib' << 'spec'
+#   spec.spec_files = FileList['spec/**/*_spec.rb']
+# end
+# 
+# Spec::Rake::SpecTask.new(:rcov) do |spec|
+#   spec.libs << 'lib' << 'spec'
+#   spec.pattern = 'spec/**/*_spec.rb'
+#   spec.rcov = true
+# end
 
 require 'rake/rdoctask'
 Rake::RDocTask.new do |rdoc|
