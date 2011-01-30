@@ -14,6 +14,8 @@ module AnnotateModels
     EXEMPLARS_SPEC_DIR     = File.join("spec", "exemplars")
     # Machinist http://github.com/notahat/machinist
     BLUEPRINTS_DIR         = File.join("test", "blueprints")
+    # Factory Girl http://github.com/thoughtbot/factory_girl
+    FACTORY_GIRL_DIR    = File.join("test", "factories")
 
     def model_dir
       @model_dir || "app/models"
@@ -179,6 +181,7 @@ module AnnotateModels
         File.join(EXEMPLARS_TEST_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
         File.join(EXEMPLARS_SPEC_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
         File.join(BLUEPRINTS_DIR,     "#{model_name}_blueprint.rb"), # Machinist Blueprints
+        File.join(FACTORY_GIRL_DIR,   "#{model_name}_factory.rb"),   # Factory Girl Factories
         ].each do |file| 
           annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
         end
