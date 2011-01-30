@@ -31,7 +31,7 @@ rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"
 end
 
-# Dir["#{File.dirname(__FILE)}/tasks/*.rake"].sort.each { |ext| load ext }
+Dir["#{File.dirname(__FILE__)}/tasks/*.rake"].sort.each { |ext| load ext }
 
 # require 'spec/rake/spectask'
 # Spec::Rake::SpecTask.new(:spec) do |spec|
