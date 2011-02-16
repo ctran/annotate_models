@@ -5,14 +5,14 @@
 
 Gem::Specification.new do |s|
   s.name = %q{annotate}
-  s.version = "2.3.2"
+  s.version = "2.3.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Cuong Tran", "Marcos Piccinini"]
-  s.date = %q{2009-08-21}
-  s.default_executable = %q{annotate}
+  s.authors = ["Cuong Tran", "Marcos Piccinini", "Brent Greeff"]
+  s.date = %q{2011-02-16}
+  # s.default_executable = %q{annotate}
   s.email = %q{x@nofxx.com}
-  s.executables = ["annotate"]
+  # s.executables = ["annotate"]
   s.extra_rdoc_files = [
     "README.rdoc"
   ]
@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
      "annotate.gemspec",
      "bin/annotate",
      "lib/annotate.rb",
+     "lib/annotate/railtie.rb",
      "lib/annotate/annotate_models.rb",
      "lib/annotate/annotate_routes.rb",
      "lib/tasks/annotate_models.rake",
