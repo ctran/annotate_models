@@ -1,5 +1,4 @@
-$:.unshift(File.dirname(__FILE__)) unless
-  $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
+require 'yaml'
 
 module Annotate
   def self.version
@@ -11,7 +10,7 @@ module Annotate
       version = "0.0.0"
     end
   end
-  
+
   def self.load_tasks
     if File.exists?('Rakefile')
       load 'Rakefile'
