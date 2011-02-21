@@ -45,8 +45,9 @@ module AnnotateModels
       info = "# #{header}\n#\n"
       info << "# Table name: #{klass.table_name}\n#\n"
 
-      max_size = klass.column_names.collect{|name| name.size}.max + 1
-      klass.columns.each do |col|
+      max_size = klass.column_names.collect{|name| name.size}.max || 0
+      max_Size += 1
+      klass.columns.sort_by(&:name).each do |col|
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
         attrs << "not null" unless col.null
@@ -67,7 +68,7 @@ module AnnotateModels
 
         # Check if the column has indices and print "indexed" if true
         # If the indice include another colum, print it too.
-        if options[:simple_indexes] # Check out if this column is indexed
+        if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
           indices = klass.connection.indexes(klass.table_name)
           if indices = indices.select { |ind| ind.columns.include? col.name }
             indices.each do |ind|
@@ -80,7 +81,7 @@ module AnnotateModels
         info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
       end
 
-      if options[:show_indexes]
+      if options[:show_indexes] && klass.table_exists?
         info << get_index_info(klass)
       end
 
@@ -93,7 +94,8 @@ module AnnotateModels
       indexes = klass.connection.indexes(klass.table_name)
       return "" if indexes.empty?
 
-      max_size = indexes.collect{|index| index.name.size}.max + 1
+      max_size = indexes.collect{|index| index.name.size}.max || 0
+      max_size += 1
       indexes.each do |index|
         index_info << sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{index.columns.join(",")})", index.unique ? "UNIQUE" : "").rstrip + "\n"
       end
