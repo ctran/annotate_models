@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    annotated_models (3.0.0)
+    annotated_models (3.0.2)
       activesupport
       annotated_models
       i18n
