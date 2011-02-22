@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'optparse'
-require 'annotate'
+require 'annotated_models'
 
 task = :annotate_models
 
