@@ -13,7 +13,7 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "annotated_models"
-  gem.homepage = "http://github.com/lda/annotated_models"
+  gem.homepage = "http://github.com/openteam/annotated_models"
   gem.license = "MIT"
   gem.summary = %Q{Annotate ActiveRecord models as a gem}
   gem.description = %Q{Add a comment summarizing the current schema to the top or bottom of each of your models}
