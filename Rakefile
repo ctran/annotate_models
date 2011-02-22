@@ -15,14 +15,19 @@ Jeweler::Tasks.new do |gem|
   gem.name = "annotated_models"
   gem.homepage = "http://github.com/lda/annotated_models"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{Annotate ActiveRecord models as a gem}
+  gem.description = %Q{Add a comment summarizing the current schema to the top or bottom of each of your models}
   gem.email = "lda@openteam.ru"
-  gem.authors = ["Dmitry Lihachev"]
-  # Include your dependencies below. Runtime dependencies are required when using your gem,
-  # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
-  #  gem.add_runtime_dependency 'jabber4r', '> 0.1'
-  #  gem.add_development_dependency 'rspec', '> 1.2.3'
+  gem.authors = ["Dave Thomas", "Alex Chaffee", "Cuong Tran", "Alex Chaffee", "Dmitry Lihachev"]
+
+  gem.add_development_dependency(%q<bundler>, [">= 0"])
+  gem.add_development_dependency(%q<jeweler>, [">= 0"])
+  gem.add_development_dependency(%q<rcov>, [">= 0"])
+  gem.add_development_dependency(%q<fakefs>, [">= 0"])
+  gem.add_development_dependency(%q<rspec>, [">= 0"])
+
+  gem.add_runtime_dependency(%q<activesupport>, [">= 0"])
+  gem.add_runtime_dependency(%q<i18n>, [">= 0"])
 end
 Jeweler::RubygemsDotOrgTasks.new
 

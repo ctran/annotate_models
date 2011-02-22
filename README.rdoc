@@ -1,4 +1,4 @@
-== Annotate (aka AnnotateModels)
+== Annotate (aka AnnotatedModels)
 
 Add a comment summarizing the current schema to the top or bottom of each of your...
 
@@ -70,7 +70,7 @@ To annotate routes.rb:
   annotate -r
 
 To automatically annotate after running 'rake db:migrate':
-  
+
   [needs more clarity] unpack the gem into vendor/plugins, or maybe vendor/gems, or maybe just require tasks/migrate.rake.
 
 If you install annotate_models as a plugin, it will automatically
@@ -78,7 +78,7 @@ adjust your <tt>rake db:migrate</tt> tasks so that they update the
 annotations in your model files for you once the migration is
 completed.
 
-Warning: ImageMagick installs a tool called `annotate` too (if you're using MacPorts it's in `/opt/local/bin/annotate`. So if you see Usage: annotate imagein.jpg imageout.jpg then put `/usr/bin` ahead on the path and you'll get ours instead. 
+Warning: ImageMagick installs a tool called `annotate` too (if you're using MacPorts it's in `/opt/local/bin/annotate`. So if you see Usage: annotate imagein.jpg imageout.jpg then put `/usr/bin` ahead on the path and you'll get ours instead.
 
 
 == OPTIONS
@@ -141,5 +141,5 @@ Modifications by:
  - Gavin Montague - http://github.com/govan/
  - Alexander Semyonov - http://github.com/rotuka/
  - Nathan Brazil - http://github.com/bitaxis/
- 
+
 and many others that I may have missed to add.

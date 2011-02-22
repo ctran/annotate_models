@@ -1,3 +1,11 @@
+PATH
+  remote: .
+  specs:
+    annotated_models (3.0.0)
+      activesupport
+      annotated_models
+      i18n
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -26,6 +34,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport
+  annotated_models!
   bundler
   fakefs
   i18n

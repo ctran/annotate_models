@@ -5,35 +5,46 @@
 
 Gem::Specification.new do |s|
   s.name = %q{annotated_models}
-  s.version = "2.4.4"
+  s.version = "3.0.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Dmitry Lihachev"]
-  s.date = %q{2011-02-18}
-  s.description = %q{TODO: longer description of your gem}
+  s.authors = ["Dave Thomas", "Alex Chaffee", "Cuong Tran", "Alex Chaffee", "Dmitry Lihachev"]
+  s.date = %q{2011-02-22}
+  s.default_executable = %q{annotate}
+  s.description = %q{Add a comment summarizing the current schema to the top or bottom of each of your models}
   s.email = %q{lda@openteam.ru}
+  s.executables = ["annotate"]
   s.extra_rdoc_files = [
     "LICENSE.txt",
     "README.rdoc"
   ]
   s.files = [
     ".document",
+    ".rspec",
     "Gemfile",
+    "Gemfile.lock",
+    "History.txt",
     "LICENSE.txt",
     "README.rdoc",
     "Rakefile",
+    "VERSION.yml",
+    "annotated_models.gemspec",
+    "bin/annotate",
     "lib/annotated_models.rb",
-    "test/helper.rb",
-    "test/test_annotated_models.rb"
+    "lib/tasks/annotate_models.rake",
+    "lib/tasks/migrate.rake",
+    "spec/annotate_models_spec.rb",
+    "spec/spec_helper.rb",
+    "todo.txt"
   ]
   s.homepage = %q{http://github.com/lda/annotated_models}
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.7}
-  s.summary = %q{TODO: one-line summary of your gem}
+  s.summary = %q{Annotate ActiveRecord models as a gem}
   s.test_files = [
-    "test/helper.rb",
-    "test/test_annotated_models.rb"
+    "spec/annotate_models_spec.rb",
+    "spec/spec_helper.rb"
   ]
 
   if s.respond_to? :specification_version then
@@ -41,21 +52,54 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_development_dependency(%q<shoulda>, [">= 0"])
+      s.add_runtime_dependency(%q<annotated_models>, [">= 0"])
+      s.add_development_dependency(%q<rspec>, [">= 0"])
       s.add_development_dependency(%q<bundler>, [">= 0"])
       s.add_development_dependency(%q<jeweler>, [">= 0"])
       s.add_development_dependency(%q<rcov>, [">= 0"])
+      s.add_development_dependency(%q<fakefs>, [">= 0"])
+      s.add_development_dependency(%q<activesupport>, [">= 0"])
+      s.add_development_dependency(%q<i18n>, [">= 0"])
+      s.add_development_dependency(%q<bundler>, [">= 0"])
+      s.add_development_dependency(%q<jeweler>, [">= 0"])
+      s.add_development_dependency(%q<rcov>, [">= 0"])
+      s.add_development_dependency(%q<fakefs>, [">= 0"])
+      s.add_development_dependency(%q<rspec>, [">= 0"])
+      s.add_runtime_dependency(%q<activesupport>, [">= 0"])
+      s.add_runtime_dependency(%q<i18n>, [">= 0"])
     else
-      s.add_dependency(%q<shoulda>, [">= 0"])
+      s.add_dependency(%q<annotated_models>, [">= 0"])
+      s.add_dependency(%q<rspec>, [">= 0"])
       s.add_dependency(%q<bundler>, [">= 0"])
       s.add_dependency(%q<jeweler>, [">= 0"])
       s.add_dependency(%q<rcov>, [">= 0"])
+      s.add_dependency(%q<fakefs>, [">= 0"])
+      s.add_dependency(%q<activesupport>, [">= 0"])
+      s.add_dependency(%q<i18n>, [">= 0"])
+      s.add_dependency(%q<bundler>, [">= 0"])
+      s.add_dependency(%q<jeweler>, [">= 0"])
+      s.add_dependency(%q<rcov>, [">= 0"])
+      s.add_dependency(%q<fakefs>, [">= 0"])
+      s.add_dependency(%q<rspec>, [">= 0"])
+      s.add_dependency(%q<activesupport>, [">= 0"])
+      s.add_dependency(%q<i18n>, [">= 0"])
     end
   else
-    s.add_dependency(%q<shoulda>, [">= 0"])
+    s.add_dependency(%q<annotated_models>, [">= 0"])
+    s.add_dependency(%q<rspec>, [">= 0"])
     s.add_dependency(%q<bundler>, [">= 0"])
     s.add_dependency(%q<jeweler>, [">= 0"])
     s.add_dependency(%q<rcov>, [">= 0"])
+    s.add_dependency(%q<fakefs>, [">= 0"])
+    s.add_dependency(%q<activesupport>, [">= 0"])
+    s.add_dependency(%q<i18n>, [">= 0"])
+    s.add_dependency(%q<bundler>, [">= 0"])
+    s.add_dependency(%q<jeweler>, [">= 0"])
+    s.add_dependency(%q<rcov>, [">= 0"])
+    s.add_dependency(%q<fakefs>, [">= 0"])
+    s.add_dependency(%q<rspec>, [">= 0"])
+    s.add_dependency(%q<activesupport>, [">= 0"])
+    s.add_dependency(%q<i18n>, [">= 0"])
   end
 end
 
