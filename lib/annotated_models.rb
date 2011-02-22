@@ -1,4 +1,4 @@
-module AnnotateModels
+module AnnotatedModels
   # Annotate Models plugin use this header
   COMPAT_PREFIX = "== Schema Info"
   PREFIX        = "== Schema Information"

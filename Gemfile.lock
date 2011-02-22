@@ -1,0 +1,34 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activesupport (3.0.4)
+    diff-lcs (1.1.2)
+    fakefs (0.3.1)
+    git (1.2.5)
+    i18n (0.5.0)
+    jeweler (1.5.2)
+      bundler (~> 1.0.0)
+      git (>= 1.2.5)
+      rake
+    rake (0.8.7)
+    rcov (0.9.9)
+    rspec (2.5.0)
+      rspec-core (~> 2.5.0)
+      rspec-expectations (~> 2.5.0)
+      rspec-mocks (~> 2.5.0)
+    rspec-core (2.5.1)
+    rspec-expectations (2.5.0)
+      diff-lcs (~> 1.1.2)
+    rspec-mocks (2.5.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activesupport
+  bundler
+  fakefs
+  i18n
+  jeweler
+  rcov
+  rspec

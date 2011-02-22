@@ -1,55 +1,50 @@
-# require 'rubygems'
-require 'rake'
-require File.dirname(__FILE__) + '/lib/annotate'
-
-# want other tests/tasks run by default? Add them to the list
-task :default => [:spec]
-
+require 'rubygems'
+require 'bundler'
 begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gem|
-    gem.name = "netsign-annotate"
-    gem.executables = "annotate"
-    gem.summary = "Annotates Rails Models, routes, fixtures, and others based on the database schema."
-    gem.description = "Packaged for netSIGN, gem experimentation"
-    gem.email = ["alex@stinky.com", 'ctran@pragmaquest.com', "x@nofxx.com"]
-    gem.homepage = "https://github.com/miyucy/annotate_models"
-    gem.authors = ['Cuong Tran', "Alex Chaffee", "Marcos Piccinini"]
-    gem.files =  FileList["[A-Z]*.*", "{bin,lib,tasks,spec}/**/*"]
-    gem.rubyforge_project = "netsign-annotate"
+  Bundler.setup(:default, :development)
+rescue Bundler::BundlerError => e
+  $stderr.puts e.message
+  $stderr.puts "Run `bundle install` to install missing gems"
+  exit e.status_code
+end
+require 'rake'
 
-    # note that Jeweler automatically reads the version from VERSION.yml
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
-  end
+require 'jeweler'
+Jeweler::Tasks.new do |gem|
+  # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
+  gem.name = "annotated_models"
+  gem.homepage = "http://github.com/lda/annotated_models"
+  gem.license = "MIT"
+  gem.summary = %Q{TODO: one-line summary of your gem}
+  gem.description = %Q{TODO: longer description of your gem}
+  gem.email = "lda@openteam.ru"
+  gem.authors = ["Dmitry Lihachev"]
+  # Include your dependencies below. Runtime dependencies are required when using your gem,
+  # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
+  #  gem.add_runtime_dependency 'jabber4r', '> 0.1'
+  #  gem.add_development_dependency 'rspec', '> 1.2.3'
+end
+Jeweler::RubygemsDotOrgTasks.new
 
-  # Jeweler::RubyforgeTasks.new do |rubyforge|
-  #   rubyforge.doc_task = "rdoc"
-  # end
-  
-  Jeweler::GemcutterTasks.new
-  
-rescue LoadError
-  puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"
+require 'rspec/core'
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new(:spec) do |spec|
+  spec.pattern = FileList['spec/**/*_spec.rb']
 end
 
-# Dir["#{File.dirname(__FILE)}/tasks/*.rake"].sort.each { |ext| load ext }
+RSpec::Core::RakeTask.new(:rcov) do |spec|
+  spec.pattern = 'spec/**/*_spec.rb'
+  spec.rcov = true
+end
 
-# require 'spec/rake/spectask'
-# Spec::Rake::SpecTask.new(:spec) do |spec|
-#   spec.libs << 'lib' << 'spec'
-#   spec.spec_files = FileList['spec/**/*_spec.rb']
-# end
-# 
-# Spec::Rake::SpecTask.new(:rcov) do |spec|
-#   spec.libs << 'lib' << 'spec'
-#   spec.pattern = 'spec/**/*_spec.rb'
-#   spec.rcov = true
-# end
+task :default => :spec
 
 require 'rake/rdoctask'
 Rake::RDocTask.new do |rdoc|
+  version = File.exist?('VERSION') ? File.read('VERSION') : ""
+
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "annotate #{Annotate.version}"
+  rdoc.title = "annotated_models #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
