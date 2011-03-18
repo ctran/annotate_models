@@ -1,8 +1,16 @@
 module AnnotateModels
+  
+  class << self
+    def fmt_header(string)
+      return string unless ENV['format_markdown']
+      string.gsub('==', '##')
+    end
+  end
+  
   # Annotate Models plugin use this header
-  COMPAT_PREFIX = "== Schema Info"
-  PREFIX        = "== Schema Information"
-  END_MARK      = "== Schema Information End"
+  COMPAT_PREFIX = fmt_header( "== Schema Info" )
+  PREFIX        = fmt_header( "== Schema Information" )
+  END_MARK      = fmt_header( "== Schema Information End" )
   PATTERN       = /^\n?# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/
 
   # File.join for windows reverse bar compat?
@@ -47,6 +55,8 @@ module AnnotateModels
         value.inspect
       end
     end
+    
+
 
     # Use the column information in an ActiveRecord class
     # to create a comment block containing a line for
@@ -55,11 +65,16 @@ module AnnotateModels
     def get_schema_info(klass, header, options = {})
       info = "# #{header}\n"
       info<< "#\n"
-      info<< "# Table name: #{klass.table_name}\n"
+      info<< "# Table name: #{klass.table_name}\n" unless klass.table_name == klass.name.tableize
       info<< "# Human name: #{klass.model_name.human}\n" unless klass.model_name.human(:default => "").blank?
       info<< "#\n"
 
       max_size = klass.column_names.map{|name| name.size}.max + (ENV['format_rdoc'] ? 5 : 1)
+      if ENV['format_markdown']
+        info<< sprintf( "# %-#{max_size + 4}.#{max_size + 4}s | %-17.17s | %s \n", 'Field', 'Type', 'Attributes' )
+        info<< "# #{ '-' * ( max_size + 4 ) } | #{'-' * 17} | #{ '-' * 25 } \n"
+      end
+      
       klass.columns.each do |col|
         attrs = []
         attrs << "'#{klass.human_attribute_name(col.name)}'" unless klass.human_attribute_name(col.name, :default => "").blank?
@@ -96,6 +111,8 @@ module AnnotateModels
 
         if ENV['format_rdoc']
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col.name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+        elsif ENV['format_markdown']
+          info << sprintf("# **%-#{max_size}.#{max_size}s** | `%-15.15s` | `%s `", col.name, col_type, attrs.join(", ")).rstrip + "\n"
         else
           info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
         end
@@ -110,7 +127,7 @@ module AnnotateModels
         info << "# #{END_MARK}\n"
         info << "#++\n\n"
       else
-        info << "#\n\n"
+        info << "#\n"
       end
     end
 
@@ -150,7 +167,7 @@ module AnnotateModels
         old_header = old_content.match(header).to_s
         new_header = info_block.match(header).to_s
 
-        if old_header == new_header
+        if old_header == new_header and not ENV['force']
           false
         else
           # Remove old schema info

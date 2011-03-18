@@ -1,3 +1,8 @@
+== Markdown Fork
+
+Originally forked from https://github.com/openteam/annotated_models.git to add support for generating 
+annotations compatible with the markdown processor used by YARD.
+
 == Annotate (aka AnnotateModels)
 
 Add a comment summarizing the current schema to the top or bottom of each of your...
