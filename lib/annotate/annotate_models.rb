@@ -46,7 +46,7 @@ module AnnotateModels
       info << "# Table name: #{klass.table_name}\n#\n"
 
       max_size = klass.column_names.collect{|name| name.size}.max || 0
-      max_Size += 1
+      max_size += 1
       klass.columns.sort_by(&:name).each do |col|
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
