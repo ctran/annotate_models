@@ -126,11 +126,12 @@ module AnnotateModels
         if old_header == new_header
           false
         else
-          # Remove old schema info
-          old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
-
-          # Write it back
-          new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
+          # Replace the old schema info with the new schema info
+          new_content = old_content.sub(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, info_block)
+          # But, if there *was* no old schema info, we simply need to insert it
+          if new_content == old_content
+            new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
+          end
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           true
