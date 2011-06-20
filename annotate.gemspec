@@ -45,6 +45,9 @@ Gem::Specification.new do |s|
      "spec/annotate_spec.rb",
      "spec/spec_helper.rb"
   ]
+  s.add_development_dependency('jeweler')
+  s.add_development_dependency('rspec', '~> 1.3.2')
+  s.add_development_dependency('activesupport', '>= 2.1.0')
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
