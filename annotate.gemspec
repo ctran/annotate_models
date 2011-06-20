@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
      "spec/spec_helper.rb",
      "tasks/migrate.rake"
   ]
-  s.homepage = %q{http://github.com/ctran/annotate}
+  s.homepage = %q{http://github.com/ctran/annotate_models}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.5}
