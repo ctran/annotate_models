@@ -45,6 +45,7 @@ Gem::Specification.new do |s|
      "spec/annotate_spec.rb",
      "spec/spec_helper.rb"
   ]
+  s.add_runtime_dependency('rake')
   s.add_development_dependency('jeweler')
   s.add_development_dependency('rspec', '~> 1.3.2')
   s.add_development_dependency('activesupport', '>= 2.1.0')
