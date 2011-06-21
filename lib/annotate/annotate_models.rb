@@ -119,11 +119,14 @@ module AnnotateModels
         old_content = File.read(file_name)
 
         # Ignore the Schema version line because it changes with each migration
-        header = Regexp.new(/(^# Table name:.*?\n(#.*\n)*\n)/)
+        header = Regexp.new(/(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?\n)/)
         old_header = old_content.match(header).to_s
         new_header = info_block.match(header).to_s
 
-        if old_header == new_header
+        old_columns = old_header && old_header.scan(/#[\t\s]+([\w\d]+)[\t\s]+\:([\d\w]+)/).sort
+        new_columns = new_header && new_header.scan(/#[\t\s]+([\w\d]+)[\t\s]+\:([\d\w]+)/).sort
+
+        if old_columns == new_columns
           false
         else
           # Replace the old schema info with the new schema info
