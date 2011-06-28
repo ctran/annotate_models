@@ -119,18 +119,24 @@ module AnnotateModels
         old_content = File.read(file_name)
 
         # Ignore the Schema version line because it changes with each migration
-        header = Regexp.new(/(^# Table name:.*?\n(#.*\n)*\n)/)
+        header = Regexp.new(/(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?\n)/)
         old_header = old_content.match(header).to_s
         new_header = info_block.match(header).to_s
 
-        if old_header == new_header
+        old_columns = old_header && old_header.scan(/#[\t\s]+([\w\d]+)[\t\s]+\:([\d\w]+)/).sort
+        new_columns = new_header && new_header.scan(/#[\t\s]+([\w\d]+)[\t\s]+\:([\d\w]+)/).sort
+
+        if old_columns == new_columns
           false
         else
-          # Remove old schema info
-          old_content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
-
-          # Write it back
-          new_content = options[:position] == 'before' ?  (info_block + old_content) : (old_content + "\n" + info_block)
+          # Replace the old schema info with the new schema info
+          new_content = old_content.sub(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, info_block)
+          # But, if there *was* no old schema info, we simply need to insert it
+          if new_content == old_content
+            new_content = options[:position] == 'before' ?
+              (info_block + old_content) :
+              ((old_content =~ /\n$/ ? old_content : old_content + '\n') + info_block)
+          end
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           true
@@ -228,7 +234,7 @@ module AnnotateModels
     # in subdirectories without namespacing.
     def get_model_class(file)
       require File.expand_path("#{model_dir}/#{file}") # this is for non-rails projects, which don't get Rails auto-require magic
-      model = file.gsub(/\.rb$/, '').camelize
+      model = ActiveSupport::Inflector.camelize(file.gsub(/\.rb$/, ''))
       parts = model.split('::')
       begin
         parts.inject(Object) {|klass, part| klass.const_get(part) }

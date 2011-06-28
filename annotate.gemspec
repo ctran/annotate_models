@@ -9,8 +9,6 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini"]
-  s.date = %q{2009-12-13}
-  s.default_executable = %q{annotate}
   s.description = %q{Annotates Rails Models, routes, fixtures, and others based on the database schema.}
   s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com"]
   s.executables = ["annotate"]
@@ -34,7 +32,7 @@ Gem::Specification.new do |s|
      "spec/spec_helper.rb",
      "tasks/migrate.rake"
   ]
-  s.homepage = %q{http://github.com/ctran/annotate}
+  s.homepage = %q{http://github.com/ctran/annotate_models}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{annotate}
@@ -46,6 +44,10 @@ Gem::Specification.new do |s|
      "spec/annotate_spec.rb",
      "spec/spec_helper.rb"
   ]
+  s.add_runtime_dependency('rake')
+  s.add_development_dependency('jeweler')
+  s.add_development_dependency('rspec', '~> 1.3.2')
+  s.add_development_dependency('activesupport', '>= 2.1.0')
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
