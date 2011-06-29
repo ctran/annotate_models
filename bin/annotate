@@ -8,33 +8,33 @@ task = :annotate_models
 OptionParser.new do |opts|
   opts.banner = "Usage: annotate [options] [model_file]*"
 
-  opts.on('-d', '--delete', 
+  opts.on('-d', '--delete',
   "Remove annotations from all model files") do
     task = :remove_annotation
   end
 
-  opts.on('-p', '--position [before|after]', ['before', 'after'], 
-  "Place the annotations at the top (before) or the bottom (after) of the model file") do |p| 
+  opts.on('-p', '--position [before|after]', ['before', 'after'],
+  "Place the annotations at the top (before) or the bottom (after) of the model file") do |p|
     ENV['position'] = p
   end
 
-  opts.on('-r', '--routes', 
+  opts.on('-r', '--routes',
   "Annotate routes.rb with the output of 'rake routes'") do
     task = :annotate_routes
   end
 
-  opts.on('-v', '--version', 
-  "Show the current version of this gem") do 
+  opts.on('-v', '--version',
+  "Show the current version of this gem") do
     puts "annotate v#{Annotate.version}"; exit
   end
 
-  opts.on('-m', '--show-migration', 
+  opts.on('-m', '--show-migration',
   "Include the migration version number in the annotation") do
     ENV['include_version'] = "yes"
   end
 
-  opts.on('-i', '--show-indexes', 
-  "List the table's database indexes in the annotation") do   
+  opts.on('-i', '--show-indexes',
+  "List the table's database indexes in the annotation") do
     ENV['show_indexes'] = "yes"
   end
 
@@ -43,7 +43,7 @@ OptionParser.new do |opts|
     ENV['simple_indexes'] = "yes"
   end
 
-  opts.on('--model-dir dir', 
+  opts.on('--model-dir dir',
   "Annotate model files stored in dir rather than app/models") do |dir|
     ENV['model_dir'] = dir
   end

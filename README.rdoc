@@ -70,7 +70,7 @@ To annotate routes.rb:
   annotate -r
 
 To automatically annotate after running 'rake db:migrate':
-  
+
   [needs more clarity] unpack the gem into vendor/plugins, or maybe vendor/gems, or maybe just require tasks/migrate.rake.
 
 If you install annotate_models as a plugin, it will automatically
@@ -137,5 +137,5 @@ Modifications by:
  - Gavin Montague - http://github.com/govan/
  - Alexander Semyonov - http://github.com/rotuka/
  - Nathan Brazil - http://github.com/bitaxis/
- 
+
 and many others that I may have missed to add.

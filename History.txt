@@ -14,7 +14,7 @@
   * -i to show database indexes in annotations
   * -e to exclude annotating tests or fixtures
   * -m to include the migration version number in the annotation
-  * --model-dir to annotate model files stored a different place than app/models  
+  * --model-dir to annotate model files stored a different place than app/models
 * Ignore unknown macros ('acts_as_whatever')
 
 == 2.0 2009-02-03

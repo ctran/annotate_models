@@ -13,7 +13,7 @@ module Annotate
       version = "0.0.0"
     end
   end
-  
+
   def self.load_tasks
     if File.exists?('Rakefile')
       require 'rake'
