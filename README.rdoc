@@ -38,7 +38,7 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of "ra
 
 == INSTALL
 
-From gemcutter:
+From rubygems.org:
 
   sudo gem install annotate
 
