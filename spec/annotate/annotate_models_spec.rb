@@ -69,6 +69,11 @@ EOS
           acts_as_awesome :yah
         end
       EOS
+      create('foo_with_capitals.rb', <<-EOS)
+        class FooWithCAPITALS < ActiveRecord::Base
+          acts_as_awesome :yah
+        end
+      EOS
     end
     it "should work" do
       klass = AnnotateModels.get_model_class("foo.rb")
@@ -77,6 +82,10 @@ EOS
     it "should not care about unknown macros" do
       klass = AnnotateModels.get_model_class("foo_with_macro.rb")
       klass.name.should == "FooWithMacro"
+    end
+    it "should find models with non standard capitalization" do
+      klass = AnnotateModels.get_model_class("foo_with_capitals.rb")
+      klass.name.should == "FooWithCAPITALS"
     end
   end
 
