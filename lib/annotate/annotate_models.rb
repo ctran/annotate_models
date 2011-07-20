@@ -330,7 +330,10 @@ end
 module ::ActiveRecord
   class Base
     def self.method_missing(name, *args)
+      super
+    rescue NoMethodError => e
       # ignore this, so unknown/unloaded macros won't cause parsing to fail
+      warn "Annotate Models ignoring #{e.class}: #{e.message}"
     end
   end
 end

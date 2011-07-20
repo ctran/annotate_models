@@ -46,6 +46,8 @@ EOS
   describe "#get_model_class" do
     module ::ActiveRecord
       class Base
+        def self.has_many name
+        end
       end
     end
 
@@ -69,15 +71,32 @@ EOS
           acts_as_awesome :yah
         end
       EOS
+      create('foo_with_known_macro.rb', <<-EOS)
+        class FooWithKnownMacro < ActiveRecord::Base
+          has_many :yah
+        end
+      EOS
     end
+
     it "should work" do
       klass = AnnotateModels.get_model_class("foo.rb")
       klass.name.should == "Foo"
     end
+
     it "should not care about unknown macros" do
-      klass = AnnotateModels.get_model_class("foo_with_macro.rb")
-      klass.name.should == "FooWithMacro"
+      capturing(:stderr) do
+        klass = AnnotateModels.get_model_class("foo_with_macro.rb")
+        klass.name.should == "FooWithMacro"
+      end.should include("undefined method `acts_as_awesome'")
     end
+
+    it "should allow known macros" do
+      capturing(:stderr) do
+        klass = AnnotateModels.get_model_class("foo_with_known_macro.rb")
+        klass.name.should == "FooWithKnownMacro"
+      end.should == ""
+    end
+
   end
 
 end

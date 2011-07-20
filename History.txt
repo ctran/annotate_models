@@ -1,5 +1,7 @@
 == 2.5.0 2011-06-27 ?
 
+* issue 36 fix: warn about macros, to mitigate when we're included during a production run, not just a rakefile run -- possibly at the expense of too much noise
+
 *   85f6e53 (HEAD, master) Merge branch 'master' of github.com:ctran/annotate_models
 |\  
 
