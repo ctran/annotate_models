@@ -239,7 +239,11 @@ module AnnotateModels
       begin
         parts.inject(Object) {|klass, part| klass.const_get(part) }
       rescue LoadError, NameError
-        Object.const_get(parts.last)
+        begin
+          Object.const_get(parts.last)
+        rescue LoadError, NameError
+          Object.const_get(Module.constants.detect{|c|parts.last.downcase == c.downcase})
+        end
       end
     end
 
