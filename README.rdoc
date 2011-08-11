@@ -38,18 +38,26 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of "ra
 
 == INSTALL
 
-From rubyforge:
+Into Gemfile from Github:
+
+    gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git'
+    
+
+Into environment gems From Rubygems.org:
 
   sudo gem install annotate
 
-From github:
+Into environment gems from Github checkout:
 
   git clone git://github.com/ctran/annotate_models.git annotate
   cd annotate
   rake gem
   sudo gem install pkg/annotate-*.gem
 
+
 == USAGE
+
+(If you used the Gemfile install, prefix the below commands with `bundle exec`.)
 
 To annotate all your models, tests, fixtures, etc.:
 
@@ -70,7 +78,7 @@ To annotate routes.rb:
 
 To automatically annotate after running 'rake db:migrate':
   
-  [needs more clarity] unpack the gem into vendor/plugins, or maybe vendor/gems, or maybe just require tasks/migrate.rake.
+  [*needs more clarity*] unpack the gem into vendor/plugins, or maybe vendor/gems, or maybe just require tasks/migrate.rake.
 
 If you install annotate_models as a plugin, it will automatically
 adjust your <tt>rake db:migrate</tt> tasks so that they update the
