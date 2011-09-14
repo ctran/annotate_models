@@ -9,11 +9,15 @@ module AnnotateModels
     # I dont use windows, can`t test
     UNIT_TEST_DIR     = File.join("test", "unit"  )
     SPEC_MODEL_DIR    = File.join("spec", "models")
-    # Object Daddy http://github.com/flogic/object_daddy/tree/master
+    # Object Daddy http://github.com/flogic/object_daddy
     EXEMPLARS_TEST_DIR     = File.join("test", "exemplars")
     EXEMPLARS_SPEC_DIR     = File.join("spec", "exemplars")
     # Machinist http://github.com/notahat/machinist
     BLUEPRINTS_DIR         = File.join("test", "blueprints")
+    # FactoryGirl http://github.com/thoughtbot/factory_girl
+    FACTORIES_TEST_DIR     = File.join("test", "factories")
+    FACTORIES_SPEC_DIR     = File.join("spec", "factories")
+    
 
     def model_dir
       @model_dir || "app/models"
@@ -119,12 +123,13 @@ module AnnotateModels
         old_content = File.read(file_name)
 
         # Ignore the Schema version line because it changes with each migration
-        header = Regexp.new(/(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?\n)/)
-        old_header = old_content.match(header).to_s
-        new_header = info_block.match(header).to_s
-
-        old_columns = old_header && old_header.scan(/#[\t\s]+([\w\d]+)[\t\s]+\:([\d\w]+)/).sort
-        new_columns = new_header && new_header.scan(/#[\t\s]+([\w\d]+)[\t\s]+\:([\d\w]+)/).sort
+        header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?\n)/
+        old_header = old_content.match(header_pattern).to_s
+        new_header = info_block.match(header_pattern).to_s
+        
+        column_pattern = /^#[\t ]+\w+[\t ]+:\w+/
+        old_columns = old_header && old_header.scan(column_pattern).sort
+        new_columns = new_header && new_header.scan(column_pattern).sort
 
         if old_columns == new_columns
           false
@@ -185,6 +190,8 @@ module AnnotateModels
         File.join(EXEMPLARS_TEST_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
         File.join(EXEMPLARS_SPEC_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
         File.join(BLUEPRINTS_DIR,     "#{model_name}_blueprint.rb"), # Machinist Blueprints
+        File.join(FACTORIES_TEST_DIR, "#{model_name.pluralize}.rb"), # FactoryGirl Factories
+        File.join(FACTORIES_SPEC_DIR, "#{model_name.pluralize}.rb"), # FactoryGirl Factories
         ].each do |file| 
           annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
         end
