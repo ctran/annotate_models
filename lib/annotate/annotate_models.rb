@@ -181,7 +181,9 @@ module AnnotateModels
           File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
         ].each do |file| 
           # todo: add an option "position_in_test" -- or maybe just ask if anyone ever wants different positions for model vs. test vs. fixture
-          annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
+          if annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
+            annotated = true
+          end
         end
       end
 
@@ -193,13 +195,17 @@ module AnnotateModels
         File.join(FACTORIES_TEST_DIR, "#{model_name.pluralize}.rb"), # FactoryGirl Factories
         File.join(FACTORIES_SPEC_DIR, "#{model_name.pluralize}.rb"), # FactoryGirl Factories
         ].each do |file| 
-          annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
+          if annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
+            annotated = true
+          end
         end
 
         FIXTURE_DIRS.each do |dir|
           fixture_file_name = File.join(dir,klass.table_name + ".yml")
           if File.exist?(fixture_file_name)
-            annotate_one_file(fixture_file_name, info, options_with_position(options, :position_in_fixture))         
+            if annotate_one_file(fixture_file_name, info, options_with_position(options, :position_in_fixture))
+              annotated = true
+            end
           end
         end
       end
