@@ -56,7 +56,7 @@ module AnnotateModels
         attrs << "not null" unless col.null
         attrs << "primary key" if col.name == klass.primary_key
 
-        col_type = col.type.to_s
+        col_type = (col.type || col.sql_type).to_s
         if col_type == "decimal"
           col_type << "(#{col.precision}, #{col.scale})"
         else
@@ -138,9 +138,11 @@ module AnnotateModels
           new_content = old_content.sub(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, info_block)
           # But, if there *was* no old schema info, we simply need to insert it
           if new_content == old_content
+            #p old_content =~ /\n$/m
             new_content = options[:position] == 'before' ?
               (info_block + old_content) :
-              ((old_content =~ /\n$/ ? old_content : old_content + '\n') + info_block)
+              (old_content.rstrip + "\n\n" + info_block)
+              #((old_content =~ /\n$/ ? old_content : old_content + "\n") + info_block)
           end
 
           File.open(file_name, "wb") { |f| f.puts new_content }
