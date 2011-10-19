@@ -2,6 +2,8 @@
 
 require 'optparse'
 require 'annotate'
+require 'rake/dsl_definition'
+require 'rake'
 
 task = :annotate_models
 

@@ -1,4 +1,5 @@
 require 'rubygems'
+require 'rake/dsl_definition'
 require 'rake'
 require 'lib/annotate'
 
