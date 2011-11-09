@@ -168,9 +168,9 @@ module AnnotateModels
  
       unless ENV['exclude_tests']
         [
-          File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
-          File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
-        ].each do |file| 
+          find_test_file(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
+          find_test_file(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
+        ].each do |file|
           # todo: add an option "position_in_test" -- or maybe just ask if anyone ever wants different positions for model vs. test vs. fixture
           annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
         end
@@ -306,8 +306,8 @@ module AnnotateModels
               remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)
             end
             
-            [ File.join(UNIT_TEST_DIR, "#{klass.name.underscore}_test.rb"),
-              File.join(SPEC_MODEL_DIR,"#{klass.name.underscore}_spec.rb")].each do |file|
+            [ find_test_file(UNIT_TEST_DIR, "#{klass.name.underscore}_test.rb"),
+              find_test_file(SPEC_MODEL_DIR,"#{klass.name.underscore}_spec.rb")].each do |file|
               remove_annotation_of_file(file) if File.exist?(file)
             end
             
@@ -317,6 +317,10 @@ module AnnotateModels
         end
       end
       puts "Removed annotation from: #{deannotated.join(', ')}"
+    end
+
+    def find_test_file(dir, file_name)
+      Dir.glob(File.join(dir, "**", file_name)).first || File.join(dir, file_name)
     end
   end
 end
