@@ -126,10 +126,13 @@ module AnnotateModels
         header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?\n)/
         old_header = old_content.match(header_pattern).to_s
         new_header = info_block.match(header_pattern).to_s
-        
+
         column_pattern = /^#[\t ]+\w+[\t ]+:\w+/
         old_columns = old_header && old_header.scan(column_pattern).sort
         new_columns = new_header && new_header.scan(column_pattern).sort
+
+        encoding = Regexp.new(/(^# encoding:.*\n)|(^# coding:.*\n)|(^# -\*- coding:.*\n)/)
+        encoding_header = old_content.match(encoding).to_s
 
         if old_columns == new_columns
           false
@@ -138,9 +141,10 @@ module AnnotateModels
           new_content = old_content.sub(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, info_block)
           # But, if there *was* no old schema info, we simply need to insert it
           if new_content == old_content
+            old_content.sub!(encoding, '')
             new_content = options[:position] == 'before' ?
-              (info_block + old_content) :
-              ((old_content =~ /\n$/ ? old_content : old_content + '\n') + info_block)
+              (encoding_header + info_block + old_content) :
+              (encoding_header + (old_content =~ /\n$/ ? old_content : old_content + '\n') + info_block)
           end
 
           File.open(file_name, "wb") { |f| f.puts new_content }
