@@ -1,0 +1,3 @@
+To copy the Rakefile that automatically annotates models when you do a db:migrate:
+
+    rails generate annotate_models:install
