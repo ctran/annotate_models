@@ -138,7 +138,7 @@ module AnnotateModels
           false
         else
           # Replace the old schema info with the new schema info
-          new_content = old_content.sub(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, info_block)
+          new_content = old_content.sub(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n*/, info_block)
           # But, if there *was* no old schema info, we simply need to insert it
           if new_content == old_content
             old_content.sub!(encoding, '')
@@ -157,7 +157,7 @@ module AnnotateModels
       if File.exist?(file_name)
         content = File.read(file_name)
 
-        content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
+        content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n*/, '')
 
         File.open(file_name, "wb") { |f| f.puts content }
       end
