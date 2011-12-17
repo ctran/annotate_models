@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.date = "2011-09-02"
   s.description = "When run, inserts table descriptions from db.schema into a comment block of relevant source code."
   s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com", "turadg@aleahmad.net"]
-  s.executables = ["annotate"]
+  s.executables = ["annotate-rails"]
   s.extra_rdoc_files = [
     "README.rdoc"
   ]

@@ -18,7 +18,8 @@ Jeweler::Tasks.new do |gem|
   gem.add_development_dependency "rspec"
 
   gem.test_files =  `git ls-files -- {spec,features}/*`.split("\n")
-  gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+#gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  gem.executables = "annotate-rails"
   gem.require_path = 'lib'
   
   # note that Jeweler automatically reads the version from VERSION.yml
