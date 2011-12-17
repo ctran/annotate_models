@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION.yml",
     "annotate.gemspec",
-    "bin/annotate",
+    "bin/annotate-rails",
     "lib/annotate.rb",
     "lib/annotate/annotate_models.rb",
     "lib/annotate/annotate_routes.rb",
