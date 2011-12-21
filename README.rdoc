@@ -7,6 +7,7 @@ Add a comment summarizing the current schema to the top or bottom of each of you
   * Tests and Specs
   * Object Daddy exemplars
   * Machinist blueprints
+  * Fabrication fabricators
 
 The schema comment looks like this:
 
@@ -113,6 +114,8 @@ to an automatically created comment block.
 
 * Factory Girl => http://github.com/thoughtbot/factory_girl (NOT IMPLEMENTED)
 * Object Daddy => http://github.com/flogic/object_daddy
+* Machinist => http://github.com/notahat/machinist
+* Fabrication => http://github.com/paulelliott/fabrication
 * SpatialAdapter => http://github.com/pdeffendol/spatial_adapter
 * PostgisAdapter => http://github.com/nofxx/postgis_adapter
 
@@ -142,5 +145,6 @@ Modifications by:
  - Bob Potter - http://github.com/bpot
  - Gavin Montague - http://github.com/govan/
  - Alexander Semyonov - http://github.com/rotuka/
+ - Ian Duggan http://github.com/ijcd/
  
 and many others that I may have missed to add.
