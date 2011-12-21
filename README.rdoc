@@ -41,8 +41,7 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of "ra
 
 Into Gemfile from Github:
 
-    gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git'
-    
+    gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git'    
 
 Into environment gems From Rubygems.org:
 
@@ -54,7 +53,6 @@ Into environment gems from Github checkout:
   cd annotate
   rake build
   sudo gem install pkg/annotate-*.gem
-
 
 == USAGE
 
@@ -84,7 +82,21 @@ To automatically annotate after running 'rake db:migrate':
 If you install annotate_models as a plugin, it will automatically
 adjust your <tt>rake db:migrate</tt> tasks so that they update the
 annotations in your model files for you once the migration is
-completed.
+completed. To get the same behavior from a gem, add the following to
+your Rakefile:
+
+  require 'annotate/tasks'
+
+To customize the behavior of annotate when it is running as a Rake
+task, use the following (in your Rakefile or wherever):
+
+  ENV['position_in_class']   = "before"
+  ENV['position_in_fixture'] = "before"
+  ENV['show_indexes']        = "false"
+  ENV['include_version']     = "false"
+  ENV['exclude_tests']       = "false"
+  ENV['exclude_fixtures']    = "false"
+  ENV['skip_on_db_migrate']  = "false"
 
 == OPTIONS
 
