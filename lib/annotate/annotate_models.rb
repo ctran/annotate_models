@@ -17,6 +17,9 @@ module AnnotateModels
     # FactoryGirl http://github.com/thoughtbot/factory_girl
     FACTORIES_TEST_DIR     = File.join("test", "factories")
     FACTORIES_SPEC_DIR     = File.join("spec", "factories")
+    # Fabrication https://github.com/paulelliott/fabrication.git
+    FABRICATORS_TEST_DIR   = File.join("test", "fabricators")
+    FABRICATORS_SPEC_DIR   = File.join("spec", "fabricators")
     
 
     def model_dir
@@ -169,7 +172,7 @@ module AnnotateModels
     # of the model and fixture source files.
     # Returns true or false depending on whether the source
     # files were modified.
-    def annotate(klass, file, header,options={})
+    def annotate(klass, file, header, options={})
       info = get_schema_info(klass, header, options)
       annotated = false
       model_name = klass.name.underscore
@@ -198,6 +201,8 @@ module AnnotateModels
         File.join(BLUEPRINTS_DIR,     "#{model_name}_blueprint.rb"), # Machinist Blueprints
         File.join(FACTORIES_TEST_DIR, "#{model_name.pluralize}.rb"), # FactoryGirl Factories
         File.join(FACTORIES_SPEC_DIR, "#{model_name.pluralize}.rb"), # FactoryGirl Factories
+        File.join(FABRICATORS_TEST_DIR, "#{model_name}_fabricator.rb"), # Fabrication Fabricators
+        File.join(FABRICATORS_SPEC_DIR, "#{model_name}_fabricator.rb"), # Fabrication Fabricators
         ].each do |file| 
           if annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
             annotated = true
