@@ -182,7 +182,7 @@ module AnnotateModels
         annotated = true
       end
  
-      unless ENV['exclude_tests']
+      unless options[:exclude_tests]
         [
           File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
           File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
@@ -194,7 +194,7 @@ module AnnotateModels
         end
       end
 
-      unless ENV['exclude_fixtures']
+      unless options[:exclude_fixtures]
         [
         File.join(EXEMPLARS_TEST_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
         File.join(EXEMPLARS_SPEC_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
