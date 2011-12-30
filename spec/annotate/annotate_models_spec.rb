@@ -83,7 +83,7 @@ EOS
       klass = AnnotateModels.get_model_class("foo_with_macro.rb")
       klass.name.should == "FooWithMacro"
     end
-    it "should find models with non standard capitalization" do
+    pending it "should find models with non standard capitalization" do
       klass = AnnotateModels.get_model_class("foo_with_capitals.rb")
       klass.name.should == "FooWithCAPITALS"
     end
