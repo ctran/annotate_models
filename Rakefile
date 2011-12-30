@@ -30,8 +30,7 @@ Jeweler::GemcutterTasks.new
 
 require "rspec/core/rake_task" # RSpec 2.0
 RSpec::Core::RakeTask.new(:spec) do |t|
-  t.pattern = 'spec/*_spec.rb'
-  # TODO this leaves out the specs on the library itself
+  t.pattern = ['spec/*_spec.rb', 'spec/**/*_spec.rb']
 end
 
 # FIXME not working yet
