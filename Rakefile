@@ -1,3 +1,4 @@
+require 'psych'
 require 'rake'
 require File.dirname(__FILE__) + '/lib/annotate'
 
