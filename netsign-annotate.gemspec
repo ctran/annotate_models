@@ -4,15 +4,15 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{netsign-annotate}
+  s.name = "netsign-annotate"
   s.version = "2.4.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = [%q{Cuong Tran}, %q{Alex Chaffee}, %q{Marcos Piccinini}]
-  s.date = %q{2012-01-06}
-  s.description = %q{Packaged for netSIGN, gem experimentation}
-  s.email = [%q{alex@stinky.com}, %q{ctran@pragmaquest.com}, %q{x@nofxx.com}]
-  s.executables = [%q{annotate}]
+  s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini"]
+  s.date = "2012-01-06"
+  s.description = "Packaged for netSIGN, gem experimentation"
+  s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com"]
+  s.executables = ["annotate"]
   s.extra_rdoc_files = [
     "README.rdoc"
   ]
@@ -33,11 +33,11 @@ Gem::Specification.new do |s|
     "spec/spec_helper.rb",
     "tasks/migrate.rake"
   ]
-  s.homepage = %q{https://github.com/miyucy/annotate_models}
-  s.require_paths = [%q{lib}]
-  s.rubyforge_project = %q{netsign-annotate}
-  s.rubygems_version = %q{1.8.6}
-  s.summary = %q{Annotates Rails Models, routes, fixtures, and others based on the database schema.}
+  s.homepage = "https://github.com/miyucy/annotate_models"
+  s.require_paths = ["lib"]
+  s.rubyforge_project = "netsign-annotate"
+  s.rubygems_version = "1.8.15"
+  s.summary = "Annotates Rails Models, routes, fixtures, and others based on the database schema."
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
