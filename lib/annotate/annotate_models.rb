@@ -145,9 +145,9 @@ module AnnotateModels
           # But, if there *was* no old schema info, we simply need to insert it
           if new_content == old_content
             old_content.sub!(encoding, '')
-            new_content = options[:position] == 'before' ?
-              (encoding_header + info_block + old_content) :
-              (encoding_header + (old_content =~ /\n$/ ? old_content : old_content + '\n') + info_block)
+            new_content = options[:position] == 'after' ?
+              (encoding_header + (old_content =~ /\n$/ ? old_content : old_content + '\n') + info_block) :
+              (encoding_header + info_block + old_content)
           end
 
           File.open(file_name, "wb") { |f| f.puts new_content }
