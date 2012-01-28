@@ -5,8 +5,8 @@ task :annotate_models => :environment do
   true_re = /(true|t|yes|y|1)$/i
 
   options={}
-  options[:position_in_class] = ENV['position_in_class'] || ENV['position'] || :before
-  options[:position_in_fixture] = ENV['position_in_fixture'] || ENV['position']  || :before
+  options[:position_in_class] = ENV['position_in_class'] || ENV['position'] || 'before'
+  options[:position_in_fixture] = ENV['position_in_fixture'] || ENV['position']  || 'before'
   options[:show_indexes] = ENV['show_indexes'] =~ true_re
   options[:simple_indexes] = ENV['simple_indexes'] =~ true_re
   options[:model_dir] = ENV['model_dir']
