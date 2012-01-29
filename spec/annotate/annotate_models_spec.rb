@@ -72,7 +72,7 @@ EOS
     end
 
     it "should work" do
-      create('foo.rb', <<-EOS)
+      create 'foo.rb', <<-EOS
         class Foo < ActiveRecord::Base
         end
       EOS
@@ -80,7 +80,7 @@ EOS
     end
 
     it "should not care about unknown macros" do
-      create('foo_with_macro.rb', <<-EOS)
+      create 'foo_with_macro.rb', <<-EOS
         class FooWithMacro < ActiveRecord::Base
           acts_as_awesome :yah
         end
@@ -89,7 +89,7 @@ EOS
     end
 
     it "should find models with non standard capitalization" do
-      create('foo_with_capitals.rb', <<-EOS)
+      create 'foo_with_capitals.rb', <<-EOS
         class FooWithCAPITALS < ActiveRecord::Base
         end
       EOS
@@ -97,7 +97,7 @@ EOS
     end
 
     it "should find models inside modules" do
-      create('bar/foo_inside_bar.rb', <<-EOS)
+      create 'bar/foo_inside_bar.rb', <<-EOS
         module Bar
           class FooInsideBar < ActiveRecord::Base
           end
@@ -107,7 +107,7 @@ EOS
     end
 
     it "should find models inside modules with non standard capitalization" do
-      create('bar/foo_inside_capitals_bar.rb', <<-EOS)
+      create 'bar/foo_inside_capitals_bar.rb', <<-EOS
         module BAR
           class FooInsideCapitalsBAR < ActiveRecord::Base
           end
@@ -117,7 +117,7 @@ EOS
     end
 
     it "should find non-namespaced models inside subdirectories" do
-      create('bar/non_namespaced_foo_inside_bar.rb', <<-EOS)
+      create 'bar/non_namespaced_foo_inside_bar.rb', <<-EOS
         class NonNamespacedFooInsideBar < ActiveRecord::Base
         end
       EOS
@@ -125,7 +125,7 @@ EOS
     end
 
     it "should find non-namespaced models with non standard capitalization inside subdirectories" do
-      create('bar/non_namespaced_foo_with_capitals_inside_bar.rb', <<-EOS)
+      create 'bar/non_namespaced_foo_with_capitals_inside_bar.rb', <<-EOS
         class NonNamespacedFooWithCapitalsInsideBar < ActiveRecord::Base
         end
       EOS
