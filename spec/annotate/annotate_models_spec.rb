@@ -44,48 +44,92 @@ EOS
   end
 
   describe "#get_model_class" do
+    require "tmpdir"
+
     module ::ActiveRecord
       class Base
       end
     end
 
     def create(file, body="hi")
-      File.open(@dir + '/' + file, "w") do |f|
+      file_path = File.join(AnnotateModels.model_dir, file)
+      FileUtils.mkdir_p(File.dirname(file_path))
+
+      File.open(file_path, "w") do |f|
         f.puts(body)
       end
     end
 
-    before :all do
-      require "tmpdir"
-      @dir = Dir.tmpdir + "/#{Time.now.to_i}" + "/annotate_models"
-      FileUtils.mkdir_p(@dir)
-      AnnotateModels.model_dir = @dir
+    def check_class_name(file, class_name)
+      klass = AnnotateModels.get_model_class(file)
+
+      klass.should_not == nil
+      klass.name.should == class_name
+    end
+
+    before :each do
+      AnnotateModels.model_dir = Dir.mktmpdir 'annotate_models'
+    end
+
+    it "should work" do
       create('foo.rb', <<-EOS)
         class Foo < ActiveRecord::Base
         end
       EOS
+      check_class_name 'foo.rb', 'Foo'
+    end
+
+    it "should not care about unknown macros" do
       create('foo_with_macro.rb', <<-EOS)
         class FooWithMacro < ActiveRecord::Base
           acts_as_awesome :yah
         end
       EOS
+      check_class_name 'foo_with_macro.rb', 'FooWithMacro'
+    end
+
+    it "should find models with non standard capitalization" do
       create('foo_with_capitals.rb', <<-EOS)
         class FooWithCAPITALS < ActiveRecord::Base
-          acts_as_awesome :yah
         end
       EOS
+      check_class_name 'foo_with_capitals.rb', 'FooWithCAPITALS'
     end
-    it "should work" do
-      klass = AnnotateModels.get_model_class("foo.rb")
-      klass.name.should == "Foo"
+
+    it "should find models inside modules" do
+      create('bar/foo_inside_bar.rb', <<-EOS)
+        module Bar
+          class FooInsideBar < ActiveRecord::Base
+          end
+        end
+      EOS
+      check_class_name 'bar/foo_inside_bar.rb', 'Bar::FooInsideBar'
     end
-    it "should not care about unknown macros" do
-      klass = AnnotateModels.get_model_class("foo_with_macro.rb")
-      klass.name.should == "FooWithMacro"
+
+    it "should find models inside modules with non standard capitalization" do
+      create('bar/foo_inside_capitals_bar.rb', <<-EOS)
+        module BAR
+          class FooInsideCapitalsBAR < ActiveRecord::Base
+          end
+        end
+      EOS
+      check_class_name 'bar/foo_inside_capitals_bar.rb', 'BAR::FooInsideCapitalsBAR'
     end
-    pending it "should find models with non standard capitalization" do
-      klass = AnnotateModels.get_model_class("foo_with_capitals.rb")
-      klass.name.should == "FooWithCAPITALS"
+
+    it "should find non-namespaced models inside subdirectories" do
+      create('bar/non_namespaced_foo_inside_bar.rb', <<-EOS)
+        class NonNamespacedFooInsideBar < ActiveRecord::Base
+        end
+      EOS
+      check_class_name 'bar/non_namespaced_foo_inside_bar.rb', 'NonNamespacedFooInsideBar'
+    end
+
+    it "should find non-namespaced models with non standard capitalization inside subdirectories" do
+      create('bar/non_namespaced_foo_with_capitals_inside_bar.rb', <<-EOS)
+        class NonNamespacedFooWithCapitalsInsideBar < ActiveRecord::Base
+        end
+      EOS
+      check_class_name 'bar/non_namespaced_foo_with_capitals_inside_bar.rb', 'NonNamespacedFooWithCapitalsInsideBar'
     end
   end
 
