@@ -1,6 +1,7 @@
 desc "Add schema information (as comments) to model and fixture files"
 task :annotate_models => :environment do
   require File.expand_path(File.join(File.dirname(__FILE__), '..', 'annotate', 'annotate_models'))
+  require File.expand_path(File.join(File.dirname(__FILE__), '..', 'annotate', 'active_record_patch'))
 
   true_re = /(true|t|yes|y|1)$/i
 
@@ -20,6 +21,7 @@ end
 desc "Remove schema information from model and fixture files"
 task :remove_annotation => :environment do
   require File.expand_path(File.join(File.dirname(__FILE__), '..', 'annotate', 'annotate_models'))
+  require File.expand_path(File.join(File.dirname(__FILE__), '..', 'annotate', 'active_record_patch'))
   options={}
   options[:model_dir] = ENV['model_dir']
   AnnotateModels.remove_annotations(options)
