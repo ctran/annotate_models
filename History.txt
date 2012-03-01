@@ -21,6 +21,8 @@
 * Fix handling of files with no trailing newline when putting annotations at
   the end of the file.
 * Accept String or Symbol for :position (et al) options.
+* Rename "annotate" bin to "annotate_models" to avoid conflicting with
+  ImageMagick.
 
 == 2.1 2009-10-18
 

@@ -61,19 +61,19 @@ Into environment gems from Github checkout:
 To annotate all your models, tests, fixtures, etc.:
 
   cd /path/to/app
-  annotate
+  annotate_models
 
 To annotate your models and tests:
 
-  annotate --exclude fixtures
+  annotate_models --exclude fixtures
 
 To annotate just your models:
 
-  annotate --exclude tests,fixtures
+  annotate_models --exclude tests,fixtures
 
 To annotate routes.rb:
 
-  annotate -r
+  annotate_models -r
 
 To automatically annotate after running 'rake db:migrate', ensure you've added
 annotate_models to your Rails project's Gemfile, and run this:
@@ -86,7 +86,7 @@ you can use to tailor the output.
 
 == OPTIONS
 
-    Usage: annotate [options] [model_file]*
+    Usage: annotate_models [options] [model_file]*
         -d, --delete                     Remove annotations from all model files
         -p, --position [before|after]    Place the annotations at the top (before) or the bottom (after) of the model file
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'

@@ -8,7 +8,7 @@ require 'rake'
 task = :annotate_models
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: annotate [options] [model_file]*"
+  opts.banner = "Usage: annotate_models [options] [model_file]*"
 
   opts.on('-d', '--delete', 
   "Remove annotations from all model files") do

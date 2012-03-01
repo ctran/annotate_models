@@ -12,7 +12,6 @@ Gem::Specification.new do |s|
   s.date = "2012-03-01"
   s.description = "When run, inserts table descriptions from db.schema into a comment block of relevant source code."
   s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com", "turadg@aleahmad.net"]
-  s.executables = ["annotate"]
   s.extra_rdoc_files = [
     "README.rdoc"
   ]
@@ -25,7 +24,6 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION.yml",
     "annotate.gemspec",
-    "bin/annotate",
     "lib/annotate.rb",
     "lib/annotate/active_record_patch.rb",
     "lib/annotate/annotate_models.rb",
