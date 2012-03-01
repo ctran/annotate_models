@@ -1,17 +1,25 @@
 == HEAD
 
-* Add sorting for columns and indexes. (Helpful for out-of-order migration execution!)
+* Add sorting for columns and indexes. (Helpful for out-of-order migration
+  execution!)
 * BugFix for models without tables.
 * Annotate unit tests in subfolders.
 * Add generator to install rakefile that automatically annotates on db:migrate.
 * Fix gemspec generation now that Jeweler looks at Gemfile.
 * Correct Gemfile to clarify which environments need which gems.
 * Add an .rvmrc to facilitate clean development.
-* Refactor out ActiveRecord monkey-patch to permit extending without side-effects.
-* Use ObjectSpace to locate models to facilitate handling of models with non-standard capitalization.
-  Note that this still requires that the inflector be configured to understand the special case.
-* Merge away a few branches whose changes we already have in order to clean up the Github network graph.
-* Fix warning: `NOTE: Gem::Specification#default_executable= is deprecated with no replacement. It will be removed on or after 2011-10-01.`
+* Refactor out ActiveRecord monkey-patch to permit extending without
+  side-effects.
+* Use ObjectSpace to locate models to facilitate handling of models with
+  non-standard capitalization.
+  Note that this still requires that the inflector be configured to understand
+  the special case.
+* Merge away a few branches whose changes we already have in order to clean up
+  the Github network graph.
+* Fix warning: `NOTE: Gem::Specification#default_executable= is deprecated with
+  no replacement. It will be removed on or after 2011-10-01.`
+* Fix handling of files with no trailing newline when putting annotations at
+  the end of the file.
 
 == 2.1 2009-10-18
 
