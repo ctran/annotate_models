@@ -6,4 +6,4 @@ group :development do
   gem 'fakefs', :require => false
 end
 
-gem 'activesupport', :require => nil
+gem 'activesupport', '>= 3.0.0', :require => nil
