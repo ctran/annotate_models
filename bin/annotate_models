@@ -73,7 +73,7 @@ OptionParser.new do |opts|
     exclusions.each { |exclusion| ENV["exclude_#{exclusion}"] = "yes" }
   end
 
-  opts.on('-f', '--format [bare|rdoc|markdown]', ['bare', 'rdoc', 'markdown'], 'rdoc: render Schema Infomation as RDoc') do |fmt|
+  opts.on('-f', '--format [bare|rdoc|markdown]', ['bare', 'rdoc', 'markdown'], 'Render Schema Infomation as plain/RDoc/Markdown') do |fmt|
     ENV["format_#{fmt}"] = 'yes'
   end
 

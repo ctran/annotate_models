@@ -67,8 +67,8 @@ module AnnotateModels
       max_size += options[:format_rdoc] ? 5 : 1
 
       if(options[:format_markdown])
-        info<< sprintf( "# %-#{max_size + 4}.#{max_size + 4}s | %-17.17s | %s \n", 'Field', 'Type', 'Attributes' )
-        info<< "# #{ '-' * ( max_size + 4 ) } | #{'-' * 17} | #{ '-' * 25 } \n"
+        info<< sprintf( "# %-#{max_size + 4}.#{max_size + 4}s | %-18.18s | %s\n", 'Field', 'Type', 'Attributes' )
+        info<< "# #{ '-' * ( max_size + 4 ) } | #{'-' * 18} | #{ '-' * 25 }\n"
       end
 
       cols = klass.columns
@@ -109,7 +109,7 @@ module AnnotateModels
         if options[:format_rdoc]
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col.name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
         elsif options[:format_markdown]
-          info << sprintf("# **%-#{max_size}.#{max_size}s** | `%-16.16s` | `%s `", col.name, col_type, attrs.join(", ")).rstrip + "\n"
+          info << sprintf("# **%-#{max_size}.#{max_size}s** | `%-16.16s` | `%s`", col.name, col_type, attrs.join(", ").rstrip) + "\n"
         else
           info << sprintf("#  %-#{max_size}.#{max_size}s:%-16.16s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
         end
