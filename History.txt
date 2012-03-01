@@ -1,5 +1,7 @@
 == HEAD
 
+== 2.5.0 2012-02-29
+
 * Widen type column so we can handle longtexts with chopping things off.
 * Skip trying to get list of models from commandline when running via Rake (was
   preventing the use of multiple rake tasks in one command if one of them was
