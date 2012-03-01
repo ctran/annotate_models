@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini", "Turadg Aleahmad"]
-  s.date = "2011-09-02"
+  s.date = "2012-03-01"
   s.description = "When run, inserts table descriptions from db.schema into a comment block of relevant source code."
   s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com", "turadg@aleahmad.net"]
   s.executables = ["annotate"]
@@ -17,6 +17,8 @@ Gem::Specification.new do |s|
     "README.rdoc"
   ]
   s.files = [
+    "Gemfile",
+    "Gemfile.lock",
     "History.txt",
     "README.rdoc",
     "Rakefile",
@@ -27,6 +29,7 @@ Gem::Specification.new do |s|
     "lib/annotate/active_record_patch.rb",
     "lib/annotate/annotate_models.rb",
     "lib/annotate/annotate_routes.rb",
+    "lib/annotate/tasks.rb",
     "lib/tasks/annotate_models.rake",
     "lib/tasks/annotate_routes.rake",
     "spec/annotate/annotate_models_spec.rb",
@@ -40,7 +43,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/ctran/annotate_models"
   s.require_paths = ["lib"]
   s.rubyforge_project = "annotate"
-  s.rubygems_version = "1.8.10"
+  s.rubygems_version = "1.8.13"
   s.summary = "Annotates Rails models, routes, fixtures, and others based on the database schema."
   s.test_files = ["spec/annotate/annotate_models_spec.rb", "spec/annotate/annotate_routes_spec.rb", "spec/annotate_spec.rb", "spec/spec.opts", "spec/spec_helper.rb"]
 
@@ -48,11 +51,14 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<active_support>, [">= 0"])
       s.add_development_dependency(%q<rspec>, [">= 0"])
     else
+      s.add_dependency(%q<active_support>, [">= 0"])
       s.add_dependency(%q<rspec>, [">= 0"])
     end
   else
+    s.add_dependency(%q<active_support>, [">= 0"])
     s.add_dependency(%q<rspec>, [">= 0"])
   end
 end
