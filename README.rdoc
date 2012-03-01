@@ -42,7 +42,7 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of "ra
 
 Into Gemfile from Github:
 
-    gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git'
+    gem 'annotate', :git => 'git://github.com/MrJoy/annotate_models.git'
 
 Into environment gems From Rubygems.org:
 
@@ -50,8 +50,8 @@ Into environment gems From Rubygems.org:
 
 Into environment gems from Github checkout:
 
-  git clone git://github.com/ctran/annotate_models.git annotate
-  cd annotate
+  git clone git://github.com/MrJoy/annotate_models.git annotate_models
+  cd annotate_models
   rake build
   sudo gem install pkg/annotate-*.gem
 
@@ -146,7 +146,7 @@ Original code by: Dave Thomas -- Pragmatic Programmers, LLC
 Overhauled by: Alex Chaffee
 Gemmed by: Cuong Tran
 Maintained by: Alex Chaffee and Cuong Tran
-Integration by: Jon Frisby
+Integrated by: Jon Frisby
 
 Modifications by:
 
