@@ -16,8 +16,11 @@ GEM
       bundler (~> 1.0)
       git (>= 1.2.5)
       rake
+    json (1.6.5)
     predicated (0.2.6)
     rake (0.9.2.2)
+    rdoc (3.12)
+      json (~> 1.4)
     rspec (2.7.0)
       rspec-core (~> 2.7.0)
       rspec-expectations (~> 2.7.0)
@@ -54,5 +57,6 @@ PLATFORMS
 DEPENDENCIES
   activesupport (>= 3.0.0)
   jeweler
+  rdoc
   rspec
   wrong

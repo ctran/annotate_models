@@ -1,4 +1,12 @@
 require 'rubygems'
+require 'bundler'
+begin
+  Bundler.setup(:default, :development)
+rescue Bundler::BundlerError => e
+  $stderr.puts e.message
+  $stderr.puts "Run `bundle install` to install missing gems"
+  exit e.status_code
+end
 require 'rake/dsl_definition'
 require 'rake'
 
@@ -19,12 +27,12 @@ Jeweler::Tasks.new do |gem|
   gem.test_files =  `git ls-files -- {spec,features}/*`.split("\n")
   gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_path = 'lib'
-  
+
   # note that Jeweler automatically reads the version from VERSION.yml
   # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
 end
 
-Jeweler::GemcutterTasks.new  
+Jeweler::GemcutterTasks.new
 
 
 require "rspec/core/rake_task" # RSpec 2.0
@@ -32,12 +40,12 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = ['spec/*_spec.rb', 'spec/**/*_spec.rb']
 end
 
-# FIXME warns "already initialized constant Task"
-# FIXME throws "uninitialized constant RDoc::VISIBILITIES"
-# require 'rdoc/task'
-# RDoc::Task.new do |rdoc|
-#   rdoc.main = "README.rdoc"
-#   rdoc.rdoc_files.include("README.rdoc", "lib/**/*.rb")
-#   # require 'lib/annotate'
-#   # rdoc.title = "annotate #{Annotate.version}"
-# end
+require 'rdoc/task'
+RDoc::Task.new do |rdoc|
+  version = File.exist?('VERSION') ? File.read('VERSION') : ""
+
+  rdoc.rdoc_dir = 'rdoc'
+  rdoc.title = "annotated_models #{version}"
+  rdoc.rdoc_files.include('README*')
+  rdoc.rdoc_files.include('lib/**/*.rb')
+end
