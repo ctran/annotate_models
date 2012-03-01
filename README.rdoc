@@ -76,6 +76,10 @@ To annotate routes.rb:
 
   annotate_models -r
 
+To remove annotations:
+
+  annotate_models -d
+
 To automatically annotate after running 'rake db:migrate', ensure you've added
 annotate_models to your Rails project's Gemfile, and run this:
 
@@ -105,6 +109,14 @@ anywhere in the file:
         -R, --require path               Additional files to require before loading models
         -e [tests,fixtures]              Do not annotate fixtures/factories, and/or test files
             --exclude
+        -n  --no-sort                    Sort by column creation order rather than alphabetical order
+
+== SORTING
+
+By default, columns will be sorted alphabetically so that the results of
+annotation are consistent regardless of what order migrations are executed in.
+
+If you prefer the old behavior, use --no-sort.
 
 == WARNING
 

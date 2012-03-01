@@ -10,7 +10,7 @@
   '# -*- SkipSchemaAnnotations' anywhere in the file.
 * Don't show column limits for integer and boolean types.
 * Add sorting for columns and indexes. (Helpful for out-of-order migration
-  execution!)
+  execution, but use --no-sort if you don't want this.)
 * Annotate unit tests in subfolders.
 * Add generator to install rakefile that automatically annotates on db:migrate.
 * Correct Gemfile to clarify which environments need which gems.
