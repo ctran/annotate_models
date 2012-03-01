@@ -7,7 +7,7 @@ task :default => [:spec]
 
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
-  gem.name = "annotate_models"
+  gem.name = "annotate"
   gem.summary = "Annotates Rails models, routes, fixtures, and others based on the database schema."
   gem.description = "When run, inserts table descriptions from db.schema into a comment block of relevant source code."
   gem.email = ["alex@stinky.com", 'ctran@pragmaquest.com', "x@nofxx.com", "turadg@aleahmad.net"]

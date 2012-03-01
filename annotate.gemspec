@@ -4,7 +4,7 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = "annotate_models"
+  s.name = "annotate"
   s.version = "2.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
@@ -24,7 +24,6 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "VERSION.yml",
-    "annotate.gemspec",
     "bin/annotate_models",
     "lib/annotate.rb",
     "lib/annotate/active_record_patch.rb",
