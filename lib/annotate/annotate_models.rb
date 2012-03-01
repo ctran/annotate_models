@@ -86,7 +86,7 @@ module AnnotateModels
         end
 
         # Check if the column has indices and print "indexed" if true
-        # If the indice include another colum, print it too.
+        # If the index includes another column, print it too.
         if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
           indices = klass.connection.indexes(klass.table_name)
           if indices = indices.select { |ind| ind.columns.include? col.name }
