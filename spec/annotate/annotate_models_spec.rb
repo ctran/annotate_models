@@ -132,6 +132,61 @@ EOS
       EOS
       check_class_name 'bar/non_namespaced_foo_with_capitals_inside_bar.rb', 'NonNamespacedFooWithCapitalsInsideBar'
     end
-  end
 
+    it "should not get confused by existing annotations on a model when the schema changes" do
+      create 'foo.rb', <<-EOS
+class Foo < ActiveRecord::Base
+end
+# == Schema Information
+#
+# Table name: users
+#
+#  id   :integer(4)      not null, primary key
+#  name :string
+#
+# Indexes
+#
+#  index_users_on_name  (name) UNIQUE
+#
+
+EOS
+
+      info_block = <<-EOS
+# == Schema Information
+#
+# Table name: users
+#
+#  id   :integer(4)      not null, primary key
+#  name :string
+#  new  :string
+#
+# Indexes
+#
+#  index_users_on_name  (name) UNIQUE
+#
+
+EOS
+      fname = File.join(AnnotateModels.model_dir, 'foo.rb')
+
+      AnnotateModels.annotate_one_file(fname, info_block).should be_true
+
+      File.read(fname).should == <<-EOS
+class Foo < ActiveRecord::Base
+end
+# == Schema Information
+#
+# Table name: users
+#
+#  id   :integer(4)      not null, primary key
+#  name :string
+#  new  :string
+#
+# Indexes
+#
+#  index_users_on_name  (name) UNIQUE
+#
+
+EOS
+    end
+  end
 end
