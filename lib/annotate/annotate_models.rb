@@ -61,7 +61,7 @@ module AnnotateModels
       info<< "#\n"
 
       max_size = klass.column_names.map{|name| name.size}.max || 0
-      max_size += ENV['format_rdoc'] ? 5 : 1
+      max_size += options[:format_rdoc] ? 5 : 1
       klass.columns.sort_by(&:name).each do |col|
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
@@ -95,10 +95,10 @@ module AnnotateModels
           end
         end
 
-        if ENV['format_rdoc']
+        if options[:format_rdoc]
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col.name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
         else
-          info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
+          info << sprintf("#  %-#{max_size}.#{max_size}s:%-16.16s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
         end
       end
 
@@ -106,7 +106,7 @@ module AnnotateModels
         info << get_index_info(klass)
       end
 
-      if ENV['format_rdoc']
+      if options[:format_rdoc]
         info << "#--\n"
         info << "# #{END_MARK}\n"
         info << "#++\n\n"
@@ -246,9 +246,13 @@ module AnnotateModels
     # the underscore or CamelCase versions of model names.
     # Otherwise we take all the model files in the
     # model_dir directory.
-    def get_model_files
-      models = ARGV.dup
-      models.shift
+    def get_model_files(options)
+      if(!options[:is_rake])
+        models = ARGV.dup
+        models.shift
+      else
+        models = []
+      end
       models.reject!{|m| m.match(/^(.*)=/)}
       if models.empty?
         begin
@@ -308,10 +312,10 @@ module AnnotateModels
       end
 
       annotated = []
-      get_model_files.each do |file|
+      get_model_files(options).each do |file|
         begin
           klass = get_model_class(file)
-          if klass < ActiveRecord::Base && !klass.abstract_class?
+          if klass && klass < ActiveRecord::Base && !klass.abstract_class?
             if annotate(klass, file, header, options)
               annotated << klass
             end
@@ -333,7 +337,7 @@ module AnnotateModels
         self.model_dir = options[:model_dir]
       end
       deannotated = []
-      get_model_files.each do |file|
+      get_model_files(options).each do |file|
         begin
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?

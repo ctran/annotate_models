@@ -13,5 +13,4 @@ if(Rails.env.development?)
   ENV['exclude_fixtures']    = "false"
   ENV['skip_on_db_migrate']  = "false"
   ENV['format_rdoc']         = "false"
-  ENV['format_bare']         = "true"
 end

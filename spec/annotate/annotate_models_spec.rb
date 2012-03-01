@@ -48,8 +48,8 @@ describe AnnotateModels do
 #
 # Table name: users
 #
-#  id   :integer         not null, primary key
-#  name :string(50)      not null
+#  id   :integer          not null, primary key
+#  name :string(50)       not null
 #
 
 EOS
@@ -60,8 +60,7 @@ EOS
                                      mock_column(:id, :integer),
                                      mock_column(:name, :string, :limit => 50)
                                     ])
-    ENV.stub!(:[]).with('format_rdoc').and_return(true)
-    AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX).should eql(<<-EOS)
+    AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, :format_rdoc => true).should eql(<<-EOS)
 # #{AnnotateModels::PREFIX}
 #
 # Table name: users
