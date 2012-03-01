@@ -28,7 +28,9 @@
 * Accept String or Symbol for :position (et al) options.
 * Rename "annotate" bin to "annotate_models" to avoid conflicting with
   ImageMagick.
-* Add rdoc output formatting as an option.
+* Add RDoc output formatting as an option.
+* Add Markdown output formatting as an option.
+* Add option to force annotation regeneration.
 * Add new configuration option for controlling where info is placed in
   fixtures/factories.
 * Fix for models without tables.

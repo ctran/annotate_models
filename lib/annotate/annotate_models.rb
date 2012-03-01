@@ -1,9 +1,12 @@
 module AnnotateModels
   # Annotate Models plugin use this header
-  COMPAT_PREFIX = "== Schema Info"
-  PREFIX        = "== Schema Information"
-  END_MARK      = "== Schema Information End"
-  PATTERN       = /\n?# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n*/
+  COMPAT_PREFIX    = "== Schema Info"
+  COMPAT_PREFIX_MD = "## Schema Info"
+  PREFIX           = "== Schema Information"
+  PREFIX_MD        = "## Schema Information"
+  END_MARK         = "== Schema Information End"
+  PATTERN          = /^\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\n(#.*\n)*\n/
+
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
   UNIT_TEST_DIR         = File.join("test", "unit"  )
@@ -62,6 +65,12 @@ module AnnotateModels
 
       max_size = klass.column_names.map{|name| name.size}.max || 0
       max_size += options[:format_rdoc] ? 5 : 1
+
+      if(options[:format_markdown])
+        info<< sprintf( "# %-#{max_size + 4}.#{max_size + 4}s | %-17.17s | %s \n", 'Field', 'Type', 'Attributes' )
+        info<< "# #{ '-' * ( max_size + 4 ) } | #{'-' * 17} | #{ '-' * 25 } \n"
+      end
+
       cols = klass.columns
       cols = cols.sort_by(&:name) unless(options[:no_sort])
       cols.each do |col|
@@ -99,6 +108,8 @@ module AnnotateModels
 
         if options[:format_rdoc]
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col.name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+        elsif options[:format_markdown]
+          info << sprintf("# **%-#{max_size}.#{max_size}s** | `%-16.16s` | `%s `", col.name, col_type, attrs.join(", ")).rstrip + "\n"
         else
           info << sprintf("#  %-#{max_size}.#{max_size}s:%-16.16s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
         end
@@ -162,7 +173,7 @@ module AnnotateModels
         encoding = Regexp.new(/(^#\s*encoding:.*\n)|(^# coding:.*\n)|(^# -\*- coding:.*\n)/)
         encoding_header = old_content.match(encoding).to_s
 
-        if old_columns == new_columns
+        if old_columns == new_columns && !options[:force]
           false
         else
           # Strip the old schema info, and insert new schema info.
@@ -304,7 +315,7 @@ module AnnotateModels
         end
       end
 
-      header = PREFIX.dup
+      header = options[:format_markdown] ? PREFIX_MD.dup : PREFIX.dup
 
       if options[:include_version]
         version = ActiveRecord::Migrator.current_version rescue 0

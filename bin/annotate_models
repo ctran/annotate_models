@@ -73,8 +73,12 @@ OptionParser.new do |opts|
     exclusions.each { |exclusion| ENV["exclude_#{exclusion}"] = "yes" }
   end
 
-  opts.on('-f', '--format [bare|rdoc]', ['bare', 'rdoc'], 'rdoc: render Schema Infomation as RDoc') do |fmt|
-    ENV['format_#{fmt}'] = 'yes'
+  opts.on('-f', '--format [bare|rdoc|markdown]', ['bare', 'rdoc', 'markdown'], 'rdoc: render Schema Infomation as RDoc') do |fmt|
+    ENV["format_#{fmt}"] = 'yes'
+  end
+
+  opts.on('--force', 'Force new annotations even if there are no changes.') do |force|
+    ENV['force'] = 'yes'
   end
 
 end.parse!
