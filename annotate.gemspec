@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "VERSION.yml",
+    "annotate.gemspec",
     "bin/annotate_models",
     "lib/annotate.rb",
     "lib/annotate/active_record_patch.rb",
@@ -57,18 +58,15 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<activesupport>, [">= 3.0.0"])
       s.add_development_dependency(%q<jeweler>, [">= 0"])
       s.add_development_dependency(%q<rspec>, [">= 0"])
-      s.add_development_dependency(%q<fakefs>, [">= 0"])
     else
       s.add_dependency(%q<activesupport>, [">= 3.0.0"])
       s.add_dependency(%q<jeweler>, [">= 0"])
       s.add_dependency(%q<rspec>, [">= 0"])
-      s.add_dependency(%q<fakefs>, [">= 0"])
     end
   else
     s.add_dependency(%q<activesupport>, [">= 3.0.0"])
     s.add_dependency(%q<jeweler>, [">= 0"])
     s.add_dependency(%q<rspec>, [">= 0"])
-    s.add_dependency(%q<fakefs>, [">= 0"])
   end
 end
 

@@ -1,11 +1,8 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    active_support (3.0.0)
-      activesupport (= 3.0.0)
     activesupport (3.0.0)
     diff-lcs (1.1.3)
-    fakefs (0.4.0)
     git (1.2.5)
     jeweler (1.6.4)
       bundler (~> 1.0)
@@ -25,7 +22,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  active_support
-  fakefs
+  activesupport (>= 3.0.0)
   jeweler
   rspec
