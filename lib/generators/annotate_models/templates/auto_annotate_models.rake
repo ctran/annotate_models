@@ -1,23 +1,14 @@
-# This file was derived from a Rakefile described in this blog post:
-# http://talklikeaduck.denhaven2.com/2011/01/29/automatic-annotation-with-rails-3-with-the-annotate-gem
-# Position in class/fixture is either 'before' or 'after'
+# NOTE: only doing this in development as some production environments (Heroku)
+# NOTE: are sensitive to local FS writes, and besides -- it's just not proper
+# NOTE: to have a dev-mode tool do its thing in production.
+if(Rails.env.development?)
+  require 'annotate/tasks'
 
-namespace :db do
-  task :migrate do
-    unless Rails.env.production?
-      require "annotate/annotate_models"
-      AnnotateModels.do_annotations(:position_in_class => 'after', :position_in_fixture => 'after')
-    end
-  end
-
-  namespace :migrate do
-    [:up, :down, :reset, :redo].each do |t|
-      task t do
-        unless Rails.env.production?
-          require "annotate/annotate_models"
-          AnnotateModels.do_annotations(:position_in_class => 'after', :position_in_fixture => 'after')
-        end
-      end
-    end
-  end
+  ENV['position_in_class']   = "before"
+  ENV['position_in_fixture'] = "before"
+  ENV['show_indexes']        = "true"
+  ENV['include_version']     = "false"
+  ENV['exclude_tests']       = "false"
+  ENV['exclude_fixtures']    = "false"
+  ENV['skip_on_db_migrate']  = "false"
 end
