@@ -52,8 +52,9 @@ module AnnotateModels
       info = "# #{header}\n#\n"
       info << "# Table name: #{klass.table_name}\n#\n"
 
-      max_size = klass.column_names.collect{|name| name.size}.max + 1
-      klass.columns.each do |col|
+      max_size = klass.column_names.collect{|name| name.size}.max || 0
+      max_size += 1
+      klass.columns.sort_by(&:name).each do |col|
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
         attrs << "not null" unless col.null
@@ -74,7 +75,7 @@ module AnnotateModels
 
         # Check if the column has indices and print "indexed" if true
         # If the indice include another colum, print it too.
-        if options[:simple_indexes] # Check out if this column is indexed
+        if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
           indices = klass.connection.indexes(klass.table_name)
           if indices = indices.select { |ind| ind.columns.include? col.name }
             indices.each do |ind|
@@ -87,7 +88,7 @@ module AnnotateModels
         info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
       end
 
-      if options[:show_indexes]
+      if options[:show_indexes] && klass.table_exists?
         info << get_index_info(klass)
       end
 
@@ -100,7 +101,8 @@ module AnnotateModels
       indexes = klass.connection.indexes(klass.table_name)
       return "" if indexes.empty?
 
-      max_size = indexes.collect{|index| index.name.size}.max + 1
+      max_size = indexes.collect{|index| index.name.size}.max || 0
+      max_size += 1
       indexes.each do |index|
         index_info << sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{index.columns.join(",")})", index.unique ? "UNIQUE" : "").rstrip + "\n"
       end
@@ -184,9 +186,9 @@ module AnnotateModels
  
       unless options[:exclude_tests]
         [
-          File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
-          File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
-        ].each do |file| 
+          find_test_file(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
+          find_test_file(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
+        ].each do |file|
           # todo: add an option "position_in_test" -- or maybe just ask if anyone ever wants different positions for model vs. test vs. fixture
           if annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
             annotated = true
@@ -334,8 +336,8 @@ module AnnotateModels
               remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)
             end
             
-            [ File.join(UNIT_TEST_DIR, "#{klass.name.underscore}_test.rb"),
-              File.join(SPEC_MODEL_DIR,"#{klass.name.underscore}_spec.rb")].each do |file|
+            [ find_test_file(UNIT_TEST_DIR, "#{klass.name.underscore}_test.rb"),
+              find_test_file(SPEC_MODEL_DIR,"#{klass.name.underscore}_spec.rb")].each do |file|
               remove_annotation_of_file(file) if File.exist?(file)
             end
             
@@ -345,6 +347,10 @@ module AnnotateModels
         end
       end
       puts "Removed annotation from: #{deannotated.join(', ')}"
+    end
+
+    def find_test_file(dir, file_name)
+      Dir.glob(File.join(dir, "**", file_name)).first || File.join(dir, file_name)
     end
   end
 end
