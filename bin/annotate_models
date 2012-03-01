@@ -83,6 +83,7 @@ OptionParser.new do |opts|
 
 end.parse!
 
+ENV['is_cli'] = '1'
 if Annotate.load_tasks
   Rake::Task[task].invoke
 else
