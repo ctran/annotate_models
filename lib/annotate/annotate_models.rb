@@ -60,7 +60,7 @@ module AnnotateModels
         attrs << "not null" unless col.null
         attrs << "primary key" if col.name == klass.primary_key
 
-        col_type = col.type.to_s
+        col_type = (col.type || col.sql_type).to_s
         if col_type == "decimal"
           col_type << "(#{col.precision}, #{col.scale})"
         else
@@ -148,7 +148,7 @@ module AnnotateModels
           if new_content == old_content
             old_content.sub!(encoding, '')
             new_content = options[:position] == 'after' ?
-              (encoding_header + (old_content =~ /\n$/ ? old_content : old_content + '\n') + info_block) :
+              (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
               (encoding_header + info_block + old_content)
           end
 
