@@ -15,8 +15,6 @@ Jeweler::Tasks.new do |gem|
 
   gem.rubyforge_project = "annotate"
 
-  gem.add_development_dependency "rspec"
-
   gem.test_files =  `git ls-files -- {spec,features}/*`.split("\n")
   gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_path = 'lib'
