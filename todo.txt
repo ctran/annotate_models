@@ -2,3 +2,4 @@ TODO
 -----
 add "top" and "bottom" as synonyms for "before" and "after"
 change 'exclude' to 'only' (double negatives are not unconfusing)
+make format_* options go through normal channel for options

@@ -1,11 +1,10 @@
 == HEAD
 
+* Don't show column limits for integer and boolean types.
 * Add sorting for columns and indexes. (Helpful for out-of-order migration
   execution!)
-* BugFix for models without tables.
 * Annotate unit tests in subfolders.
 * Add generator to install rakefile that automatically annotates on db:migrate.
-* Fix gemspec generation now that Jeweler looks at Gemfile.
 * Correct Gemfile to clarify which environments need which gems.
 * Add an .rvmrc to facilitate clean development.
 * Refactor out ActiveRecord monkey-patch to permit extending without
@@ -16,13 +15,18 @@
   the special case.
 * Merge away a few branches whose changes we already have in order to clean up
   the Github network graph.
+* Accept String or Symbol for :position (et al) options.
+* Rename "annotate" bin to "annotate_models" to avoid conflicting with
+  ImageMagick.
+* Add rdoc output formatting as an option.
+* Add new configuration option for controlling where info is placed in
+  fixtures/factories.
+* Fix for models without tables.
+* Fix gemspec generation now that Jeweler looks at Gemfile.
 * Fix warning: `NOTE: Gem::Specification#default_executable= is deprecated with
   no replacement. It will be removed on or after 2011-10-01.`
 * Fix handling of files with no trailing newline when putting annotations at
   the end of the file.
-* Accept String or Symbol for :position (et al) options.
-* Rename "annotate" bin to "annotate_models" to avoid conflicting with
-  ImageMagick.
 
 == 2.4.2 2009-11-21
 

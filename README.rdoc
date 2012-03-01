@@ -97,7 +97,7 @@ you can use to tailor the output.
         -s, --simple-indexes             Concat the column's related indexes in the annotation
             --model-dir dir              Annotate model files stored in dir rather than app/models
         -R, --require path               Additional files to require before loading models
-        -e [tests,fixtures,factories]    Do not annotate fixtures, test files, and/or factories
+        -e [tests,fixtures]              Do not annotate fixtures/factories, and/or test files
             --exclude
 
 
