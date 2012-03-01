@@ -5,3 +5,4 @@ coverage/*
 spec/debug.log
 pkg/*
 *.gem
+/.idea/
