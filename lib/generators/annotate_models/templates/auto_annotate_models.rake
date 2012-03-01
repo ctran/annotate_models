@@ -6,9 +6,12 @@ if(Rails.env.development?)
 
   ENV['position_in_class']   = "before"
   ENV['position_in_fixture'] = "before"
+  ENV['position_in_factory'] = "before"
   ENV['show_indexes']        = "true"
   ENV['include_version']     = "false"
   ENV['exclude_tests']       = "false"
   ENV['exclude_fixtures']    = "false"
   ENV['skip_on_db_migrate']  = "false"
+  ENV['format_rdoc']         = "false"
+  ENV['format_bare']         = "true"
 end
