@@ -20,6 +20,7 @@
   no replacement. It will be removed on or after 2011-10-01.`
 * Fix handling of files with no trailing newline when putting annotations at
   the end of the file.
+* Accept String or Symbol for :position (et al) options.
 
 == 2.1 2009-10-18
 

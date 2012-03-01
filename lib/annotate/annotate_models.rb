@@ -117,7 +117,7 @@ module AnnotateModels
     #
     # === Options (opts)
     #  :position<Symbol>:: where to place the annotated section in fixture or model file,
-    #                      "before" or "after". Default is "before".
+    #                      :before or :after. Default is :before.
     #  :position_in_class<Symbol>:: where to place the annotated section in model file
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
     #  :position_in_others<Symbol>:: where to place the annotated section in the rest of
@@ -147,7 +147,7 @@ module AnnotateModels
           # But, if there *was* no old schema info, we simply need to insert it
           if new_content == old_content
             old_content.sub!(encoding, '')
-            new_content = options[:position] == 'after' ?
+            new_content = (options[:position] || 'before').to_s == 'after' ?
               (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
               (encoding_header + info_block + old_content)
           end
