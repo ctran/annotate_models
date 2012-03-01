@@ -1,4 +1,5 @@
 require 'rubygems'
+require 'rake/dsl_definition'
 require 'rake'
 
 # want other tests/tasks run by default? Add them to the list
