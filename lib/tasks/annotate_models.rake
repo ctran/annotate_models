@@ -16,6 +16,7 @@ task :annotate_models => :environment do
   options[:require] = ENV['require'] ? ENV['require'].split(',') : []
   options[:exclude_tests] = ENV['exclude_tests'] =~ true_re
   options[:exclude_fixtures] = ENV['exclude_fixtures'] =~ true_re
+  options[:ignore_model_sub_dir] = ENV['ignore_model_sub_dir'] =~ true_re
   options[:format_rdoc] = ENV['format_rdoc'] =~ true_re
   AnnotateModels.do_annotations(options)
 end

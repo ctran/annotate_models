@@ -50,6 +50,11 @@ OptionParser.new do |opts|
     ENV['model_dir'] = dir
   end
 
+  opts.on('--ignore-model-subdirects',
+          "Ignore subdirectories of the models directory") do |dir|
+    ENV['ignore_model_sub_dir'] = "yes"
+  end
+
   opts.on('-R', '--require path',
           "Additional files to require before loading models") do |path|
     if ENV['require']

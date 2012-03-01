@@ -257,7 +257,11 @@ module AnnotateModels
       if models.empty?
         begin
           Dir.chdir(model_dir) do
-            models = Dir["**/*.rb"]
+            models = if options[:ignore_model_sub_dir]
+              Dir["*.rb"]
+            else
+              Dir["**/*.rb"]
+            end
           end
         rescue SystemCallError
           puts "No models found in directory '#{model_dir}'."

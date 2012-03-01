@@ -101,10 +101,10 @@ anywhere in the file:
         -i, --show-indexes               List the table's database indexes in the annotation
         -s, --simple-indexes             Concat the column's related indexes in the annotation
             --model-dir dir              Annotate model files stored in dir rather than app/models
+            --ignore-model-subdirs       Ignore sub-directories of the models directory.
         -R, --require path               Additional files to require before loading models
         -e [tests,fixtures]              Do not annotate fixtures/factories, and/or test files
             --exclude
-
 
 == WARNING
 
