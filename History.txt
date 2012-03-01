@@ -21,8 +21,10 @@
   non-standard capitalization.
   Note that this still requires that the inflector be configured to understand
   the special case.
-* Merge away a few branches whose changes we already have in order to clean up
-  the Github network graph.
+* Shore up test cases a bit.
+* Merge against many of the older branches on Github whose functionality is
+  already reflected to reduce confusion about what is and is not implemented
+  here.
 * Accept String or Symbol for :position (et al) options.
 * Rename "annotate" bin to "annotate_models" to avoid conflicting with
   ImageMagick.

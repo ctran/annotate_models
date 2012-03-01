@@ -77,6 +77,13 @@ EOS
   describe "#get_model_class" do
     require "tmpdir"
 
+    module ::ActiveRecord
+      class Base
+        def self.has_many name
+        end
+      end
+    end
+
     def create(file, body="hi")
       file_path = File.join(AnnotateModels.model_dir, file)
       FileUtils.mkdir_p(File.dirname(file_path))
@@ -168,6 +175,18 @@ EOS
       EOS
       check_class_name 'bar/non_namespaced_foo_with_capitals_inside_bar.rb', 'NonNamespacedFooWithCapitalsInsideBar'
     end
+
+    it "should allow known macros" do
+      create('foo_with_known_macro.rb', <<-EOS)
+        class FooWithKnownMacro < ActiveRecord::Base
+          has_many :yah
+        end
+      EOS
+      capturing(:stderr) do
+        check_class_name 'foo_with_known_macro.rb', 'FooWithKnownMacro'
+      end.should == ""
+    end
+
   end
 
   describe "#remove_annotation_of_file" do
