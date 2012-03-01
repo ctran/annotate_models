@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 require 'annotate/annotate_models'
+require 'annotate/active_record_patch'
 require 'rubygems'
 require 'active_support'
 
