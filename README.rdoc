@@ -41,7 +41,7 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of "ra
 
 Into Gemfile from Github:
 
-    gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git'    
+    gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git'
 
 Into environment gems From Rubygems.org:
 
@@ -75,28 +75,14 @@ To annotate routes.rb:
 
   annotate -r
 
-To automatically annotate after running 'rake db:migrate':
-  
-  [*needs more clarity*] unpack the gem into vendor/plugins, or maybe vendor/gems, or maybe just require tasks/migrate.rake.
+To automatically annotate after running 'rake db:migrate', ensure you've added
+annotate_models to your Rails project's Gemfile, and run this:
 
-If you install annotate_models as a plugin, it will automatically
-adjust your <tt>rake db:migrate</tt> tasks so that they update the
-annotations in your model files for you once the migration is
-completed. To get the same behavior from a gem, add the following to
-your Rakefile:
+  rails g annotate_models:install
 
-  require 'annotate/tasks'
-
-To customize the behavior of annotate when it is running as a Rake
-task, use the following (in your Rakefile or wherever):
-
-  ENV['position_in_class']   = "before"
-  ENV['position_in_fixture'] = "before"
-  ENV['show_indexes']        = "false"
-  ENV['include_version']     = "false"
-  ENV['exclude_tests']       = "false"
-  ENV['exclude_fixtures']    = "false"
-  ENV['skip_on_db_migrate']  = "false"
+This will produce a .rake file that will ensure annotation happens after
+migration (but only in development mode), and provide configuration options
+you can use to tailor the output.
 
 == OPTIONS
 
@@ -141,6 +127,7 @@ Original code by: Dave Thomas -- Pragmatic Programmers, LLC
 Overhauled by: Alex Chaffee
 Gemmed by: Cuong Tran
 Maintained by: Alex Chaffee and Cuong Tran
+Integration by: Jon Frisby
 
 Modifications by:
 
@@ -158,5 +145,6 @@ Modifications by:
  - Gavin Montague - http://github.com/govan/
  - Alexander Semyonov - http://github.com/rotuka/
  - Ian Duggan http://github.com/ijcd/
- 
+ - Jon Frisby http://github.com/mrjoy/
+
 and many others that I may have missed to add.
