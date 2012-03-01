@@ -85,6 +85,11 @@ This will produce a .rake file that will ensure annotation happens after
 migration (but only in development mode), and provide configuration options
 you can use to tailor the output.
 
+If you want to always skip annotations on a particular model, add this string
+anywhere in the file:
+
+  # -*- SkipSchemaAnnotations
+
 == OPTIONS
 
     Usage: annotate_models [options] [model_file]*

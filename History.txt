@@ -1,5 +1,7 @@
 == HEAD
 
+* Add ability to skip annotations for a model by adding
+  '# -*- SkipSchemaAnnotations' anywhere in the file.
 * Don't show column limits for integer and boolean types.
 * Add sorting for columns and indexes. (Helpful for out-of-order migration
   execution!)

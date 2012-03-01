@@ -146,6 +146,7 @@ module AnnotateModels
     def annotate_one_file(file_name, info_block, options={})
       if File.exist?(file_name)
         old_content = File.read(file_name)
+        return false if(old_content =~ /# -\*- SkipSchemaAnnotations.*\n/)
 
         # Ignore the Schema version line because it changes with each migration
         header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?\n)/
@@ -269,7 +270,7 @@ module AnnotateModels
     # in subdirectories without namespacing.
     def get_model_class(file)
       # this is for non-rails projects, which don't get Rails auto-require magic
-      require File.expand_path("#{model_dir}/#{file}") unless Module.const_defined?(:Rails)
+      require File.expand_path("#{model_dir}/#{file}")
 
       model_path = file.gsub(/\.rb$/, '')
       get_loaded_model(model_path) || get_loaded_model(model_path.split('/').last)
@@ -277,9 +278,9 @@ module AnnotateModels
 
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
     def get_loaded_model(model_path)
-      ObjectSpace.each_object(class << ActiveRecord::Base; self; end).detect do |c|
-        ActiveSupport::Inflector.underscore(c) == model_path
-      end
+      ObjectSpace.each_object.
+        select { |c| c.is_a?(Class) && c.ancestors.include?(ActiveRecord::Base) }.
+        detect { |c| ActiveSupport::Inflector.underscore(c) == model_path }
     end
 
     # We're passed a name of things that might be
