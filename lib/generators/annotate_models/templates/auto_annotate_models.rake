@@ -14,4 +14,5 @@ if(Rails.env.development?)
   ENV['ignore_model_sub_dir'] = "false"
   ENV['skip_on_db_migrate']   = "false"
   ENV['format_rdoc']          = "false"
+  ENV['no_sort']              = "false"
 end

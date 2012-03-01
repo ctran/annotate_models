@@ -55,6 +55,11 @@ OptionParser.new do |opts|
     ENV['ignore_model_sub_dir'] = "yes"
   end
 
+  opts.on('-n', '--no-sort',
+          "Sort columns in creation order rather than alphabetically") do |dir|
+    ENV['no_sort'] = "yes"
+  end
+
   opts.on('-R', '--require path',
           "Additional files to require before loading models") do |path|
     if ENV['require']

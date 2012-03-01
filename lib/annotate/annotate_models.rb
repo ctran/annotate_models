@@ -62,7 +62,9 @@ module AnnotateModels
 
       max_size = klass.column_names.map{|name| name.size}.max || 0
       max_size += options[:format_rdoc] ? 5 : 1
-      klass.columns.sort_by(&:name).each do |col|
+      cols = klass.columns
+      cols = cols.sort_by(&:name) unless(options[:no_sort])
+      cols.each do |col|
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
         attrs << "not null" unless col.null
