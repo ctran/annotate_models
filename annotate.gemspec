@@ -5,13 +5,14 @@
 
 Gem::Specification.new do |s|
   s.name = "annotate"
-  s.version = "2.4.1.beta1"
+  s.version = "2.4.2"
 
-  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
+  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini", "Turadg Aleahmad"]
   s.date = "2012-03-01"
   s.description = "When run, inserts table descriptions from db.schema into a comment block of relevant source code."
   s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com", "turadg@aleahmad.net"]
+  s.executables = ["annotate_models"]
   s.extra_rdoc_files = [
     "README.rdoc"
   ]
@@ -24,6 +25,7 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION.yml",
     "annotate.gemspec",
+    "bin/annotate_models",
     "lib/annotate.rb",
     "lib/annotate/active_record_patch.rb",
     "lib/annotate/annotate_models.rb",

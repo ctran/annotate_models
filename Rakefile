@@ -32,12 +32,6 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = ['spec/*_spec.rb', 'spec/**/*_spec.rb']
 end
 
-# FIXME not working yet
-RSpec::Core::RakeTask.new(:rcov) do |t|
-  t.pattern = 'spec/**/*_spec.rb'
-  t.rcov = true
-end
-
 # FIXME warns "already initialized constant Task"
 # FIXME throws "uninitialized constant RDoc::VISIBILITIES"
 # require 'rdoc/task'

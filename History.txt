@@ -24,6 +24,20 @@
 * Rename "annotate" bin to "annotate_models" to avoid conflicting with
   ImageMagick.
 
+== 2.4.2 2009-11-21
+
+* Annotates (spec|test)/factories/<model>_factory.rb files
+
+== 2.4.1 2009-11-20
+
+* Annotates thoughtbot's factory_girl factories (test/factories/<model>_factory.rb)
+* Move default annotation position back to top
+
+== 2.4.0 2009-12-13
+
+* Incorporated lots of patches from the Github community, including support for Blueprints fixtures
+* Several bug fixes
+
 == 2.1 2009-10-18
 
 * New options

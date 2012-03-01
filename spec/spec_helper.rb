@@ -7,5 +7,6 @@ rescue LoadError
 end
 
 $:.unshift(File.dirname(__FILE__) + '/../lib')
-require 'bigdecimal'
+require 'active_support'
+require 'active_support/core_ext/string/inflections'
 require 'annotate'

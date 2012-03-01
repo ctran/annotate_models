@@ -3,6 +3,7 @@ source :rubygems
 group :development do
   gem 'jeweler'
   gem 'rspec'
+  gem 'fakefs', :require => false
 end
 
-gem 'active_support'
+gem 'activesupport', :require => nil
