@@ -20,7 +20,7 @@ module AnnotateModels
     # Fabrication https://github.com/paulelliott/fabrication.git
     FABRICATORS_TEST_DIR   = File.join("test", "fabricators")
     FABRICATORS_SPEC_DIR   = File.join("spec", "fabricators")
-    
+
 
     def model_dir
       @model_dir || "app/models"
@@ -146,7 +146,7 @@ module AnnotateModels
           if new_content == old_content
             old_content.sub!(encoding, '')
             new_content = options[:position] == 'after' ?
-              (encoding_header + (old_content =~ /\n$/ ? old_content : old_content + '\n') + info_block) :
+              (encoding_header + (old_content =~ /\n$/ ? old_content : old_content + "\n") + info_block) :
               (encoding_header + info_block + old_content)
           end
 
@@ -181,12 +181,12 @@ module AnnotateModels
       if annotate_one_file(model_file_name, info, options_with_position(options, :position_in_class))
         annotated = true
       end
- 
+
       unless options[:exclude_tests]
         [
           File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
           File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
-        ].each do |file| 
+        ].each do |file|
           # todo: add an option "position_in_test" -- or maybe just ask if anyone ever wants different positions for model vs. test vs. fixture
           if annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
             annotated = true
@@ -203,7 +203,7 @@ module AnnotateModels
         File.join(FACTORIES_SPEC_DIR, "#{model_name.pluralize}.rb"), # FactoryGirl Factories
         File.join(FABRICATORS_TEST_DIR, "#{model_name}_fabricator.rb"), # Fabrication Fabricators
         File.join(FABRICATORS_SPEC_DIR, "#{model_name}_fabricator.rb"), # Fabrication Fabricators
-        ].each do |file| 
+        ].each do |file|
           if annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
             annotated = true
           end
@@ -218,10 +218,10 @@ module AnnotateModels
           end
         end
       end
-      
+
       annotated
     end
-    
+
     # position = :position_in_fixture or :position_in_class
     def options_with_position(options, position_in)
       options.merge(:position=>(options[position_in] || options[:position]))
@@ -309,7 +309,7 @@ module AnnotateModels
           puts "Unable to annotate #{file}: #{e.inspect}"
           puts ""
 # todo: check if all backtrace lines are in "gems" -- if so, it's an annotate bug, so print the whole stack trace.
-#          puts e.backtrace.join("\n\t")  
+#          puts e.backtrace.join("\n\t")
         end
       end
       if annotated.empty?
@@ -338,12 +338,12 @@ module AnnotateModels
               fixture_file_name = File.join(dir,klass.table_name + ".yml")
               remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)
             end
-            
+
             [ File.join(UNIT_TEST_DIR, "#{klass.name.underscore}_test.rb"),
               File.join(SPEC_MODEL_DIR,"#{klass.name.underscore}_spec.rb")].each do |file|
               remove_annotation_of_file(file) if File.exist?(file)
             end
-            
+
           end
         rescue Exception => e
           puts "Unable to annotate #{file}: #{e.message}"
