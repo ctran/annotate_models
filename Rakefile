@@ -18,8 +18,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "annotate"
   gem.summary = "Annotates Rails models, routes, fixtures, and others based on the database schema."
   gem.description = "When run, inserts table descriptions from db.schema into a comment block of relevant source code."
-  gem.email = ["alex@stinky.com", 'ctran@pragmaquest.com', "x@nofxx.com", "turadg@aleahmad.net"]
-  gem.homepage = "http://github.com/ctran/annotate_models"
+  gem.email = ['ctran@pragmaquest.com', "alex@stinky.com", "x@nofxx.com", "turadg@aleahmad.net"]
+  gem.homepage = "http://github.com/MrJoy/annotate_models"
   gem.authors = ['Cuong Tran', "Alex Chaffee", "Marcos Piccinini", "Turadg Aleahmad"]
 
   gem.rubyforge_project = "annotate"
