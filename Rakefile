@@ -34,10 +34,23 @@ end
 
 task :default => :spec
 
-require 'rdoc/task'
-RDoc::Task.new do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "annotate #{Annotate.version}"
-  rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+require "rspec/core/rake_task" # RSpec 2.0
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.pattern = ['spec/*_spec.rb', 'spec/**/*_spec.rb']
 end
+
+# FIXME not working yet
+RSpec::Core::RakeTask.new(:rcov) do |t|
+  t.pattern = 'spec/**/*_spec.rb'
+  t.rcov = true
+end
+
+# FIXME warns "already initialized constant Task"
+# FIXME throws "uninitialized constant RDoc::VISIBILITIES"
+# require 'rdoc/task'
+# RDoc::Task.new do |rdoc|
+#   rdoc.main = "README.rdoc"
+#   rdoc.rdoc_files.include("README.rdoc", "lib/**/*.rb")
+#   # require 'lib/annotate'
+#   # rdoc.title = "annotate #{Annotate.version}"
+# end

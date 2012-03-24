@@ -2,13 +2,13 @@ require './lib/annotate'
 
 Gem::Specification.new do |s|
   s.name = %q{annotate_models}
-  s.version = Annotate.version # "2.5.0"
+  s.version = Annotate.version
   s.description = %q{Annotates Rails/ActiveRecord Models, routes, fixtures, and others based on the database schema.}
   s.summary = %q{Annotates Rails Models, routes, fixtures, and others based on the database schema.}
-  s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini"]
-  s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com"]
+  s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini", "Turadg Aleahmad"]
+  s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com", "turadg@aleahmad.net"]
 
-  s.executables = ["annotate"]# todo: change to annotate_models
+  s.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.extra_rdoc_files = ["README.rdoc"]
   
   s.files             = %w( README.rdoc VERSION.yml History.txt )

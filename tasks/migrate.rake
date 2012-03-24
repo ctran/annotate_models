@@ -11,11 +11,11 @@ namespace :db do
   end
 
   namespace :migrate do
-    [:up, :down, :reset, :redo].each do |t|
+    [:change, :up, :down, :reset, :redo].each do |t|
       task t do
-        Annotate::Migration.update_annotations
+        Annotate::Migration.update_annotations 
       end
-    end
+    end 
   end
 end
 
@@ -24,9 +24,9 @@ module Annotate
     @@working = false
 
     def self.update_annotations
-      unless @@working
+      unless @@working || (ENV['skip_on_db_migrate'] =~ /(true|t|yes|y|1)$/i)
         @@working = true
-        Rake::Task['annotate_models'].invoke
+        Rake::Task['annotate_models'].invoke 
       end
     end
   end

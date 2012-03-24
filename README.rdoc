@@ -7,6 +7,7 @@ Add a comment summarizing the current schema to the top or bottom of each of you
   * Tests and Specs
   * Object Daddy exemplars
   * Machinist blueprints
+  * Fabrication fabricators
 
 The schema comment looks like this:
 
@@ -38,18 +39,24 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of "ra
 
 == INSTALL
 
-From rubyforge:
+Into Gemfile from Github:
 
-  sudo gem install annotate
+    gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git'    
 
-From github:
+Into environment gems From rubygems.org:
+
+    gem install annotate
+
+Into environment gems from Github checkout:
 
   git clone git://github.com/ctran/annotate_models.git annotate
   cd annotate
-  rake gem
-  sudo gem install pkg/annotate-*.gem
+  rake build
+  gem install pkg/annotate-*.gem
 
 == USAGE
+
+(If you used the Gemfile install, prefix the below commands with `bundle exec`.)
 
 To annotate all your models, tests, fixtures, etc.:
 
@@ -70,12 +77,26 @@ To annotate routes.rb:
 
 To automatically annotate after running 'rake db:migrate':
   
-  [needs more clarity] unpack the gem into vendor/plugins, or maybe vendor/gems, or maybe just require tasks/migrate.rake.
+  [*needs more clarity*] unpack the gem into vendor/plugins, or maybe vendor/gems, or maybe just require tasks/migrate.rake.
 
 If you install annotate_models as a plugin, it will automatically
 adjust your <tt>rake db:migrate</tt> tasks so that they update the
 annotations in your model files for you once the migration is
-completed.
+completed. To get the same behavior from a gem, add the following to
+your Rakefile:
+
+  require 'annotate/tasks'
+
+To customize the behavior of annotate when it is running as a Rake
+task, use the following (in your Rakefile or wherever):
+
+  ENV['position_in_class']   = "before"
+  ENV['position_in_fixture'] = "before"
+  ENV['show_indexes']        = "false"
+  ENV['include_version']     = "false"
+  ENV['exclude_tests']       = "false"
+  ENV['exclude_fixtures']    = "false"
+  ENV['skip_on_db_migrate']  = "false"
 
 Warning: ImageMagick installs a tool called `annotate` too (if you're using MacPorts it's in `/opt/local/bin/annotate`. So if you see Usage: annotate imagein.jpg imageout.jpg then put `/usr/bin` ahead on the path and you'll get ours instead. 
 
@@ -108,6 +129,8 @@ to an automatically created comment block.
 
 * Factory Girl => http://github.com/thoughtbot/factory_girl (NOT IMPLEMENTED)
 * Object Daddy => http://github.com/flogic/object_daddy
+* Machinist => http://github.com/notahat/machinist
+* Fabrication => http://github.com/paulelliott/fabrication
 * SpatialAdapter => http://github.com/pdeffendol/spatial_adapter
 * PostgisAdapter => http://github.com/nofxx/postgis_adapter
 
@@ -142,5 +165,6 @@ Modifications by:
  - Bob Potter - http://github.com/bpot
  - Gavin Montague - http://github.com/govan/
  - Alexander Semyonov - http://github.com/rotuka/
+ - Ian Duggan http://github.com/ijcd/
  
 and many others that I may have missed to add.

@@ -9,11 +9,18 @@ module AnnotateModels
     # I dont use windows, can`t test
     UNIT_TEST_DIR     = File.join("test", "unit"  )
     SPEC_MODEL_DIR    = File.join("spec", "models")
-    # Object Daddy http://github.com/flogic/object_daddy/tree/master
+    # Object Daddy http://github.com/flogic/object_daddy
     EXEMPLARS_TEST_DIR     = File.join("test", "exemplars")
     EXEMPLARS_SPEC_DIR     = File.join("spec", "exemplars")
     # Machinist http://github.com/notahat/machinist
     BLUEPRINTS_DIR         = File.join("test", "blueprints")
+    # FactoryGirl http://github.com/thoughtbot/factory_girl
+    FACTORIES_TEST_DIR     = File.join("test", "factories")
+    FACTORIES_SPEC_DIR     = File.join("spec", "factories")
+    # Fabrication https://github.com/paulelliott/fabrication.git
+    FABRICATORS_TEST_DIR   = File.join("test", "fabricators")
+    FABRICATORS_SPEC_DIR   = File.join("spec", "fabricators")
+
 
     def model_dir
       @model_dir || "app/models"
@@ -119,23 +126,28 @@ module AnnotateModels
         old_content = File.read(file_name)
 
         # Ignore the Schema version line because it changes with each migration
-        header = Regexp.new(/(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?\n)/)
-        old_header = old_content.match(header).to_s
-        new_header = info_block.match(header).to_s
+        header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?\n)/
+        old_header = old_content.match(header_pattern).to_s
+        new_header = info_block.match(header_pattern).to_s
 
-        old_columns = old_header && old_header.scan(/#[\t\s]+([\w\d]+)[\t\s]+\:([\d\w]+)/).sort
-        new_columns = new_header && new_header.scan(/#[\t\s]+([\w\d]+)[\t\s]+\:([\d\w]+)/).sort
+        column_pattern = /^#[\t ]+\w+[\t ]+.+$/
+        old_columns = old_header && old_header.scan(column_pattern).sort
+        new_columns = new_header && new_header.scan(column_pattern).sort
+
+        encoding = Regexp.new(/(^# encoding:.*\n)|(^# coding:.*\n)|(^# -\*- coding:.*\n)/)
+        encoding_header = old_content.match(encoding).to_s
 
         if old_columns == new_columns
           false
         else
           # Replace the old schema info with the new schema info
-          new_content = old_content.sub(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, info_block)
+          new_content = old_content.sub(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n*/, info_block)
           # But, if there *was* no old schema info, we simply need to insert it
           if new_content == old_content
-            new_content = options[:position] == 'before' ?
-              (info_block + old_content) :
-              ((old_content =~ /\n$/ ? old_content : old_content + '\n') + info_block)
+            old_content.sub!(encoding, '')
+            new_content = options[:position] == 'after' ?
+              (encoding_header + (old_content =~ /\n$/ ? old_content : old_content + "\n") + info_block) :
+              (encoding_header + info_block + old_content)
           end
 
           File.open(file_name, "wb") { |f| f.puts new_content }
@@ -148,7 +160,7 @@ module AnnotateModels
       if File.exist?(file_name)
         content = File.read(file_name)
 
-        content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n/, '')
+        content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n*/, '')
 
         File.open(file_name, "wb") { |f| f.puts content }
       end
@@ -160,7 +172,7 @@ module AnnotateModels
     # of the model and fixture source files.
     # Returns true or false depending on whether the source
     # files were modified.
-    def annotate(klass, file, header,options={})
+    def annotate(klass, file, header, options={})
       info = get_schema_info(klass, header, options)
       annotated = false
       model_name = klass.name.underscore
@@ -169,37 +181,47 @@ module AnnotateModels
       if annotate_one_file(model_file_name, info, options_with_position(options, :position_in_class))
         annotated = true
       end
- 
-      unless ENV['exclude_tests']
+
+      unless options[:exclude_tests]
         [
           File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
           File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
-        ].each do |file| 
+        ].each do |file|
           # todo: add an option "position_in_test" -- or maybe just ask if anyone ever wants different positions for model vs. test vs. fixture
-          annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
+          if annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
+            annotated = true
+          end
         end
       end
 
-      unless ENV['exclude_fixtures']
+      unless options[:exclude_fixtures]
         [
         File.join(EXEMPLARS_TEST_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
         File.join(EXEMPLARS_SPEC_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
         File.join(BLUEPRINTS_DIR,     "#{model_name}_blueprint.rb"), # Machinist Blueprints
-        ].each do |file| 
-          annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
+        File.join(FACTORIES_TEST_DIR, "#{model_name.pluralize}.rb"), # FactoryGirl Factories
+        File.join(FACTORIES_SPEC_DIR, "#{model_name.pluralize}.rb"), # FactoryGirl Factories
+        File.join(FABRICATORS_TEST_DIR, "#{model_name}_fabricator.rb"), # Fabrication Fabricators
+        File.join(FABRICATORS_SPEC_DIR, "#{model_name}_fabricator.rb"), # Fabrication Fabricators
+        ].each do |file|
+          if annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
+            annotated = true
+          end
         end
 
         FIXTURE_DIRS.each do |dir|
           fixture_file_name = File.join(dir,klass.table_name + ".yml")
           if File.exist?(fixture_file_name)
-            annotate_one_file(fixture_file_name, info, options_with_position(options, :position_in_fixture))         
+            if annotate_one_file(fixture_file_name, info, options_with_position(options, :position_in_fixture))
+              annotated = true
+            end
           end
         end
       end
-      
+
       annotated
     end
-    
+
     # position = :position_in_fixture or :position_in_class
     def options_with_position(options, position_in)
       options.merge(:position=>(options[position_in] || options[:position]))
@@ -233,13 +255,20 @@ module AnnotateModels
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
     def get_model_class(file)
-      require File.expand_path("#{model_dir}/#{file}") # this is for non-rails projects, which don't get Rails auto-require magic
+
+      # this is for non-rails projects, which don't get Rails auto-require magic
+      require File.expand_path("#{model_dir}/#{file}") unless Module.const_defined?(:Rails)
+
       model = ActiveSupport::Inflector.camelize(file.gsub(/\.rb$/, ''))
       parts = model.split('::')
       begin
         parts.inject(Object) {|klass, part| klass.const_get(part) }
       rescue LoadError, NameError
-        Object.const_get(parts.last)
+        begin
+          Object.const_get(parts.last)
+        rescue LoadError, NameError
+          Object.const_get(Module.constants.detect{|c|parts.last.downcase == c.downcase})
+        end
       end
     end
 
@@ -280,7 +309,7 @@ module AnnotateModels
           puts "Unable to annotate #{file}: #{e.inspect}"
           puts ""
 # todo: check if all backtrace lines are in "gems" -- if so, it's an annotate bug, so print the whole stack trace.
-#          puts e.backtrace.join("\n\t")  
+#          puts e.backtrace.join("\n\t")
         end
       end
       if annotated.empty?
@@ -309,12 +338,12 @@ module AnnotateModels
               fixture_file_name = File.join(dir,klass.table_name + ".yml")
               remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)
             end
-            
+
             [ File.join(UNIT_TEST_DIR, "#{klass.name.underscore}_test.rb"),
               File.join(SPEC_MODEL_DIR,"#{klass.name.underscore}_spec.rb")].each do |file|
               remove_annotation_of_file(file) if File.exist?(file)
             end
-            
+
           end
         rescue Exception => e
           puts "Unable to annotate #{file}: #{e.message}"

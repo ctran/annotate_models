@@ -51,6 +51,7 @@ EOS
       end
     end
 
+    # todo: use 'files' gem instead
     def create(file, body="hi")
       File.open(@dir + '/' + file, "w") do |f|
         f.puts(body)
@@ -76,6 +77,11 @@ EOS
           has_many :yah
         end
       EOS
+      create('foo_with_capitals.rb', <<-EOS)
+        class FooWithCAPITALS < ActiveRecord::Base
+          acts_as_awesome :yah
+        end
+      EOS
     end
 
     it "should work" do
@@ -97,6 +103,10 @@ EOS
       end.should == ""
     end
 
+    pending it "should find models with non standard capitalization" do
+      klass = AnnotateModels.get_model_class("foo_with_capitals.rb")
+      klass.name.should == "FooWithCAPITALS"
+    end
   end
 
 end
