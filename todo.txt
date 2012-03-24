@@ -14,8 +14,9 @@ TODO (proposed)
   turadg@aleahmad.net
   jfrisby@mrjoy.com
   Jack Danger Canty
-  Marcos Piccinini
   peterpunk
+  Ian Duggan
+  Bill Harding
   
 * push two identical gems, named 'annotate' and 'annotate_models'
 * supply two binaries, named 'annotate' and 'annotate_models', since there's already a unix tool named 'annotate'

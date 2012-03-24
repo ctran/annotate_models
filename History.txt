@@ -1,14 +1,26 @@
-==
+== 2.5.0
 
-* Fixed that schema kept prepending additional newlines <https://github.com/ctran/annotate_models/pull/32>
-* Updates to make annotate smarter about when to touch a model <https://github.com/ctran/annotate_models/pull/31>
+* Fixed that schema kept prepending additional newlines
+* Updates to make annotate smarter about when to touch a model 
 * Recognize column+type, and don't change a file unless the column+type combination of the new schema are different than that of the old (i.e., don't regenerate if columns happen to be in a different order. That's just how life is sometimes)
 * Grab old specification even if it has \r\n as line endings rather than pure \ns
 * Various warning and specification fixes
-* Fix "no such file to load -- annotate/annotate_models (MissingSourceFile)" error <https://github.com/ctran/annotate_models/pull/21> (require statements in tasks now use full path to lib files)
-* warn about macros, to mitigate when we're included during a production run, not just a rakefile run -- possibly at the expense of too much noise <https://github.com/ctran/annotate_models/pull/36>
+* Fix "no such file to load -- annotate/annotate_models (MissingSourceFile)" error (require statements in tasks now use full path to lib files)
+* warn about macros, to mitigate when we're included during a production run, not just a rakefile run -- possibly at the expense of too much noise 
 * Adding rake as a runtime dependency
-* If the schema is already in the model file, it will be replaced into the same location.  If it didn't previously exist, it'll be placed according to the "position", as before. <https://github.com/ctran/annotate_models/pull/26>
+* If the schema is already in the model file, it will be replaced into the same location.  If it didn't previously exist, it'll be placed according to the "position", as before. 
+* Allow task loading from Rakefile for gems (plugin installation already auto-detects).
+* Add skip_on_db_migrate option as well for people that don't want it 
+* Fix options parsing to convert strings to proper booleans. Change annotate to use opt
+ ions hash instead of ENV. 
+* Add support for Fabrication fabricators
+* Leave magic encoding comment intact
+* Fix issue #14 - RuntimeError: Already memoized
+* Count a model as 'annotated' if any of its tests/fixtures are annotated
+* Support FactoryGirl
+* Support :change migrations (Rails 3.1)
+* Allow models with non-standard capitalization
+
 
 == 2.4.0 2009-12-13
 
