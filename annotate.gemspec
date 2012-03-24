@@ -1,4 +1,5 @@
-require './lib/annotate'
+here = File.dirname __FILE__
+require "#{here}/lib/annotate"
 
 Gem::Specification.new do |s|
   s.name = %q{annotate}

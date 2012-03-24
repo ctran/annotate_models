@@ -1,16 +1,18 @@
 here = File.dirname __FILE__
 
-require 'rubygems'
-require 'bundler'
+# Note : this causes annoying psych warnings under Ruby 1.9.2-p180; to fix, upgrade to 1.9.3
 begin
+  require 'bundler'
   Bundler.setup(:default, :development)
 rescue Bundler::BundlerError => e
   $stderr.puts e.message
   $stderr.puts "Run `bundle install` to install missing gems"
   exit e.status_code
 end
+
 require 'rake/dsl_definition'
 require 'rake'
+include Rake::DSL
 
 require "#{here}/lib/annotate"
 

@@ -5,7 +5,7 @@ gem "rake"
 group :development do
   gem 'mg'
   gem 'rspec'
-  gem 'wrong'
+  gem 'wrong', '>=0.6.2'
   gem 'rdoc'
 end
 
