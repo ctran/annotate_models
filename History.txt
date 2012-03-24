@@ -1,44 +1,14 @@
-== 2.5.0 2011-06-27 ?
+==
 
-* issue 36 fix: warn about macros, to mitigate when we're included during a production run, not just a rakefile run -- possibly at the expense of too much noise
-
-*   85f6e53 (HEAD, master) Merge branch 'master' of github.com:ctran/annotate_models
-|\  
-
-| *   ddfba1f (ctran/master) Merge pull request #32 from JackDanger/master
-| |\  
-
-| | * 1d58ea1 not continually prepending newlines.
-| |/  
-
-| *   0076e08 Merge pull request #31 from wbharding/master
-| |\  
-
-f0c138c Recognize column+type, and don't change a file unless the column+type combination of the new schema are different than that of the old (i.e., don't regenerate if columns happen to be in a different order. That's just how life is sometimes)
- Grab old specification even if it has \r\n as line endings rather than pure \ns 
-Remove gemspec line causing a warning
-
-| * |   8057b92 Merge pull request #29 from jeremyolliver/rake_compatibility
-| |\ \  
-| | * | 4d57e4f Explicitly require rake, fixing rake version compatibility
-| | |/  
-| * |   e2d3beb Merge pull request #30 from jeremyolliver/development_dependencies
-| |\ \  
-| | |/  
-| |/|   
-| | * 546524f Adding rake as a runtime dependency
-| | * 7403087 Correct homepage link to github project
-| | * 73a8432 Specify development dependencies and ensure correct loading of test libraries
-| |/  
-| *   3fae329 Merge pull request #21 from hopsoft/master
-| |\  
-| | * 02bad1e Updated require statements in tasks to use full path to lib files.
-| * |   9dbf6e5 Merge pull request #26 from cross/dont-move-schema
-| |\ \  
-| | |/  
-| |/|   
-| | * a7afaf3 Modify the model annontator so that if the schema is already in the model file, it will be replaced into the same location.  If it didn't previously exist, it'll be placed according to the "position", as before.
-
+* Fixed that schema kept prepending additional newlines <https://github.com/ctran/annotate_models/pull/32>
+* Updates to make annotate smarter about when to touch a model <https://github.com/ctran/annotate_models/pull/31>
+* Recognize column+type, and don't change a file unless the column+type combination of the new schema are different than that of the old (i.e., don't regenerate if columns happen to be in a different order. That's just how life is sometimes)
+* Grab old specification even if it has \r\n as line endings rather than pure \ns
+* Various warning and specification fixes
+* Fix "no such file to load -- annotate/annotate_models (MissingSourceFile)" error <https://github.com/ctran/annotate_models/pull/21> (require statements in tasks now use full path to lib files)
+* warn about macros, to mitigate when we're included during a production run, not just a rakefile run -- possibly at the expense of too much noise <https://github.com/ctran/annotate_models/pull/36>
+* Adding rake as a runtime dependency
+* If the schema is already in the model file, it will be replaced into the same location.  If it didn't previously exist, it'll be placed according to the "position", as before. <https://github.com/ctran/annotate_models/pull/26>
 
 == 2.4.0 2009-12-13
 
