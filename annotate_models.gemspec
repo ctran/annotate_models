@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.files             = %w( README.rdoc VERSION.yml History.txt )
   s.files            += Dir.glob("lib/**/*")
   s.files            += Dir.glob("tasks/**/*")  
-  s.files            += ["bin/annotate"]  # todo: change to annotate_models
+  s.files            += ["bin/annotate"]  # todo: annotate_models
 
   s.homepage = %q{http://github.com/ctran/annotate_models}
   s.rdoc_options = ["--charset=UTF-8"]

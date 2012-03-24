@@ -1,15 +1,11 @@
+here = File.dirname __FILE__
+
 require 'rubygems'
 require 'rake'
-require './lib/annotate'
+require "#{here}/lib/annotate"
 
 # want other tests/tasks run by default? Add them to the list
 task :default => [:spec]
-
-begin
-  require 'mg'
-rescue LoadError
-  abort "Please `gem install mg`"
-end
 
 # mg ("minimalist gems") defines rake tasks:
 #
@@ -24,7 +20,11 @@ end
 # 
 # rake package
 #   Build gem and tarball into dist/
- 
+begin
+  require 'mg'
+rescue LoadError
+  abort "Please `gem install mg`"
+end
 MG.new("annotate_models.gemspec")
 
 require 'rspec/core/rake_task'

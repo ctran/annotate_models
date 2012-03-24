@@ -1,6 +1,8 @@
+annotate_lib = File.expand_path(File.dirname(File.dirname(__FILE__)))
+
 desc "Add schema information (as comments) to model and fixture files"
 task :annotate_models => :environment do
-  require File.expand_path(File.join(File.dirname(__FILE__), '..', 'annotate', 'annotate_models'))
+  require "#{annotate_lib}/annotate/annotate_models"
   options={}
   options[:position_in_class] = ENV['position_in_class'] || ENV['position'] || :before
   options[:position_in_fixture] = ENV['position_in_fixture'] || ENV['position']  || :before
@@ -14,7 +16,7 @@ end
 
 desc "Remove schema information from model and fixture files"
 task :remove_annotation => :environment do
-  require File.expand_path(File.join(File.dirname(__FILE__), '..', 'annotate', 'annotate_models'))
+  require "#{annotate_lib}/annotate/annotate_models"
   options={}
   options[:model_dir] = ENV['model_dir']
   AnnotateModels.remove_annotations(options)
