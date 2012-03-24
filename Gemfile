@@ -1,3 +1,5 @@
+source :rubygems
+
 gem "rake"
 
 group :development do
