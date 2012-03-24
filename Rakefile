@@ -1,7 +1,17 @@
 here = File.dirname __FILE__
 
 require 'rubygems'
+require 'bundler'
+begin
+  Bundler.setup(:default, :development)
+rescue Bundler::BundlerError => e
+  $stderr.puts e.message
+  $stderr.puts "Run `bundle install` to install missing gems"
+  exit e.status_code
+end
+require 'rake/dsl_definition'
 require 'rake'
+
 require "#{here}/lib/annotate"
 
 # want other tests/tasks run by default? Add them to the list
@@ -25,12 +35,7 @@ begin
 rescue LoadError
   abort "Please `gem install mg`"
 end
-MG.new("annotate_models.gemspec")
-
-require 'rspec/core/rake_task'
-RSpec::Core::RakeTask.new(:spec) do |spec|
-  spec.pattern = 'spec/**/*_spec.rb'
-end
+MG.new("annotate.gemspec")
 
 task :default => :spec
 
@@ -39,18 +44,10 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = ['spec/*_spec.rb', 'spec/**/*_spec.rb']
 end
 
-# FIXME not working yet
-RSpec::Core::RakeTask.new(:rcov) do |t|
-  t.pattern = 'spec/**/*_spec.rb'
-  t.rcov = true
+require 'rdoc/task'
+RDoc::Task.new do |rdoc|
+  rdoc.rdoc_dir = 'rdoc'
+  rdoc.title = "annotated_models #{Annotate.version}"
+  rdoc.rdoc_files.include('README*')
+  rdoc.rdoc_files.include('lib/**/*.rb')
 end
-
-# FIXME warns "already initialized constant Task"
-# FIXME throws "uninitialized constant RDoc::VISIBILITIES"
-# require 'rdoc/task'
-# RDoc::Task.new do |rdoc|
-#   rdoc.main = "README.rdoc"
-#   rdoc.rdoc_files.include("README.rdoc", "lib/**/*.rb")
-#   # require 'lib/annotate'
-#   # rdoc.title = "annotate #{Annotate.version}"
-# end

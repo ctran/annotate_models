@@ -1,27 +1,41 @@
 module AnnotateModels
+  # Annotate Models plugin use this header
+  COMPAT_PREFIX    = "== Schema Info"
+  COMPAT_PREFIX_MD = "## Schema Info"
+  PREFIX           = "== Schema Information"
+  PREFIX_MD        = "## Schema Information"
+  END_MARK         = "== Schema Information End"
+  PATTERN          = /^\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\n(#.*\n)*\n/
+
+  # File.join for windows reverse bar compat?
+  # I dont use windows, can`t test
+  UNIT_TEST_DIR         = File.join("test", "unit"  )
+  SPEC_MODEL_DIR        = File.join("spec", "models")
+  FIXTURE_TEST_DIR      = File.join("test", "fixtures")
+  FIXTURE_SPEC_DIR      = File.join("spec", "fixtures")
+  FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
+
+  # Object Daddy http://github.com/flogic/object_daddy/tree/master
+  EXEMPLARS_TEST_DIR    = File.join("test", "exemplars")
+  EXEMPLARS_SPEC_DIR    = File.join("spec", "exemplars")
+
+  # Machinist http://github.com/notahat/machinist
+  BLUEPRINTS_TEST_DIR   = File.join("test", "blueprints")
+  BLUEPRINTS_SPEC_DIR   = File.join("spec", "blueprints")
+
+  # Factory Girl http://github.com/thoughtbot/factory_girl
+  FACTORY_GIRL_TEST_DIR = File.join("test", "factories")
+  FACTORY_GIRL_SPEC_DIR = File.join("spec", "factories")
+
+  # Fabrication https://github.com/paulelliott/fabrication.git
+  FABRICATORS_TEST_DIR  = File.join("test", "fabricators")
+  FABRICATORS_SPEC_DIR  = File.join("spec", "fabricators")
+
+  # Don't show limit (#) on these column types
+  # Example: show "integer" instead of "integer(4)"
+  NO_LIMIT_COL_TYPES = ["integer", "boolean"]
+
   class << self
-    # Annotate Models plugin use this header
-    COMPAT_PREFIX = "== Schema Info"
-    PREFIX = "== Schema Information"
-
-    FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
-    # File.join for windows reverse bar compat?
-    # I dont use windows, can`t test
-    UNIT_TEST_DIR     = File.join("test", "unit"  )
-    SPEC_MODEL_DIR    = File.join("spec", "models")
-    # Object Daddy http://github.com/flogic/object_daddy
-    EXEMPLARS_TEST_DIR     = File.join("test", "exemplars")
-    EXEMPLARS_SPEC_DIR     = File.join("spec", "exemplars")
-    # Machinist http://github.com/notahat/machinist
-    BLUEPRINTS_DIR         = File.join("test", "blueprints")
-    # FactoryGirl http://github.com/thoughtbot/factory_girl
-    FACTORIES_TEST_DIR     = File.join("test", "factories")
-    FACTORIES_SPEC_DIR     = File.join("spec", "factories")
-    # Fabrication https://github.com/paulelliott/fabrication.git
-    FABRICATORS_TEST_DIR   = File.join("test", "fabricators")
-    FABRICATORS_SPEC_DIR   = File.join("spec", "fabricators")
-
-
     def model_dir
       @model_dir || "app/models"
     end
@@ -33,14 +47,14 @@ module AnnotateModels
     # Simple quoting for the default column value
     def quote(value)
       case value
-        when NilClass                 then "NULL"
-        when TrueClass                then "TRUE"
-        when FalseClass               then "FALSE"
-        when Float, Fixnum, Bignum    then value.to_s
+      when NilClass                 then "NULL"
+      when TrueClass                then "TRUE"
+      when FalseClass               then "FALSE"
+      when Float, Fixnum, Bignum    then value.to_s
         # BigDecimals need to be output in a non-normalized form and quoted.
-        when BigDecimal               then value.to_s('F')
-        else
-          value.inspect
+      when BigDecimal               then value.to_s('F')
+      else
+        value.inspect
       end
     end
 
@@ -49,21 +63,34 @@ module AnnotateModels
     # each column. The line contains the column name,
     # the type (and length), and any optional attributes
     def get_schema_info(klass, header, options = {})
-      info = "# #{header}\n#\n"
-      info << "# Table name: #{klass.table_name}\n#\n"
+      info = "# #{header}\n"
+      info<< "#\n"
+      info<< "# Table name: #{klass.table_name}\n"
+      info<< "#\n"
 
-      max_size = klass.column_names.collect{|name| name.size}.max + 1
-      klass.columns.each do |col|
+      max_size = klass.column_names.map{|name| name.size}.max || 0
+      max_size += options[:format_rdoc] ? 5 : 1
+
+      if(options[:format_markdown])
+        info<< sprintf( "# %-#{max_size + 4}.#{max_size + 4}s | %-18.18s | %s\n", 'Field', 'Type', 'Attributes' )
+        info<< "# #{ '-' * ( max_size + 4 ) } | #{'-' * 18} | #{ '-' * 25 }\n"
+      end
+
+      cols = klass.columns
+      cols = cols.sort_by(&:name) unless(options[:no_sort])
+      cols.each do |col|
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
         attrs << "not null" unless col.null
-        attrs << "primary key" if col.name == klass.primary_key
+        attrs << "primary key" if col.name.to_sym == klass.primary_key.to_sym
 
-        col_type = col.type.to_s
+        col_type = (col.type || col.sql_type).to_s
         if col_type == "decimal"
           col_type << "(#{col.precision}, #{col.scale})"
         else
-          col_type << "(#{col.limit})" if col.limit
+          if (col.limit)
+            col_type << "(#{col.limit})" unless NO_LIMIT_COL_TYPES.include?(col_type)
+          end
         end
 
         # Check out if we got a geometric column
@@ -73,8 +100,8 @@ module AnnotateModels
         end
 
         # Check if the column has indices and print "indexed" if true
-        # If the indice include another colum, print it too.
-        if options[:simple_indexes] # Check out if this column is indexed
+        # If the index includes another column, print it too.
+        if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
           indices = klass.connection.indexes(klass.table_name)
           if indices = indices.select { |ind| ind.columns.include? col.name }
             indices.each do |ind|
@@ -84,14 +111,26 @@ module AnnotateModels
           end
         end
 
-        info << sprintf("#  %-#{max_size}.#{max_size}s:%-15.15s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
+        if options[:format_rdoc]
+          info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col.name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+        elsif options[:format_markdown]
+          info << sprintf("# **%-#{max_size}.#{max_size}s** | `%-16.16s` | `%s`", col.name, col_type, attrs.join(", ").rstrip) + "\n"
+        else
+          info << sprintf("#  %-#{max_size}.#{max_size}s:%-16.16s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
+        end
       end
 
-      if options[:show_indexes]
+      if options[:show_indexes] && klass.table_exists?
         info << get_index_info(klass)
       end
 
-      info << "#\n\n"
+      if options[:format_rdoc]
+        info << "#--\n"
+        info << "# #{END_MARK}\n"
+        info << "#++\n\n"
+      else
+        info << "#\n\n"
+      end
     end
 
     def get_index_info(klass)
@@ -100,7 +139,8 @@ module AnnotateModels
       indexes = klass.connection.indexes(klass.table_name)
       return "" if indexes.empty?
 
-      max_size = indexes.collect{|index| index.name.size}.max + 1
+      max_size = indexes.collect{|index| index.name.size}.max || 0
+      max_size += 1
       indexes.each do |index|
         index_info << sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{index.columns.join(",")})", index.unique ? "UNIQUE" : "").rstrip + "\n"
       end
@@ -115,7 +155,7 @@ module AnnotateModels
     #
     # === Options (opts)
     #  :position<Symbol>:: where to place the annotated section in fixture or model file,
-    #                      "before" or "after". Default is "before".
+    #                      :before or :after. Default is :before.
     #  :position_in_class<Symbol>:: where to place the annotated section in model file
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
     #  :position_in_others<Symbol>:: where to place the annotated section in the rest of
@@ -124,6 +164,7 @@ module AnnotateModels
     def annotate_one_file(file_name, info_block, options={})
       if File.exist?(file_name)
         old_content = File.read(file_name)
+        return false if(old_content =~ /# -\*- SkipSchemaAnnotations.*\n/)
 
         # Ignore the Schema version line because it changes with each migration
         header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?\n)/
@@ -134,21 +175,32 @@ module AnnotateModels
         old_columns = old_header && old_header.scan(column_pattern).sort
         new_columns = new_header && new_header.scan(column_pattern).sort
 
-        encoding = Regexp.new(/(^# encoding:.*\n)|(^# coding:.*\n)|(^# -\*- coding:.*\n)/)
+        encoding = Regexp.new(/(^#\s*encoding:.*\n)|(^# coding:.*\n)|(^# -\*- coding:.*\n)/)
         encoding_header = old_content.match(encoding).to_s
 
-        if old_columns == new_columns
+        if old_columns == new_columns && !options[:force]
           false
         else
-          # Replace the old schema info with the new schema info
-          new_content = old_content.sub(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n*/, info_block)
-          # But, if there *was* no old schema info, we simply need to insert it
-          if new_content == old_content
-            old_content.sub!(encoding, '')
-            new_content = options[:position] == 'after' ?
-              (encoding_header + (old_content =~ /\n$/ ? old_content : old_content + "\n") + info_block) :
-              (encoding_header + info_block + old_content)
-          end
+          
+# todo: figure out if we need to extract any logic from this merge chunk
+# <<<<<<< HEAD
+#           # Replace the old schema info with the new schema info
+#           new_content = old_content.sub(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n*/, info_block)
+#           # But, if there *was* no old schema info, we simply need to insert it
+#           if new_content == old_content
+#             old_content.sub!(encoding, '')
+#             new_content = options[:position] == 'after' ?
+#               (encoding_header + (old_content =~ /\n$/ ? old_content : old_content + "\n") + info_block) :
+#               (encoding_header + info_block + old_content)
+#           end
+# =======
+
+          # Strip the old schema info, and insert new schema info.
+          old_content.sub!(encoding, '')
+          old_content.sub!(PATTERN, '')
+          new_content = (options[:position] || 'before').to_s == 'after' ?
+            (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
+            (encoding_header + info_block + old_content)
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           true
@@ -160,7 +212,7 @@ module AnnotateModels
       if File.exist?(file_name)
         content = File.read(file_name)
 
-        content.sub!(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n*/, '')
+        content.sub!(PATTERN, '')
 
         File.open(file_name, "wb") { |f| f.puts content }
       end
@@ -184,8 +236,8 @@ module AnnotateModels
 
       unless options[:exclude_tests]
         [
-          File.join(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
-          File.join(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
+          find_test_file(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
+          find_test_file(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
         ].each do |file|
           # todo: add an option "position_in_test" -- or maybe just ask if anyone ever wants different positions for model vs. test vs. fixture
           if annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
@@ -196,25 +248,19 @@ module AnnotateModels
 
       unless options[:exclude_fixtures]
         [
-        File.join(EXEMPLARS_TEST_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
-        File.join(EXEMPLARS_SPEC_DIR, "#{model_name}_exemplar.rb"),  # Object Daddy
-        File.join(BLUEPRINTS_DIR,     "#{model_name}_blueprint.rb"), # Machinist Blueprints
-        File.join(FACTORIES_TEST_DIR, "#{model_name.pluralize}.rb"), # FactoryGirl Factories
-        File.join(FACTORIES_SPEC_DIR, "#{model_name.pluralize}.rb"), # FactoryGirl Factories
-        File.join(FABRICATORS_TEST_DIR, "#{model_name}_fabricator.rb"), # Fabrication Fabricators
-        File.join(FABRICATORS_SPEC_DIR, "#{model_name}_fabricator.rb"), # Fabrication Fabricators
+         File.join(FIXTURE_TEST_DIR,       "#{klass.table_name}.yml"),     # fixture
+         File.join(FIXTURE_SPEC_DIR,       "#{klass.table_name}.yml"),     # fixture
+         File.join(EXEMPLARS_TEST_DIR,     "#{model_name}_exemplar.rb"),   # Object Daddy
+         File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),   # Object Daddy
+         File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
+         File.join(BLUEPRINTS_SPEC_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
+         File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories
+         File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories
+         File.join(FABRICATORS_TEST_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
+         File.join(FABRICATORS_SPEC_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
         ].each do |file|
           if annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
             annotated = true
-          end
-        end
-
-        FIXTURE_DIRS.each do |dir|
-          fixture_file_name = File.join(dir,klass.table_name + ".yml")
-          if File.exist?(fixture_file_name)
-            if annotate_one_file(fixture_file_name, info, options_with_position(options, :position_in_fixture))
-              annotated = true
-            end
           end
         end
       end
@@ -232,14 +278,22 @@ module AnnotateModels
     # the underscore or CamelCase versions of model names.
     # Otherwise we take all the model files in the
     # model_dir directory.
-    def get_model_files
-      models = ARGV.dup
-      models.shift
+    def get_model_files(options)
+      if(!options[:is_rake])
+        models = ARGV.dup
+        models.shift
+      else
+        models = []
+      end
       models.reject!{|m| m.match(/^(.*)=/)}
       if models.empty?
         begin
           Dir.chdir(model_dir) do
-            models = Dir["**/*.rb"]
+            models = if options[:ignore_model_sub_dir]
+              Dir["*.rb"]
+            else
+              Dir["**/*.rb"]
+            end
           end
         rescue SystemCallError
           puts "No models found in directory '#{model_dir}'."
@@ -255,21 +309,18 @@ module AnnotateModels
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
     def get_model_class(file)
-
       # this is for non-rails projects, which don't get Rails auto-require magic
-      require File.expand_path("#{model_dir}/#{file}") unless Module.const_defined?(:Rails)
+      require File.expand_path("#{model_dir}/#{file}")
 
-      model = ActiveSupport::Inflector.camelize(file.gsub(/\.rb$/, ''))
-      parts = model.split('::')
-      begin
-        parts.inject(Object) {|klass, part| klass.const_get(part) }
-      rescue LoadError, NameError
-        begin
-          Object.const_get(parts.last)
-        rescue LoadError, NameError
-          Object.const_get(Module.constants.detect{|c|parts.last.downcase == c.downcase})
-        end
-      end
+      model_path = file.gsub(/\.rb$/, '')
+      get_loaded_model(model_path) || get_loaded_model(model_path.split('/').last)
+    end
+
+    # Retrieve loaded model class by path to the file where it's supposed to be defined.
+    def get_loaded_model(model_path)
+      ObjectSpace.each_object.
+        select { |c| c.is_a?(Class) && c.ancestors.include?(ActiveRecord::Base) }.
+        detect { |c| ActiveSupport::Inflector.underscore(c) == model_path }
     end
 
     # We're passed a name of things that might be
@@ -283,7 +334,7 @@ module AnnotateModels
         end
       end
 
-      header = PREFIX.dup
+      header = options[:format_markdown] ? PREFIX_MD.dup : PREFIX.dup
 
       if options[:include_version]
         version = ActiveRecord::Migrator.current_version rescue 0
@@ -297,19 +348,17 @@ module AnnotateModels
       end
 
       annotated = []
-      get_model_files.each do |file|
+      get_model_files(options).each do |file|
         begin
           klass = get_model_class(file)
-          if klass < ActiveRecord::Base && !klass.abstract_class?
+          if klass && klass < ActiveRecord::Base && !klass.abstract_class?
             if annotate(klass, file, header, options)
               annotated << klass
             end
           end
         rescue Exception => e
-          puts "Unable to annotate #{file}: #{e.inspect}"
-          puts ""
-# todo: check if all backtrace lines are in "gems" -- if so, it's an annotate bug, so print the whole stack trace.
-#          puts e.backtrace.join("\n\t")
+          # todo: check if all backtrace lines are in "gems" -- if so, it's an annotate bug, so print the whole stack trace.
+          puts "Unable to annotate #{file}: #{e.message} (#{e.backtrace.first})"
         end
       end
       if annotated.empty?
@@ -325,22 +374,30 @@ module AnnotateModels
         self.model_dir = options[:model_dir]
       end
       deannotated = []
-      get_model_files.each do |file|
+      get_model_files(options).each do |file|
         begin
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
             deannotated << klass
 
+            model_name = klass.name.underscore
             model_file_name = File.join(model_dir, file)
             remove_annotation_of_file(model_file_name)
 
-            FIXTURE_DIRS.each do |dir|
-              fixture_file_name = File.join(dir,klass.table_name + ".yml")
-              remove_annotation_of_file(fixture_file_name) if File.exist?(fixture_file_name)
-            end
-
-            [ File.join(UNIT_TEST_DIR, "#{klass.name.underscore}_test.rb"),
-              File.join(SPEC_MODEL_DIR,"#{klass.name.underscore}_spec.rb")].each do |file|
+            [
+             File.join(UNIT_TEST_DIR,          "#{model_name}_test.rb"),
+             File.join(SPEC_MODEL_DIR,         "#{model_name}_spec.rb"),
+             File.join(FIXTURE_TEST_DIR,       "#{klass.table_name}.yml"),     # fixture
+             File.join(FIXTURE_SPEC_DIR,       "#{klass.table_name}.yml"),     # fixture
+             File.join(EXEMPLARS_TEST_DIR,     "#{model_name}_exemplar.rb"),   # Object Daddy
+             File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),   # Object Daddy
+             File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
+             File.join(BLUEPRINTS_SPEC_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
+             File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories
+             File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories
+             File.join(FABRICATORS_TEST_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
+             File.join(FABRICATORS_SPEC_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
+            ].each do |file|
               remove_annotation_of_file(file) if File.exist?(file)
             end
 
@@ -351,18 +408,9 @@ module AnnotateModels
       end
       puts "Removed annotation from: #{deannotated.join(', ')}"
     end
-  end
-end
 
-# monkey patches
-
-module ::ActiveRecord
-  class Base
-    def self.method_missing(name, *args)
-      super
-    rescue NoMethodError => e
-      # ignore this, so unknown/unloaded macros won't cause parsing to fail
-      warn "Annotate Models ignoring #{e.class}: #{e.message}"
+    def find_test_file(dir, file_name)
+      Dir.glob(File.join(dir, "**", file_name)).first || File.join(dir, file_name)
     end
   end
 end

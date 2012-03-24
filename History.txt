@@ -20,7 +20,53 @@
 * Support FactoryGirl
 * Support :change migrations (Rails 3.1)
 * Allow models with non-standard capitalization
+* Widen type column so we can handle longtexts with chopping things off.
+* Skip trying to get list of models from commandline when running via Rake (was
+  preventing the use of multiple rake tasks in one command if one of them was
+  db:migrate).
+* Add ability to skip annotations for a model by adding
+  '# -*- SkipSchemaAnnotations' anywhere in the file.
+* Don't show column limits for integer and boolean types.
+* Add sorting for columns and indexes. (Helpful for out-of-order migration
+  execution, but use --no-sort if you don't want this.)
+* Annotate unit tests in subfolders.
+* Add generator to install rakefile that automatically annotates on db:migrate.
+* Correct Gemfile to clarify which environments need which gems.
+* Add an .rvmrc to facilitate clean development.
+* Refactor out ActiveRecord monkey-patch to permit extending without
+  side-effects.
+* Use ObjectSpace to locate models to facilitate handling of models with
+  non-standard capitalization.
+  Note that this still requires that the inflector be configured to understand
+  the special case.
+* Shore up test cases a bit.
+* Merge against many of the older branches on Github whose functionality is
+  already reflected to reduce confusion about what is and is not implemented
+  here.
+* Accept String or Symbol for :position (et al) options.
+* Rename "annotate" bin to "annotate_models" to avoid conflicting with
+  ImageMagick.
+* Add RDoc output formatting as an option.
+* Add Markdown output formatting as an option.
+* Add option to force annotation regeneration.
+* Add new configuration option for controlling where info is placed in
+  fixtures/factories.
+* Fix for models without tables.
+* Fix gemspec generation now that Jeweler looks at Gemfile.
+* Fix warning: `NOTE: Gem::Specification#default_executable= is deprecated with
+  no replacement. It will be removed on or after 2011-10-01.`
+* Fix handling of files with no trailing newline when putting annotations at
+  the end of the file.
 
+== 2.4.2 2009-11-21
+
+* Annotates (spec|test)/factories/<model>_factory.rb files
+
+== 2.4.1 2009-11-20
+
+* Annotates thoughtbot's factory_girl factories (test/factories/<model>_factory.rb)
+* Move default annotation position back to top
+>>>>>>> mrjoy
 
 == 2.4.0 2009-12-13
 
@@ -34,7 +80,7 @@
   * -i to show database indexes in annotations
   * -e to exclude annotating tests or fixtures
   * -m to include the migration version number in the annotation
-  * --model-dir to annotate model files stored a different place than app/models  
+  * --model-dir to annotate model files stored a different place than app/models
 * Ignore unknown macros ('acts_as_whatever')
 
 == 2.0 2009-02-03

@@ -1,0 +1,4 @@
+Add a .rake file that automatically annotates models when you do a db:migrate
+in development mode:
+
+    rails generate annotate_models:install

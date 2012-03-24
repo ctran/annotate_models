@@ -3,9 +3,10 @@ source :rubygems
 gem "rake"
 
 group :development do
-  gem "rspec"
-  gem "rdoc"
-  gem "mg"
-  gem 'activesupport', '>= 2.1.0'
-  gem "wrong"
+  gem 'mg'
+  gem 'rspec'
+  gem 'wrong'
+  gem 'rdoc'
 end
+
+gem 'activesupport', '>= 3.0.0', :require => nil

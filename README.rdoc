@@ -8,6 +8,7 @@ Add a comment summarizing the current schema to the top or bottom of each of you
   * Object Daddy exemplars
   * Machinist blueprints
   * Fabrication fabricators
+  * Thoughtbot's factory_girl factories, i.e. the (spec|test)/factories/<model>_factory.rb files
 
 The schema comment looks like this:
 
@@ -41,7 +42,7 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of "ra
 
 Into Gemfile from Github:
 
-    gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git'    
+    gem 'annotate', :git => 'git://github.com/MrJoy/annotate_models.git'
 
 Into environment gems From rubygems.org:
 
@@ -49,8 +50,8 @@ Into environment gems From rubygems.org:
 
 Into environment gems from Github checkout:
 
-  git clone git://github.com/ctran/annotate_models.git annotate
-  cd annotate
+  git clone git://github.com/MrJoy/annotate_models.git annotate_models
+  cd annotate_models
   rake build
   gem install pkg/annotate-*.gem
 
@@ -61,60 +62,61 @@ Into environment gems from Github checkout:
 To annotate all your models, tests, fixtures, etc.:
 
   cd /path/to/app
-  annotate
+  annotate_models
 
 To annotate your models and tests:
 
-  annotate --exclude fixtures
+  annotate_models --exclude fixtures
 
 To annotate just your models:
 
-  annotate --exclude tests,fixtures
+  annotate_models --exclude tests,fixtures
 
 To annotate routes.rb:
 
-  annotate -r
+  annotate_models -r
 
-To automatically annotate after running 'rake db:migrate':
-  
-  [*needs more clarity*] unpack the gem into vendor/plugins, or maybe vendor/gems, or maybe just require tasks/migrate.rake.
+To remove annotations:
 
-If you install annotate_models as a plugin, it will automatically
-adjust your <tt>rake db:migrate</tt> tasks so that they update the
-annotations in your model files for you once the migration is
-completed. To get the same behavior from a gem, add the following to
-your Rakefile:
+  annotate_models -d
 
-  require 'annotate/tasks'
+To automatically annotate after running 'rake db:migrate', ensure you've added
+annotate_models to your Rails project's Gemfile, and run this:
 
-To customize the behavior of annotate when it is running as a Rake
-task, use the following (in your Rakefile or wherever):
+  rails g annotate_models:install
 
-  ENV['position_in_class']   = "before"
-  ENV['position_in_fixture'] = "before"
-  ENV['show_indexes']        = "false"
-  ENV['include_version']     = "false"
-  ENV['exclude_tests']       = "false"
-  ENV['exclude_fixtures']    = "false"
-  ENV['skip_on_db_migrate']  = "false"
+This will produce a .rake file that will ensure annotation happens after
+migration (but only in development mode), and provide configuration options
+you can use to tailor the output.
 
-Warning: ImageMagick installs a tool called `annotate` too (if you're using MacPorts it's in `/opt/local/bin/annotate`. So if you see Usage: annotate imagein.jpg imageout.jpg then put `/usr/bin` ahead on the path and you'll get ours instead. 
+If you want to always skip annotations on a particular model, add this string
+anywhere in the file:
 
+  # -*- SkipSchemaAnnotations
 
 == OPTIONS
 
-    Usage: annotate [options] [model_file]*
+    Usage: annotate_models [options] [model_file]*
         -d, --delete                     Remove annotations from all model files
         -p, --position [before|after]    Place the annotations at the top (before) or the bottom (after) of the model file
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
-        -i, --show-indexes               List the table's database indexes in the annotation
-        -s, --simple-indexes             Concat the column's related indexes in the annotation
+        -i, --show-indexes               List the indexes for the table in the annotation
+        -s, --simple-indexes             Include information about indexes inline with the relevant column
             --model-dir dir              Annotate model files stored in dir rather than app/models
+            --ignore-model-subdirs       Ignore sub-directories of the models directory.
         -R, --require path               Additional files to require before loading models
-        -e, --exclude [tests,fixtures]   Do not annotate fixtures, test files, or both
+        -e [tests,fixtures]              Skip annotation of fixtures/factories/test files
+            --exclude
+        -n  --no-sort                    Sort by column creation order rather than alphabetical order
 
+== SORTING
+
+By default, columns will be sorted alphabetically so that the results of
+annotation are consistent regardless of what order migrations are executed in.
+
+If you prefer the old behavior, use --no-sort.
 
 == WARNING
 
@@ -123,16 +125,16 @@ block in your models if it looks like it was previously added
 by annotate models, so you don't want to add additional text
 to an automatically created comment block.
 
-        * * Back up your model files before using... * *
+BACK UP YOUR MODELS BEFORE USING THIS TOOL!
 
 == LINKS
 
-* Factory Girl => http://github.com/thoughtbot/factory_girl (NOT IMPLEMENTED)
-* Object Daddy => http://github.com/flogic/object_daddy
-* Machinist => http://github.com/notahat/machinist
-* Fabrication => http://github.com/paulelliott/fabrication
-* SpatialAdapter => http://github.com/pdeffendol/spatial_adapter
-* PostgisAdapter => http://github.com/nofxx/postgis_adapter
+- Factory Girl: http://github.com/thoughtbot/factory_girl
+- Object Daddy: http://github.com/flogic/object_daddy
+- Machinist: http://github.com/notahat/machinist
+- Fabrication: http://github.com/paulelliott/fabrication
+- SpatialAdapter: http://github.com/pdeffendol/spatial_adapter
+- PostgisAdapter: http://github.com/nofxx/postgis_adapter
 
 == LICENSE:
 
@@ -150,21 +152,23 @@ Maintained by: Alex Chaffee and Cuong Tran
 
 Homepage: http://github.com/ctran/annotate_models
 
-Modifications by:
+With help from:
 
- - Alex Chaffee - http://github.com/alexch - alex@pivotallabs.com
- - Cuong Tran - http://github.com/ctran - ctran@pragmaquest.com
- - Jack Danger - http://github.com/JackDanger
- - Michael Bumann - http://github.com/bumi
- - Henrik Nyh - http://github.com/henrik
- - Marcos Piccinini - http://github.com/nofxx
- - Neal Clark - http://github.com/nclark
- - Jacqui Maher - http://github.com/jacqui
- - Nick Plante - http://github.com/zapnap - http://blog.zerosum.org
- - Pedro Visintin - http://github.com/peterpunk - http://www.pedrovisintin.com
- - Bob Potter - http://github.com/bpot
- - Gavin Montague - http://github.com/govan/
- - Alexander Semyonov - http://github.com/rotuka/
- - Ian Duggan http://github.com/ijcd/
- 
+- Alex Chaffee - http://github.com/alexch - alex@pivotallabs.com
+- Cuong Tran - http://github.com/ctran - ctran@pragmaquest.com
+- Jack Danger - http://github.com/JackDanger
+- Michael Bumann - http://github.com/bumi
+- Henrik Nyh - http://github.com/henrik
+- Marcos Piccinini - http://github.com/nofxx
+- Neal Clark - http://github.com/nclark
+- Jacqui Maher - http://github.com/jacqui
+- Nick Plante - http://github.com/zapnap - http://blog.zerosum.org
+- Pedro Visintin - http://github.com/peterpunk - http://www.pedrovisintin.com
+- Bob Potter - http://github.com/bpot
+- Gavin Montague - http://github.com/govan/
+- Alexander Semyonov - http://github.com/rotuka/
+- Nathan Brazil - http://github.com/bitaxis/
+- Ian Duggan http://github.com/ijcd/
+- Jon Frisby http://github.com/mrjoy/
+
 and many others that I may have missed to add.
