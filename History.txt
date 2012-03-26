@@ -66,7 +66,6 @@
 
 * Annotates thoughtbot's factory_girl factories (test/factories/<model>_factory.rb)
 * Move default annotation position back to top
->>>>>>> mrjoy
 
 == 2.4.0 2009-12-13
 

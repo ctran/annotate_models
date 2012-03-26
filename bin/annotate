@@ -1,9 +1,14 @@
 #!/usr/bin/env ruby
-
 require 'optparse'
-require 'annotate'
 require 'rake/dsl_definition'
 require 'rake'
+begin
+  require "annotate"
+rescue LoadError
+  here = File.expand_path(File.dirname __FILE__)
+  $:<< "#{here}/../lib"
+  require "annotate"
+end
 
 task = :annotate_models
 
