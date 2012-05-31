@@ -251,24 +251,19 @@ module AnnotateModels
       models
     end
 
-    # Retrieve the classes belonging to the model names we're asked to process
-    # Check for namespaced models in subdirectories as well as models
-    # in subdirectories without namespacing.
+    # Retrieve model class from the given file.
     def get_model_class(file)
-
       # this is for non-rails projects, which don't get Rails auto-require magic
       require File.expand_path("#{model_dir}/#{file}") unless Module.const_defined?(:Rails)
 
-      model = ActiveSupport::Inflector.camelize(file.gsub(/\.rb$/, ''))
-      parts = model.split('::')
-      begin
-        parts.inject(Object) {|klass, part| klass.const_get(part) }
-      rescue LoadError, NameError
-        begin
-          Object.const_get(parts.last)
-        rescue LoadError, NameError
-          Object.const_get(Module.constants.detect{|c|parts.last.downcase == c.downcase})
-        end
+      model_path = file.gsub(/\.rb$/, '')
+      get_loaded_model(model_path) || get_loaded_model(model_path.split('/').last)
+    end
+
+    # Retrieve loaded model class by path to the file where it's supposed to be defined.
+    def get_loaded_model(model_path)
+      ObjectSpace.each_object(class << ActiveRecord::Base; self; end).detect do |c|
+        ActiveSupport::Inflector.underscore(c) == model_path
       end
     end
 
