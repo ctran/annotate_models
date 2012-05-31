@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
     "annotate.gemspec",
     "bin/annotate",
     "lib/annotate.rb",
+    "lib/annotate/active_record_patch.rb",
     "lib/annotate/annotate_models.rb",
     "lib/annotate/annotate_routes.rb",
     "lib/tasks/annotate_models.rake",
