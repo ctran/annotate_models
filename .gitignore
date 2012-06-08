@@ -10,3 +10,4 @@ Gemfile.lock
 /.idea/
 .rvmrc
 .bundle
+.bundle/
