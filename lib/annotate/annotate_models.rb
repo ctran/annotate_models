@@ -139,9 +139,8 @@ module AnnotateModels
       indexes = klass.connection.indexes(klass.table_name)
       return "" if indexes.empty?
 
-      max_size = indexes.collect{|index| index.name.size}.max || 0
-      max_size += 1
-      indexes.each do |index|
+      max_size = indexes.collect{|index| index.name.size}.max + 1
+      indexes.sort_by{|index| index.name}.each do |index|
         index_info << sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{index.columns.join(",")})", index.unique ? "UNIQUE" : "").rstrip + "\n"
       end
       return index_info
