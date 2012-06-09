@@ -82,7 +82,7 @@ module AnnotateModels
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
         attrs << "not null" unless col.null
-        attrs << "primary key" if col.name.to_sym == klass.primary_key.to_sym
+        attrs << "primary key" if klass.primary_key && col.name.to_sym == klass.primary_key.to_sym
 
         col_type = (col.type || col.sql_type).to_s
         if col_type == "decimal"
@@ -318,7 +318,7 @@ module AnnotateModels
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
     def get_loaded_model(model_path)
       ObjectSpace.each_object.
-        select { |c| c.is_a?(Class) && c.ancestors.include?(ActiveRecord::Base) }.
+        select { |c| Class === c && c.ancestors.respond_to?(:include?) && c.ancestors.include?(ActiveRecord::Base) }.
         detect { |c| ActiveSupport::Inflector.underscore(c) == model_path }
     end
 
