@@ -35,6 +35,7 @@ describe "annotate inside Rails" do
       rails_version = rails_version.split(" ").last
       rails_version.should =~ /(\d+)(\.\d+)*/
       rails_version.should =~ /^#{base_version}/
+      puts "\nUsing Rails #{rails_version}"
 
       `#{new_cmd} todo`
       Dir.chdir("#{temp_dir}/todo") do
@@ -42,20 +43,27 @@ describe "annotate inside Rails" do
         `../rake db:migrate`.should =~ /CreateTasks: migrated/
         File.read("app/models/task.rb").should == "class Task < ActiveRecord::Base\nend\n"
         `#{annotate_bin}`.chomp.should == "Annotated (1): Task"
-        File.read("app/models/task.rb").should == <<-RUBY
+        expected_model = <<-RUBY
 # == Schema Information
 #
 # Table name: tasks
 #
+#  id         :integer          not null, primary key
 #  content    :string(255)
 #  created_at :datetime         not null
-#  id         :integer          not null, primary key
 #  updated_at :datetime         not null
 #
 
 class Task < ActiveRecord::Base
 end
         RUBY
+        
+        if base_version == "2.3"
+          # for some reason timestamps are not required in Rails 2.3.14
+          expected_model.gsub!("datetime         not null", "datetime")
+        end
+        File.read("app/models/task.rb").should == expected_model
+        
       end
     end
    end

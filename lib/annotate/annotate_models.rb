@@ -317,7 +317,10 @@ module AnnotateModels
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
     def get_loaded_model(model_path)
       ObjectSpace.each_object.
-        select { |c| c.is_a?(Class) && c.ancestors.include?(ActiveRecord::Base) }.
+        select { |c|
+          Class === c and    # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
+          c.ancestors.include?(ActiveRecord::Base) 
+        }.
         detect { |c| ActiveSupport::Inflector.underscore(c) == model_path }
     end
 
@@ -357,6 +360,8 @@ module AnnotateModels
         rescue Exception => e
           # todo: check if all backtrace lines are in "gems" -- if so, it's an annotate bug, so print the whole stack trace.
           puts "Unable to annotate #{file}: #{e.message} (#{e.backtrace.first})"
+          # todo: save this backtrace somewhere nice
+          # puts "\t" + e.backtrace.join("\n\t")
         end
       end
       if annotated.empty?

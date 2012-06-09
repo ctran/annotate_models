@@ -26,5 +26,5 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  rails (~> 2.3.14)
+  rails (~> 2.3)
   sqlite3
