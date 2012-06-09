@@ -39,7 +39,7 @@ module AnnotateModels
     def model_dir
       @model_dir || "app/models"
     end
-
+    
     def model_dir=(dir)
       @model_dir = dir
     end
@@ -77,7 +77,7 @@ module AnnotateModels
       end
 
       cols = klass.columns
-      cols = cols.sort_by(&:name) unless(options[:no_sort])
+      cols = cols.sort_by(&:name) if(options[:sort])
       cols.each do |col|
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
@@ -92,7 +92,7 @@ module AnnotateModels
             col_type << "(#{col.limit})" unless NO_LIMIT_COL_TYPES.include?(col_type)
           end
         end
-
+       
         # Check out if we got a geometric column
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
@@ -207,13 +207,11 @@ module AnnotateModels
         end
       end
     end
-
+    
     def remove_annotation_of_file(file_name)
       if File.exist?(file_name)
         content = File.read(file_name)
-
         content.sub!(PATTERN, '')
-
         File.open(file_name, "wb") { |f| f.puts content }
       end
     end
@@ -304,7 +302,7 @@ module AnnotateModels
       end
       models
     end
-
+  
     # Retrieve the classes belonging to the model names we're asked to process
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
@@ -340,9 +338,9 @@ module AnnotateModels
         version = ActiveRecord::Migrator.current_version rescue 0
         if version > 0
           header << "\n# Schema version: #{version}"
-        end
+        end        
       end
-
+      
       if options[:model_dir]
         self.model_dir = options[:model_dir]
       end
@@ -367,7 +365,7 @@ module AnnotateModels
         puts "Annotated (#{annotated.length}): #{annotated.join(', ')}"
       end
     end
-
+    
     def remove_annotations(options={})
       if options[:model_dir]
         puts "removing"

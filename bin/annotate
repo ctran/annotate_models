@@ -61,9 +61,9 @@ OptionParser.new do |opts|
     ENV['ignore_model_sub_dir'] = "yes"
   end
 
-  opts.on('-n', '--no-sort',
-          "Sort columns in creation order rather than alphabetically") do |dir|
-    ENV['no_sort'] = "yes"
+  opts.on('--sort',
+          "Sort columns alphabetically, rather than in creation order") do |dir|
+    ENV['sort'] = "yes"
   end
 
   opts.on('-R', '--require path',
@@ -73,7 +73,7 @@ OptionParser.new do |opts|
     else
       ENV['require'] = path
     end
-  end
+  end\
 
   opts.on('-e', '--exclude [tests,fixtures]', Array, "Do not annotate fixtures, test files, or both") do |exclusions|
     exclusions.each { |exclusion| ENV["exclude_#{exclusion}"] = "yes" }

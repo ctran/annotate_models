@@ -26,7 +26,7 @@ task :annotate_models => :environment do
   options[:ignore_model_sub_dir] = ENV['ignore_model_sub_dir'] =~ true_re
   options[:format_rdoc] = ENV['format_rdoc'] =~ true_re
   options[:format_markdown] = ENV['format_markdown'] =~ true_re
-  options[:no_sort] = ENV['no_sort'] =~ true_re
+  options[:sort] = ENV['sort'] =~ true_re
   options[:force] = ENV['force'] =~ true_re
   AnnotateModels.do_annotations(options)
 end
