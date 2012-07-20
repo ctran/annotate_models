@@ -8,7 +8,7 @@ describe AnnotateModels do
     options = {
       :connection   => mock("Conn", :indexes => []),
       :table_name   => table_name,
-      :primary_key  => primary_key.to_s,
+      :primary_key  => primary_key && primary_key.to_s,
       :column_names => columns.map { |col| col.name.to_s },
       :columns      => columns
     }
@@ -49,6 +49,24 @@ describe AnnotateModels do
 # Table name: users
 #
 #  id   :integer          not null, primary key
+#  name :string(50)       not null
+#
+
+EOS
+  end
+
+  it "should get schema info even if the primary key is not set" do
+    klass = mock_class(:users, nil, [
+                                     mock_column(:id, :integer),
+                                     mock_column(:name, :string, :limit => 50)
+                                    ])
+
+    AnnotateModels.get_schema_info(klass, "Schema Info").should eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id   :integer          not null
 #  name :string(50)       not null
 #
 
