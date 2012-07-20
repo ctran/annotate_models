@@ -107,14 +107,16 @@ anywhere in the file:
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
-        -i, --show-indexes               List the indexes for the table in the annotation
-        -s, --simple-indexes             Include information about indexes inline with the relevant column
+        -i, --show-indexes               List the table's database indexes in the annotation
+        -s, --simple-indexes             Concat the column's related indexes in the annotation
             --model-dir dir              Annotate model files stored in dir rather than app/models
-            --ignore-model-subdirs       Ignore sub-directories of the models directory.
+            --ignore-model-subdirects    Ignore subdirectories of the models directory
+            --sort                       Sort columns alphabetically, rather than in creation order
         -R, --require path               Additional files to require before loading models
-        -e [tests,fixtures]              Skip annotation of fixtures/factories/test files
-            --exclude
-            --sort                        Sort by alphabetical order rather than column creation order
+        -e, --exclude [tests,fixtures]   Do not annotate fixtures, test files, or both
+        -f [bare|rdoc|markdown],         Render Schema Infomation as plain/RDoc/Markdown
+            --format
+            --force                      Force new annotations even if there are no changes.
 
 
 == SORTING
@@ -170,5 +172,12 @@ With help from:
 - Nathan Brazil - http://github.com/bitaxis
 - Ian Duggan http://github.com/ijcd
 - Jon Frisby http://github.com/mrjoy
+- Tsutomu Kuroda
+- Kevin Moore
+- Philip Hallstrom
+- Brent Greeff
+- Paul Alexander
+- Dmitry Lihachev
+- qichunren
 
 and many others that I may have missed to add.
