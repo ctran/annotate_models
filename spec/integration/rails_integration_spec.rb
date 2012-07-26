@@ -48,10 +48,10 @@ describe "annotate inside Rails" do
 #
 # Table name: tasks
 #
-#  id         :integer          not null, primary key
+#  id         :integer         not null, primary key
 #  content    :string(255)
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  created_at :datetime        not null
+#  updated_at :datetime        not null
 #
 
 class Task < ActiveRecord::Base
@@ -60,7 +60,7 @@ end
         
         if base_version == "2.3"
           # for some reason timestamps are not required in Rails 2.3.14
-          expected_model.gsub!("datetime         not null", "datetime")
+          expected_model.gsub!(/datetime +not null/, "datetime")
         end
         File.read("app/models/task.rb").should == expected_model
         
