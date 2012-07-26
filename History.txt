@@ -61,6 +61,7 @@
 * Add --format=markdown option
 * "Table name" annotation (if table name is different from model name)
 * "Human name" annotation (enabling translation to non-English locales)
+* --trace option to help debug "Unable to annotate" errors
 
 == 2.4.2 2009-11-21
 

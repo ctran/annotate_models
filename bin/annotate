@@ -13,7 +13,7 @@ end
 task = :annotate_models
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: annotate_models [options] [model_file]*"
+  opts.banner = "Usage: annotate [options] [model_file]*"
 
   opts.on('-d', '--delete',
           "Remove annotations from all model files") do
@@ -86,6 +86,11 @@ OptionParser.new do |opts|
   opts.on('--force', 'Force new annotations even if there are no changes.') do |force|
     ENV['force'] = 'yes'
   end
+
+  opts.on('--trace', 'If unable to annotate a file, print the full stack trace, not just the exception message.') do |value|
+    ENV['trace'] = 'yes'
+  end
+
 
 end.parse!
 

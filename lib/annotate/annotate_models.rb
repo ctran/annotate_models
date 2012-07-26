@@ -344,25 +344,11 @@ module AnnotateModels
         end        
       end
       
-      if options[:model_dir]
-        self.model_dir = options[:model_dir]
-      end
+      self.model_dir = options[:model_dir] if options[:model_dir]
 
       annotated = []
       get_model_files(options).each do |file|
-        begin
-          klass = get_model_class(file)
-          if klass && klass < ActiveRecord::Base && !klass.abstract_class?
-            if annotate(klass, file, header, options)
-              annotated << klass
-            end
-          end
-        rescue Exception => e
-          # todo: check if all backtrace lines are in "gems" -- if so, it's an annotate bug, so print the whole stack trace.
-          puts "Unable to annotate #{file}: #{e.message} (#{e.backtrace.first})"
-          # todo: save this backtrace somewhere nice
-          # puts "\t" + e.backtrace.join("\n\t")
-        end
+        annotate_model_file(annotated, file, header, options)
       end
       if annotated.empty?
         puts "Nothing annotated."
@@ -370,12 +356,23 @@ module AnnotateModels
         puts "Annotated (#{annotated.length}): #{annotated.join(', ')}"
       end
     end
-    
-    def remove_annotations(options={})
-      if options[:model_dir]
-        puts "removing"
-        self.model_dir = options[:model_dir]
+
+    def annotate_model_file(annotated, file, header, options)
+      begin
+        klass = get_model_class(file)
+        if klass && klass < ActiveRecord::Base && !klass.abstract_class?
+          if annotate(klass, file, header, options)
+            annotated << klass
+          end
+        end
+      rescue Exception => e
+        puts "Unable to annotate #{file}: #{e.message}"
+        puts "\t" + e.backtrace.join("\n\t") if options[:trace]
       end
+    end
+
+    def remove_annotations(options={})
+      self.model_dir = options[:model_dir] if options[:model_dir]
       deannotated = []
       get_model_files(options).each do |file|
         begin
@@ -406,7 +403,8 @@ module AnnotateModels
 
           end
         rescue Exception => e
-          puts "Unable to annotate #{file}: #{e.message}"
+          puts "Unable to deannotate #{file}: #{e.message}"
+          puts "\t" + e.backtrace.join("\n\t") if options[:trace]          
         end
       end
       puts "Removed annotation from: #{deannotated.join(', ')}"

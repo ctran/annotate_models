@@ -44,6 +44,7 @@ task :default => :spec
 require "rspec/core/rake_task" # RSpec 2.0
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = ['spec/*_spec.rb', 'spec/**/*_spec.rb']
+  t.rspec_opts = ['--backtrace', '--format d']
 end
 
 require 'rdoc/task'

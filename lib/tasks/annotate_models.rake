@@ -28,6 +28,7 @@ task :annotate_models => :environment do
   options[:format_markdown] = ENV['format_markdown'] =~ true_re
   options[:sort] = ENV['sort'] =~ true_re
   options[:force] = ENV['force'] =~ true_re
+  options[:trace] = ENV['trace'] =~ true_re
   AnnotateModels.do_annotations(options)
 end
 

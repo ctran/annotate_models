@@ -101,7 +101,7 @@ anywhere in the file:
 
 == OPTIONS
 
-    Usage: annotate_models [options] [model_file]*
+    Usage: annotate [options] [model_file]*
         -d, --delete                     Remove annotations from all model files
         -p, --position [before|after]    Place the annotations at the top (before) or the bottom (after) of the model file
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
@@ -117,6 +117,7 @@ anywhere in the file:
         -f [bare|rdoc|markdown],         Render Schema Infomation as plain/RDoc/Markdown
             --format
             --force                      Force new annotations even if there are no changes.
+            --trace                      If unable to annotate a file, print the full stack trace, not just the exception message.
 
 
 == SORTING

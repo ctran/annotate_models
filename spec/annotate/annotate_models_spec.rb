@@ -223,7 +223,6 @@ EOS
         check_class_name 'foo_with_known_macro.rb', 'FooWithKnownMacro'
       end.should == ""
     end
-
   end
 
   describe "#remove_annotation_of_file" do
@@ -295,12 +294,12 @@ end
 
   describe "annotating a file" do
     before do
-      @file_name    = File.join(Dir.mktmpdir('annotate_models'), "user.rb")
-      @file_content = <<-EOS
+      @model_dir = Dir.mktmpdir('annotate_models')
+      write_model "user.rb", <<-EOS
 class User < ActiveRecord::Base
 end
       EOS
-      File.open(@file_name, "wb") { |f| f.write @file_content }
+
       @klass = mock_class(:users, :id, [
                                         mock_column(:id, :integer),
                                         mock_column(:name, :string, :limit => 50)
@@ -308,30 +307,97 @@ end
       @schema_info = AnnotateModels.get_schema_info(@klass, "== Schema Info")
     end
 
+    def write_model file_name, file_content
+      @model_file_name    = File.join(@model_dir, file_name)
+      @file_content = file_content
+      File.open(@model_file_name, "wb") { |f| f.write @file_content }
+    end
+
+    def annotate_one_file options = {}
+      AnnotateModels.annotate_one_file(@model_file_name, @schema_info, options)
+    end
+
     it "should annotate the file before the model if position == 'before'" do
-      AnnotateModels.annotate_one_file(@file_name, @schema_info, :position => "before")
-      File.read(@file_name).should == "#{@schema_info}#{@file_content}"
+      annotate_one_file :position => "before"
+      File.read(@model_file_name).should == "#{@schema_info}#{@file_content}"
     end
 
     it "should annotate before if given :position => :before" do
-      AnnotateModels.annotate_one_file(@file_name, @schema_info, :position => :before)
-      File.read(@file_name).should == "#{@schema_info}#{@file_content}"
+      annotate_one_file :position => :before
+      File.read(@model_file_name).should == "#{@schema_info}#{@file_content}"
     end
 
     it "should annotate before if given :position => :after" do
-      AnnotateModels.annotate_one_file(@file_name, @schema_info, :position => :after)
-      File.read(@file_name).should == "#{@file_content}\n#{@schema_info}"
+      annotate_one_file :position => :after
+      File.read(@model_file_name).should == "#{@file_content}\n#{@schema_info}"
     end
 
     it "should update annotate position" do
-      AnnotateModels.annotate_one_file(@file_name, @schema_info, :position => :before)
+      annotate_one_file :position => :before
 
       another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer),]),
                                                            "== Schema Info")
 
-      AnnotateModels.annotate_one_file(@file_name, another_schema_info, :position => :after)
+      @schema_info = another_schema_info
+      annotate_one_file :position => :after
 
-      File.read(@file_name).should == "#{@file_content}\n#{another_schema_info}"
+      File.read(@model_file_name).should == "#{@file_content}\n#{another_schema_info}"
+    end
+
+    describe "if a file can't be annotated" do
+       before do
+         write_model('user.rb', <<-EOS)
+           class User < ActiveRecord::Base
+             raise "oops"
+           end
+         EOS
+       end
+
+       it "displays an error message" do
+         capturing(:stdout) {
+           AnnotateModels.do_annotations :model_dir => @model_dir, :is_rake => true
+         }.should include("Unable to annotate user.rb: oops")
+       end
+
+       it "displays the full stack trace with --trace" do
+         capturing(:stdout) {
+           AnnotateModels.do_annotations :model_dir => @model_dir, :trace => true, :is_rake => true
+         }.should include("/spec/annotate/annotate_models_spec.rb:")
+       end
+
+       it "omits the full stack trace without --trace" do
+         capturing(:stdout) {
+           AnnotateModels.do_annotations :model_dir => @model_dir, :trace => false, :is_rake => true
+         }.should_not include("/spec/annotate/annotate_models_spec.rb:")
+       end
+    end
+    
+    describe "if a file can't be deannotated" do
+       before do
+         write_model('user.rb', <<-EOS)
+           class User < ActiveRecord::Base
+             raise "oops"
+           end
+         EOS
+       end
+
+       it "displays an error message" do
+         capturing(:stdout) {
+           AnnotateModels.remove_annotations :model_dir => @model_dir, :is_rake => true
+         }.should include("Unable to deannotate user.rb: oops")
+       end
+
+       it "displays the full stack trace" do
+         capturing(:stdout) {
+           AnnotateModels.remove_annotations :model_dir => @model_dir, :trace => true, :is_rake => true
+         }.should include("/user.rb:2:in `<class:User>'")
+       end
+
+       it "omits the full stack trace without --trace" do
+         capturing(:stdout) {
+           AnnotateModels.remove_annotations :model_dir => @model_dir, :trace => false, :is_rake => true
+         }.should_not include("/user.rb:2:in `<class:User>'")
+       end
     end
   end
 end
