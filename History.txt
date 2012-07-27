@@ -3,7 +3,7 @@
 * Works better with Rails 3
 * Bugfix: schema kept prepending additional newlines
 * Updates to make annotate smarter about when to touch a model
-* Recognize column+type, and don't change a file unless the column+type combination of the new schema are different than that of the old (i.e., don't regenerate if columns happen to be in a different order. That's just how life is sometimes)
+* Recognize column+type, and don't change a file unless the column+type combination of the new schema are different than that of the old (i.e., don't regenerate if columns happen to be in a different order. That's just how life is sometimes.)
 * Grab old specification even if it has \r\n as line endings rather than pure \ns
 * Various warning and specification fixes
 * Fix "no such file to load -- annotate/annotate_models (MissingSourceFile)" error (require statements in tasks now use full path to lib files)
@@ -17,7 +17,6 @@
 * Leave magic encoding comment intact
 * Fix issue #14 - RuntimeError: Already memoized
 * Count a model as 'annotated' if any of its tests/fixtures are annotated
-* Support FactoryGirl
 * Support :change migrations (Rails 3.1)
 * Allow models with non-standard capitalization
 * Widen type column so we can handle longtexts with chopping things off.
@@ -39,13 +38,10 @@
   non-standard capitalization.
   Note that this still requires that the inflector be configured to understand
   the special case.
-* Shore up test cases a bit.
 * Merge against many of the older branches on Github whose functionality is
   already reflected to reduce confusion about what is and is not implemented
   here.
 * Accept String or Symbol for :position (et al) options.
-* Rename "annotate" bin to "annotate_models" to avoid conflicting with
-  ImageMagick.
 * Add RDoc output formatting as an option.
 * Add Markdown output formatting as an option.
 * Add option to force annotation regeneration.
@@ -58,10 +54,12 @@
 * Fix handling of files with no trailing newline when putting annotations at
   the end of the file.
 * Now works on tables with no primary key.
-* Add --format=markdown option
+* --format=markdown option
+* --trace option to help debug "Unable to annotate" errors
 * "Table name" annotation (if table name is different from model name)
 * "Human name" annotation (enabling translation to non-English locales)
-* --trace option to help debug "Unable to annotate" errors
+* Fix JRuby ObjectSpace compatibility bug (https://github.com/ctran/annotate_models/pull/85)
+* Fix FactoryGirl compatibility bug (https://github.com/ctran/annotate_models/pull/82)
 
 == 2.4.2 2009-11-21
 
