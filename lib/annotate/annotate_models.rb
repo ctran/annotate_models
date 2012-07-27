@@ -316,11 +316,8 @@ module AnnotateModels
 
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
     def get_loaded_model(model_path)
-      ObjectSpace.each_object.
-        select { |c|
-          Class === c and    # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
-          c.ancestors.include?(ActiveRecord::Base) 
-        }.
+      ObjectSpace.each_object(::Class).
+        select { |c| c.ancestors.include?(ActiveRecord::Base) }.
         detect { |c| ActiveSupport::Inflector.underscore(c) == model_path }
     end
 
