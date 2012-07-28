@@ -2,3 +2,7 @@ source :rubygems
 
 gem 'rails', "~>3.2"
 gem "sqlite3"
+gem "jquery-rails"
+gem "coffee-rails"
+gem "sass-rails"
+gem "uglifier"

@@ -344,6 +344,8 @@ end
       File.read(@model_file_name).should == "#{@file_content}\n#{another_schema_info}"
     end
 
+    it "works with namepaced models (i.e. models inside modules/subdirectories"
+
     describe "if a file can't be annotated" do
        before do
          write_model('user.rb', <<-EOS)

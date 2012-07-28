@@ -37,31 +37,40 @@ describe "annotate inside Rails" do
       rails_version.should =~ /^#{base_version}/
       puts "\nUsing Rails #{rails_version}"
 
+      def process_model text, base_version
+        if base_version == "2.3"
+          # for some reason timestamps are nullable in Rails 2.3.14
+          text.gsub!(/datetime +not null/, "datetime")
+          text.gsub!("  attr_accessible :content\n", '')
+        end
+      end
+
       `#{new_cmd} todo`
       Dir.chdir("#{temp_dir}/todo") do
         `#{generate_cmd} scaffold Task content:string`.should =~ %r{db/migrate/.*_create_tasks.rb}
         `../rake db:migrate`.should =~ /CreateTasks: migrated/
-        File.read("app/models/task.rb").should == "class Task < ActiveRecord::Base\nend\n"
-        `#{annotate_bin}`.chomp.should == "Annotated (1): Task"
         expected_model = <<-RUBY
+class Task < ActiveRecord::Base
+  attr_accessible :content
+end
+        RUBY
+        process_model(expected_model, base_version)
+        File.read("app/models/task.rb").should == expected_model
+
+        `#{annotate_bin}`.chomp.should == "Annotated (1): Task"
+        expected_model = <<-RUBY + expected_model
 # == Schema Information
 #
 # Table name: tasks
 #
-#  id         :integer         not null, primary key
+#  id         :integer          not null, primary key
 #  content    :string(255)
-#  created_at :datetime        not null
-#  updated_at :datetime        not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
 #
 
-class Task < ActiveRecord::Base
-end
         RUBY
-        
-        if base_version == "2.3"
-          # for some reason timestamps are not required in Rails 2.3.14
-          expected_model.gsub!(/datetime +not null/, "datetime")
-        end
+        process_model(expected_model, base_version)
         File.read("app/models/task.rb").should == expected_model
         
       end
