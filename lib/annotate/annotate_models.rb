@@ -252,8 +252,10 @@ module AnnotateModels
          File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),   # Object Daddy
          File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
          File.join(BLUEPRINTS_SPEC_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
-         File.join(FACTORY_GIRL_TEST_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories
-         File.join(FACTORY_GIRL_SPEC_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories
+         File.join(FACTORY_GIRL_TEST_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories (new style)
+         File.join(FACTORY_GIRL_SPEC_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories (new style)
+         File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories (old style)
+         File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories (old style)
          File.join(FABRICATORS_TEST_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
          File.join(FABRICATORS_SPEC_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
         ].each do |file|
@@ -394,8 +396,10 @@ module AnnotateModels
              File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),   # Object Daddy
              File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
              File.join(BLUEPRINTS_SPEC_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
-             File.join(FACTORY_GIRL_TEST_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories
-             File.join(FACTORY_GIRL_SPEC_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories
+             File.join(FACTORY_GIRL_TEST_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories (new style)
+             File.join(FACTORY_GIRL_SPEC_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories (new style)
+             File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories (old style)
+             File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories (old style)
              File.join(FABRICATORS_TEST_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
              File.join(FABRICATORS_SPEC_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
             ].each do |file|
