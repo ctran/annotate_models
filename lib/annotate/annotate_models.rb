@@ -260,39 +260,44 @@ module AnnotateModels
     #  :exclude_factories<Symbol>:: whether to skip modification of factory files
     #
     def annotate(klass, file, header, options={})
-      info = get_schema_info(klass, header, options)
-      did_annotate = false
-      model_name = klass.name.underscore
-      table_name = klass.table_name
-      model_file_name = File.join(model_dir, file)
+      begin
+        info = get_schema_info(klass, header, options)
+        did_annotate = false
+        model_name = klass.name.underscore
+        table_name = klass.table_name
+        model_file_name = File.join(model_dir, file)
 
-      if annotate_one_file(model_file_name, info, options_with_position(options, :position_in_class))
-        did_annotate = true
+        if annotate_one_file(model_file_name, info, options_with_position(options, :position_in_class))
+          did_annotate = true
+        end
+
+        unless options[:exclude_tests]
+          did_annotate = TEST_PATTERNS.
+            map { |pat| [pat[0], resolve_filename(pat[1], model_name, table_name)] }.
+            map { |pat| find_test_file(*pat) }.
+            map { |file| annotate_one_file(file, info, options_with_position(options, :position_in_test)) }.
+            detect { |result| result } || did_annotate
+        end
+
+        unless options[:exclude_fixtures]
+          did_annotate = FIXTURE_PATTERNS.
+            map { |file| resolve_filename(file, model_name, table_name) }.
+            map { |file| annotate_one_file(file, info, options_with_position(options, :position_in_fixture)) }.
+            detect { |result| result } || did_annotate
+        end
+
+        unless options[:exclude_factories]
+          did_annotate = FACTORY_PATTERNS.
+            map { |file| resolve_filename(file, model_name, table_name) }.
+            map { |file| annotate_one_file(file, info, options_with_position(options, :position_in_factory)) }.
+            detect { |result| result } || did_annotate
+        end
+
+        return did_annotate
+      rescue Exception => e
+        puts "Unable to annotate #{file}: #{e.message}"
+        puts "\t" + e.backtrace.join("\n\t") if options[:trace]
       end
-
-      unless options[:exclude_tests]
-        did_annotate = TEST_PATTERNS.
-          map { |pat| [pat[0], resolve_filename(pat[1], model_name, table_name)] }.
-          map { |pat| find_test_file(*pat) }.
-          map { |file| annotate_one_file(file, info, options_with_position(options, :position_in_test)) }.
-          detect { |result| result } || did_annotate
-      end
-
-      unless options[:exclude_fixtures]
-        did_annotate = FIXTURE_PATTERNS.
-          map { |file| resolve_filename(file, model_name, table_name) }.
-          map { |file| annotate_one_file(file, info, options_with_position(options, :position_in_fixture)) }.
-          detect { |result| result } || did_annotate
-      end
-
-      unless options[:exclude_factories]
-        did_annotate = FACTORY_PATTERNS.
-          map { |file| resolve_filename(file, model_name, table_name) }.
-          map { |file| annotate_one_file(file, info, options_with_position(options, :position_in_factory)) }.
-          detect { |result| result } || did_annotate
-      end
-
-      return did_annotate
     end
 
     # position = :position_in_fixture or :position_in_class
