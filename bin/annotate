@@ -25,8 +25,12 @@ OptionParser.new do |opts|
   opts.banner = "Usage: annotate [options] [model_file]*"
 
   opts.on('-d', '--delete',
-          "Remove annotations from all model files") do
-    task = :remove_annotation
+          "Remove annotations from all model files or the routes.rb file") do
+    if(task == :annotate_routes)
+      task = :remove_routes
+    else
+      task = :remove_annotation
+    end
   end
 
   ENV['position'] = 'before' # hack: make sure default position is "before"
@@ -34,7 +38,7 @@ OptionParser.new do |opts|
           "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory file(s)") do |p|
     ENV['position'] = p
     [
-      'position_in_class','position_in_factory','position_in_fixture','position_in_test'
+      'position_in_class','position_in_factory','position_in_fixture','position_in_test', 'position_in_routes'
     ].each do |key|
       ENV[key] = p unless(has_set_position[key])
     end
@@ -62,6 +66,12 @@ OptionParser.new do |opts|
           "Place the annotations at the top (before) or the bottom (after) of any test files") do |p|
     ENV['position_in_test'] = p
     has_set_position['position_in_test'] = true
+  end
+
+  opts.on('--pr', '--position-in-routes [before|after]', ['before', 'after'],
+          "Place the annotations at the top (before) or the bottom (after) of the routes.rb file") do |p|
+    ENV['position_in_test'] = p
+    has_set_position['position_in_routes'] = true
   end
 
   opts.on('-r', '--routes',

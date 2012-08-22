@@ -112,6 +112,8 @@ anywhere in the file:
                                          Place the annotations at the top (before) or the bottom (after) of any fixture files
             --pt, --position-in-test [before|after]
                                          Place the annotations at the top (before) or the bottom (after) of any test files
+            --pr, --position-in-routes [before|after]
+                                         Place the annotations at the top (before) or the bottom (after) of the routes.rb file
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
