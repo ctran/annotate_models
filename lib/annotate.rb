@@ -2,8 +2,14 @@ $:.unshift(File.dirname(__FILE__))
 require 'annotate/version'
 
 module Annotate
+  def self.loaded_tasks=(val); @loaded_tasks = val; end
+  def self.loaded_tasks; return @loaded_tasks; end
+
   def self.load_tasks
     if File.exists?('Rakefile')
+      return if(self.loaded_tasks)
+      self.loaded_tasks = true
+
       require 'rake'
       load './Rakefile'
 
