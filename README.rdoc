@@ -129,10 +129,9 @@ annotation are consistent regardless of what order migrations are executed in, u
 
 == WARNING
 
-Note that this code will blow away the initial/final comment
-block in your models if it looks like it was previously added
-by annotate models, so you don't want to add additional text
-to an automatically created comment block.
+Note that this code will blow away the initial/final comment block in your
+models if it looks like it was previously added by this gem, so you don't want
+to add additional text to an automatically created comment block.
 
 BACK UP YOUR MODELS BEFORE USING THIS TOOL!
 

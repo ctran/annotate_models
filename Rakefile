@@ -19,27 +19,8 @@ require "#{here}/lib/annotate"
 # want other tests/tasks run by default? Add them to the list
 task :default => [:spec]
 
-# mg ("minimalist gems") defines rake tasks:
-#
-# rake gem
-#   Build gem into dist/
-# 
-# rake gem:publish
-#   Push the gem to RubyGems.org
-# 
-# rake gem:install
-#   Build and install as local gem
-# 
-# rake package
-#   Build gem and tarball into dist/
-begin
-  require 'mg'
-rescue LoadError
-  abort "Please `gem install mg`"
-end
+require 'mg'
 MG.new("annotate.gemspec")
-
-task :default => :spec
 
 require "rspec/core/rake_task" # RSpec 2.0
 RSpec::Core::RakeTask.new(:spec) do |t|
@@ -47,10 +28,16 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = ['--backtrace', '--format d']
 end
 
-require 'rdoc/task'
-RDoc::Task.new do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "annotated_models #{Annotate.version}"
-  rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+require 'yard'
+YARD::Rake::YardocTask.new do |t|
+  # t.files   = ['features/**/*.feature', 'features/**/*.rb', 'lib/**/*.rb']
+  # t.options = ['--any', '--extra', '--opts'] # optional
 end
+
+namespace :yard do
+  task :clobber do
+    FileUtils.rm_f(".yardoc")
+    FileUtils.rm_f("doc")
+  end
+end
+task :clobber => :'yard:clobber'

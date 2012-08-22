@@ -10,9 +10,9 @@ Gem::Specification.new do |s|
   s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com", "turadg@aleahmad.net"]
 
   s.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  s.extra_rdoc_files = ["README.rdoc"]
+  s.extra_rdoc_files = ["README.rdoc", "CHANGELOG.rdoc", "TODO.rdoc"]
   
-  s.files             = %w( README.rdoc History.txt )
+  s.files             = %w( README.rdoc CHANGELOG.rdoc TODO.rdoc )
   s.files            += Dir.glob("lib/**/*")
   s.files            += Dir.glob("tasks/**/*")  
   s.files            += ["bin/annotate"]  # todo: annotate_models
