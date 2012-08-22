@@ -327,7 +327,7 @@ end
       File.read(@model_file_name).should == "#{@schema_info}#{@file_content}"
     end
 
-    it "should annotate before if given :position => :after" do
+    it "should annotate after if given :position => :after" do
       annotate_one_file :position => :after
       File.read(@model_file_name).should == "#{@file_content}\n#{@schema_info}"
     end
@@ -373,7 +373,7 @@ end
          }.should_not include("/spec/annotate/annotate_models_spec.rb:")
        end
     end
-    
+
     describe "if a file can't be deannotated" do
        before do
          write_model('user.rb', <<-EOS)

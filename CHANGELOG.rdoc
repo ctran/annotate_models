@@ -1,5 +1,12 @@
 == 2.5.0
 
+* Added support for new FactoryGirl naming convention.
+* Fixed that schema kept prepending additional newlines
+* Updates to make annotate smarter about when to touch a model
+* Recognize column+type, and don't change a file unless the column+type
+  combination of the new schema are different than that of the old (i.e., don't
+  regenerate if columns happen to be in a different order. That's just how life
+  is sometimes)
 * Works better with Rails 3
 * Bugfix: schema kept prepending additional newlines
 * Updates to make annotate smarter about when to touch a model
@@ -22,6 +29,7 @@
 * Leave magic encoding comment intact
 * Fix issue #14 - RuntimeError: Already memoized
 * Count a model as 'annotated' if any of its tests/fixtures are annotated
+* Support FactoryGirl
 * Support :change migrations (Rails 3.1)
 * Allow models with non-standard capitalization
 * Widen type column so we can handle longtexts with chopping things off.

@@ -9,11 +9,10 @@ module AnnotateModels
 
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
-  UNIT_TEST_DIR         = File.join("test", "unit"  )
+  UNIT_TEST_DIR         = File.join("test", "unit")
   SPEC_MODEL_DIR        = File.join("spec", "models")
   FIXTURE_TEST_DIR      = File.join("test", "fixtures")
   FIXTURE_SPEC_DIR      = File.join("spec", "fixtures")
-  FIXTURE_DIRS = ["test/fixtures","spec/fixtures"]
 
   # Object Daddy http://github.com/flogic/object_daddy/tree/master
   EXEMPLARS_TEST_DIR    = File.join("test", "exemplars")
@@ -153,12 +152,9 @@ module AnnotateModels
     # Returns true or false depending on whether the file was modified.
     #
     # === Options (opts)
-    #  :position<Symbol>:: where to place the annotated section in fixture or model file,
-    #                      :before or :after. Default is :before.
-    #  :position_in_class<Symbol>:: where to place the annotated section in model file
-    #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
-    #  :position_in_others<Symbol>:: where to place the annotated section in the rest of
-    #                      supported files
+    #  :force<Symbol>:: whether to update the file even if it doesn't seem to need it.
+    #  :position_in_*<Symbol>:: where to place the annotated section in fixture or model file,
+    #                           :before or :after. Default is :before.
     #
     def annotate_one_file(file_name, info_block, options={})
       if File.exist?(file_name)
@@ -211,7 +207,9 @@ module AnnotateModels
     def remove_annotation_of_file(file_name)
       if File.exist?(file_name)
         content = File.read(file_name)
+
         content.sub!(PATTERN, '')
+
         File.open(file_name, "wb") { |f| f.puts content }
       end
     end
@@ -412,7 +410,7 @@ module AnnotateModels
           puts "\t" + e.backtrace.join("\n\t") if options[:trace]
         end
       end
-      puts "Removed annotation from: #{deannotated.join(', ')}"
+      puts "Removed annotations from: #{deannotated.join(', ')}"
     end
 
     def find_test_file(dir, file_name)

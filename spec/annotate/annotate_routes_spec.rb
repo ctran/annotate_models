@@ -9,10 +9,6 @@ describe AnnotateRoutes do
 
   describe "Annotate Job" do
 
-    before(:each) do
-      File.should_receive(:join).with("config", "routes.rb").and_return("config/routes.rb")
-    end
-
     it "should check if routes.rb exists" do
       File.should_receive(:exists?).with("config/routes.rb").and_return(false)
       AnnotateRoutes.should_receive(:puts).with("Can`t find routes.rb")

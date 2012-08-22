@@ -22,7 +22,7 @@ OptionParser.new do |opts|
 
   ENV['position'] = 'before' # hack: make sure default position is "before"
   opts.on('-p', '--position [before|after]', ['before', 'after'],
-          "Place the annotations at the top (before) or the bottom (after) of the model file") do |p|
+          "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory file(s)") do |p|
     ENV['position'] = p
   end
 
@@ -67,15 +67,15 @@ OptionParser.new do |opts|
   end
 
   opts.on('-R', '--require path',
-          "Additional files to require before loading models") do |path|
-    if ENV['require']
+          "Additional file to require before loading models, may be used multiple times") do |path|
+    if !ENV['require'].blank?
       ENV['require'] = ENV['require'] + ",#{path}"
     else
       ENV['require'] = path
     end
-  end\
+  end
 
-  opts.on('-e', '--exclude [tests,fixtures]', Array, "Do not annotate fixtures, test files, or both") do |exclusions|
+  opts.on('-e', '--exclude [tests,fixtures,factories]', ['tests','fixtures','factories'], "Do not annotate fixtures, test files, and/or factories") do |exclusions|
     exclusions.each { |exclusion| ENV["exclude_#{exclusion}"] = "yes" }
   end
 
@@ -90,8 +90,6 @@ OptionParser.new do |opts|
   opts.on('--trace', 'If unable to annotate a file, print the full stack trace, not just the exception message.') do |value|
     ENV['trace'] = 'yes'
   end
-
-
 end.parse!
 
 ENV['is_cli'] = '1'

@@ -49,7 +49,7 @@ Into Gemfile from Github:
 
     gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git'
 
-Into environment gems From rubygems.org:
+Into environment gems from rubygems.org:
 
     gem install annotate
 
