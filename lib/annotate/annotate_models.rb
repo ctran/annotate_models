@@ -30,6 +30,29 @@ module AnnotateModels
   FABRICATORS_TEST_DIR  = File.join("test", "fabricators")
   FABRICATORS_SPEC_DIR  = File.join("spec", "fabricators")
 
+  TEST_PATTERNS = [
+    [UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"],
+    [SPEC_MODEL_DIR, "%MODEL_NAME%_spec.rb"],
+  ]
+
+  FIXTURE_PATTERNS = [
+    File.join(FIXTURE_TEST_DIR, "%TABLE_NAME%.yml"),
+    File.join(FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
+  ]
+
+  FACTORY_PATTERNS = [
+    File.join(EXEMPLARS_TEST_DIR,     "%MODEL_NAME%_exemplar.rb"),
+    File.join(EXEMPLARS_SPEC_DIR,     "%MODEL_NAME%_exemplar.rb"),
+    File.join(BLUEPRINTS_TEST_DIR,    "%MODEL_NAME%_blueprint.rb"),
+    File.join(BLUEPRINTS_SPEC_DIR,    "%MODEL_NAME%_blueprint.rb"),
+    File.join(FACTORY_GIRL_TEST_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
+    File.join(FACTORY_GIRL_SPEC_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
+    File.join(FACTORY_GIRL_TEST_DIR,  "%TABLE_NAME%.rb"),            # (new style)
+    File.join(FACTORY_GIRL_SPEC_DIR,  "%TABLE_NAME%.rb"),            # (new style)
+    File.join(FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
+    File.join(FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb"),
+  ]
+
   # Don't show limit (#) on these column types
   # Example: show "integer" instead of "integer(4)"
   NO_LIMIT_COL_TYPES = ["integer", "boolean"]
@@ -174,7 +197,7 @@ module AnnotateModels
         encoding_header = old_content.match(encoding).to_s
 
         if old_columns == new_columns && !options[:force]
-          false
+          return false
         else
 
 # todo: figure out if we need to extract any logic from this merge chunk
@@ -199,8 +222,10 @@ module AnnotateModels
             (encoding_header + info_block + old_content)
 
           File.open(file_name, "wb") { |f| f.puts new_content }
-          true
+          return true
         end
+      else
+        return false
       end
     end
 
@@ -211,6 +236,10 @@ module AnnotateModels
         content.sub!(PATTERN, '')
 
         File.open(file_name, "wb") { |f| f.puts content }
+
+        return true
+      else
+        return false
       end
     end
 
@@ -220,50 +249,50 @@ module AnnotateModels
     # of the model and fixture source files.
     # Returns true or false depending on whether the source
     # files were modified.
+    #
+    # === Options (opts)
+    #  :position_in_class<Symbol>:: where to place the annotated section in model file
+    #  :position_in_test<Symbol>:: where to place the annotated section in test/spec file(s)
+    #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
+    #  :position_in_factory<Symbol>:: where to place the annotated section in factory file
+    #  :exclude_tests<Symbol>:: whether to skip modification of test/spec files
+    #  :exclude_fixtures<Symbol>:: whether to skip modification of fixture files
+    #  :exclude_factories<Symbol>:: whether to skip modification of factory files
+    #
     def annotate(klass, file, header, options={})
       info = get_schema_info(klass, header, options)
-      annotated = false
+      did_annotate = false
       model_name = klass.name.underscore
+      table_name = klass.table_name
       model_file_name = File.join(model_dir, file)
 
       if annotate_one_file(model_file_name, info, options_with_position(options, :position_in_class))
-        annotated = true
+        did_annotate = true
       end
 
       unless options[:exclude_tests]
-        [
-          find_test_file(UNIT_TEST_DIR,      "#{model_name}_test.rb"), # test
-          find_test_file(SPEC_MODEL_DIR,     "#{model_name}_spec.rb"), # spec
-        ].each do |file|
-          # todo: add an option "position_in_test" -- or maybe just ask if anyone ever wants different positions for model vs. test vs. fixture
-          if annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
-            annotated = true
-          end
-        end
+        did_annotate = TEST_PATTERNS.
+          map { |pat| [pat[0], resolve_filename(pat[1], model_name, table_name)] }.
+          map { |pat| find_test_file(*pat) }.
+          map { |file| annotate_one_file(file, info, options_with_position(options, :position_in_test)) }.
+          detect { |result| result } || did_annotate
       end
 
       unless options[:exclude_fixtures]
-        [
-         File.join(FIXTURE_TEST_DIR,       "#{klass.table_name}.yml"),     # fixture
-         File.join(FIXTURE_SPEC_DIR,       "#{klass.table_name}.yml"),     # fixture
-         File.join(EXEMPLARS_TEST_DIR,     "#{model_name}_exemplar.rb"),   # Object Daddy
-         File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),   # Object Daddy
-         File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
-         File.join(BLUEPRINTS_SPEC_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
-         File.join(FACTORY_GIRL_TEST_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories (new style)
-         File.join(FACTORY_GIRL_SPEC_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories (new style)
-         File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories (old style)
-         File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories (old style)
-         File.join(FABRICATORS_TEST_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
-         File.join(FABRICATORS_SPEC_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
-        ].each do |file|
-          if annotate_one_file(file, info, options_with_position(options, :position_in_fixture))
-            annotated = true
-          end
-        end
+        did_annotate = FIXTURE_PATTERNS.
+          map { |file| resolve_filename(file, model_name, table_name) }.
+          map { |file| annotate_one_file(file, info, options_with_position(options, :position_in_fixture)) }.
+          detect { |result| result } || did_annotate
       end
 
-      annotated
+      unless options[:exclude_factories]
+        did_annotate = FACTORY_PATTERNS.
+          map { |file| resolve_filename(file, model_name, table_name) }.
+          map { |file| annotate_one_file(file, info, options_with_position(options, :position_in_factory)) }.
+          detect { |result| result } || did_annotate
+      end
+
+      return did_annotate
     end
 
     # position = :position_in_fixture or :position_in_class
@@ -297,7 +326,7 @@ module AnnotateModels
           puts "No models found in directory '#{model_dir}'."
           puts "Either specify models on the command line, or use the --model-dir option."
           puts "Call 'annotate --help' for more info."
-          exit 1;
+          exit 1
         end
       end
       models
@@ -375,6 +404,7 @@ module AnnotateModels
     def remove_annotations(options={})
       self.model_dir = options[:model_dir] if options[:model_dir]
       deannotated = []
+      deannotated_klass = false
       get_model_files(options).each do |file|
         begin
           klass = get_model_class(file)
@@ -383,27 +413,27 @@ module AnnotateModels
 
             model_name = klass.name.underscore
             model_file_name = File.join(model_dir, file)
-            remove_annotation_of_file(model_file_name)
+            deannotated_klass = true if(remove_annotation_of_file(model_file_name))
 
-            [
-             File.join(UNIT_TEST_DIR,          "#{model_name}_test.rb"),
-             File.join(SPEC_MODEL_DIR,         "#{model_name}_spec.rb"),
-             File.join(FIXTURE_TEST_DIR,       "#{klass.table_name}.yml"),     # fixture
-             File.join(FIXTURE_SPEC_DIR,       "#{klass.table_name}.yml"),     # fixture
-             File.join(EXEMPLARS_TEST_DIR,     "#{model_name}_exemplar.rb"),   # Object Daddy
-             File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),   # Object Daddy
-             File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
-             File.join(BLUEPRINTS_SPEC_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
-             File.join(FACTORY_GIRL_TEST_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories (new style)
-             File.join(FACTORY_GIRL_SPEC_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories (new style)
-             File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories (old style)
-             File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories (old style)
-             File.join(FABRICATORS_TEST_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
-             File.join(FABRICATORS_SPEC_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
-            ].each do |file|
-              remove_annotation_of_file(file) if File.exist?(file)
-            end
+            TEST_PATTERNS.
+              map { |pat| [pat[0], resolve_filename(pat[1], model_name, table_name)]}.
+              map { |pat| find_test_file(*pat) }.each do |file|
+                if(File.exist?(file))
+                  remove_annotation_of_file(file)
+                  deannotated_klass = true
+                end
+              end
 
+            (FIXTURE_PATTERNS + FACTORY_PATTERNS).
+              map { |file| resolve_filename(file, model_name, table_name) }.
+              each do |file|
+                if File.exist?(file)
+                  remove_annotation_of_file(file)
+                  deannotated_klass = true
+                end
+              end
+
+            deannotated << klass if(deannotated_klass)
           end
         rescue Exception => e
           puts "Unable to deannotate #{file}: #{e.message}"
@@ -415,6 +445,12 @@ module AnnotateModels
 
     def find_test_file(dir, file_name)
       Dir.glob(File.join(dir, "**", file_name)).first || File.join(dir, file_name)
+    end
+
+    def resolve_filename(filename_template, model_name, table_name)
+      return filename_template.
+        gsub('%MODEL_NAME%', model_name).
+        gsub('%TABLE_NAME%', table_name)
     end
   end
 end

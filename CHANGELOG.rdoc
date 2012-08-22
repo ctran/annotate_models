@@ -1,5 +1,8 @@
 == 2.5.0
 
+* Bugfix: Remove-annotations wasn't properly finding test/spec files, and
+  wasn't even looking for FactoryGirl factories under the new naming
+  convention.
 * Added support for new FactoryGirl naming convention.
 * Fixed that schema kept prepending additional newlines
 * Updates to make annotate smarter about when to touch a model
