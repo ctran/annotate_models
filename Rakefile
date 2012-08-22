@@ -22,9 +22,6 @@ end
 
 require "./lib/annotate"
 
-# want other tests/tasks run by default? Add them to the list
-task :default => [:spec]
-
 require 'mg'
 MG.new("annotate.gemspec")
 
@@ -55,3 +52,6 @@ namespace :rubinius do
   end
 end
 task :clobber => :'rubinius:clobber'
+
+# want other tests/tasks run by default? Add them to the list
+task :default => [:spec]
