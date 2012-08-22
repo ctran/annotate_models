@@ -102,8 +102,16 @@ anywhere in the file:
 == OPTIONS
 
     Usage: annotate [options] [model_file]*
-        -d, --delete                     Remove annotations from all model files
-        -p, --position [before|after]    Place the annotations at the top (before) or the bottom (after) of the model file
+        -d, --delete                     Remove annotations from all model files or the routes.rb file
+        -p, --position [before|after]    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory file(s)
+            --pc, --position-in-class [before|after]
+                                         Place the annotations at the top (before) or the bottom (after) of the model file
+            --pf, --position-in-factory [before|after]
+                                         Place the annotations at the top (before) or the bottom (after) of any factory files
+            --px, --position-in-fixture [before|after]
+                                         Place the annotations at the top (before) or the bottom (after) of any fixture files
+            --pt, --position-in-test [before|after]
+                                         Place the annotations at the top (before) or the bottom (after) of any test files
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
@@ -112,13 +120,13 @@ anywhere in the file:
             --model-dir dir              Annotate model files stored in dir rather than app/models
             --ignore-model-subdirects    Ignore subdirectories of the models directory
             --sort                       Sort columns alphabetically, rather than in creation order
-        -R, --require path               Additional files to require before loading models
-        -e, --exclude [tests,fixtures]   Do not annotate fixtures, test files, or both
+        -R, --require path               Additional file to require before loading models, may be used multiple times
+        -e [tests,fixtures,factories],   Do not annotate fixtures, test files, and/or factories
+            --exclude
         -f [bare|rdoc|markdown],         Render Schema Infomation as plain/RDoc/Markdown
             --format
             --force                      Force new annotations even if there are no changes.
             --trace                      If unable to annotate a file, print the full stack trace, not just the exception message.
-
 
 == SORTING
 

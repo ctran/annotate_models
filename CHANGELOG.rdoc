@@ -4,6 +4,9 @@
   wasn't even looking for FactoryGirl factories under the new naming
   convention.
 * Added support for new FactoryGirl naming convention.
+* Expose all `position_*` variables as CLI params.
+* Make `ENV ['position']` work as a default for all the `ENV ['position_*']`
+  variables.
 * Fixed that schema kept prepending additional newlines
 * Updates to make annotate smarter about when to touch a model
 * Recognize column+type, and don't change a file unless the column+type
