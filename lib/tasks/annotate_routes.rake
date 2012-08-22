@@ -5,6 +5,7 @@ task :annotate_routes => :environment do
 
   options={}
   options[:position_in_routes] = ENV['position_in_routes'] || ENV['position'] || 'after'
+  options[:require] = ENV['require'] ? ENV['require'].split(',') : []
   AnnotateRoutes.do_annotate(options)
 end
 
@@ -14,5 +15,6 @@ task :remove_routes => :environment do
   require "#{annotate_lib}/annotate/annotate_routes"
 
   options={}
+  options[:require] = ENV['require'] ? ENV['require'].split(',') : []
   AnnotateRoutes.remove_annotations(options)
 end

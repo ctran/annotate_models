@@ -44,6 +44,7 @@ task :remove_annotation => :environment do
 
   options={ :is_rake => true }
   options[:model_dir] = ENV['model_dir']
+  options[:require] = ENV['require'] ? ENV['require'].split(',') : []
   options[:trace] = ENV['trace'] =~ true_re
   AnnotateModels.remove_annotations(options)
 end

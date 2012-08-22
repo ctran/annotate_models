@@ -407,6 +407,12 @@ module AnnotateModels
     end
 
     def remove_annotations(options={})
+      if options[:require]
+        options[:require].each do |path|
+          require path
+        end
+      end
+
       self.model_dir = options[:model_dir] if options[:model_dir]
       deannotated = []
       deannotated_klass = false

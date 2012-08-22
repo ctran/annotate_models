@@ -23,6 +23,12 @@ module AnnotateRoutes
   def self.do_annotate(options={})
     return unless(routes_exists?)
 
+    if options[:require]
+      options[:require].each do |path|
+        require path
+      end
+    end
+
     position_after = options[:position_in_routes] != 'before'
 
     routes_map = `rake routes`.split(/\n/, -1)
@@ -67,6 +73,12 @@ module AnnotateRoutes
 
   def self.remove_annotations(options={})
     return unless(routes_exists?)
+
+    if options[:require]
+      options[:require].each do |path|
+        require path
+      end
+    end
 
     (content, where_header_found) = strip_annotations(File.read(routes_file))
 
