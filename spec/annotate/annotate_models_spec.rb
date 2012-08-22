@@ -295,7 +295,7 @@ end
   describe "annotating a file" do
     before do
       @model_dir = Dir.mktmpdir('annotate_models')
-      write_model "user.rb", <<-EOS
+      (@model_file_name, @file_content) = write_model "user.rb", <<-EOS
 class User < ActiveRecord::Base
 end
       EOS
@@ -308,9 +308,10 @@ end
     end
 
     def write_model file_name, file_content
-      @model_file_name    = File.join(@model_dir, file_name)
-      @file_content = file_content
-      File.open(@model_file_name, "wb") { |f| f.write @file_content }
+      fname = File.join(@model_dir, file_name)
+      FileUtils.mkdir_p(File.dirname(fname))
+      File.open(fname, "wb") { |f| f.write file_content }
+      return fname, file_content
     end
 
     def annotate_one_file options = {}
@@ -344,7 +345,20 @@ end
       File.read(@model_file_name).should == "#{@file_content}\n#{another_schema_info}"
     end
 
-    it "works with namepaced models (i.e. models inside modules/subdirectories"
+    it "works with namespaced models (i.e. models inside modules/subdirectories)" do
+      (model_file_name, file_content) = write_model "foo/user.rb", <<-EOS
+class Foo::User < ActiveRecord::Base
+end
+      EOS
+
+      klass = mock_class(:'foo_users', :id, [
+                                        mock_column(:id, :integer),
+                                        mock_column(:name, :string, :limit => 50)
+                                       ])
+      schema_info = AnnotateModels.get_schema_info(klass, "== Schema Info")
+      AnnotateModels.annotate_one_file(model_file_name, schema_info, :position => :before)
+      File.read(model_file_name).should == "#{schema_info}#{file_content}"
+    end
 
     describe "if a file can't be annotated" do
        before do
