@@ -19,4 +19,18 @@ module Annotate
       return false
     end
   end
+
+  def self.fallback(*args)
+    return args.detect { |arg| !arg.blank? }
+  end
+
+  def self.true?(val)
+    return false if(val.blank?)
+    return false unless(val =~ TRUE_RE)
+    return true
+  end
+
+private
+
+  TRUE_RE = /^(true|t|yes|y|1)$/i
 end
