@@ -1,5 +1,3 @@
-here = File.dirname __FILE__
-
 # Note : this causes annoying psych warnings under Ruby 1.9.2-p180; to fix, upgrade to 1.9.3
 begin
   require 'bundler'
@@ -10,11 +8,19 @@ rescue Bundler::BundlerError => e
   exit e.status_code
 end
 
-require 'rake/dsl_definition'
+using_dsl = false
+begin
+  require 'rake/dsl_definition'
+  using_dsl = true
+rescue Exception => e
+  # We might just be on an old version of Rake...
+end
 require 'rake'
-include Rake::DSL
+if(using_dsl)
+  include Rake::DSL
+end
 
-require "#{here}/lib/annotate"
+require "./lib/annotate"
 
 # want other tests/tasks run by default? Add them to the list
 task :default => [:spec]

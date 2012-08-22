@@ -1,14 +1,13 @@
-begin
-  require 'rspec'
-rescue LoadError
-  require 'rubygems'
-  gem 'rspec'
-  require 'rspec'
-end
+require 'rubygems'
+require 'bundler'
+Bundler.setup
 
-require "wrong/adapters/rspec"
+require 'rspec'
+require 'wrong/adapters/rspec'
 
-$:.unshift(File.dirname(__FILE__) + '/../lib')
+$:.unshift(File.join(File.dirname(__FILE__), '../lib'))
+$:.unshift(File.dirname(__FILE__))
+
 require 'active_support'
 require 'active_support/core_ext/string/inflections'
 require 'annotate'

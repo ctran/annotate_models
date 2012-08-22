@@ -1,15 +1,24 @@
 source :rubygems
 
-gem "rake"
+gem 'rake', '>= 0.8.7', :require => false
+gem 'activesupport', '>= 2.3.0', :require => false
 
 group :development do
   gem 'mg'
-  gem 'rspec'
-  gem 'wrong', '>=0.6.2'
-  gem 'files', '>=0.2.1'
   platforms :ruby do
     gem 'yard', :require => false
   end
 end
 
-gem 'activesupport', '>= 3.0.0', :require => nil
+group :development, :test do
+  gem 'rspec', :require => false
+  platforms :ruby do
+    gem 'pry', :require => false
+    gem 'pry-coolline', :require => false
+  end
+end
+
+group :test do
+  gem 'wrong', '>=0.6.2', :require => false
+  gem 'files', '>=0.2.1', :require => false
+end

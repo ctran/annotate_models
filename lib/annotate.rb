@@ -1,5 +1,5 @@
-here = File.dirname __FILE__
-require "#{here}/annotate/version"
+$:.unshift(File.dirname(__FILE__))
+require 'annotate/version'
 
 module Annotate
   def self.load_tasks

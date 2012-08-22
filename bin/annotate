@@ -1,14 +1,22 @@
 #!/usr/bin/env ruby
-require 'optparse'
-require 'rake/dsl_definition'
-require 'rake'
+require 'rubygems'
 begin
-  require "annotate"
-rescue LoadError
-  here = File.expand_path(File.dirname __FILE__)
-  $:<< "#{here}/../lib"
-  require "annotate"
+  require 'bundler'
+  Bundler.setup
+rescue Exception => e
 end
+
+here = File.expand_path(File.dirname __FILE__)
+$:<< "#{here}/../lib"
+
+require 'optparse'
+begin
+  require 'rake/dsl_definition'
+rescue Exception => e
+  # We might just be on an old version of Rake...
+end
+require 'rake'
+require 'annotate'
 
 task = :annotate_models
 
