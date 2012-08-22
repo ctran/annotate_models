@@ -3,6 +3,8 @@
 * Bugfix: Remove-annotations wasn't properly finding test/spec files, and
   wasn't even looking for FactoryGirl factories under the new naming
   convention.
+* Bugfix: Load the Rakefile from the current directory, not the first Rakefile
+  in our load path.
 * Added support for new FactoryGirl naming convention.
 * Expose all `position_*` variables as CLI params.
 * Make `ENV ['position']` work as a default for all the `ENV ['position_*']`

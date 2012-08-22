@@ -5,7 +5,7 @@ module Annotate
   def self.load_tasks
     if File.exists?('Rakefile')
       require 'rake'
-      load 'Rakefile'
+      load './Rakefile'
 
       Dir[File.join(File.dirname(__FILE__), 'tasks', '**/*.rake')].each { |rake| load rake }
       return true
