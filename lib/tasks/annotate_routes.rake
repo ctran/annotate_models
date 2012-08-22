@@ -4,7 +4,8 @@ task :annotate_routes => :environment do
   require "#{annotate_lib}/annotate/annotate_routes"
 
   options={}
-  options[:position_in_routes] = ENV['position_in_routes'] || ENV['position'] || 'after'
+  ENV['position'] = options[:position] = Annotate.fallback(ENV['position'], 'before')
+  options[:position_in_routes] = Annotate.fallback(ENV['position_in_routes'], ENV['position'])
   options[:require] = ENV['require'] ? ENV['require'].split(',') : []
   AnnotateRoutes.do_annotate(options)
 end

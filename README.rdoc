@@ -64,31 +64,35 @@ Into environment gems from Github checkout:
 
 (If you used the Gemfile install, prefix the below commands with `bundle exec`.)
 
-To annotate all your models, tests, fixtures, etc.:
+To annotate all your models, tests, fixtures, and factories:
 
-  cd /path/to/app
-  annotate
+    cd /path/to/app
+    annotate
 
-To annotate your models and tests:
+To annotate your models, tests, and factories:
 
-  annotate --exclude fixtures
+    annotate --exclude fixtures
 
 To annotate just your models:
 
-  annotate --exclude tests,fixtures
+    annotate --exclude tests,fixtures,factories
 
 To annotate routes.rb:
 
-  annotate -r
+    annotate -r
 
-To remove annotations:
+To remove model/test/fixture/factory annotations:
 
-  annotate -d
+    annotate -d
+
+To remove routes.rb annotations:
+
+    annotate -r -d
 
 To automatically annotate after running 'rake db:migrate', ensure you've added
 annotate_models to your Rails project's Gemfile, and run this:
 
-  rails g annotate_models:install
+    rails g annotate_models:install
 
 This will produce a .rake file that will ensure annotation happens after
 migration (but only in development mode), and provide configuration options
@@ -97,7 +101,7 @@ you can use to tailor the output.
 If you want to always skip annotations on a particular model, add this string
 anywhere in the file:
 
-  # -*- SkipSchemaAnnotations
+    # -*- SkipSchemaAnnotations
 
 == OPTIONS
 

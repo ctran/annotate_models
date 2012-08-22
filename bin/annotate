@@ -33,7 +33,6 @@ OptionParser.new do |opts|
     end
   end
 
-  ENV['position'] = 'before' # hack: make sure default position is "before"
   opts.on('-p', '--position [before|after]', ['before', 'after'],
           "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory file(s)") do |p|
     ENV['position'] = p
