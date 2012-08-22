@@ -39,7 +39,7 @@ module AnnotateModels
     def model_dir
       @model_dir || "app/models"
     end
-    
+
     def model_dir=(dir)
       @model_dir = dir
     end
@@ -92,7 +92,7 @@ module AnnotateModels
             col_type << "(#{col.limit})" unless NO_LIMIT_COL_TYPES.include?(col_type)
           end
         end
-       
+
         # Check out if we got a geometric column
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
@@ -180,7 +180,7 @@ module AnnotateModels
         if old_columns == new_columns && !options[:force]
           false
         else
-          
+
 # todo: figure out if we need to extract any logic from this merge chunk
 # <<<<<<< HEAD
 #           # Replace the old schema info with the new schema info
@@ -197,7 +197,7 @@ module AnnotateModels
           # Strip the old schema info, and insert new schema info.
           old_content.sub!(encoding, '')
           old_content.sub!(PATTERN, '')
-          
+
           new_content = (options[:position] || 'before').to_s == 'after' ?
             (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
             (encoding_header + info_block + old_content)
@@ -207,7 +207,7 @@ module AnnotateModels
         end
       end
     end
-    
+
     def remove_annotation_of_file(file_name)
       if File.exist?(file_name)
         content = File.read(file_name)
@@ -252,8 +252,10 @@ module AnnotateModels
          File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),   # Object Daddy
          File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
          File.join(BLUEPRINTS_SPEC_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
-         File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories
-         File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories
+         File.join(FACTORY_GIRL_TEST_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories (new style)
+         File.join(FACTORY_GIRL_SPEC_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories (new style)
+         File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories (old style)
+         File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories (old style)
          File.join(FABRICATORS_TEST_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
          File.join(FABRICATORS_SPEC_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
         ].each do |file|
@@ -302,7 +304,7 @@ module AnnotateModels
       end
       models
     end
-  
+
     # Retrieve the classes belonging to the model names we're asked to process
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
@@ -320,7 +322,7 @@ module AnnotateModels
         select do |c|
           Class === c and    # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
           c.ancestors.respond_to?(:include?) and  # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
-          c.ancestors.include?(ActiveRecord::Base) 
+          c.ancestors.include?(ActiveRecord::Base)
         end.
         detect { |c| ActiveSupport::Inflector.underscore(c) == model_path }
     end
@@ -342,9 +344,9 @@ module AnnotateModels
         version = ActiveRecord::Migrator.current_version rescue 0
         if version > 0
           header << "\n# Schema version: #{version}"
-        end        
+        end
       end
-      
+
       self.model_dir = options[:model_dir] if options[:model_dir]
 
       annotated = []
@@ -394,8 +396,10 @@ module AnnotateModels
              File.join(EXEMPLARS_SPEC_DIR,     "#{model_name}_exemplar.rb"),   # Object Daddy
              File.join(BLUEPRINTS_TEST_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
              File.join(BLUEPRINTS_SPEC_DIR,    "#{model_name}_blueprint.rb"),  # Machinist Blueprints
-             File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories
-             File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories
+             File.join(FACTORY_GIRL_TEST_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories (new style)
+             File.join(FACTORY_GIRL_SPEC_DIR,  "#{klass.table_name}.rb"),      # Factory Girl Factories (new style)
+             File.join(FACTORY_GIRL_TEST_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories (old style)
+             File.join(FACTORY_GIRL_SPEC_DIR,  "#{model_name}_factory.rb"),    # Factory Girl Factories (old style)
              File.join(FABRICATORS_TEST_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
              File.join(FABRICATORS_SPEC_DIR,   "#{model_name}_fabricator.rb"), # Fabrication Fabricators
             ].each do |file|
@@ -405,7 +409,7 @@ module AnnotateModels
           end
         rescue Exception => e
           puts "Unable to deannotate #{file}: #{e.message}"
-          puts "\t" + e.backtrace.join("\n\t") if options[:trace]          
+          puts "\t" + e.backtrace.join("\n\t") if options[:trace]
         end
       end
       puts "Removed annotation from: #{deannotated.join(', ')}"
