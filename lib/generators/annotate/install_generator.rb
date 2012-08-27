@@ -1,4 +1,4 @@
-module AnnotateModels
+module Annotate
   module Generators
     class InstallGenerator < Rails::Generators::Base
       desc "Copy annotate_models rakefiles for automatic annotation"

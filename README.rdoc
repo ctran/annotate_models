@@ -10,7 +10,7 @@ your...
 - Machinist blueprints
 - Fabrication fabricators
 - Thoughtbot's factory_girl factories, i.e. the (spec|test)/factories/<model>_factory.rb files
-- routes.rb file
+- routes.rb file (for Rails projects)
 
 The schema comment looks like this:
 
@@ -69,6 +69,8 @@ Into environment gems from Github checkout:
 
 (If you used the Gemfile install, prefix the below commands with `bundle exec`.)
 
+=== Usage in Rails
+
 To annotate all your models, tests, fixtures, and factories:
 
     cd /path/to/app
@@ -97,6 +99,18 @@ To remove routes.rb annotations:
 
 == Configuration
 
+
+=== Usage Outside of Rails
+
+Everything above applies, except that --routes is not meaningful, and you will
+probably need to explicitly set one or more `--require` option(s), and/or one
+or more `--model-dir` options to inform annotate about the structure of your
+project and help it bootstrap and load the relevant code.
+
+
+
+== Configuration
+
 If you want to always skip annotations on a particular model, add this string
 anywhere in the file:
 
@@ -111,6 +125,15 @@ Edit this file to control things like output format, where annotations are
 added (top or bottom of file), and in which artifacts.
 
 
+=== Configuration in Rails
+
+To generate a configuration file (in the form of a `.rake` file), to set
+default options:
+
+    rails g annotate:install
+
+Edit this file to control things like output format, where annotations are
+added (top or bottom of file), and in which artifacts.
 == Rails Integration
 
 By default, once you've generated a configuration file, annotate will be
@@ -135,7 +158,7 @@ you can do so with a simple environment variable, instead of editing the
 
     Usage: annotate [options] [model_file]*
         -d, --delete                     Remove annotations from all model files or the routes.rb file
-        -p, --position [before|after]    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory file(s)
+        -p, --position [before|after]    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/routes file(s)
             --pc, --position-in-class [before|after]
                                          Place the annotations at the top (before) or the bottom (after) of the model file
             --pf, --position-in-factory [before|after]

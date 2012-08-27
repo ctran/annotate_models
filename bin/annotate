@@ -10,31 +10,25 @@ here = File.expand_path(File.dirname __FILE__)
 $:<< "#{here}/../lib"
 
 require 'optparse'
-begin
-  require 'rake/dsl_definition'
-rescue Exception => e
-  # We might just be on an old version of Rake...
-end
-require 'rake'
 require 'annotate'
+Annotate.bootstrap_rake
 
-task = :annotate_models
-
+target = {
+  :klass => AnnotateModels,
+  :task => :do_annotations,
+}
 has_set_position = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: annotate [options] [model_file]*"
 
   opts.on('-d', '--delete',
           "Remove annotations from all model files or the routes.rb file") do
-    if(task == :annotate_routes)
-      task = :remove_routes
-    else
-      task = :remove_annotation
-    end
+
+    target[:task] = :remove_annotations
   end
 
   opts.on('-p', '--position [before|after]', ['before', 'after'],
-          "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory file(s)") do |p|
+          "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/routes file(s)") do |p|
     ENV['position'] = p
     [
       'position_in_class','position_in_factory','position_in_fixture','position_in_test', 'position_in_routes'
@@ -75,7 +69,10 @@ OptionParser.new do |opts|
 
   opts.on('-r', '--routes',
           "Annotate routes.rb with the output of 'rake routes'") do
-    task = :annotate_routes
+    target = {
+      :klass => AnnotateRoutes,
+      :task => :do_annotations
+    }
   end
 
   opts.on('-v', '--version',
@@ -139,9 +136,7 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-ENV['is_cli'] = '1'
-if Annotate.load_tasks
-  Rake::Task[task].invoke
-else
-  STDERR.puts "Can't find Rakefile. Are we in a Rails folder?"
-end
+
+options=Annotate.setup_options({ :is_rake => !ENV['is_rake'].blank? })
+Annotate.eager_load(options)
+target[:klass].send(target[:task], options)

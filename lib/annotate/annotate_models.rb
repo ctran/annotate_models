@@ -198,7 +198,7 @@ module AnnotateModels
     #  :position_in_*<Symbol>:: where to place the annotated section in fixture or model file,
     #                           :before or :after. Default is :before.
     #
-    def annotate_one_file(file_name, info_block, options={})
+    def annotate_one_file(file_name, info_block, position, options={})
       if File.exist?(file_name)
         old_content = File.read(file_name)
         return false if(old_content =~ /# -\*- SkipSchemaAnnotations.*\n/)
@@ -236,7 +236,7 @@ module AnnotateModels
           old_content.sub!(encoding, '')
           old_content.sub!(PATTERN, '')
 
-          new_content = (options[:position] || 'before').to_s == 'after' ?
+          new_content = options[position].to_s == 'after' ?
             (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
             (encoding_header + info_block + old_content)
 
@@ -383,12 +383,6 @@ module AnnotateModels
     # if its a subclass of ActiveRecord::Base,
     # then pass it to the associated block
     def do_annotations(options={})
-      if options[:require]
-        options[:require].each do |path|
-          require path
-        end
-      end
-
       header = options[:format_markdown] ? PREFIX_MD.dup : PREFIX.dup
 
       if options[:include_version]
@@ -426,11 +420,6 @@ module AnnotateModels
     end
 
     def remove_annotations(options={})
-      if options[:require]
-        options[:require].each do |path|
-          require path
-        end
-      end
 
       self.model_dir = options[:model_dir] if options[:model_dir]
       deannotated = []
@@ -439,9 +428,8 @@ module AnnotateModels
         begin
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
-            deannotated << klass
-
             model_name = klass.name.underscore
+            table_name = klass.table_name
             model_file_name = File.join(model_dir, file)
             deannotated_klass = true if(remove_annotation_of_file(model_file_name))
 
@@ -462,9 +450,8 @@ module AnnotateModels
                   deannotated_klass = true
                 end
               end
-
-            deannotated << klass if(deannotated_klass)
           end
+          deannotated << klass if(deannotated_klass)
         rescue Exception => e
           puts "Unable to deannotate #{file}: #{e.message}"
           puts "\t" + e.backtrace.join("\n\t") if options[:trace]
