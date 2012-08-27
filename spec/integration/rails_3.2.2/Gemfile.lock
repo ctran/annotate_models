@@ -1,9 +1,9 @@
 PATH
   remote: ../../..
   specs:
-    annotate (2.5.0.beta4)
-      activesupport (>= 2.3.0)
-      rake (>= 0.8.7)
+    annotate (2.5.0)
+      activerecord
+      rake
 
 GEM
   remote: https://rubygems.org/
