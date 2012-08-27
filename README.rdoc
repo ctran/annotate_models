@@ -1,6 +1,7 @@
 == Annotate (aka AnnotateModels)
 
-Add a comment summarizing the current schema to the top or bottom of each of your...
+Add a comment summarizing the current schema to the top or bottom of each of
+your...
 
 - ActiveRecord models
 - Fixture files
@@ -28,7 +29,8 @@ The schema comment looks like this:
       belongs_to :product
      . . .
 
-It also annotates geometrical columns, geom type and srid, when using SpatialAdapter or PostgisAdapter:
+It also annotates geometrical columns, geom type and srid, when using
+`SpatialAdapter` or `PostgisAdapter`:
 
    # == Schema Info
    #
@@ -37,9 +39,11 @@ It also annotates geometrical columns, geom type and srid, when using SpatialAda
    #  local           :geometry        point, 4326
    #  path            :geometry        line_string, 4326
 
-Also, if you pass the -r option, it'll annotate routes.rb with the output of "rake routes".
+Also, if you pass the -r option, it'll annotate routes.rb with the output of
+`rake routes`.
 
-== INSTALL
+
+== Install
 
 Into Gemfile from rubygems.org:
 
@@ -60,7 +64,8 @@ Into environment gems from Github checkout:
     rake build
     gem install pkg/annotate-*.gem
 
-== USAGE
+
+== Usage
 
 (If you used the Gemfile install, prefix the below commands with `bundle exec`.)
 
@@ -69,7 +74,7 @@ To annotate all your models, tests, fixtures, and factories:
     cd /path/to/app
     annotate
 
-To annotate your models, tests, and factories:
+To annotate just your models, tests, and factories:
 
     annotate --exclude fixtures
 
@@ -79,31 +84,54 @@ To annotate just your models:
 
 To annotate routes.rb:
 
-    annotate -r
+    annotate --routes
 
 To remove model/test/fixture/factory annotations:
 
-    annotate -d
+    annotate --delete
 
 To remove routes.rb annotations:
 
-    annotate -r -d
+    annotate --routes --delete
 
-To automatically annotate after running 'rake db:migrate', ensure you've added
-annotate_models to your Rails project's Gemfile, and run this:
 
-    rails g annotate_models:install
-
-This will produce a .rake file that will ensure annotation happens after
-migration (but only in development mode), and provide configuration options
-you can use to tailor the output.
+== Configuration
 
 If you want to always skip annotations on a particular model, add this string
 anywhere in the file:
 
     # -*- SkipSchemaAnnotations
 
-== OPTIONS
+To generate a configuration file (in the form of a `.rake` file), to set
+default options:
+
+    rails g annotate:install
+
+Edit this file to control things like output format, where annotations are
+added (top or bottom of file), and in which artifacts.
+
+
+== Rails Integration
+
+By default, once you've generated a configuration file, annotate will be
+executed whenever you run `rake db:migrate` (but only in development mode).
+If you want to disable this behavior permanently, edit the `.rake` file and
+change:
+
+    'skip_on_db_migrate'   => "false",
+
+To:
+
+    'skip_on_db_migrate'   => "try",
+
+If you want to run `rake db:migrate` as a one-off without running annotate,
+you can do so with a simple environment variable, instead of editing the
+`.rake` file:
+
+    skip_on_db_migrate=1 rake db:migrate
+
+
+== Options
 
     Usage: annotate [options] [model_file]*
         -d, --delete                     Remove annotations from all model files or the routes.rb file
@@ -134,12 +162,17 @@ anywhere in the file:
             --force                      Force new annotations even if there are no changes.
             --trace                      If unable to annotate a file, print the full stack trace, not just the exception message.
 
-== SORTING
 
-By default, columns will be sorted in database order (i.e. the order in which migrations were run).
+== Sorting
+
+By default, columns will be sorted in database order (i.e. the order in which
+migrations were run).
 
 If you prefer to sort alphabetically so that the results of
-annotation are consistent regardless of what order migrations are executed in, use  --sort.
+annotation are consistent regardless of what order migrations are executed in,
+use  --sort.
+
+
 == Markdown
 
 The format produced is actually MultiMarkdown, making use of the syntax
@@ -164,7 +197,8 @@ to add additional text to an automatically created comment block.
 
 BACK UP YOUR MODELS BEFORE USING THIS TOOL!
 
-== LINKS
+
+== Links
 
 - Factory Girl: http://github.com/thoughtbot/factory_girl
 - Object Daddy: http://github.com/flogic/object_daddy
@@ -173,11 +207,13 @@ BACK UP YOUR MODELS BEFORE USING THIS TOOL!
 - SpatialAdapter: http://github.com/pdeffendol/spatial_adapter
 - PostgisAdapter: http://github.com/nofxx/postgis_adapter
 
-== LICENSE:
+
+== License
 
 Released under the same license as Ruby. No Support. No Warranty.
 
-== AUTHORS:
+
+== Authors
 
 - Original code by: Dave Thomas -- Pragmatic Programmers, LLC <http://agilewebdevelopment.com/plugins/annotate_models>
 - Overhauled by: Alex Chaffee <http://alexch.github.com> alex@stinky.com
