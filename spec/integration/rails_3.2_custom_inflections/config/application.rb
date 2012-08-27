@@ -1,0 +1,1 @@
+../../../fixtures/rails_32old_application.rb

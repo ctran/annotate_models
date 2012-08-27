@@ -15,6 +15,12 @@
 * Added support for new FactoryGirl naming convention.
 * Fix behavior of route annotations in newer versions of Rake that don't spit
   out the CWD as their first line of output.
+* Overhauled integration testing system to be much easier to work with, better
+  compartmentalized, and so forth -- at the cost that you must be using RVM to
+  utilize it.  (It'll spit out appropriate pending messages if you don't.)
+  Also includes a mode for "tinkering" by hand with a scenario, and won't let
+  you run it through rspect if the repo is in a dirty state.  Added appropriate
+  rake tasks to help with all of this.
 * Routes can now be appended, pre-pended, or removed -- and do sane things in
   all cases.
 * Expose all `position_*` variables as CLI params.

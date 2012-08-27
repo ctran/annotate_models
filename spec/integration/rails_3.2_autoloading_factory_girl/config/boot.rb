@@ -1,0 +1,1 @@
+../../../fixtures/rails32_boot.rb
