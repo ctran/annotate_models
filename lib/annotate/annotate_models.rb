@@ -461,7 +461,7 @@ module AnnotateModels
     def resolve_filename(filename_template, model_name, table_name)
       return filename_template.
         gsub('%MODEL_NAME%', model_name).
-        gsub('%TABLE_NAME%', table_name)
+        gsub('%TABLE_NAME%', table_name || model_name.pluralize)
     end
   end
 end
