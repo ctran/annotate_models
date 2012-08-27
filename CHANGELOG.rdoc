@@ -1,5 +1,12 @@
 == 2.5.0
 
+* Adding note that Markdown is actually MultiMarkdown, and recommending the use
+  of the `kramdown` engine for parsing it.
+* Improved Markdown formatting considerably.
+* Bugfix: Needed to use inline-code tag for column and table names, otherwise
+  underscores would cause havok with the formatting.
+* Bugfix: Markdown syntax was incorrect (can't have trailing spaces before the
+  closing marker for an emphasis tag).
 * Bugfix: Remove-annotations wasn't properly finding test/spec files, and
   wasn't even looking for FactoryGirl factories under the new naming
   convention.

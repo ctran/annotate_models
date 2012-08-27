@@ -87,15 +87,24 @@ module AnnotateModels
     def get_schema_info(klass, header, options = {})
       info = "# #{header}\n"
       info<< "#\n"
-      info<< "# Table name: #{klass.table_name}\n"
+      if(options[:format_markdown])
+        info<< "# Table name: `#{klass.table_name}`\n"
+        info<< "#\n"
+        info<< "# ### Columns\n"
+      else
+        info<< "# Table name: #{klass.table_name}\n"
+      end
       info<< "#\n"
 
       max_size = klass.column_names.map{|name| name.size}.max || 0
       max_size += options[:format_rdoc] ? 5 : 1
+      md_names_overhead = 6
+      md_type_allowance = 18
+      bare_type_allowance = 16
 
       if(options[:format_markdown])
-        info<< sprintf( "# %-#{max_size + 4}.#{max_size + 4}s | %-18.18s | %s\n", 'Field', 'Type', 'Attributes' )
-        info<< "# #{ '-' * ( max_size + 4 ) } | #{'-' * 18} | #{ '-' * 25 }\n"
+        info<< sprintf( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
+        info<< "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
       end
 
       cols = klass.columns
@@ -136,14 +145,16 @@ module AnnotateModels
         if options[:format_rdoc]
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col.name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
         elsif options[:format_markdown]
-          info << sprintf("# **%-#{max_size}.#{max_size}s** | `%-16.16s` | `%s`", col.name, col_type, attrs.join(", ").rstrip) + "\n"
+          name_remainder = max_size - col.name.length
+          type_remainder = (md_type_allowance - 2) - col_type.length
+          info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col.name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
         else
-          info << sprintf("#  %-#{max_size}.#{max_size}s:%-16.16s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
+          info << sprintf("#  %-#{max_size}.#{max_size}s:%-#{bare_type_allowance}.#{bare_type_allowance}s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
         end
       end
 
       if options[:show_indexes] && klass.table_exists?
-        info << get_index_info(klass)
+        info << get_index_info(klass, options)
       end
 
       if options[:format_rdoc]
@@ -155,15 +166,23 @@ module AnnotateModels
       end
     end
 
-    def get_index_info(klass)
-      index_info = "#\n# Indexes\n#\n"
+    def get_index_info(klass, options={})
+      if(options[:format_markdown])
+        index_info = "#\n# ### Indexes\n#\n"
+      else
+        index_info = "#\n# Indexes\n#\n"
+      end
 
       indexes = klass.connection.indexes(klass.table_name)
       return "" if indexes.empty?
 
       max_size = indexes.collect{|index| index.name.size}.max + 1
       indexes.sort_by{|index| index.name}.each do |index|
-        index_info << sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{index.columns.join(",")})", index.unique ? "UNIQUE" : "").rstrip + "\n"
+        if(options[:format_markdown])
+          index_info << sprintf("# * `%s`%s:\n#     * **`%s`**\n", index.name, index.unique ? " (_unique_)" : "", index.columns.join("`**\n#     * **`"))
+        else
+          index_info << sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{index.columns.join(",")})", index.unique ? "UNIQUE" : "").rstrip + "\n"
+        end
       end
       return index_info
     end
