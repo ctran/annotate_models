@@ -12,7 +12,7 @@ end
 
 group :development, :test do
   gem 'rspec', :require => false
-  platforms :ruby do
+  platforms :mri do
     gem 'pry', :require => false
     gem 'pry-coolline', :require => false
   end
