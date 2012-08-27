@@ -10,7 +10,7 @@ describe AnnotateRoutes do
   it "should check if routes.rb exists" do
     File.should_receive(:exists?).with("config/routes.rb").and_return(false)
     AnnotateRoutes.should_receive(:puts).with("Can`t find routes.rb")
-    AnnotateRoutes.do_annotate
+    AnnotateRoutes.do_annotations
   end
 
   describe "When Annotating, with older Rake Versions" do
@@ -25,13 +25,13 @@ describe AnnotateRoutes do
     it "should annotate and add a newline!" do
       File.should_receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo")
       @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# good line\n/)
-      AnnotateRoutes.do_annotate
+      AnnotateRoutes.do_annotations
     end
 
     it "should not add a newline if there are empty lines" do
       File.should_receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo\n")
       @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# good line\n/)
-      AnnotateRoutes.do_annotate
+      AnnotateRoutes.do_annotations
     end
 
   end
@@ -48,13 +48,13 @@ describe AnnotateRoutes do
     it "should annotate and add a newline!" do
       File.should_receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo")
       @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
-      AnnotateRoutes.do_annotate
+      AnnotateRoutes.do_annotations
     end
 
     it "should not add a newline if there are empty lines" do
       File.should_receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo\n")
       @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
-      AnnotateRoutes.do_annotate
+      AnnotateRoutes.do_annotations
     end
 
   end
