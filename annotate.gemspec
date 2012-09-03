@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com", "turadg@aleahmad.net", "jon@cloudability.com"]
   s.executables = ["annotate", "annotate_models", "annotate_routes"]
   s.extra_rdoc_files = ["README.rdoc", "CHANGELOG.rdoc", "TODO.rdoc"]
-  s.files = ["CHANGELOG.rdoc", "README.rdoc", "TODO.rdoc", "VERSION", "annotate.gemspec", "bin/annotate", "bin/annotate_models", "bin/annotate_routes", "lib/annotate.rb", "lib/annotate/active_record_patch.rb", "lib/annotate/annotate_models.rb", "lib/annotate/annotate_routes.rb", "lib/annotate/tasks.rb", "lib/annotate/version.rb", "lib/generators/annotate/USAGE", "lib/generators/annotate/install_generator.rb", "lib/generators/annotate/templates/auto_annotate_models.rake", "lib/tasks/annotate_routes.rake", "lib/tasks/migrate.rake"]
+  s.files = ["CHANGELOG.rdoc", "README.rdoc", "TODO.rdoc", "annotate.gemspec", "bin/annotate", "lib/annotate.rb", "lib/annotate/active_record_patch.rb", "lib/annotate/annotate_models.rb", "lib/annotate/annotate_routes.rb", "lib/annotate/tasks.rb", "lib/annotate/version.rb", "lib/generators/annotate/USAGE", "lib/generators/annotate/install_generator.rb", "lib/generators/annotate/templates/auto_annotate_models.rake", "lib/tasks/migrate.rake"]
   s.homepage = "http://github.com/ctran/annotate_models"
   s.licenses = ["Ruby"]
   s.require_paths = ["lib"]
