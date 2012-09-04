@@ -59,6 +59,11 @@ describe "annotate inside Rails, using #{CURRENT_RUBY}" do
             output = `
               (
                 export AUTOMATED_TEST="#{BASEDIR}"
+
+                # First, make sure we're not in 'sh' mode (I.E. strict-superset-of-Bourne
+                # mode), as RVM doesn't like this...
+                shopt -u -o posix
+
                 source .rvmrc &&
                 #{klass.test_commands}
               ) 2>&1`.chomp
