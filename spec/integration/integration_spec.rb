@@ -56,17 +56,16 @@ describe "annotate inside Rails, using #{CURRENT_RUBY}" do
           klass = "Annotate::Validations::#{base_dir.gsub('.', '_').classify}".constantize
 
           Dir.chdir(temp_dir) do
-            output = `
-              (
-                export AUTOMATED_TEST="#{BASEDIR}"
-
-                # First, make sure we're not in 'sh' mode (I.E. strict-superset-of-Bourne
-                # mode), as RVM doesn't like this...
-                shopt -u -o posix
-
-                source .rvmrc &&
-                #{klass.test_commands}
-              ) 2>&1`.chomp
+            # bash is required by rvm
+            # the shopt command forces us out of "strict sh" mode
+            commands = <<-BASH
+export AUTOMATED_TEST="#{BASEDIR}";
+shopt -u -o posix;
+source .rvmrc &&
+(bundle check || bundle install) &&
+#{klass.test_commands}
+            BASH
+            output = `/usr/bin/env bash -c '#{commands}' 2>&1`.chomp
             klass.verify_output(output)
             klass.verify_files(test_rig)
           end
