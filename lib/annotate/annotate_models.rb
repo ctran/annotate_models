@@ -286,7 +286,7 @@ module AnnotateModels
         table_name = klass.table_name
         model_file_name = File.join(model_dir, file)
 
-        if annotate_one_file(model_file_name, info, options_with_position(options, :position_in_class))
+        if annotate_one_file(model_file_name, info, :position_in_class, options_with_position(options, :position_in_class))
           did_annotate = true
         end
 
@@ -294,21 +294,21 @@ module AnnotateModels
           did_annotate = TEST_PATTERNS.
             map { |pat| [pat[0], resolve_filename(pat[1], model_name, table_name)] }.
             map { |pat| find_test_file(*pat) }.
-            map { |file| annotate_one_file(file, info, options_with_position(options, :position_in_test)) }.
+            map { |file| annotate_one_file(file, info, :position_in_test, options_with_position(options, :position_in_test)) }.
             detect { |result| result } || did_annotate
         end
 
         unless options[:exclude_fixtures]
           did_annotate = FIXTURE_PATTERNS.
             map { |file| resolve_filename(file, model_name, table_name) }.
-            map { |file| annotate_one_file(file, info, options_with_position(options, :position_in_fixture)) }.
+            map { |file| annotate_one_file(file, info, :position_in_fixture, options_with_position(options, :position_in_fixture)) }.
             detect { |result| result } || did_annotate
         end
 
         unless options[:exclude_factories]
           did_annotate = FACTORY_PATTERNS.
             map { |file| resolve_filename(file, model_name, table_name) }.
-            map { |file| annotate_one_file(file, info, options_with_position(options, :position_in_factory)) }.
+            map { |file| annotate_one_file(file, info, :position_in_factory, options_with_position(options, :position_in_factory)) }.
             detect { |result| result } || did_annotate
         end
 
