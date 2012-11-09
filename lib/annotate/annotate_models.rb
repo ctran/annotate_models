@@ -113,7 +113,7 @@ module AnnotateModels
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
         attrs << "not null" unless col.null
-        attrs << "primary key" if klass.primary_key && col.name.to_sym == klass.primary_key.to_sym
+        attrs << "primary key" if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect{|c|c.to_sym}.include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
 
         col_type = (col.type || col.sql_type).to_s
         if col_type == "decimal"
