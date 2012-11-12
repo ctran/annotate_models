@@ -17,3 +17,4 @@
 /spec/integration/*/tmp/*
 !/spec/integration/*/tmp/.gitkeep
 /spec/integration/*/db/test.*
+.rbenv-version
