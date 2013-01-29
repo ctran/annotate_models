@@ -118,11 +118,9 @@ module AnnotateModels
         col_type = (col.type || col.sql_type).to_s
         if col_type == "decimal"
           col_type << "(#{col.precision}, #{col.scale})"
-        elsif col_type == "enum"
+        elsif col_type == "enum" && col.limit && !col.limit.empty?
           # Handles the enum_column3 gem format for storing the enum values in the limit field
-          if (col.limit)
-            attrs << "values: #{col.limit.inspect}"
-          end
+          attrs << "values: #{col.limit.inspect}"
         else
           if (col.limit)
             col_type << "(#{col.limit})" unless NO_LIMIT_COL_TYPES.include?(col_type)
