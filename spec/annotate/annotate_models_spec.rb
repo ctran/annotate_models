@@ -73,6 +73,25 @@ EOS
 EOS
   end
 
+  it "should get schema info even if the primary key is array, if using composite_primary_keys" do
+    klass = mock_class(:users, nil, [
+                                     [mock_column(:a_id, :integer), mock_column(:b_id, :integer)],
+                                     mock_column(:name, :string, :limit => 50)
+                                    ])
+
+    AnnotateModels.get_schema_info(klass, "Schema Info").should eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  a_id   :integer        not null
+#  b_id   :integer        not null
+#  name :string(50)       not null
+#
+
+EOS
+  end
+
   it "should get schema info as RDoc" do
     klass = mock_class(:users, :id, [
                                      mock_column(:id, :integer),
