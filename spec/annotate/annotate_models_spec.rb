@@ -43,7 +43,7 @@ describe AnnotateModels do
                                      mock_column(:name, :string, :limit => 50)
                                     ])
 
-    AnnotateModels.get_schema_info(klass, "Schema Info").should eql(<<-EOS)
+    AnnotateModels.get_schema_info(klass, "Schema Info").to_s.should eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -61,7 +61,7 @@ EOS
                                      mock_column(:name, :string, :limit => 50)
                                     ])
 
-    AnnotateModels.get_schema_info(klass, "Schema Info").should eql(<<-EOS)
+    AnnotateModels.get_schema_info(klass, "Schema Info").to_s.should eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -78,7 +78,8 @@ EOS
                                      mock_column(:id, :integer),
                                      mock_column(:name, :string, :limit => 50)
                                     ])
-    AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, :format_rdoc => true).should eql(<<-EOS)
+    AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX,
+                                   :format_rdoc => true).to_s.should eql(<<-EOS)
 # #{AnnotateModels::PREFIX}
 #
 # Table name: users
@@ -366,6 +367,130 @@ end
       schema_info = AnnotateModels.get_schema_info(klass, "== Schema Info")
       AnnotateModels.annotate_one_file(model_file_name, schema_info, :position => :before)
       File.read(model_file_name).should == "#{schema_info}#{file_content}"
+    end
+
+    describe "with extra comments" do
+      before(:all) do
+      @file_result = <<-EOS
+# == Schema Info
+#
+# Table name: users
+#
+#  id   :integer          not null, primary key
+## The ID of the user
+#  name :string(50)       not null
+## The name of the user
+#
+
+class User < ActiveRecord::Base
+end
+EOS
+      end
+
+      it 'should leave extra comments where they are' do
+        original_file = @file_result
+        write_model('user.rb', original_file)
+        annotate_one_file(:position => :before, :force => true)
+        File.read(@model_file_name).should == original_file
+      end
+
+      it 'should leave extra comments when adding a column below' do
+        original_file = <<-EOS
+# == Schema Info
+#
+# Table name: users
+#
+#  id   :integer          not null, primary key
+## The ID of the user
+
+class User < ActiveRecord::Base
+end
+        EOS
+        write_model('user.rb', original_file)
+        annotate_one_file(:position => :before, :force => true)
+        File.read(@model_file_name).should == <<-EOS
+# == Schema Info
+#
+# Table name: users
+#
+#  id   :integer          not null, primary key
+## The ID of the user
+#  name :string(50)       not null
+#
+
+class User < ActiveRecord::Base
+end
+        EOS
+      end
+
+      it 'should leave extra comments when adding a column above' do
+        original_file = <<-EOS
+# == Schema Info
+#
+# Table name: users
+#
+#  name :string(50)       not null
+## The name of the user
+
+class User < ActiveRecord::Base
+end
+        EOS
+        write_model('user.rb', original_file)
+        annotate_one_file(:position => :before, :force => true)
+        File.read(@model_file_name).should == <<-EOS
+# == Schema Info
+#
+# Table name: users
+#
+#  id   :integer          not null, primary key
+#  name :string(50)       not null
+## The name of the user
+#
+
+class User < ActiveRecord::Base
+end
+        EOS
+      end
+
+      it 'should leave extra comments when changing a column' do
+        original_file = <<-EOS
+# == Schema Info
+#
+# Table name: users
+#
+#  id :integer          not null, primary key
+## The ID of the user
+#  name :string(25)       not null
+## The name of the user
+
+class User < ActiveRecord::Base
+end
+        EOS
+        write_model('user.rb', original_file)
+        annotate_one_file(:position => :before, :force => true)
+        File.read(@model_file_name).should == @file_result
+      end
+
+      it 'should leave extra comments when deleting a column' do
+        original_file = <<-EOS
+# == Schema Info
+#
+# Table name: users
+#
+#  id   :integer          not null, primary key
+## The ID of the user
+#  url  :string(50)       not null
+## The URL
+#  name :string(50)       not null
+## The name of the user
+
+class User < ActiveRecord::Base
+end
+        EOS
+        write_model('user.rb', original_file)
+        annotate_one_file(:position => :before, :force => true)
+        File.read(@model_file_name).should == @file_result
+      end
     end
 
     describe "if a file can't be annotated" do

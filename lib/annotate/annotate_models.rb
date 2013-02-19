@@ -1,4 +1,13 @@
 module AnnotateModels
+
+  class SchemaInfo
+    attr_accessor(:header, :columns, :indexes, :footer)
+
+    def to_s
+      self.header + self.columns + self.indexes + self.footer
+    end
+  end
+
   # Annotate Models plugin use this header
   COMPAT_PREFIX    = "== Schema Info"
   COMPAT_PREFIX_MD = "## Schema Info"
@@ -80,11 +89,55 @@ module AnnotateModels
       end
     end
 
+    def get_column_string(klass, col, options={})
+      attrs = []
+      attrs << "default(#{quote(col.default)})" unless col.default.nil?
+      attrs << "not null" unless col.null
+      attrs << "primary key" if klass.primary_key && col.name.to_sym == klass.primary_key.to_sym
+
+      col_type = (col.type || col.sql_type).to_s
+      if col_type == "decimal"
+        col_type << "(#{col.precision}, #{col.scale})"
+      else
+        if (col.limit)
+          col_type << "(#{col.limit})" unless NO_LIMIT_COL_TYPES.include?(col_type)
+        end
+      end
+
+      # Check out if we got a geometric column
+      # and print the type and SRID
+      if col.respond_to?(:geometry_type)
+        attrs << "#{col.geometry_type}, #{col.srid}"
+      end
+
+      # Check if the column has indices and print "indexed" if true
+      # If the index includes another column, print it too.
+      if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
+        indices = klass.connection.indexes(klass.table_name)
+        if indices = indices.select { |ind| ind.columns.include? col.name }
+          indices.each do |ind|
+            ind = ind.columns.reject! { |i| i == col.name }
+            attrs << (ind.length == 0 ? "indexed" : "indexed => [#{ind.join(", ")}]")
+          end
+        end
+      end
+
+      if options[:format_rdoc]
+        sprintf("# %-#{@max_size}.#{@max_size}s<tt>%s</tt>", "*#{col.name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+      elsif options[:format_markdown]
+        name_remainder = @max_size - col.name.length
+        type_remainder = (md_type_allowance - 2) - col_type.length
+        (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col.name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
+      else
+        sprintf("#  %-#{@max_size}.#{@max_size}s:%-#{@bare_type_allowance}.#{@bare_type_allowance}s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
+      end
+    end
+
     # Use the column information in an ActiveRecord class
     # to create a comment block containing a line for
     # each column. The line contains the column name,
     # the type (and length), and any optional attributes
-    def get_schema_info(klass, header, options = {})
+    def get_header_info(klass, header, options = {})
       info = "# #{header}\n"
       info<< "#\n"
       if(options[:format_markdown])
@@ -96,77 +149,28 @@ module AnnotateModels
       end
       info<< "#\n"
 
-      max_size = klass.column_names.map{|name| name.size}.max || 0
-      max_size += options[:format_rdoc] ? 5 : 1
       md_names_overhead = 6
       md_type_allowance = 18
-      bare_type_allowance = 16
 
       if(options[:format_markdown])
-        info<< sprintf( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
-        info<< "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
+        info<< sprintf( "# %-#{@max_size + md_names_overhead}.#{@max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
+        info<< "# #{ '-' * ( @max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
       end
+      info
+    end
 
+    def get_column_info(klass, options={})
+      info = ""
       cols = klass.columns
       cols = cols.sort_by(&:name) if(options[:sort])
       cols.each do |col|
-        attrs = []
-        attrs << "default(#{quote(col.default)})" unless col.default.nil?
-        attrs << "not null" unless col.null
-        attrs << "primary key" if klass.primary_key && col.name.to_sym == klass.primary_key.to_sym
-
-        col_type = (col.type || col.sql_type).to_s
-        if col_type == "decimal"
-          col_type << "(#{col.precision}, #{col.scale})"
-        else
-          if (col.limit)
-            col_type << "(#{col.limit})" unless NO_LIMIT_COL_TYPES.include?(col_type)
-          end
-        end
-
-        # Check out if we got a geometric column
-        # and print the type and SRID
-        if col.respond_to?(:geometry_type)
-          attrs << "#{col.geometry_type}, #{col.srid}"
-        end
-
-        # Check if the column has indices and print "indexed" if true
-        # If the index includes another column, print it too.
-        if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
-          indices = klass.connection.indexes(klass.table_name)
-          if indices = indices.select { |ind| ind.columns.include? col.name }
-            indices.each do |ind|
-              ind = ind.columns.reject! { |i| i == col.name }
-              attrs << (ind.length == 0 ? "indexed" : "indexed => [#{ind.join(", ")}]")
-            end
-          end
-        end
-
-        if options[:format_rdoc]
-          info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col.name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
-        elsif options[:format_markdown]
-          name_remainder = max_size - col.name.length
-          type_remainder = (md_type_allowance - 2) - col_type.length
-          info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col.name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
-        else
-          info << sprintf("#  %-#{max_size}.#{max_size}s:%-#{bare_type_allowance}.#{bare_type_allowance}s %s", col.name, col_type, attrs.join(", ")).rstrip + "\n"
-        end
+        info << get_column_string(klass, col, options)
       end
-
-      if options[:show_indexes] && klass.table_exists?
-        info << get_index_info(klass, options)
-      end
-
-      if options[:format_rdoc]
-        info << "#--\n"
-        info << "# #{END_MARK}\n"
-        info << "#++\n\n"
-      else
-        info << "#\n\n"
-      end
+      info
     end
 
     def get_index_info(klass, options={})
+      if !options[:show_indexes] || !klass.table_exists? then return "" end
       if(options[:format_markdown])
         index_info = "#\n# ### Indexes\n#\n"
       else
@@ -185,6 +189,17 @@ module AnnotateModels
         end
       end
       return index_info
+    end
+
+    def get_schema_footer(options={})
+      info = ""
+      if options[:format_rdoc]
+        info << "#--\n"
+        info << "# #{END_MARK}\n"
+        info << "#++\n\n"
+      else
+        info << "#\n\n"
+      end
     end
 
     # Add a schema block to a file. If the file already contains
@@ -206,18 +221,12 @@ module AnnotateModels
         # Ignore the Schema version line because it changes with each migration
         header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?\n)/
         old_header = old_content.match(header_pattern).to_s
-        new_header = info_block.match(header_pattern).to_s
+        new_header = info_block.header
 
-        column_pattern = /^#[\t ]+\w+[\t ]+.+$/
-        old_columns = old_header && old_header.scan(column_pattern).sort
-        new_columns = new_header && new_header.scan(column_pattern).sort
+        column_pattern = /^#[\t ]+\w+[\t ]+:.+$/
 
         encoding = Regexp.new(/(^#\s*encoding:.*\n)|(^# coding:.*\n)|(^# -\*- coding:.*\n)/)
         encoding_header = old_content.match(encoding).to_s
-
-        if old_columns == new_columns && !options[:force]
-          return false
-        else
 
 # todo: figure out if we need to extract any logic from this merge chunk
 # <<<<<<< HEAD
@@ -232,13 +241,54 @@ module AnnotateModels
 #           end
 # =======
 
-          # Strip the old schema info, and insert new schema info.
+        old_columns = old_header && old_header.scan(column_pattern).sort
+        new_columns = info_block.columns.scan(column_pattern).sort
+
+        # Now just print each column with the comments that come after it.
+        if old_columns == new_columns && !options[:force]
+          return false
+        else
+
+          # Loop through each line in the old content. First, match each
+          # column with the custom comments that follow it.
+          current_col = ''
+          current_col_key = nil
+          col_map = {}
+          old_content.each_line do |line|
+            if (line.match(column_pattern))
+              # it's an automatically added line, mark the end of the last iteration
+              unless current_col_key.nil?
+                col_map[current_col_key] = current_col
+              end
+              current_col_key = line.split[1] # first word in line after the # sign
+              current_col = ''
+            elsif !current_col_key.nil? && line.start_with?('##') &&
+                line.strip != '#' && line.strip != '##'
+              current_col << line
+            end
+          end
+          # add last column as well
+          unless current_col_key.nil?
+            col_map[current_col_key] = current_col
+          end
+
+          column_output = ''
+          new_columns.each do |column|
+            key = column.split[1] # first word in line
+            column_output << (column.end_with?("\n") ? column :  column + "\n")
+            if col_map[key]
+              column_output << col_map[key]
+            end
+          end
+          info_block.columns = column_output
+
+          # Strip the old schema info.
           old_content.sub!(encoding, '')
           old_content.sub!(PATTERN, '')
 
           new_content = options[position].to_s == 'after' ?
-            (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
-            (encoding_header + info_block + old_content)
+            (encoding_header + (old_content.rstrip + "\n\n" + info_block.to_s)) :
+            (encoding_header + info_block.to_s + old_content)
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           return true
@@ -262,6 +312,18 @@ module AnnotateModels
       end
     end
 
+    def get_schema_info(klass, header, options={})
+      @max_size = klass.column_names.map{|name| name.size}.max || 0
+      @max_size += options[:format_rdoc] ? 5 : 1
+      @bare_type_allowance = 16
+      info = SchemaInfo.new
+      info.header = get_header_info(klass, header, options) || ''
+      info.columns = get_column_info(klass, options) || ''
+      info.indexes = get_index_info(klass, options) || ''
+      info.footer = get_schema_footer(options) || ''
+      info
+    end
+
     # Given the name of an ActiveRecord class, create a schema
     # info block (basically a comment containing information
     # on the columns and their types) and put it at the front
@@ -281,6 +343,7 @@ module AnnotateModels
     def annotate(klass, file, header, options={})
       begin
         info = get_schema_info(klass, header, options)
+
         did_annotate = false
         model_name = klass.name.underscore
         table_name = klass.table_name
