@@ -215,7 +215,14 @@ module AnnotateModels
         encoding = Regexp.new(/(^#\s*encoding:.*\n)|(^# coding:.*\n)|(^# -\*- coding:.*\n)/)
         encoding_header = old_content.match(encoding).to_s
 
-        if old_columns == new_columns && !options[:force]
+        same_columns = (old_columns == new_columns)
+
+        change_before_to_after = (old_content =~ /\A# == Schema Info/ && options[position].to_s == 'after')
+        change_after_to_before = (old_content =~ /\n#\n\n\z/ && options[position].to_s == 'before')
+
+        same_position = !(change_before_to_after || change_after_to_before)
+
+        if same_columns && same_position && !options[:force]
           return false
         else
 
