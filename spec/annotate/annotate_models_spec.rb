@@ -75,7 +75,8 @@ EOS
 
   it "should get schema info even if the primary key is array, if using composite_primary_keys" do
     klass = mock_class(:users, nil, [
-                                     [mock_column(:a_id, :integer), mock_column(:b_id, :integer)],
+                                     mock_column(:a_id, :integer),
+                                     mock_column(:b_id, :integer),
                                      mock_column(:name, :string, :limit => 50)
                                     ])
 
@@ -84,8 +85,8 @@ EOS
 #
 # Table name: users
 #
-#  a_id   :integer        not null
-#  b_id   :integer        not null
+#  a_id :integer          not null
+#  b_id :integer          not null
 #  name :string(50)       not null
 #
 
