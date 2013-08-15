@@ -92,6 +92,23 @@ EOS
 
 EOS
   end
+  it "should get schema info with enum type " do
+    klass = mock_class(:users, nil, [
+                                     mock_column(:id, :integer),
+                                     mock_column(:name, :enum, :limit => [:enum1, :enum2])
+                                    ])
+
+    AnnotateModels.get_schema_info(klass, "Schema Info").should eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id   :integer          not null
+#  name :enum             not null, (enum1, enum2)
+#
+
+EOS
+  end
 
   it "should get schema info as RDoc" do
     klass = mock_class(:users, :id, [

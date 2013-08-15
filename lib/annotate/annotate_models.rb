@@ -120,7 +120,11 @@ module AnnotateModels
           col_type << "(#{col.precision}, #{col.scale})"
         else
           if (col.limit)
-            col_type << "(#{col.limit})" unless NO_LIMIT_COL_TYPES.include?(col_type)
+            if col.limit.is_a? Array
+              attrs << "(#{col.limit.join(', ')})" 
+            else
+              col_type << "(#{col.limit})" unless NO_LIMIT_COL_TYPES.include?(col_type)
+            end
           end
         end
 
