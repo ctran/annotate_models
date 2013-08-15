@@ -217,12 +217,17 @@ Be sure to add this to your `Gemfile` as well:
 
 == WARNING
 
-Note that this code will blow away the initial/final comment block in your
-models if it looks like it was previously added by this gem, so you don't want
-to add additional text to an automatically created comment block.
+<b>Don't add text after an automatically-created comment block.</b> This tool
+will blow away the initial/final comment block in your models if it looks like
+it was previously added by this gem.
 
-BACK UP YOUR MODELS BEFORE USING THIS TOOL!
+Be sure to check the changes that this tool makes! If you are using Git,
+you may simply check your project's status after running `annotate`:
 
+    $ git status
+
+If you are not using a VCS (like Git, Subversion or similar), please tread
+extra carefully, and consider using one.
 
 == Links
 
