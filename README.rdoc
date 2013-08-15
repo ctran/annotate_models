@@ -243,6 +243,10 @@ extra carefully, and consider using one.
 
 Released under the same license as Ruby. No Support. No Warranty.
 
+== Code Status
+{<img src="https://travis-ci.org/ctran/annotate_models.png" />}[https://travis-ci.org/ctran/annotate_models]
+{<img src="https://gemnasium.com/ctran/annotate_models.png" />}[https://gemnasium.com/ctran/annotate_models]
+
 
 == Authors
 
