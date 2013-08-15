@@ -460,7 +460,7 @@ module AnnotateModels
     end
 
     def find_test_file(dir, file_name)
-      Dir.glob(File.join(dir, "**", file_name)).first || File.join(dir, file_name)
+      Dir.glob(File.join(dir, file_name)).first || File.join(dir, file_name)
     end
 
     def resolve_filename(filename_template, model_name, table_name)
