@@ -9,6 +9,7 @@ $:.unshift(File.join(File.dirname(__FILE__), '../lib'))
 $:.unshift(File.dirname(__FILE__))
 
 require 'active_support'
+require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/class/subclasses'
 require 'active_support/core_ext/string/inflections'
 require 'annotate'
