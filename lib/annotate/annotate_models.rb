@@ -411,7 +411,7 @@ module AnnotateModels
     def annotate_model_file(annotated, file, header, options)
       begin
         klass = get_model_class(file)
-        if klass && klass < ActiveRecord::Base && !klass.abstract_class?
+        if klass && klass < ActiveRecord::Base && !klass.abstract_class? && klass.table_exists?
           if annotate(klass, file, header, options)
             annotated << klass
           end
