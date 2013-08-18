@@ -51,7 +51,6 @@ describe AnnotateModels do
 #  id   :integer          not null, primary key
 #  name :string(50)       not null
 #
-
 EOS
   end
 
@@ -69,7 +68,6 @@ EOS
 #  id   :integer          not null
 #  name :string(50)       not null
 #
-
 EOS
   end
 
@@ -89,7 +87,6 @@ EOS
 #  b_id :integer          not null
 #  name :string(50)       not null
 #
-
 EOS
   end
   it "should get schema info with enum type " do
@@ -125,7 +122,6 @@ EOS
 #--
 # #{AnnotateModels::END_MARK}
 #++
-
 EOS
   end
 
@@ -195,7 +191,7 @@ EOS
       EOS
       check_class_name 'foo_with_macro.rb', 'FooWithMacro'
     end
-    
+
     it "should not care about known macros" do
       create('foo_with_known_macro.rb', <<-EOS)
         class FooWithKnownMacro < ActiveRecord::Base
@@ -365,12 +361,12 @@ end
 
     it "should annotate the file before the model if position == 'before'" do
       annotate_one_file :position => "before"
-      File.read(@model_file_name).should == "#{@schema_info}#{@file_content}"
+      File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
     end
 
     it "should annotate before if given :position => :before" do
       annotate_one_file :position => :before
-      File.read(@model_file_name).should == "#{@schema_info}#{@file_content}"
+      File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
     end
 
     it "should annotate after if given :position => :after" do
@@ -402,7 +398,7 @@ end
                                        ])
       schema_info = AnnotateModels.get_schema_info(klass, "== Schema Info")
       AnnotateModels.annotate_one_file(model_file_name, schema_info, :position => :before)
-      File.read(model_file_name).should == "#{schema_info}#{file_content}"
+      File.read(model_file_name).should == "#{schema_info}\n#{file_content}"
     end
 
     describe "if a file can't be annotated" do
