@@ -407,7 +407,7 @@ end
 
         annotate_one_file :position => :before
 
-        File.read(@model_file_name).should == "#{encoding_comment}\n#{@schema_info}#{@file_content}"
+        File.open(@model_file_name, &:readline).should == "#{encoding_comment}\n"
       end
     end
 
