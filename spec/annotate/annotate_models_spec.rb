@@ -8,7 +8,7 @@ describe AnnotateModels do
     options = {
       :connection   => mock("Conn", :indexes => []),
       :table_name   => table_name,
-      :primary_key  => primary_key && primary_key.to_s,
+      :primary_key  => primary_key,
       :column_names => columns.map { |col| col.name.to_s },
       :columns      => columns
     }
