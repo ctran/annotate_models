@@ -359,6 +359,16 @@ end
       Annotate::PATH_OPTIONS.each { |key| ENV[key.to_s] = '' }
     end
 
+    def encoding_comments_list_each
+      [
+        '# encoding: UTF-8',
+        '# coding: UTF-8',
+        '# -*- coding: UTF-8 -*-',
+        '#encoding: utf-8',
+        '# -*- encoding : utf-8 -*-'
+      ].each{|encoding_comment| yield encoding_comment }
+    end
+
     it "should annotate the file before the model if position == 'before'" do
       annotate_one_file :position => "before"
       File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
@@ -399,6 +409,20 @@ end
       schema_info = AnnotateModels.get_schema_info(klass, "== Schema Info")
       AnnotateModels.annotate_one_file(model_file_name, schema_info, :position => :before)
       File.read(model_file_name).should == "#{schema_info}\n#{file_content}"
+    end
+
+    it "should not touch encoding comments" do
+      encoding_comments_list_each do |encoding_comment|
+        write_model "user.rb", <<-EOS
+#{encoding_comment}
+class User < ActiveRecord::Base
+end
+        EOS
+
+        annotate_one_file :position => :before
+
+        File.open(@model_file_name, &:readline).should == "#{encoding_comment}\n"
+      end
     end
 
     describe "if a file can't be annotated" do
