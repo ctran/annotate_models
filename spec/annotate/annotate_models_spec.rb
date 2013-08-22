@@ -384,7 +384,7 @@ end
       File.read(@model_file_name).should == "#{@file_content}\n#{@schema_info}"
     end
 
-    it "should update annotate position" do
+    it "should update annotate position during schema change" do
       annotate_one_file :position => :before
 
       another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer),]),
@@ -394,6 +394,23 @@ end
       annotate_one_file :position => :after
 
       File.read(@model_file_name).should == "#{@file_content}\n#{another_schema_info}"
+    end
+
+    it "should update annotate position with no schema change" do
+      annotate_one_file :position => :before
+      annotate_one_file :position => :after
+
+      File.read(@model_file_name).should == "#{@file_content}\n#{@schema_info}"
+      annotate_one_file :position => :before
+
+      File.read(@model_file_name).should == "#{@schema_info}#{@file_content}"
+    end
+
+    it "should not touch the file when no schema change, no position change, and no force option" do
+      annotate_one_file :position => :before
+      File.should_not_receive(:open).with(@model_file_name, "wb")
+      
+      annotate_one_file :position => :before
     end
 
     it "works with namespaced models (i.e. models inside modules/subdirectories)" do
