@@ -8,7 +8,7 @@ describe AnnotateModels do
     options = {
       :connection   => mock("Conn", :indexes => []),
       :table_name   => table_name,
-      :primary_key  => primary_key && primary_key.to_s,
+      :primary_key  => primary_key,
       :column_names => columns.map { |col| col.name.to_s },
       :columns      => columns
     }
@@ -72,7 +72,7 @@ EOS
   end
 
   it "should get schema info even if the primary key is array, if using composite_primary_keys" do
-    klass = mock_class(:users, nil, [
+    klass = mock_class(:users, [:a_id, :b_id], [
                                      mock_column(:a_id, :integer),
                                      mock_column(:b_id, :integer),
                                      mock_column(:name, :string, :limit => 50)
@@ -83,8 +83,8 @@ EOS
 #
 # Table name: users
 #
-#  a_id :integer          not null
-#  b_id :integer          not null
+#  a_id :integer          not null, primary key
+#  b_id :integer          not null, primary key
 #  name :string(50)       not null
 #
 EOS
