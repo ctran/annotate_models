@@ -103,7 +103,6 @@ EOS
 #  id   :integer          not null
 #  name :enum             not null, (enum1, enum2)
 #
-
 EOS
   end
 
