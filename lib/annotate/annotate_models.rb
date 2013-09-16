@@ -118,10 +118,10 @@ module AnnotateModels
         col_type = (col.type || col.sql_type).to_s
         if col_type == "decimal"
           col_type << "(#{col.precision}, #{col.scale})"
-        else
+				elsif col_type != "spatial"
           if (col.limit)
             if col.limit.is_a? Array
-              attrs << "(#{col.limit.join(', ')})" 
+              attrs << "(#{col.limit.join(', ')})"
             else
               col_type << "(#{col.limit})" unless NO_LIMIT_COL_TYPES.include?(col_type)
             end
@@ -132,6 +132,8 @@ module AnnotateModels
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
           attrs << "#{col.geometry_type}, #{col.srid}"
+				elsif col.respond_to?(:geometric_type) and col.geometric_type.present?
+          attrs << "#{col.geometric_type.to_s.downcase}, #{col.srid}"
         end
 
         # Check if the column has indices and print "indexed" if true
