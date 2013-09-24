@@ -25,7 +25,7 @@ module Annotate
     :format_bare, :format_rdoc, :format_markdown, :sort, :force, :trace,
   ]
   OTHER_OPTIONS=[
-    :model_dir,
+    :model_dir, :ignore_columns
   ]
   PATH_OPTIONS=[
     :require,
