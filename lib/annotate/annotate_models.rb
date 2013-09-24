@@ -108,6 +108,9 @@ module AnnotateModels
       end
 
       cols = klass.columns
+      if options[:ignore_columns]
+        cols.reject! { |col| col.name.match(/#{options[:ignore_columns]}/) }
+      end
       cols = cols.sort_by(&:name) if(options[:sort])
       cols.each do |col|
         attrs = []
