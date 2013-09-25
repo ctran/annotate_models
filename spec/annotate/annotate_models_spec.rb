@@ -396,6 +396,12 @@ end
       File.read(@model_file_name).should == "#{@file_content}\n#{another_schema_info}"
     end
 
+    it 'should skip columns with option[:ignore_columns] set' do
+      output = AnnotateModels.get_schema_info(@klass, "== Schema Info",
+                                              :ignore_columns => '(id|updated_at|created_at)')
+      expect(output.match(/id/)).to be_nil
+    end
+
     it "works with namespaced models (i.e. models inside modules/subdirectories)" do
       (model_file_name, file_content) = write_model "foo/user.rb", <<-EOS
 class Foo::User < ActiveRecord::Base

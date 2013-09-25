@@ -134,6 +134,11 @@ OptionParser.new do |opts|
   opts.on('--trace', 'If unable to annotate a file, print the full stack trace, not just the exception message.') do |value|
     ENV['trace'] = 'yes'
   end
+
+  opts.on('-I', '--ignore-columns REGEX', "don't annotate columns that match a given REGEX (i.e., `annotate -I '^(id|updated_at|created_at)'`" ) do |regex|
+    ENV['ignore_columns'] = regex
+  end
+
 end.parse!
 
 
