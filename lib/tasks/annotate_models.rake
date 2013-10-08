@@ -1,9 +1,7 @@
 annotate_lib = File.expand_path(File.dirname(File.dirname(__FILE__)))
 
-if(!ENV['is_cli'])
-  task :set_annotation_options
-  task :annotate_models => :set_annotation_options
-end
+task :set_annotation_options
+task :annotate_models => :set_annotation_options
 
 desc "Add schema information (as comments) to model and fixture files"
 task :annotate_models => :environment do
