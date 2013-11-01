@@ -196,7 +196,7 @@ migrations were run).
 
 If you prefer to sort alphabetically so that the results of
 annotation are consistent regardless of what order migrations are executed in,
-use  --sort.
+use `--sort`.
 
 
 == Markdown
