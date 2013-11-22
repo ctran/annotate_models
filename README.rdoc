@@ -148,7 +148,7 @@ change:
 
 To:
 
-    'skip_on_db_migrate'   => "try",
+    'skip_on_db_migrate'   => "true",
 
 If you want to run `rake db:migrate` as a one-off without running annotate,
 you can do so with a simple environment variable, instead of editing the
