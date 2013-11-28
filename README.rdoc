@@ -33,7 +33,7 @@ The schema comment looks like this:
      . . .
 
 It also annotates geometrical columns, geom type and srid, when using
-`SpatialAdapter` or `PostgisAdapter`:
+`SpatialAdapter`, `PostgisAdapter` or `PostGISAdapter`:
 
    # == Schema Info
    #
@@ -237,6 +237,7 @@ extra carefully, and consider using one.
 - Fabrication: http://github.com/paulelliott/fabrication
 - SpatialAdapter: http://github.com/pdeffendol/spatial_adapter
 - PostgisAdapter: http://github.com/nofxx/postgis_adapter
+- PostGISAdapter: https://github.com/dazuma/activerecord-postgis-adapter
 
 
 == License
