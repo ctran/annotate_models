@@ -119,15 +119,6 @@ anywhere in the file:
 
     # -*- SkipSchemaAnnotations
 
-To generate a configuration file (in the form of a `.rake` file), to set
-default options:
-
-    rails g annotate:install
-
-Edit this file to control things like output format, where annotations are
-added (top or bottom of file), and in which artifacts.
-
-
 === Configuration in Rails
 
 To generate a configuration file (in the form of a `.rake` file), to set
@@ -137,6 +128,7 @@ default options:
 
 Edit this file to control things like output format, where annotations are
 added (top or bottom of file), and in which artifacts.
+
 == Rails Integration
 
 By default, once you've generated a configuration file, annotate will be
@@ -252,3 +244,4 @@ Released under the same license as Ruby. No Support. No Warranty.
 == Authors
 
 {See AUTHORS.rdoc}[link:AUTHORS.rdoc].
+
