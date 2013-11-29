@@ -50,7 +50,7 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of
 
 Into Gemfile from rubygems.org:
 
-    gem 'annotate', ">=2.5.0"
+    gem 'annotate', ">=2.6.0"
 
 Into Gemfile from Github:
 
