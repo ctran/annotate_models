@@ -4,21 +4,20 @@
 
 Gem::Specification.new do |s|
   s.name = "annotate"
-  s.version = "2.6.0.beta2"
+  s.version = "2.6.0"
 
-  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini", "Turadg Aleahmad", "Jon Frisby"]
-  s.date = "2013-06-21"
+  s.date = "2013-11-29"
   s.description = "Annotates Rails/ActiveRecord Models, routes, fixtures, and others based on the database schema."
   s.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com", "turadg@aleahmad.net", "jon@cloudability.com"]
   s.executables = ["annotate"]
   s.extra_rdoc_files = ["README.rdoc", "CHANGELOG.rdoc", "TODO.rdoc"]
-  s.files = ["CHANGELOG.rdoc", "README.rdoc", "TODO.rdoc", "annotate.gemspec", "bin/annotate", "lib/annotate.rb", "lib/annotate/active_record_patch.rb", "lib/annotate/annotate_models.rb", "lib/annotate/annotate_routes.rb", "lib/annotate/tasks.rb", "lib/annotate/version.rb", "lib/generators/annotate/USAGE", "lib/generators/annotate/install_generator.rb", "lib/generators/annotate/templates/auto_annotate_models.rake", "lib/tasks/annotate_models.rake", "lib/tasks/annotate_routes.rake", "tasks/migrate.rake"]
+  s.files = ["AUTHORS.rdoc", "CHANGELOG.rdoc", "README.rdoc", "TODO.rdoc", "annotate.gemspec", "bin/annotate", "lib/annotate.rb", "lib/annotate/active_record_patch.rb", "lib/annotate/annotate_models.rb", "lib/annotate/annotate_routes.rb", "lib/annotate/tasks.rb", "lib/annotate/version.rb", "lib/generators/annotate/USAGE", "lib/generators/annotate/install_generator.rb", "lib/generators/annotate/templates/auto_annotate_models.rake", "lib/tasks/annotate_models.rake", "lib/tasks/annotate_routes.rake", "tasks/migrate.rake"]
   s.homepage = "http://github.com/ctran/annotate_models"
   s.licenses = ["Ruby"]
   s.require_paths = ["lib"]
   s.rubyforge_project = "annotate"
-  s.rubygems_version = "2.0.3"
+  s.rubygems_version = "2.0.6"
   s.summary = "Annotates Rails Models, routes, fixtures, and others based on the database schema."
 
   if s.respond_to? :specification_version then
