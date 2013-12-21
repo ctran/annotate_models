@@ -33,7 +33,7 @@ The schema comment looks like this:
      . . .
 
 It also annotates geometrical columns, geom type and srid, when using
-`SpatialAdapter`, `PostgisAdapter` or `PostGISAdapter`:
++SpatialAdapter+, +PostgisAdapter+ or +PostGISAdapter+:
 
    # == Schema Info
    #
@@ -43,7 +43,7 @@ It also annotates geometrical columns, geom type and srid, when using
    #  path            :geometry        line_string, 4326
 
 Also, if you pass the -r option, it'll annotate routes.rb with the output of
-`rake routes`.
++rake routes+.
 
 
 == Install
@@ -70,7 +70,7 @@ Into environment gems from Github checkout:
 
 == Usage
 
-(If you used the Gemfile install, prefix the below commands with `bundle exec`.)
+(If you used the Gemfile install, prefix the below commands with +bundle exec+.)
 
 === Usage in Rails
 
@@ -105,9 +105,9 @@ To remove routes.rb annotations:
 
 === Usage Outside of Rails
 
-Everything above applies, except that --routes is not meaningful, and you will
-probably need to explicitly set one or more `--require` option(s), and/or one
-or more `--model-dir` options to inform annotate about the structure of your
+Everything above applies, except that +--routes+ is not meaningful, and you will
+probably need to explicitly set one or more +--require+ option(s), and/or one
+or more +--model-dir+ options to inform annotate about the structure of your
 project and help it bootstrap and load the relevant code.
 
 
@@ -121,7 +121,7 @@ anywhere in the file:
 
 === Configuration in Rails
 
-To generate a configuration file (in the form of a `.rake` file), to set
+To generate a configuration file (in the form of a +.rake+ file), to set
 default options:
 
     rails g annotate:install
@@ -132,8 +132,8 @@ added (top or bottom of file), and in which artifacts.
 == Rails Integration
 
 By default, once you've generated a configuration file, annotate will be
-executed whenever you run `rake db:migrate` (but only in development mode).
-If you want to disable this behavior permanently, edit the `.rake` file and
+executed whenever you run +rake db:migrate+ (but only in development mode).
+If you want to disable this behavior permanently, edit the +.rake+ file and
 change:
 
     'skip_on_db_migrate'   => "false",
@@ -142,9 +142,9 @@ To:
 
     'skip_on_db_migrate'   => "true",
 
-If you want to run `rake db:migrate` as a one-off without running annotate,
+If you want to run +rake db:migrate+ as a one-off without running annotate,
 you can do so with a simple environment variable, instead of editing the
-`.rake` file:
++.rake+ file:
 
     skip_on_db_migrate=1 rake db:migrate
 
@@ -188,21 +188,21 @@ migrations were run).
 
 If you prefer to sort alphabetically so that the results of
 annotation are consistent regardless of what order migrations are executed in,
-use  --sort.
+use +--sort+.
 
 
 == Markdown
 
 The format produced is actually MultiMarkdown, making use of the syntax
-extension for tables.  It's recommended you use `kramdown` as your parser if
-you want to use this format.  If you're using `yard` to generate documentation,
-specify a format of markdown with `kramdown` as the provider by adding this to
-your `.yardopts` file:
+extension for tables.  It's recommended you use +kramdown+ as your parser if
+you want to use this format.  If you're using +yard+ to generate documentation,
+specify a format of markdown with +kramdown+ as the provider by adding this to
+your +.yardopts+ file:
 
     --markup markdown
     --markup-provider kramdown
 
-Be sure to add this to your `Gemfile` as well:
+Be sure to add this to your +Gemfile+ as well:
 
     gem 'kramdown', :groups => [:development], :require => false
 
@@ -214,7 +214,7 @@ will blow away the initial/final comment block in your models if it looks like
 it was previously added by this gem.
 
 Be sure to check the changes that this tool makes! If you are using Git,
-you may simply check your project's status after running `annotate`:
+you may simply check your project's status after running +annotate+:
 
     $ git status
 
@@ -244,4 +244,3 @@ Released under the same license as Ruby. No Support. No Warranty.
 == Authors
 
 {See AUTHORS.rdoc}[link:AUTHORS.rdoc].
-
