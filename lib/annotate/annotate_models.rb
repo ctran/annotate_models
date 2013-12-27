@@ -131,6 +131,11 @@ module AnnotateModels
           end
         end
 
+        # Check out if we got an array column
+        if col.respond_to?(:array) && col.array
+          attrs << "is an Array"
+        end
+
         # Check out if we got a geometric column
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
