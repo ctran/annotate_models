@@ -124,7 +124,7 @@ anywhere in the file:
 To generate a configuration file (in the form of a +.rake+ file), to set
 default options:
 
-    rails g annotate:install
+    rails g annotate_models:install
 
 Edit this file to control things like output format, where annotations are
 added (top or bottom of file), and in which artifacts.
