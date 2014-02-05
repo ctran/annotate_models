@@ -85,7 +85,7 @@ To annotate just your models, tests, and factories:
 
 To annotate just your models:
 
-    annotate --exclude tests,fixtures,factories
+    annotate --exclude # This will annotate automatically all models and exclude: tests, fixtures and factories.
 
 To annotate routes.rb:
 
