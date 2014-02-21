@@ -4,7 +4,7 @@ require 'annotate/annotate_routes'
 describe AnnotateRoutes do
 
   def mock_file(stubs={})
-    @mock_file ||= mock(File, stubs)
+    @mock_file ||= double(File, stubs)
   end
 
   it "should check if routes.rb exists" do

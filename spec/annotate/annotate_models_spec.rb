@@ -6,14 +6,14 @@ require 'annotate/active_record_patch'
 describe AnnotateModels do
   def mock_class(table_name, primary_key, columns)
     options = {
-      :connection   => mock("Conn", :indexes => []),
+      :connection   => double("Conn", :indexes => []),
       :table_name   => table_name,
       :primary_key  => primary_key,
       :column_names => columns.map { |col| col.name.to_s },
       :columns      => columns
     }
 
-    mock("An ActiveRecord class", options)
+    double("An ActiveRecord class", options)
   end
 
   def mock_column(name, type, options={})
@@ -27,7 +27,7 @@ describe AnnotateModels do
     stubs.merge!(options)
     stubs.merge!(:name => name, :type => type)
 
-    mock("Column", stubs)
+    double("Column", stubs)
   end
 
   it { AnnotateModels.quote(nil).should eql("NULL") }
