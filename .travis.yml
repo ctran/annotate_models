@@ -1,0 +1,6 @@
+language: ruby
+rvm:
+  - 1.9.3
+
+before_install:
+  - rvm @global do gem install bundler
