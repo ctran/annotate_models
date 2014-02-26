@@ -179,6 +179,7 @@ you can do so with a simple environment variable, instead of editing the
             --format
             --force                      Force new annotations even if there are no changes.
             --trace                      If unable to annotate a file, print the full stack trace, not just the exception message.
+        --no-timestamp                   Do not include an updated time in routes
 
 
 == Sorting

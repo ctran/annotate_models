@@ -132,6 +132,10 @@ OptionParser.new do |opts|
     ENV['force'] = 'yes'
   end
 
+  opts.on('--no-timestamp', 'Exclude timestamp in (routes) annotation') do
+    ENV['no_timestamp'] = 'true'
+  end
+
   opts.on('--trace', 'If unable to annotate a file, print the full stack trace, not just the exception message.') do |value|
     ENV['trace'] = 'yes'
   end

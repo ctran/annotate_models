@@ -57,6 +57,12 @@ describe AnnotateRoutes do
       AnnotateRoutes.do_annotations
     end
 
+    it "should not add a timestamp when :no-timestamp is passed" do
+      File.should_receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo\n")
+      @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
+      AnnotateRoutes.do_annotations :no_timestamp => true
+    end
+
   end
 
   describe "When Removing Annotation" do
