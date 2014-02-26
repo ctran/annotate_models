@@ -182,6 +182,38 @@ EOS
       check_class_name 'bar/foo_inside_bar.rb', 'Bar::FooInsideBar'
     end
 
+    it "should find AR model when duplicated by a nested model" do
+      create 'foo.rb', <<-EOS
+        class Foo < ActiveRecord::Base
+        end
+      EOS
+
+      create 'bar/foo.rb', <<-EOS
+        class Bar::Foo
+        end
+      EOS
+      check_class_name 'bar/foo.rb', 'Bar::Foo'
+      check_class_name 'foo.rb', 'Foo'
+    end
+
+    it "should find AR model nested inside a class" do
+      create 'voucher.rb', <<-EOS
+        class Voucher < ActiveRecord::Base
+        end
+      EOS
+
+      create 'voucher/foo.rb', <<-EOS
+        class Voucher
+          class Foo
+          end
+        end
+      EOS
+
+      check_class_name 'voucher.rb', 'Voucher'
+      check_class_name 'voucher/foo.rb', 'Voucher::Foo'
+    end
+
+
     it "should not care about unknown macros" do
       create 'foo_with_macro.rb', <<-EOS
         class FooWithMacro < ActiveRecord::Base

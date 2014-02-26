@@ -377,13 +377,18 @@ module AnnotateModels
 
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
     def get_loaded_model(model_path)
-      ObjectSpace.each_object(::Class).
-        select do |c|
-          Class === c and    # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
-          c.ancestors.respond_to?(:include?) and  # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
-          c.ancestors.include?(ActiveRecord::Base)
-        end.
-        detect { |c| ActiveSupport::Inflector.underscore(c) == model_path }
+      begin        
+        ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
+      rescue 
+        # Revert to the old way but it is not really robust
+        ObjectSpace.each_object(::Class).
+          select do |c|
+            Class === c and    # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
+            c.ancestors.respond_to?(:include?) and  # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
+            c.ancestors.include?(ActiveRecord::Base)
+          end.
+          detect { |c| ActiveSupport::Inflector.underscore(c) == model_path }
+      end
     end
 
     # We're passed a name of things that might be
