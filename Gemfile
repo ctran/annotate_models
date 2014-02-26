@@ -12,6 +12,8 @@ end
 
 group :development, :test do
   gem 'rspec', :require => false
+  gem 'guard-rspec', require: false
+
   platforms :mri do
     gem 'pry', :require => false
     gem 'pry-coolline', :require => false
