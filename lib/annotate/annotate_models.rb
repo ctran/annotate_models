@@ -246,17 +246,13 @@ module AnnotateModels
 #           end
 # =======
 
-          if PATTERN.match(old_content)
-            new_content = old_content.sub(PATTERN, info_block)
-          else
-            # Strip the old schema info, and insert new schema info.
-            old_content.sub!(encoding, '')
-            old_content.sub!(PATTERN, '')
+          # Strip the old schema info, and insert new schema info.
+          old_content.sub!(encoding, '')
+          old_content.sub!(PATTERN, '')
 
-            new_content = options[position].to_s == 'after' ?
-              (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
-              (encoding_header + info_block + "\n" + old_content)
-          end
+          new_content = options[position].to_s == 'after' ?
+            (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
+            (encoding_header + info_block + "\n" + old_content)
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           return true
