@@ -3,11 +3,11 @@
 
 Gem::Specification.new do |s|
   s.name = "annotate"
-  s.version = "2.6.1"
+  s.version = "2.6.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini", "Turadg Aleahmad", "Jon Frisby"]
-  s.date = "2013-12-21"
+  s.date = "2014-02-26"
   s.description = "Annotates Rails/ActiveRecord Models, routes, fixtures, and others based on the database schema."
   s.email = ["alex@stinky.com", "cuong.tran@gmail.com", "x@nofxx.com", "turadg@aleahmad.net", "jon@cloudability.com"]
   s.executables = ["annotate"]
