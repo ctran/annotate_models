@@ -24,13 +24,13 @@ describe AnnotateRoutes do
 
     it "should annotate and add a newline!" do
       File.should_receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo")
-      @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# good line\n/)
+      @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
       AnnotateRoutes.do_annotations
     end
 
     it "should not add a newline if there are empty lines" do
       File.should_receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo\n")
-      @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# good line\n/)
+      @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
       AnnotateRoutes.do_annotations
     end
 
@@ -47,20 +47,20 @@ describe AnnotateRoutes do
 
     it "should annotate and add a newline!" do
       File.should_receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo")
-      @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
+      @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
       AnnotateRoutes.do_annotations
     end
 
     it "should not add a newline if there are empty lines" do
       File.should_receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo\n")
-      @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
+      @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
       AnnotateRoutes.do_annotations
     end
 
-    it "should not add a timestamp when :no-timestamp is passed" do
-      File.should_receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo\n")
-      @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
-      AnnotateRoutes.do_annotations :no_timestamp => true
+    it "should add a timestamp when :timestamp is passed" do
+      File.should_receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo")
+      @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
+      AnnotateRoutes.do_annotations :timestamp => true
     end
 
   end
@@ -74,13 +74,13 @@ describe AnnotateRoutes do
     end
 
     it "should remove trailing annotation and trim trailing newlines, but leave leading newlines alone" do
-      File.should_receive(:read).with("config/routes.rb").and_return("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nActionController::Routing...\nfoo\n\n\n\n\n\n\n\n\n\n\n# == Route Map (Updated 2012-08-16 00:00)\n#\n# another good line\n# good line\n")
+      File.should_receive(:read).with("config/routes.rb").and_return("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nActionController::Routing...\nfoo\n\n\n\n\n\n\n\n\n\n\n# == Route Map\n#\n# another good line\n# good line\n")
       @mock_file.should_receive(:puts).with(/\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nActionController::Routing...\nfoo\n/)
       AnnotateRoutes.remove_annotations
     end
 
     it "should remove prepended annotation and trim leading newlines, but leave trailing newlines alone" do
-      File.should_receive(:read).with("config/routes.rb").and_return("# == Route Map (Updated 2012-08-16 00:00)\n#\n# another good line\n# good line\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nActionController::Routing...\nfoo\n\n\n\n\n\n\n\n\n\n\n")
+      File.should_receive(:read).with("config/routes.rb").and_return("# == Route Map\n#\n# another good line\n# good line\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nActionController::Routing...\nfoo\n\n\n\n\n\n\n\n\n\n\n")
       @mock_file.should_receive(:puts).with(/ActionController::Routing...\nfoo\n\n\n\n\n\n\n\n\n\n\n/)
       AnnotateRoutes.remove_annotations
     end
