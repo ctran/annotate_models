@@ -31,8 +31,8 @@ module AnnotateModels
   FABRICATORS_SPEC_DIR  = File.join("spec", "fabricators")
 
   TEST_PATTERNS = [
-    [UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"],
-    [SPEC_MODEL_DIR, "%MODEL_NAME%_spec.rb"],
+    File.join(UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
+    File.join(SPEC_MODEL_DIR, "%MODEL_NAME%_spec.rb"),
   ]
 
   FIXTURE_PATTERNS = [
@@ -131,6 +131,11 @@ module AnnotateModels
           end
         end
 
+        # Check out if we got an array column
+        if col.respond_to?(:array) && col.array
+          attrs << "is an Array"
+        end
+
         # Check out if we got a geometric column
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
@@ -227,27 +232,23 @@ module AnnotateModels
         if old_columns == new_columns && !options[:force]
           return false
         else
+          # Replace inline the old schema info with the new schema info
+          new_content = old_content.sub(PATTERN, info_block + "\n")
 
-# todo: figure out if we need to extract any logic from this merge chunk
-# <<<<<<< HEAD
-#           # Replace the old schema info with the new schema info
-#           new_content = old_content.sub(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n*/, info_block)
-#           # But, if there *was* no old schema info, we simply need to insert it
-#           if new_content == old_content
-#             old_content.sub!(encoding, '')
-#             new_content = options[:position] == 'after' ?
-#               (encoding_header + (old_content =~ /\n$/ ? old_content : old_content + "\n") + info_block) :
-#               (encoding_header + info_block + old_content)
-#           end
-# =======
+          if new_content.end_with? (info_block + "\n")
+            new_content = old_content.sub(PATTERN, "\n" + info_block)
+          end
+           
+          # if there *was* no old schema info (no substitution happened) or :force was passed,
+          # we simply need to insert it in correct position
+          if new_content == old_content || options[:force]
+            old_content.sub!(encoding, '')
+            old_content.sub!(PATTERN, '')
 
-          # Strip the old schema info, and insert new schema info.
-          old_content.sub!(encoding, '')
-          old_content.sub!(PATTERN, '')
-
-          new_content = options[position].to_s == 'after' ?
-            (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
-            (encoding_header + info_block + "\n" + old_content)
+            new_content = options[position].to_s == 'after' ?
+              (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
+              (encoding_header + info_block + "\n" + old_content)
+          end
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           return true
@@ -301,8 +302,7 @@ module AnnotateModels
 
         unless options[:exclude_tests]
           did_annotate = TEST_PATTERNS.
-            map { |pat| [pat[0], resolve_filename(pat[1], model_name, table_name)] }.
-            map { |pat| find_test_file(*pat) }.
+            map { |file| resolve_filename(file, model_name, table_name) }.
             map { |file| annotate_one_file(file, info, :position_in_test, options_with_position(options, :position_in_test)) }.
             detect { |result| result } || did_annotate
         end
@@ -370,7 +370,7 @@ module AnnotateModels
     # in subdirectories without namespacing.
     def get_model_class(file)
       # this is for non-rails projects, which don't get Rails auto-require magic
-      require File.expand_path("#{model_dir}/#{file}") unless Module.const_defined?(:Rails)
+      require File.expand_path("#{model_dir}/#{file}")
       model_path = file.gsub(/\.rb$/, '')
       get_loaded_model(model_path) || get_loaded_model(model_path.split('/').last)
     end
@@ -441,16 +441,7 @@ module AnnotateModels
             model_file_name = File.join(model_dir, file)
             deannotated_klass = true if(remove_annotation_of_file(model_file_name))
 
-            TEST_PATTERNS.
-              map { |pat| [pat[0], resolve_filename(pat[1], model_name, table_name)]}.
-              map { |pat| find_test_file(*pat) }.each do |file|
-                if(File.exist?(file))
-                  remove_annotation_of_file(file)
-                  deannotated_klass = true
-                end
-              end
-
-            (FIXTURE_PATTERNS + FACTORY_PATTERNS).
+            (TEST_PATTERNS + FIXTURE_PATTERNS + FACTORY_PATTERNS).
               map { |file| resolve_filename(file, model_name, table_name) }.
               each do |file|
                 if File.exist?(file)
@@ -466,10 +457,6 @@ module AnnotateModels
         end
       end
       puts "Removed annotations from: #{deannotated.join(', ')}"
-    end
-
-    def find_test_file(dir, file_name)
-      Dir.glob(File.join(dir, "**", file_name)).first || File.join(dir, file_name)
     end
 
     def resolve_filename(filename_template, model_name, table_name)

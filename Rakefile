@@ -44,8 +44,8 @@ namespace :gem do
       gem.license = "Ruby"
       gem.summary = %q{Annotates Rails Models, routes, fixtures, and others based on the database schema.}
       gem.description = %q{Annotates Rails/ActiveRecord Models, routes, fixtures, and others based on the database schema.}
-      gem.email = ["alex@stinky.com", "ctran@pragmaquest.com", "x@nofxx.com", "turadg@aleahmad.net", "jon@cloudability.com"]
-      gem.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini", "Turadg Aleahmad", "Jon Frisby"]
+      gem.email = ["alex@stinky.com", "cuong@gmail.com", "x@nofxx.com", "turadg@aleahmad.net", "jon@cloudability.com"]
+      gem.authors = ["Alex Chaffee", "Cuong Tran", "Marcos Piccinini", "Turadg Aleahmad", "Jon Frisby"]
       gem.require_paths = ["lib"]
       # gem.rdoc_options = ["--charset=UTF-8"]
       # gem.required_ruby_version = "> 1.9.2"
