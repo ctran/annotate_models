@@ -232,27 +232,23 @@ module AnnotateModels
         if old_columns == new_columns && !options[:force]
           return false
         else
+          # Replace inline the old schema info with the new schema info
+          new_content = old_content.sub(PATTERN, info_block + "\n")
 
-# todo: figure out if we need to extract any logic from this merge chunk
-# <<<<<<< HEAD
-#           # Replace the old schema info with the new schema info
-#           new_content = old_content.sub(/^# #{COMPAT_PREFIX}.*?\n(#.*\n)*\n*/, info_block)
-#           # But, if there *was* no old schema info, we simply need to insert it
-#           if new_content == old_content
-#             old_content.sub!(encoding, '')
-#             new_content = options[:position] == 'after' ?
-#               (encoding_header + (old_content =~ /\n$/ ? old_content : old_content + "\n") + info_block) :
-#               (encoding_header + info_block + old_content)
-#           end
-# =======
+          if new_content.end_with? (info_block + "\n")
+            new_content = old_content.sub(PATTERN, "\n" + info_block)
+          end
+           
+          # if there *was* no old schema info (no substitution happened) or :force was passed,
+          # we simply need to insert it in correct position
+          if new_content == old_content || options[:force]
+            old_content.sub!(encoding, '')
+            old_content.sub!(PATTERN, '')
 
-          # Strip the old schema info, and insert new schema info.
-          old_content.sub!(encoding, '')
-          old_content.sub!(PATTERN, '')
-
-          new_content = options[position].to_s == 'after' ?
-            (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
-            (encoding_header + info_block + "\n" + old_content)
+            new_content = options[position].to_s == 'after' ?
+              (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
+              (encoding_header + info_block + "\n" + old_content)
+          end
 
           File.open(file_name, "wb") { |f| f.puts new_content }
           return true

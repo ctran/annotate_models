@@ -368,31 +368,67 @@ end
       ].each{|encoding_comment| yield encoding_comment }
     end
 
-    it "should annotate the file before the model if position == 'before'" do
+    it "should put annotation before class if :position == 'before'" do
       annotate_one_file :position => "before"
       File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
     end
 
-    it "should annotate before if given :position => :before" do
+    it "should put annotation before class if :position => :before" do
       annotate_one_file :position => :before
       File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
     end
 
-    it "should annotate after if given :position => :after" do
+    it "should put annotation after class if :position => :after" do
       annotate_one_file :position => :after
       File.read(@model_file_name).should == "#{@file_content}\n#{@schema_info}"
     end
 
-    it "should update annotate position" do
-      annotate_one_file :position => :before
-
-      another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer),]),
+    describe "with existing annotation => :before" do
+      before do
+        annotate_one_file :position => :before
+        another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer),]),
                                                            "== Schema Info")
+        @schema_info = another_schema_info
+      end
 
-      @schema_info = another_schema_info
-      annotate_one_file :position => :after
+      it "should retain current position" do
+        annotate_one_file
+        File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
+      end
 
-      File.read(@model_file_name).should == "#{@file_content}\n#{another_schema_info}"
+      it "should retain current position even when :position is changed to :after" do
+        annotate_one_file :position => :after
+        File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
+      end
+
+      it "should change position to :after when :force => true" do
+        annotate_one_file :position => :after, :force => true
+        File.read(@model_file_name).should == "#{@file_content}\n#{@schema_info}"
+      end
+    end
+
+    describe "with existing annotation => :after" do
+      before do
+        annotate_one_file :position => :after
+        another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer),]),
+                                                           "== Schema Info")
+        @schema_info = another_schema_info
+      end
+
+      it "should retain current position" do
+        annotate_one_file
+        File.read(@model_file_name).should == "#{@file_content}\n#{@schema_info}"
+      end
+
+      it "should retain current position even when :position is changed to :before" do
+        annotate_one_file :position => :before
+        File.read(@model_file_name).should == "#{@file_content}\n#{@schema_info}"
+      end
+
+      it "should change position to :before when :force => true" do
+        annotate_one_file :position => :before, :force => true
+        File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
+      end
     end
 
     it 'should skip columns with option[:ignore_columns] set' do
