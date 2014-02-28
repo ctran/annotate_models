@@ -14,7 +14,7 @@ module AnnotateModels
   PREFIX           = "== Schema Information"
   PREFIX_MD        = "## Schema Information"
   END_MARK         = "== Schema Information End"
-  PATTERN          = /^\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\n(#.*\n)*\n/
+  PATTERN          = /^\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\n(#.*\n)*/
 
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
@@ -219,7 +219,7 @@ module AnnotateModels
         return false if(old_content =~ /# -\*- SkipSchemaAnnotations.*\n/)
 
         # Ignore the Schema version line because it changes with each migration
-        header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?\n)/
+        header_pattern = /(^# Table name:.*?\n(#\n)?(#.*[\r]?\n)*[\r]?)/
         old_header = old_content.match(header_pattern).to_s
         new_header = info_block.header
 
