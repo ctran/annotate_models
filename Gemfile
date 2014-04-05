@@ -5,6 +5,7 @@ gem 'activerecord', '>= 2.3.0', :require => false
 
 group :development do
   gem 'mg', :require => false
+  gem 'bump'
   platforms :mri do
     gem 'yard', :require => false
   end
