@@ -63,7 +63,7 @@ OptionParser.new do |opts|
 
   opts.on('--pr', '--position-in-routes [before|after]', ['before', 'after'],
           "Place the annotations at the top (before) or the bottom (after) of the routes.rb file") do |p|
-    ENV['position_in_test'] = p
+    ENV['position_in_routes'] = p
     has_set_position['position_in_routes'] = true
   end
 
