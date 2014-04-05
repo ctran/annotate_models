@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
-# stub: annotate 2.6.1 ruby lib
+# stub: annotate 2.6.3 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "annotate"
-  s.version = "2.6.2"
+  s.version = "2.6.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Cuong Tran", "Alex Chaffee", "Marcos Piccinini", "Turadg Aleahmad", "Jon Frisby"]
