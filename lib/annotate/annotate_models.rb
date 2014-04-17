@@ -121,7 +121,7 @@ module AnnotateModels
         col_type = (col.type || col.sql_type).to_s
         if col_type == "decimal"
           col_type << "(#{col.precision}, #{col.scale})"
-				elsif col_type != "spatial"
+        elsif col_type != "spatial"
           if (col.limit)
             if col.limit.is_a? Array
               attrs << "(#{col.limit.join(', ')})"
@@ -140,7 +140,7 @@ module AnnotateModels
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
           attrs << "#{col.geometry_type}, #{col.srid}"
-				elsif col.respond_to?(:geometric_type) and col.geometric_type.present?
+        elsif col.respond_to?(:geometric_type) and col.geometric_type.present?
           attrs << "#{col.geometric_type.to_s.downcase}, #{col.srid}"
         end
 
@@ -238,7 +238,7 @@ module AnnotateModels
           if new_content.end_with?(info_block + "\n")
             new_content = old_content.sub(PATTERN, "\n" + info_block)
           end
-           
+
           # if there *was* no old schema info (no substitution happened) or :force was passed,
           # we simply need to insert it in correct position
           if new_content == old_content || options[:force]
@@ -377,9 +377,9 @@ module AnnotateModels
 
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
     def get_loaded_model(model_path)
-      begin        
+      begin
         ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
-      rescue 
+      rescue
         # Revert to the old way but it is not really robust
         ObjectSpace.each_object(::Class).
           select do |c|
@@ -433,7 +433,6 @@ module AnnotateModels
     end
 
     def remove_annotations(options={})
-
       self.model_dir = options[:model_dir] if options[:model_dir]
       deannotated = []
       deannotated_klass = false
