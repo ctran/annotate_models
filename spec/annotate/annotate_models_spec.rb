@@ -287,6 +287,21 @@ EOS
         check_class_name 'foo_with_known_macro.rb', 'FooWithKnownMacro'
       end.should == ""
     end
+
+    it "should not require model files twice" do
+      create 'loaded_class.rb', <<-EOS
+        class LoadedClass < ActiveRecord::Base
+          CONSTANT = 1
+        end
+      EOS
+      path = File.expand_path("#{AnnotateModels.model_dir}/loaded_class")
+      Kernel.load "#{path}.rb"
+      expect(Kernel).not_to receive(:require).with(path)
+
+      capturing(:stderr) {
+        check_class_name 'loaded_class.rb', 'LoadedClass'
+      }.should_not include("warning: already initialized constant LoadedClass::CONSTANT")
+    end
   end
 
   describe "#remove_annotation_of_file" do
@@ -500,6 +515,8 @@ end
 
     describe "if a file can't be annotated" do
        before do
+         AnnotateModels.stub(:get_loaded_model).with('user').and_return(nil)
+
          write_model('user.rb', <<-EOS)
            class User < ActiveRecord::Base
              raise "oops"
@@ -528,6 +545,8 @@ end
 
     describe "if a file can't be deannotated" do
        before do
+         AnnotateModels.stub(:get_loaded_model).with('user').and_return(nil)
+
          write_model('user.rb', <<-EOS)
            class User < ActiveRecord::Base
              raise "oops"

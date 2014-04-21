@@ -369,10 +369,20 @@ module AnnotateModels
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
     def get_model_class(file)
-      # this is for non-rails projects, which don't get Rails auto-require magic
-      require File.expand_path("#{model_dir}/#{file}")
       model_path = file.gsub(/\.rb$/, '')
-      get_loaded_model(model_path) || get_loaded_model(model_path.split('/').last)
+      begin
+        get_loaded_model(model_path) or raise LoadError.new("cannot load a model from #{file}")
+      rescue LoadError
+        # this is for non-rails projects, which don't get Rails auto-require magic
+        if Kernel.require(File.expand_path("#{model_dir}/#{model_path}"))
+          retry
+        elsif model_path.match(/\//)
+          model_path = model_path.split('/')[1..-1].join('/').to_s
+          retry
+        else
+          raise
+        end
+      end
     end
 
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
