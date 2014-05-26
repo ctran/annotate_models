@@ -1,4 +1,9 @@
 #!/usr/bin/env ruby
+
+unless File.exists?('./Rakefile') || File.exists?('./Gemfile')
+  abort "Please run annotate from the root of the project."
+end
+
 require 'rubygems'
 begin
   require 'bundler'
@@ -146,7 +151,6 @@ OptionParser.new do |opts|
 
 end.parse!
 
-
-options=Annotate.setup_options({ :is_rake => !ENV['is_rake'].blank? })
+options = Annotate.setup_options({ :is_rake => ENV['is_rake'] && !ENV['is_rake'].empty? })
 Annotate.eager_load(options)
 target[:klass].send(target[:task], options)
