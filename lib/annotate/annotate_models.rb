@@ -10,6 +10,7 @@ module AnnotateModels
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
   UNIT_TEST_DIR         = File.join("test", "unit")
+  MODEL_TEST_DIR        = File.join("test", "models") # since rails 4.0
   SPEC_MODEL_DIR        = File.join("spec", "models")
   FIXTURE_TEST_DIR      = File.join("test", "fixtures")
   FIXTURE_SPEC_DIR      = File.join("spec", "fixtures")
@@ -32,6 +33,7 @@ module AnnotateModels
 
   TEST_PATTERNS = [
     File.join(UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
+    File.join(MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
     File.join(SPEC_MODEL_DIR, "%MODEL_NAME%_spec.rb"),
   ]
 
