@@ -399,7 +399,7 @@ module AnnotateModels
             c.ancestors.respond_to?(:include?) and  # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
             c.ancestors.include?(ActiveRecord::Base)
           end.
-          detect { |c| ActiveSupport::Inflector.underscore(c) == model_path }
+          detect { |c| ActiveSupport::Inflector.underscore(c.to_s) == model_path }
       end
     end
 
