@@ -354,7 +354,7 @@ module AnnotateModels
             models = if options[:ignore_model_sub_dir]
               Dir["*.rb"]
             else
-              Dir["**/*.rb"]
+              Dir["**/*.rb"].reject{ |f| f["concerns/"] }
             end
           end
         rescue SystemCallError
