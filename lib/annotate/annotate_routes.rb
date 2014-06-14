@@ -33,7 +33,7 @@ module AnnotateRoutes
     routes_map.shift if(routes_map.first =~ /^\(in \//)
 
     header = [
-      "#{PREFIX} (Updated #{Time.now.strftime("%Y-%m-%d %H:%M")})",
+      "#{PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime("%Y-%m-%d %H:%M")})" : ""),
       "#"
     ] + routes_map.map { |line| "# #{line}".rstrip }
 
@@ -84,13 +84,11 @@ protected
   end
 
   def self.routes_exists?
-    routes_exists = File.exists?(routes_file)
-    puts "Can`t find routes.rb" if(!routes_exists)
-    return routes_exists
+    File.exists?(routes_file) or puts "Can`t find routes.rb"
   end
 
   def self.write_contents(content)
-    content << '' unless(content.last == '') # Make sure we end on a trailing
+    content << '' unless(content.last.empty?) # Make sure we end on a trailing
                                              # newline.
 
     File.open(routes_file, "wb") { |f| f.puts(content.join("\n")) }
@@ -104,18 +102,19 @@ protected
     content.split(/\n/, -1).each do |line|
       line_number += 1
       begin
-        if(mode == :header)
-          if(line !~ /\s*#/)
-            mode = :content
-            raise unless (line == '')
-          end
-        elsif(mode == :content)
-          if(line =~ /^\s*#\s*== Route.*$/)
-            header_found_at = line_number
-            mode = :header
-          else
-            real_content << line
-          end
+        case mode
+          when :header
+            unless line.match(/\s*#/)
+              mode = :content
+              raise unless (line.empty?)
+            end
+          when :content
+            if line.match(/^\s*#\s*== Route.*$/)
+              header_found_at = line_number
+              mode = :header
+            else
+              real_content << line
+            end
         end
       rescue
         retry
@@ -134,14 +133,17 @@ protected
   end
 
   def self.strip_on_removal(content, where_header_found)
-    if(where_header_found == :before)
-      content.shift while(content.first == '')
-    elsif(where_header_found == :after)
-      content.pop while(content.last == '')
+    case where_header_found
+      when :before
+        content.shift while (content.first.empty?)
+      when :after
+        content.pop while (content.last.empty?)
+      else
+        # TODO: If the user buried it in the middle, we should probably see about
+        # TODO: preserving a single line of space between the content above and
+        # TODO: below...
     end
-    # TODO: If the user buried it in the middle, we should probably see about
-    # TODO: preserving a single line of space between the content above and
-    # TODO: below...
-    return content
+
+    content
   end
 end

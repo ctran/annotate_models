@@ -9,8 +9,8 @@ module Annotate
       end
 
       def self.verify_output(output)
-        output.should =~ /Annotated \(1\): Task/
-        output.should =~ /Route file annotated./
+        expect(output).to match(/Annotated \(1\): Task/)
+        expect(output).to match(/Route file annotated./)
       end
 
       def self.verify_files(which_files, test_rig, schema_annotation, routes_annotation, place_before=true)
@@ -23,29 +23,33 @@ module Annotate
 
       def self.check_task_model(test_rig, annotation, place_before=true)
         model = apply_annotation(test_rig, "app/models/task.rb", annotation, place_before)
-        File.read("app/models/task.rb").should == model
+        expect(model).to eq(File.read('app/models/task.rb'))
       end
 
       def self.check_routes(test_rig, annotation, place_before=true)
         routes = apply_annotation(test_rig, "config/routes.rb", annotation, place_before)
-        File.read("config/routes.rb").
-          sub(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}/, 'YYYY-MM-DD HH:MM').
-          should == routes
+        expect(routes).to eq(File.read('config/routes.rb')
+                             .sub(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}/, 'YYYY-MM-DD HH:MM'))
       end
 
       def self.check_task_unittest(test_rig, annotation, place_before=true)
         unittest = apply_annotation(test_rig, "test/unit/task_test.rb", annotation, place_before)
-        File.read("test/unit/task_test.rb").should == unittest
+        expect(unittest).to eq(File.read('test/unit/task_test.rb'))
+      end
+
+      def self.check_task_modeltest(test_rig, annotation, place_before=true)
+        unittest = apply_annotation(test_rig, "test/models/task_test.rb", annotation, place_before)
+        File.read("test/models/task_test.rb").should == unittest
       end
 
       def self.check_task_factory(test_rig, annotation, place_before=true)
         fixture = apply_annotation(test_rig, "test/factories/tasks.rb", annotation, place_before)
-        File.read("test/factories/tasks.rb").should == fixture
+        expect(fixture).to eq(File.read('test/factories/tasks.rb'))
       end
 
       def self.check_task_fixture(test_rig, annotation, place_before=true)
         fixture = apply_annotation(test_rig, "test/fixtures/tasks.yml", annotation, place_before)
-        File.read("test/fixtures/tasks.yml").should == fixture
+        expect(fixture).to eq(File.read('test/factories/tasks.yml'))
       end
 
     protected

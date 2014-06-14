@@ -24,7 +24,7 @@ RUBY
       end
 
       def self.verify_output(output)
-        output.should =~ /Annotated \(1\): Task/
+        expect(output).to match(/Annotated \(1\): Task/)
       end
 
       def self.verify_files(test_rig)
