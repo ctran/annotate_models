@@ -33,7 +33,7 @@ module AnnotateRoutes
     routes_map.shift if(routes_map.first =~ /^\(in \//)
 
     header = [
-      "#{PREFIX} (Updated #{Time.now.strftime("%Y-%m-%d %H:%M")})",
+      "#{PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime("%Y-%m-%d %H:%M")})" : ""),
       "#"
     ] + routes_map.map { |line| "# #{line}".rstrip }
 

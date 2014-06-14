@@ -10,6 +10,7 @@ module AnnotateModels
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
   UNIT_TEST_DIR         = File.join("test", "unit")
+  MODEL_TEST_DIR        = File.join("test", "models") # since rails 4.0
   SPEC_MODEL_DIR        = File.join("spec", "models")
   FIXTURE_TEST_DIR      = File.join("test", "fixtures")
   FIXTURE_SPEC_DIR      = File.join("spec", "fixtures")
@@ -32,6 +33,7 @@ module AnnotateModels
 
   TEST_PATTERNS = [
     File.join(UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
+    File.join(MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
     File.join(SPEC_MODEL_DIR, "%MODEL_NAME%_spec.rb"),
   ]
 
@@ -121,7 +123,7 @@ module AnnotateModels
         col_type = (col.type || col.sql_type).to_s
         if col_type == "decimal"
           col_type << "(#{col.precision}, #{col.scale})"
-				elsif col_type != "spatial"
+        elsif col_type != "spatial"
           if (col.limit)
             if col.limit.is_a? Array
               attrs << "(#{col.limit.join(', ')})"
@@ -140,7 +142,7 @@ module AnnotateModels
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
           attrs << "#{col.geometry_type}, #{col.srid}"
-				elsif col.respond_to?(:geometric_type) and col.geometric_type.present?
+        elsif col.respond_to?(:geometric_type) and col.geometric_type.present?
           attrs << "#{col.geometric_type.to_s.downcase}, #{col.srid}"
         end
 
@@ -222,7 +224,7 @@ module AnnotateModels
         old_header = old_content.match(header_pattern).to_s
         new_header = info_block.match(header_pattern).to_s
 
-        column_pattern = /^#[\t ]+\w+[\t ]+.+$/
+        column_pattern = /^#[\t ]+[\w\*`]+[\t ]+.+$/
         old_columns = old_header && old_header.scan(column_pattern).sort
         new_columns = new_header && new_header.scan(column_pattern).sort
 
@@ -235,10 +237,10 @@ module AnnotateModels
           # Replace inline the old schema info with the new schema info
           new_content = old_content.sub(PATTERN, info_block + "\n")
 
-          if new_content.end_with? (info_block + "\n")
+          if new_content.end_with?(info_block + "\n")
             new_content = old_content.sub(PATTERN, "\n" + info_block)
           end
-           
+
           # if there *was* no old schema info (no substitution happened) or :force was passed,
           # we simply need to insert it in correct position
           if new_content == old_content || options[:force]
@@ -352,7 +354,7 @@ module AnnotateModels
             models = if options[:ignore_model_sub_dir]
               Dir["*.rb"]
             else
-              Dir["**/*.rb"]
+              Dir["**/*.rb"].reject{ |f| f["concerns/"] }
             end
           end
         rescue SystemCallError
@@ -369,21 +371,36 @@ module AnnotateModels
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
     def get_model_class(file)
-      # this is for non-rails projects, which don't get Rails auto-require magic
-      require File.expand_path("#{model_dir}/#{file}")
       model_path = file.gsub(/\.rb$/, '')
-      get_loaded_model(model_path) || get_loaded_model(model_path.split('/').last)
+      begin
+        get_loaded_model(model_path) or raise LoadError.new("cannot load a model from #{file}")
+      rescue LoadError
+        # this is for non-rails projects, which don't get Rails auto-require magic
+        if Kernel.require(File.expand_path("#{model_dir}/#{model_path}"))
+          retry
+        elsif model_path.match(/\//)
+          model_path = model_path.split('/')[1..-1].join('/').to_s
+          retry
+        else
+          raise
+        end
+      end
     end
 
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
     def get_loaded_model(model_path)
-      ObjectSpace.each_object(::Class).
-        select do |c|
-          Class === c and    # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
-          c.ancestors.respond_to?(:include?) and  # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
-          c.ancestors.include?(ActiveRecord::Base)
-        end.
-        detect { |c| ActiveSupport::Inflector.underscore(c) == model_path }
+      begin
+        ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
+      rescue
+        # Revert to the old way but it is not really robust
+        ObjectSpace.each_object(::Class).
+          select do |c|
+            Class === c and    # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
+            c.ancestors.respond_to?(:include?) and  # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
+            c.ancestors.include?(ActiveRecord::Base)
+          end.
+          detect { |c| ActiveSupport::Inflector.underscore(c.to_s) == model_path }
+      end
     end
 
     # We're passed a name of things that might be
@@ -428,7 +445,6 @@ module AnnotateModels
     end
 
     def remove_annotations(options={})
-
       self.model_dir = options[:model_dir] if options[:model_dir]
       deannotated = []
       deannotated_klass = false

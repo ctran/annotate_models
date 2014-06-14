@@ -182,6 +182,38 @@ EOS
       check_class_name 'bar/foo_inside_bar.rb', 'Bar::FooInsideBar'
     end
 
+    it "should find AR model when duplicated by a nested model" do
+      create 'foo.rb', <<-EOS
+        class Foo < ActiveRecord::Base
+        end
+      EOS
+
+      create 'bar/foo.rb', <<-EOS
+        class Bar::Foo
+        end
+      EOS
+      check_class_name 'bar/foo.rb', 'Bar::Foo'
+      check_class_name 'foo.rb', 'Foo'
+    end
+
+    it "should find AR model nested inside a class" do
+      create 'voucher.rb', <<-EOS
+        class Voucher < ActiveRecord::Base
+        end
+      EOS
+
+      create 'voucher/foo.rb', <<-EOS
+        class Voucher
+          class Foo
+          end
+        end
+      EOS
+
+      check_class_name 'voucher.rb', 'Voucher'
+      check_class_name 'voucher/foo.rb', 'Voucher::Foo'
+    end
+
+
     it "should not care about unknown macros" do
       create 'foo_with_macro.rb', <<-EOS
         class FooWithMacro < ActiveRecord::Base
@@ -254,6 +286,21 @@ EOS
       expect(capturing(:stderr) do
         check_class_name 'foo_with_known_macro.rb', 'FooWithKnownMacro'
       end).to eq("")
+    end
+
+    it "should not require model files twice" do
+      create 'loaded_class.rb', <<-EOS
+        class LoadedClass < ActiveRecord::Base
+          CONSTANT = 1
+        end
+      EOS
+      path = File.expand_path("#{AnnotateModels.model_dir}/loaded_class")
+      Kernel.load "#{path}.rb"
+      expect(Kernel).not_to receive(:require).with(path)
+
+      capturing(:stderr) {
+        check_class_name 'loaded_class.rb', 'LoadedClass'
+      }.should_not include("warning: already initialized constant LoadedClass::CONSTANT")
     end
   end
 
@@ -468,6 +515,8 @@ end
 
     describe "if a file can't be annotated" do
        before do
+         AnnotateModels.stub(:get_loaded_model).with('user').and_return(nil)
+
          write_model('user.rb', <<-EOS)
            class User < ActiveRecord::Base
              raise "oops"
@@ -496,6 +545,8 @@ end
 
     describe "if a file can't be deannotated" do
        before do
+         AnnotateModels.stub(:get_loaded_model).with('user').and_return(nil)
+
          write_model('user.rb', <<-EOS)
            class User < ActiveRecord::Base
              raise "oops"

@@ -37,6 +37,11 @@ module Annotate
         expect(unittest).to eq(File.read('test/unit/task_test.rb'))
       end
 
+      def self.check_task_modeltest(test_rig, annotation, place_before=true)
+        unittest = apply_annotation(test_rig, "test/models/task_test.rb", annotation, place_before)
+        File.read("test/models/task_test.rb").should == unittest
+      end
+
       def self.check_task_factory(test_rig, annotation, place_before=true)
         fixture = apply_annotation(test_rig, "test/factories/tasks.rb", annotation, place_before)
         expect(fixture).to eq(File.read('test/factories/tasks.rb'))
