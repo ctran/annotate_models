@@ -24,13 +24,13 @@ describe AnnotateRoutes do
 
     it "should annotate and add a newline!" do
       expect(File).to receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo")
-      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# good line\n/)
+      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
       AnnotateRoutes.do_annotations
     end
 
     it "should not add a newline if there are empty lines" do
       expect(File).to receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo\n")
-      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# good line\n/)
+      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
       AnnotateRoutes.do_annotations
     end
 
@@ -47,13 +47,13 @@ describe AnnotateRoutes do
 
     it "should annotate and add a newline!" do
       expect(File).to receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo")
-      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
+      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
       AnnotateRoutes.do_annotations
     end
 
     it "should not add a newline if there are empty lines" do
       expect(File).to receive(:read).with("config/routes.rb").and_return("ActionController::Routing...\nfoo\n")
-      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
+      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
       AnnotateRoutes.do_annotations
     end
 
