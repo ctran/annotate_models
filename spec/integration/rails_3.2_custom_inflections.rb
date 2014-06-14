@@ -33,8 +33,8 @@ RUBY
       end
 
       def self.verify_output(output)
-        output.should =~ /Annotated \(1\): TASk/
-        output.should =~ /Route file annotated./
+        expect(output).to match(/Annotated \(1\): TASk/)
+        expect(output).to match(/Route file annotated./)
       end
     end
   end

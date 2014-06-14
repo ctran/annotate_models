@@ -32,14 +32,14 @@ describe "annotate inside Rails, using #{CURRENT_RUBY}" do
       end
 
       # Don't proceed if the working copy is dirty!
-      Annotate::Integration.is_clean?(test_rig).should == true
+      expect(Annotate::Integration.is_clean?(test_rig)).to eq(true)
 
       pending "temporarily ignored until Travis can run them"
 
       Bundler.with_clean_env do
         dir base_dir do
           temp_dir = Dir.pwd
-          File.basename(temp_dir).should == base_dir
+          expect(File.basename(temp_dir)).to eq(base_dir)
 
           # Delete cruft from hands-on debugging...
           Annotate::Integration.nuke_cruft(test_rig)
