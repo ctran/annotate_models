@@ -30,12 +30,12 @@ describe AnnotateModels do
     double("Column", stubs)
   end
 
-  it { AnnotateModels.quote(nil).should eql("NULL") }
-  it { AnnotateModels.quote(true).should eql("TRUE") }
-  it { AnnotateModels.quote(false).should eql("FALSE") }
-  it { AnnotateModels.quote(25).should eql("25") }
-  it { AnnotateModels.quote(25.6).should eql("25.6") }
-  it { AnnotateModels.quote(1e-20).should eql("1.0e-20") }
+  it { expect(AnnotateModels.quote(nil)).to eql("NULL") }
+  it { expect(AnnotateModels.quote(true)).to eql("TRUE") }
+  it { expect(AnnotateModels.quote(false)).to eql("FALSE") }
+  it { expect(AnnotateModels.quote(25)).to eql("25") }
+  it { expect(AnnotateModels.quote(25.6)).to eql("25.6") }
+  it { expect(AnnotateModels.quote(1e-20)).to eql("1.0e-20") }
 
   it "should get schema info" do
     klass = mock_class(:users, :id, [
@@ -43,7 +43,7 @@ describe AnnotateModels do
                                      mock_column(:name, :string, :limit => 50)
                                     ])
 
-    AnnotateModels.get_schema_info(klass, "Schema Info").should eql(<<-EOS)
+    expect(AnnotateModels.get_schema_info(klass, "Schema Info")).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -60,7 +60,7 @@ EOS
                                      mock_column(:name, :string, :limit => 50)
                                     ])
 
-    AnnotateModels.get_schema_info(klass, "Schema Info").should eql(<<-EOS)
+    expect(AnnotateModels.get_schema_info(klass, "Schema Info")).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -78,7 +78,7 @@ EOS
                                      mock_column(:name, :string, :limit => 50)
                                     ])
 
-    AnnotateModels.get_schema_info(klass, "Schema Info").should eql(<<-EOS)
+    expect(AnnotateModels.get_schema_info(klass, "Schema Info")).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -95,7 +95,7 @@ EOS
                                      mock_column(:name, :enum, :limit => [:enum1, :enum2])
                                     ])
 
-    AnnotateModels.get_schema_info(klass, "Schema Info").should eql(<<-EOS)
+    expect(AnnotateModels.get_schema_info(klass, "Schema Info")).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -111,7 +111,7 @@ EOS
                                      mock_column(:id, :integer),
                                      mock_column(:name, :string, :limit => 50)
                                     ])
-    AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, :format_rdoc => true).should eql(<<-EOS)
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, :format_rdoc => true)).to eql(<<-EOS)
 # #{AnnotateModels::PREFIX}
 #
 # Table name: users
@@ -148,8 +148,8 @@ EOS
     def check_class_name(file, class_name)
       klass = AnnotateModels.get_model_class(file)
 
-      klass.should_not == nil
-      klass.name.should == class_name
+      expect(klass).not_to eq(nil)
+      expect(klass.name).to eq(class_name)
     end
 
     before :each do
@@ -283,9 +283,9 @@ EOS
           has_many :yah
         end
       EOS
-      capturing(:stderr) do
+      expect(capturing(:stderr) do
         check_class_name 'foo_with_known_macro.rb', 'FooWithKnownMacro'
-      end.should == ""
+      end).to eq("")
     end
 
     it "should not require model files twice" do
@@ -298,9 +298,9 @@ EOS
       Kernel.load "#{path}.rb"
       expect(Kernel).not_to receive(:require).with(path)
 
-      capturing(:stderr) {
+      expect(capturing(:stderr) {
         check_class_name 'loaded_class.rb', 'LoadedClass'
-      }.should_not include("warning: already initialized constant LoadedClass::CONSTANT")
+      }).not_to include("warning: already initialized constant LoadedClass::CONSTANT")
     end
   end
 
@@ -340,7 +340,7 @@ end
 
       AnnotateModels.remove_annotation_of_file(path)
 
-      content(path).should == <<-EOS
+      expect(content(path)).to eq <<-EOS
 class Foo < ActiveRecord::Base
 end
       EOS
@@ -364,7 +364,7 @@ end
 
       AnnotateModels.remove_annotation_of_file(path)
 
-      content(path).should == <<-EOS
+      expect(content(path)).to eq <<-EOS
 class Foo < ActiveRecord::Base
 end
       EOS
@@ -417,17 +417,17 @@ end
 
     it "should put annotation before class if :position == 'before'" do
       annotate_one_file :position => "before"
-      File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
+      expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
     end
 
     it "should put annotation before class if :position => :before" do
       annotate_one_file :position => :before
-      File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
+      expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
     end
 
     it "should put annotation after class if :position => :after" do
       annotate_one_file :position => :after
-      File.read(@model_file_name).should == "#{@file_content}\n#{@schema_info}"
+      expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
     end
 
     describe "with existing annotation => :before" do
@@ -440,17 +440,17 @@ end
 
       it "should retain current position" do
         annotate_one_file
-        File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
+        expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
       end
 
       it "should retain current position even when :position is changed to :after" do
         annotate_one_file :position => :after
-        File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
+        expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
       end
 
       it "should change position to :after when :force => true" do
         annotate_one_file :position => :after, :force => true
-        File.read(@model_file_name).should == "#{@file_content}\n#{@schema_info}"
+        expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
       end
     end
 
@@ -464,17 +464,17 @@ end
 
       it "should retain current position" do
         annotate_one_file
-        File.read(@model_file_name).should == "#{@file_content}\n#{@schema_info}"
+        expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
       end
 
       it "should retain current position even when :position is changed to :before" do
         annotate_one_file :position => :before
-        File.read(@model_file_name).should == "#{@file_content}\n#{@schema_info}"
+        expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
       end
 
       it "should change position to :before when :force => true" do
         annotate_one_file :position => :before, :force => true
-        File.read(@model_file_name).should == "#{@schema_info}\n#{@file_content}"
+        expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
       end
     end
 
@@ -496,7 +496,7 @@ end
                                        ])
       schema_info = AnnotateModels.get_schema_info(klass, "== Schema Info")
       AnnotateModels.annotate_one_file(model_file_name, schema_info, :position => :before)
-      File.read(model_file_name).should == "#{schema_info}\n#{file_content}"
+      expect(File.read(model_file_name)).to eq("#{schema_info}\n#{file_content}")
     end
 
     it "should not touch encoding comments" do
@@ -509,13 +509,13 @@ end
 
         annotate_one_file :position => :before
 
-        File.open(@model_file_name, &:readline).should == "#{encoding_comment}\n"
+        expect(File.open(@model_file_name, &:readline)).to eq("#{encoding_comment}\n")
       end
     end
 
     describe "if a file can't be annotated" do
        before do
-         AnnotateModels.stub(:get_loaded_model).with('user').and_return(nil)
+         allow(AnnotateModels).to receive(:get_loaded_model).with('user').and_return(nil)
 
          write_model('user.rb', <<-EOS)
            class User < ActiveRecord::Base
@@ -525,27 +525,27 @@ end
        end
 
        it "displays an error message" do
-         capturing(:stdout) {
+         expect(capturing(:stdout) {
            AnnotateModels.do_annotations :model_dir => @model_dir, :is_rake => true
-         }.should include("Unable to annotate user.rb: oops")
+         }).to include("Unable to annotate user.rb: oops")
        end
 
        it "displays the full stack trace with --trace" do
-         capturing(:stdout) {
+         expect(capturing(:stdout) {
            AnnotateModels.do_annotations :model_dir => @model_dir, :trace => true, :is_rake => true
-         }.should include("/spec/annotate/annotate_models_spec.rb:")
+         }).to include("/spec/annotate/annotate_models_spec.rb:")
        end
 
        it "omits the full stack trace without --trace" do
-         capturing(:stdout) {
+         expect(capturing(:stdout) {
            AnnotateModels.do_annotations :model_dir => @model_dir, :trace => false, :is_rake => true
-         }.should_not include("/spec/annotate/annotate_models_spec.rb:")
+         }).not_to include("/spec/annotate/annotate_models_spec.rb:")
        end
     end
 
     describe "if a file can't be deannotated" do
        before do
-         AnnotateModels.stub(:get_loaded_model).with('user').and_return(nil)
+         allow(AnnotateModels).to receive(:get_loaded_model).with('user').and_return(nil)
 
          write_model('user.rb', <<-EOS)
            class User < ActiveRecord::Base
@@ -555,21 +555,21 @@ end
        end
 
        it "displays an error message" do
-         capturing(:stdout) {
+         expect(capturing(:stdout) {
            AnnotateModels.remove_annotations :model_dir => @model_dir, :is_rake => true
-         }.should include("Unable to deannotate user.rb: oops")
+         }).to include("Unable to deannotate user.rb: oops")
        end
 
        it "displays the full stack trace" do
-         capturing(:stdout) {
+         expect(capturing(:stdout) {
            AnnotateModels.remove_annotations :model_dir => @model_dir, :trace => true, :is_rake => true
-         }.should include("/user.rb:2:in `<class:User>'")
+         }).to include("/user.rb:2:in `<class:User>'")
        end
 
        it "omits the full stack trace without --trace" do
-         capturing(:stdout) {
+         expect(capturing(:stdout) {
            AnnotateModels.remove_annotations :model_dir => @model_dir, :trace => false, :is_rake => true
-         }.should_not include("/user.rb:2:in `<class:User>'")
+         }).not_to include("/user.rb:2:in `<class:User>'")
        end
     end
   end
@@ -577,8 +577,8 @@ end
   describe '.annotate_model_file' do
     before do
       class Foo < ActiveRecord::Base; end;
-      AnnotateModels.stub(:get_model_class).with('foo.rb') { Foo }
-      Foo.stub(:table_exists?) { false }
+      allow(AnnotateModels).to receive(:get_model_class).with('foo.rb') { Foo }
+      allow(Foo).to receive(:table_exists?) { false }
     end
 
     after { Object.send :remove_const, 'Foo' }
@@ -586,7 +586,7 @@ end
     it 'skips attempt to annotate if no table exists for model' do
       annotate_model_file = AnnotateModels.annotate_model_file([], 'foo.rb', nil, nil)
 
-      annotate_model_file.should eq nil
+      expect(annotate_model_file).to eq nil
     end
   end
 end
