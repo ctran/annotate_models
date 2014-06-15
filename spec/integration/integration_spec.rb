@@ -27,14 +27,14 @@ describe "annotate inside Rails, using #{CURRENT_RUBY}" do
     next if(chosen_scenario && chosen_scenario != test_rig)
     it "works under #{test_name}" do
       if(!USING_RVM)
-        pending "Must have RVM installed."
+        skip "Must have RVM installed."
         next
       end
 
       # Don't proceed if the working copy is dirty!
       expect(Annotate::Integration.is_clean?(test_rig)).to eq(true)
 
-      pending "temporarily ignored until Travis can run them"
+      skip "temporarily ignored until Travis can run them"
 
       Bundler.with_clean_env do
         dir base_dir do
