@@ -46,3 +46,4 @@ group :development do
   end
 end
 
+gem 'rails-observers'
