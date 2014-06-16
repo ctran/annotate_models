@@ -1,7 +1,8 @@
 == Annotate (aka AnnotateModels)
 
-IMPORTANT:  If you're upgrading from a previous version, including 2.5.0,
-re-run the generator task!
+{<img src="https://badge.fury.io/rb/annotate.svg" alt="Gem Version" />}[http://badge.fury.io/rb/annotate]
+{<img src="https://travis-ci.org/ctran/annotate_models.png" />}[https://travis-ci.org/ctran/annotate_models]
+{<img src="https://gemnasium.com/ctran/annotate_models.png" />}[https://gemnasium.com/ctran/annotate_models]
 
 Add a comment summarizing the current schema to the top or bottom of each of
 your...
@@ -236,11 +237,6 @@ extra carefully, and consider using one.
 == License
 
 Released under the same license as Ruby. No Support. No Warranty.
-
-== Code Status
-{<img src="https://travis-ci.org/ctran/annotate_models.png" />}[https://travis-ci.org/ctran/annotate_models]
-{<img src="https://gemnasium.com/ctran/annotate_models.png" />}[https://gemnasium.com/ctran/annotate_models]
-
 
 == Authors
 
