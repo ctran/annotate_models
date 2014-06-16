@@ -1,4 +1,9 @@
 #!/usr/bin/env ruby
+
+unless File.exists?('./Rakefile') || File.exists?('./Gemfile')
+  abort "Please run annotate from the root of the project."
+end
+
 require 'rubygems'
 begin
   require 'bundler'
@@ -132,6 +137,10 @@ OptionParser.new do |opts|
     ENV['force'] = 'yes'
   end
 
+  opts.on('--timestamp', 'Include timestamp in (routes) annotation') do
+    ENV['timestamp'] = 'true'
+  end
+
   opts.on('--trace', 'If unable to annotate a file, print the full stack trace, not just the exception message.') do |value|
     ENV['trace'] = 'yes'
   end
@@ -142,7 +151,6 @@ OptionParser.new do |opts|
 
 end.parse!
 
-
-options=Annotate.setup_options({ :is_rake => !ENV['is_rake'].blank? })
+options = Annotate.setup_options({ :is_rake => ENV['is_rake'] && !ENV['is_rake'].empty? })
 Annotate.eager_load(options)
 target[:klass].send(target[:task], options)

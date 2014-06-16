@@ -1,3 +1,11 @@
+== 2.6.4
+* Skip "models/concerns", #194
+* Fix #173 where annotate says "Nothing to annotate" in rails 4.2
+* Display an error message if not run from the root of the project, #186
+* Support rails 4.0 new default test directory, #182
+* Add an option to show timestamp in routes "-timestamp", #136
+* Skip plain ruby objects if they have the same class name as an ActiveRecord object, #121
+
 == 2.6.3
 * Fix bug of annotate position in routes (#158)
 
