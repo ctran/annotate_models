@@ -39,7 +39,7 @@ module Annotate
     return if(@has_set_defaults)
     @has_set_defaults = true
     options = HashWithIndifferentAccess.new(options)
-    [POSITION_OPTIONS, FLAG_OPTIONS, PATH_OPTIONS].flatten.each do |key|
+    [POSITION_OPTIONS, FLAG_OPTIONS, PATH_OPTIONS, OTHER_OPTIONS].flatten.each do |key|
       if(options.has_key?(key))
         default_value = if(options[key].is_a?(Array))
           options[key].join(",")
