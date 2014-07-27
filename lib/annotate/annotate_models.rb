@@ -151,7 +151,7 @@ module AnnotateModels
         if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
           indices = klass.connection.indexes(klass.table_name)
           if indices = indices.select { |ind| ind.columns.include? col.name }
-            indices.each do |ind|
+            indices.sort_by{|ind| ind.name}.each do |ind|
               ind = ind.columns.reject! { |i| i == col.name }
               attrs << (ind.length == 0 ? "indexed" : "indexed => [#{ind.join(", ")}]")
             end
