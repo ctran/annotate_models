@@ -13,7 +13,8 @@ end
 
 group :development, :test do
   gem 'rspec', :require => false
-  gem 'guard-rspec', require: false
+  gem 'guard-rspec', :require => false
+  gem 'terminal-notifier-guard', :require => false
 
   platforms :mri do
     gem 'pry', :require => false
