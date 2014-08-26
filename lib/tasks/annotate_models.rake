@@ -30,6 +30,7 @@ task :annotate_models => :environment do
   options[:format_markdown] = Annotate.true?(ENV['format_markdown'])
   options[:sort] = Annotate.true?(ENV['sort'])
   options[:force] = Annotate.true?(ENV['force'])
+  options[:classified_sort] = Annotate.true?(ENV['classified_sort'])
   options[:trace] = Annotate.true?(ENV['trace'])
   options[:wrapper_open] = Annotate.fallback(ENV['wrapper_open'], ENV['wrapper'])
   options[:wrapper_close] = Annotate.fallback(ENV['wrapper_close'], ENV['wrapper'])

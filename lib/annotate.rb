@@ -6,9 +6,11 @@ require 'annotate/annotate_routes'
 begin
   # ActiveSupport 3.x...
   require 'active_support/hash_with_indifferent_access'
+  require 'active_support/core_ext/object/blank'
 rescue Exception => e
   # ActiveSupport 2.x...
   require 'active_support/core_ext/hash/indifferent_access'
+  require 'active_support/core_ext/blank'
 end
 
 module Annotate
@@ -24,7 +26,7 @@ module Annotate
     :show_indexes, :simple_indexes, :include_version, :exclude_tests,
     :exclude_fixtures, :exclude_factories, :ignore_model_sub_dir,
     :format_bare, :format_rdoc, :format_markdown, :sort, :force, :trace,
-    :timestamp, :exclude_serializers
+    :timestamp, :exclude_serializers, :classified_sort
   ]
   OTHER_OPTIONS=[
     :ignore_columns
