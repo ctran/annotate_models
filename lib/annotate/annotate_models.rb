@@ -31,6 +31,9 @@ module AnnotateModels
   FABRICATORS_TEST_DIR  = File.join("test", "fabricators")
   FABRICATORS_SPEC_DIR  = File.join("spec", "fabricators")
 
+  # ActiveModel::Serializers https://github.com/rails-api/active_model_serializers
+  SERIALIZERS_DIR     = File.join("app", "serializers")
+
   TEST_PATTERNS = [
     File.join(UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
     File.join(MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
@@ -53,6 +56,10 @@ module AnnotateModels
     File.join(FACTORY_GIRL_SPEC_DIR,  "%TABLE_NAME%.rb"),            # (new style)
     File.join(FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
     File.join(FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb"),
+  ]
+
+  SERIALIZER_PATTERNS = [
+    File.join(SERIALIZERS_DIR,        "%MODEL_NAME%_serializer.rb")
   ]
 
   # Don't show limit (#) on these column types
@@ -286,9 +293,11 @@ module AnnotateModels
     #  :position_in_test<Symbol>:: where to place the annotated section in test/spec file(s)
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
     #  :position_in_factory<Symbol>:: where to place the annotated section in factory file
+    #  :position_in_serializer<Symbol>:: where to place the annotated section in serializer file
     #  :exclude_tests<Symbol>:: whether to skip modification of test/spec files
     #  :exclude_fixtures<Symbol>:: whether to skip modification of fixture files
     #  :exclude_factories<Symbol>:: whether to skip modification of factory files
+    #  :exclude_serializers<Symbol>:: whether to skip modification of serializer files
     #
     def annotate(klass, file, header, options={})
       begin
@@ -320,6 +329,13 @@ module AnnotateModels
           did_annotate = FACTORY_PATTERNS.
             map { |file| resolve_filename(file, model_name, table_name) }.
             map { |file| annotate_one_file(file, info, :position_in_factory, options_with_position(options, :position_in_factory)) }.
+            detect { |result| result } || did_annotate
+        end
+
+        unless options[:exclude_serializers]
+          did_annotate = SERIALIZER_PATTERNS.
+            map { |file| resolve_filename(file, model_name, table_name) }.
+            map { |file| annotate_one_file(file, info, :position_in_serializer, options_with_position(options, :position_in_serializer)) }.
             detect { |result| result } || did_annotate
         end
 
@@ -457,7 +473,7 @@ module AnnotateModels
             model_file_name = File.join(model_dir, file)
             deannotated_klass = true if(remove_annotation_of_file(model_file_name))
 
-            (TEST_PATTERNS + FIXTURE_PATTERNS + FACTORY_PATTERNS).
+            (TEST_PATTERNS + FIXTURE_PATTERNS + FACTORY_PATTERNS + SERIALIZER_PATTERNS).
               map { |file| resolve_filename(file, model_name, table_name) }.
               each do |file|
                 if File.exist?(file)

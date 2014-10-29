@@ -36,7 +36,7 @@ OptionParser.new do |opts|
           "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/routes file(s)") do |p|
     ENV['position'] = p
     [
-      'position_in_class','position_in_factory','position_in_fixture','position_in_test', 'position_in_routes'
+      'position_in_class','position_in_factory','position_in_fixture','position_in_test', 'position_in_routes', 'position_in_serializer'
     ].each do |key|
       ENV[key] = p unless(has_set_position[key])
     end
@@ -70,6 +70,12 @@ OptionParser.new do |opts|
           "Place the annotations at the top (before) or the bottom (after) of the routes.rb file") do |p|
     ENV['position_in_routes'] = p
     has_set_position['position_in_routes'] = true
+  end
+
+  opts.on('--pr', '--position-in-serializer [before|after]', ['before', 'after'],
+          "Place the annotations at the top (before) or the bottom (after) of any serializer file") do |p|
+    ENV['position_in_routes'] = p
+    has_set_position['serializer'] = true
   end
 
   opts.on('-r', '--routes',
