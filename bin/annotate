@@ -72,7 +72,7 @@ OptionParser.new do |opts|
     has_set_position['position_in_routes'] = true
   end
 
-  opts.on('--pr', '--position-in-serializer [before|after]', ['before', 'after'],
+  opts.on('--ps', '--position-in-serializer [before|after]', ['before', 'after'],
           "Place the annotations at the top (before) or the bottom (after) of any serializer file") do |p|
     ENV['position_in_routes'] = p
     has_set_position['serializer'] = true
