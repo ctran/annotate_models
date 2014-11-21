@@ -120,7 +120,7 @@ OptionParser.new do |opts|
   end
 
   opts.on('--model-dir dir',
-          "Annotate model files stored in dir rather than app/models") do |dir|
+          "Annotate model files stored in dir rather than app/models, separate multiple dirs with comas") do |dir|
     ENV['model_dir'] = dir
   end
 
