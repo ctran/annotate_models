@@ -61,7 +61,7 @@ module AnnotateModels
 
   class << self
     def model_dir
-      @model_dir || "app/models"
+      @model_dir.is_a?(Array) ? @model_dir : [@model_dir || "app/models"]
     end
 
     def model_dir=(dir)
@@ -296,7 +296,7 @@ module AnnotateModels
         did_annotate = false
         model_name = klass.name.underscore
         table_name = klass.table_name
-        model_file_name = File.join(model_dir, file)
+        model_file_name = File.join(file)
 
         if annotate_one_file(model_file_name, info, :position_in_class, options_with_position(options, :position_in_class))
           did_annotate = true
@@ -350,15 +350,17 @@ module AnnotateModels
       models.reject!{|m| m.match(/^(.*)=/)}
       if models.empty?
         begin
-          Dir.chdir(model_dir) do
-            models = if options[:ignore_model_sub_dir]
-              Dir["*.rb"]
-            else
-              Dir["**/*.rb"].reject{ |f| f["concerns/"] }
+          model_dir.each do |dir|
+            Dir.chdir(dir) do
+              models.concat( if options[:ignore_model_sub_dir]
+                Dir["*.rb"].map{ |f| [dir, f] }
+              else
+                Dir["**/*.rb"].reject{ |f| f["concerns/"] }.map{ |f| [dir, f] }
+              end)
             end
           end
         rescue SystemCallError
-          puts "No models found in directory '#{model_dir}'."
+          puts "No models found in directory '#{model_dir.join("', '")}'."
           puts "Either specify models on the command line, or use the --model-dir option."
           puts "Call 'annotate --help' for more info."
           exit 1
@@ -371,12 +373,12 @@ module AnnotateModels
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
     def get_model_class(file)
-      model_path = file.gsub(/\.rb$/, '')
+      model_path = file[1].gsub(/\.rb$/, '')
       begin
-        get_loaded_model(model_path) or raise LoadError.new("cannot load a model from #{file}")
+        get_loaded_model(model_path) or raise LoadError.new("cannot load a model from #{File.join(file)}")
       rescue LoadError
         # this is for non-rails projects, which don't get Rails auto-require magic
-        if Kernel.require(File.expand_path("#{model_dir}/#{model_path}"))
+        if Kernel.require(File.expand_path(model_path, file[0]))
           retry
         elsif model_path.match(/\//)
           model_path = model_path.split('/')[1..-1].join('/').to_s
@@ -439,7 +441,7 @@ module AnnotateModels
           end
         end
       rescue Exception => e
-        puts "Unable to annotate #{file}: #{e.message}"
+        puts "Unable to annotate #{File.join(file)}: #{e.message}"
         puts "\t" + e.backtrace.join("\n\t") if options[:trace]
       end
     end
@@ -454,7 +456,7 @@ module AnnotateModels
           if klass < ActiveRecord::Base && !klass.abstract_class?
             model_name = klass.name.underscore
             table_name = klass.table_name
-            model_file_name = File.join(model_dir, file)
+            model_file_name = File.join(file)
             deannotated_klass = true if(remove_annotation_of_file(model_file_name))
 
             (TEST_PATTERNS + FIXTURE_PATTERNS + FACTORY_PATTERNS).
@@ -468,7 +470,7 @@ module AnnotateModels
           end
           deannotated << klass if(deannotated_klass)
         rescue Exception => e
-          puts "Unable to deannotate #{file}: #{e.message}"
+          puts "Unable to deannotate #{File.join(file)}: #{e.message}"
           puts "\t" + e.backtrace.join("\n\t") if options[:trace]
         end
       end
