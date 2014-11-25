@@ -86,13 +86,13 @@ To annotate just your models, tests, and factories:
 
 To annotate just your models:
 
-    annotate --exclude tests,fixtures,factories
+    annotate --exclude tests,fixtures,factories,serializers
 
 To annotate routes.rb:
 
     annotate --routes
 
-To remove model/test/fixture/factory annotations:
+To remove model/test/fixture/factory/serializer annotations:
 
     annotate --delete
 
@@ -165,6 +165,8 @@ you can do so with a simple environment variable, instead of editing the
                                          Place the annotations at the top (before) or the bottom (after) of any test files
             --pr, --position-in-routes [before|after]
                                          Place the annotations at the top (before) or the bottom (after) of the routes.rb file
+            --ps, --position-in-serializer [before|after]
+                                         Place the annotations at the top (before) or the bottom (after) of the serializer files
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
@@ -174,13 +176,15 @@ you can do so with a simple environment variable, instead of editing the
             --ignore-model-subdirects    Ignore subdirectories of the models directory
             --sort                       Sort columns alphabetically, rather than in creation order
         -R, --require path               Additional file to require before loading models, may be used multiple times
-        -e [tests,fixtures,factories],   Do not annotate fixtures, test files, and/or factories
-            --exclude
+        -e [tests,fixtures,factories,serializers],
+            --exclude                    Do not annotate fixtures, test files, factories, and/or serializers
         -f [bare|rdoc|markdown],         Render Schema Infomation as plain/RDoc/Markdown
             --format
             --force                      Force new annotations even if there are no changes.
+            --timestamp                  Include timestamp in (routes) annotation
             --trace                      If unable to annotate a file, print the full stack trace, not just the exception message.
-        --timestamp                      Include an updated time in routes.rb
+        -I, --ignore-columns REGEX       don't annotate columns that match a given REGEX (i.e., `annotate -I '^(id|updated_at|created_at)'`
+
 
 
 == Sorting
