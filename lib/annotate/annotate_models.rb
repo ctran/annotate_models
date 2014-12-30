@@ -31,6 +31,12 @@ module AnnotateModels
   FABRICATORS_TEST_DIR  = File.join("test", "fabricators")
   FABRICATORS_SPEC_DIR  = File.join("spec", "fabricators")
 
+  # Serializers https://github.com/rails-api/active_model_serializers
+  SERIALIZERS_DIR       = File.join("app",  "serializers")
+  SERIALIZERS_TEST_DIR  = File.join("test", "serializers")
+  SERIALIZERS_SPEC_DIR  = File.join("spec", "serializers")
+
+
   TEST_PATTERNS = [
     File.join(UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
     File.join(MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
@@ -53,6 +59,12 @@ module AnnotateModels
     File.join(FACTORY_GIRL_SPEC_DIR,  "%TABLE_NAME%.rb"),            # (new style)
     File.join(FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
     File.join(FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb"),
+  ]
+
+  SERIALIZER_PATTERNS = [
+    File.join(SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
+    File.join(SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
+    File.join(SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
   ]
 
   # Don't show limit (#) on these column types
@@ -302,25 +314,17 @@ module AnnotateModels
           did_annotate = true
         end
 
-        unless options[:exclude_tests]
-          did_annotate = TEST_PATTERNS.
-            map { |file| resolve_filename(file, model_name, table_name) }.
-            map { |file| annotate_one_file(file, info, :position_in_test, options_with_position(options, :position_in_test)) }.
-            detect { |result| result } || did_annotate
-        end
+        %w(test fixture factory serializer).each do |key|
+          exclusion_key = "exclude_#{key.pluralize}".to_sym
+          patterns_constant = "#{key.upcase}_PATTERNS".to_sym
+          position_key = "position_in_#{key}".to_sym
 
-        unless options[:exclude_fixtures]
-          did_annotate = FIXTURE_PATTERNS.
-            map { |file| resolve_filename(file, model_name, table_name) }.
-            map { |file| annotate_one_file(file, info, :position_in_fixture, options_with_position(options, :position_in_fixture)) }.
-            detect { |result| result } || did_annotate
-        end
-
-        unless options[:exclude_factories]
-          did_annotate = FACTORY_PATTERNS.
-            map { |file| resolve_filename(file, model_name, table_name) }.
-            map { |file| annotate_one_file(file, info, :position_in_factory, options_with_position(options, :position_in_factory)) }.
-            detect { |result| result } || did_annotate
+          unless options[exclusion_key]
+            did_annotate = self.const_get(patterns_constant).
+              map { |file| resolve_filename(file, model_name, table_name) }.
+              map { |file| annotate_one_file(file, info, position_key, options_with_position(options, position_key)) }.
+              detect { |result| result } || did_annotate
+          end
         end
 
         return did_annotate
