@@ -11,6 +11,7 @@ your...
 - Fixture files
 - Tests and Specs
 - Object Daddy exemplars
+- ActiveModel::Serializers model serializers
 - Machinist blueprints
 - Fabrication fabricators
 - Thoughtbot's factory_girl factories, i.e. the (spec|test)/factories/<model>_factory.rb files
@@ -165,6 +166,8 @@ you can do so with a simple environment variable, instead of editing the
                                          Place the annotations at the top (before) or the bottom (after) of any test files
             --pr, --position-in-routes [before|after]
                                          Place the annotations at the top (before) or the bottom (after) of the routes.rb file
+            --ps, --position-in-serializers [before|after]
+                                         Place the annotations at the top (before) or the bottom (after) of any serializer file
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
@@ -232,6 +235,7 @@ extra carefully, and consider using one.
 - SpatialAdapter: http://github.com/pdeffendol/spatial_adapter
 - PostgisAdapter: http://github.com/nofxx/postgis_adapter
 - PostGISAdapter: https://github.com/dazuma/activerecord-postgis-adapter
+- ActiveModel::Serializer: https://github.com/rails-api/active_model_serializers
 
 
 == License
