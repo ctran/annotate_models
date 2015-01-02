@@ -224,7 +224,7 @@ module AnnotateModels
     # === Options (opts)
     #  :force<Symbol>:: whether to update the file even if it doesn't seem to need it.
     #  :position_in_*<Symbol>:: where to place the annotated section in fixture or model file,
-    #                           :before or :after. Default is :before.
+    #                           :before, :top, :after or :bottom. Default is :before.
     #
     def annotate_one_file(file_name, info_block, position, options={})
       if File.exist?(file_name)
@@ -259,7 +259,7 @@ module AnnotateModels
             old_content.sub!(encoding, '')
             old_content.sub!(PATTERN, '')
 
-            new_content = options[position].to_s == 'after' ?
+            new_content = %w(after bottom).include?(options[position].to_s) ?
               (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
               (encoding_header + info_block + "\n" + old_content)
           end
