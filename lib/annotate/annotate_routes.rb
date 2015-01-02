@@ -23,7 +23,7 @@ module AnnotateRoutes
   def self.do_annotations(options={})
     return unless(routes_exists?)
 
-    position_after = options[:position_in_routes] != 'before'
+    position_after = ! %w(before top).include?(options[:position_in_routes])
 
     routes_map = `rake routes`.split(/\n/, -1)
 
