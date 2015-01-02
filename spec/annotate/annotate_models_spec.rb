@@ -425,6 +425,11 @@ end
       expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
     end
 
+    it "should put annotation after class if :position => 'after'" do
+      annotate_one_file :position => 'after'
+      expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
+    end
+
     it "should put annotation after class if :position => :after" do
       annotate_one_file :position => :after
       expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
