@@ -154,18 +154,18 @@ you can do so with a simple environment variable, instead of editing the
 
     Usage: annotate [options] [model_file]*
         -d, --delete                     Remove annotations from all model files or the routes.rb file
-        -p, --position [before|after]    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/routes file(s)
-            --pc, --position-in-class [before|after]
+        -p, --position [before|top|after|bottom]    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/routes file(s)
+            --pc, --position-in-class [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of the model file
-            --pf, --position-in-factory [before|after]
+            --pf, --position-in-factory [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of any factory files
-            --px, --position-in-fixture [before|after]
+            --px, --position-in-fixture [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of any fixture files
-            --pt, --position-in-test [before|after]
+            --pt, --position-in-test [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of any test files
-            --pr, --position-in-routes [before|after]
+            --pr, --position-in-routes [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of the routes.rb file
-            --ps, --position-in-serializer [before|after]
+            --ps, --position-in-serializer [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of the serializer files
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
         -v, --version                    Show the current version of this gem

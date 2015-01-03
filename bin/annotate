@@ -32,7 +32,7 @@ OptionParser.new do |opts|
     target[:task] = :remove_annotations
   end
 
-  opts.on('-p', '--position [before|after]', ['before', 'after'],
+  opts.on('-p', '--position [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/routes file(s)") do |p|
     ENV['position'] = p
     [
@@ -42,37 +42,37 @@ OptionParser.new do |opts|
     end
   end
 
-  opts.on('--pc', '--position-in-class [before|after]', ['before', 'after'],
+  opts.on('--pc', '--position-in-class [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of the model file") do |p|
     ENV['position_in_class'] = p
     has_set_position['position_in_class'] = true
   end
 
-  opts.on('--pf', '--position-in-factory [before|after]', ['before', 'after'],
+  opts.on('--pf', '--position-in-factory [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of any factory files") do |p|
     ENV['position_in_factory'] = p
     has_set_position['position_in_factory'] = true
   end
 
-  opts.on('--px', '--position-in-fixture [before|after]', ['before', 'after'],
+  opts.on('--px', '--position-in-fixture [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of any fixture files") do |p|
     ENV['position_in_fixture'] = p
     has_set_position['position_in_fixture'] = true
   end
 
-  opts.on('--pt', '--position-in-test [before|after]', ['before', 'after'],
+  opts.on('--pt', '--position-in-test [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of any test files") do |p|
     ENV['position_in_test'] = p
     has_set_position['position_in_test'] = true
   end
 
-  opts.on('--pr', '--position-in-routes [before|after]', ['before', 'after'],
+  opts.on('--pr', '--position-in-routes [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of the routes.rb file") do |p|
     ENV['position_in_routes'] = p
     has_set_position['position_in_routes'] = true
   end
 
-  opts.on('--ps', '--position-in-serializer [before|after]', ['before', 'after'],
+  opts.on('--ps', '--position-in-serializer [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of the serializer files") do |p|
     ENV['position_in_serializer'] = p
     has_set_position['position_in_serializer'] = true
