@@ -456,8 +456,8 @@ end
     end
 
     it 'should wrap annotation if wrapper is specified' do
-      annotate_one_file :wrapper_beg => 'START', :wrapper_end => 'END'
-      expect(File.read(@model_file_name)).to eq("START\n#{@schema_info}\nEND\n#{@file_content}")
+      annotate_one_file :wrapper_open => 'START', :wrapper_close => 'END'
+      expect(File.read(@model_file_name)).to eq("# START\n#{@schema_info}\n# END\n#{@file_content}")
     end
 
     describe "with existing annotation => :before" do

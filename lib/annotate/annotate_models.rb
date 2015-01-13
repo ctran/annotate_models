@@ -253,6 +253,9 @@ module AnnotateModels
             new_content = old_content.sub(PATTERN, "\n" + info_block)
           end
 
+          wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
+          wrapper_close = options[:wrapper_close] ? "\n# #{options[:wrapper_close]}" : ""
+          wrapped_info_block = "#{wrapper_open}#{info_block}#{wrapper_close}"
           # if there *was* no old schema info (no substitution happened) or :force was passed,
           # we simply need to insert it in correct position
           if new_content == old_content || options[:force]
@@ -260,8 +263,8 @@ module AnnotateModels
             old_content.sub!(PATTERN, '')
 
             new_content = %w(after bottom).include?(options[position].to_s) ?
-              (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
-              (encoding_header + info_block + "\n" + old_content)
+              (encoding_header + (old_content.rstrip + "\n\n" + wrapped_info_block)) :
+              (encoding_header + wrapped_info_block + "\n" + old_content)
           end
 
           File.open(file_name, "wb") { |f| f.puts new_content }
