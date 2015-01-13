@@ -31,6 +31,8 @@ task :annotate_models => :environment do
   options[:sort] = Annotate.true?(ENV['sort'])
   options[:force] = Annotate.true?(ENV['force'])
   options[:trace] = Annotate.true?(ENV['trace'])
+  options[:wrapper_open] = Annotate.fallback(ENV['wrapper_open'], ENV['wrapper'])
+  options[:wrapper_close] = Annotate.fallback(ENV['wrapper_close'], ENV['wrapper'])
   AnnotateModels.do_annotations(options)
 end
 

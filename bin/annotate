@@ -78,6 +78,19 @@ OptionParser.new do |opts|
     has_set_position['position_in_serializer'] = true
   end
 
+  opts.on('--w', '--wrapper STR', 'Wrap annotation with the text passed as parameter.',
+          'If --w option is used, the same text will be used as opening and closing') do |p|
+    ENV['wrapper'] = p
+  end
+
+  opts.on('--wo', '--wrapper-open STR', 'Annotation wrapper opening.') do |p|
+    ENV['wrapper_open'] = p
+  end
+
+  opts.on('--wc', '--wrapper-close STR', 'Annotation wrapper closing') do |p|
+    ENV['wrapper_close'] = p
+  end
+
   opts.on('-r', '--routes',
           "Annotate routes.rb with the output of 'rake routes'") do
     target = {

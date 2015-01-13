@@ -167,6 +167,10 @@ you can do so with a simple environment variable, instead of editing the
                                          Place the annotations at the top (before) or the bottom (after) of the routes.rb file
             --ps, --position-in-serializer [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of the serializer files
+            --w, --wrapper STR           Wrap annotation with the text passed as parameter.
+                                         If --w option is used, the same text will be used as opening and closing
+            --wo, --wrapper-open STR     Annotation wrapper opening.
+            --wc, --wrapper-close STR    Annotation wrapper closing
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
