@@ -5,7 +5,7 @@ if Rails.env.development?
   task :set_annotation_options do
     # You can override any of these by setting an environment variable of the
     # same name.
-    Annotate.set_defaults({
+    Annotate.setup_options({
       'position_in_routes'   => "before",
       'position_in_class'    => "before",
       'position_in_test'     => "before",
