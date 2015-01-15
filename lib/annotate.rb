@@ -27,10 +27,10 @@ module Annotate
     :timestamp, :exclude_serializers
   ]
   OTHER_OPTIONS=[
-    :model_dir, :ignore_columns
+    :ignore_columns
   ]
   PATH_OPTIONS=[
-    :require,
+    :require, :model_dir
   ]
 
 
@@ -70,7 +70,7 @@ module Annotate
     end
 
     if(!options[:model_dir])
-      options[:model_dir] = 'app/models'
+      options[:model_dir] = ['app/models']
     end
 
     return options
@@ -111,8 +111,10 @@ module Annotate
         klass.eager_load!
       end
     else
-      FileList["#{options[:model_dir]}/**/*.rb"].each do |fname|
-        require File.expand_path(fname)
+      options[:model_dir].each do |dir|
+        FileList["#{dir}/**/*.rb"].each do |fname|
+          require File.expand_path(fname)
+        end
       end
     end
   end
