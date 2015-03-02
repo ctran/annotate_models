@@ -386,7 +386,8 @@ module AnnotateModels
         get_loaded_model(model_path) or raise LoadError.new("cannot load a model from #{file}")
       rescue LoadError
         # this is for non-rails projects, which don't get Rails auto-require magic
-        if Kernel.require(file)
+        file_path = File.expand_path(file)
+        if File.file?(file_path) && Kernel.require(file_path)
           retry
         elsif model_path.match(/\//)
           model_path = model_path.split('/')[1..-1].join('/').to_s
