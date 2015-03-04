@@ -134,6 +134,11 @@ OptionParser.new do |opts|
     ENV['sort'] = "yes"
   end
 
+  opts.on('--classified-sort',
+          "Sort columns alphabetically, but first goes id, then the rest columns, then the timestamp columns and then the association columns") do |dir|
+    ENV['classified_sort'] = "yes"
+  end
+
   opts.on('-R', '--require path',
           "Additional file to require before loading models, may be used multiple times") do |path|
     if !ENV['require'].blank?

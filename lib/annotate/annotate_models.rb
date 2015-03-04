@@ -125,7 +125,9 @@ module AnnotateModels
       if options[:ignore_columns]
         cols.reject! { |col| col.name.match(/#{options[:ignore_columns]}/) }
       end
+
       cols = cols.sort_by(&:name) if(options[:sort])
+      cols = classified_sort(cols) if(options[:classified_sort])
       cols.each do |col|
         attrs = []
         attrs << "default(#{quote(col.default)})" unless col.default.nil?
@@ -491,6 +493,28 @@ module AnnotateModels
       return filename_template.
         gsub('%MODEL_NAME%', model_name).
         gsub('%TABLE_NAME%', table_name || model_name.pluralize)
+    end
+
+    def classified_sort(cols)
+      rest_cols = []
+      timestamps = []
+      associations = []
+      id = nil
+
+      cols = cols.each do |c|
+        if c.name.eql?("id")
+          id = c
+        elsif (c.name.eql?("created_at") || c.name.eql?("updated_at"))
+          timestamps << c
+        elsif c.name[-3,3].eql?("_id")
+          associations << c
+        else
+          rest_cols << c
+        end
+      end
+      [rest_cols, timestamps, associations].each {|a| a.sort_by!(&:name) }
+
+      return ([id] << rest_cols << timestamps << associations).flatten
     end
   end
 end
