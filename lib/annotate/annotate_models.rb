@@ -344,28 +344,27 @@ module AnnotateModels
       options.merge(:position=>(options[position_in] || options[:position]))
     end
 
-    # Return a list of the model files to annotate. If we have
-    # command line arguments, they're assumed to be either
-    # the underscore or CamelCase versions of model names.
-    # Otherwise we take all the model files in the
-    # model_dir directory.
+    # Return a list of the model files to annotate. 
+    # If we have command line arguments, they're assumed to the path
+    # of model files from root dir. Otherwise we take all the model files 
+    # in the model_dir directory.
     def get_model_files(options)
+      models = []
       if(!options[:is_rake])
-        models = ARGV.dup
-        models.shift
-      else
-        models = []
+        models = ARGV.dup.reject{|m| m.match(/^(.*)=/)}
       end
-      models.reject!{|m| m.match(/^(.*)=/)}
+
       if models.empty?
         begin
           model_dir.each do |dir|
             Dir.chdir(dir) do
-              models.concat( if options[:ignore_model_sub_dir]
-                Dir["*.rb"].map{ |f| [dir, f] }
-              else
-                Dir["**/*.rb"].reject{ |f| f["concerns/"] }.map{ |f| [dir, f] }
-              end)
+              lst = 
+                if options[:ignore_model_sub_dir]
+                  Dir["*.rb"].map{ |f| [dir, f] }
+                else
+                  Dir["**/*.rb"].reject{ |f| f["concerns/"] }.map{ |f| [dir, f] }
+                end
+              models.concat(lst)
             end
           end
         rescue SystemCallError
@@ -375,6 +374,9 @@ module AnnotateModels
           exit 1
         end
       end
+
+      puts "MODELS: #{models}"      
+
       models
     end
 
