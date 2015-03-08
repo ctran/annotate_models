@@ -375,8 +375,6 @@ module AnnotateModels
         end
       end
 
-      puts "MODELS: #{models}"      
-
       models
     end
 
