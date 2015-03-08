@@ -1,3 +1,10 @@
+== 2.6.6
+* Makes it possible to wrap annotations, #225
+* Fix single model generation, #214
+* Fix default value for Rails 4.2, #212
+* Don't crash on inherited models in subdirectories, #232
+* Process model_dir in rake task, #197
+
 == 2.6.4
 * Skip "models/concerns", #194
 * Fix #173 where annotate says "Nothing to annotate" in rails 4.2
