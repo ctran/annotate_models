@@ -21,6 +21,8 @@ ActiveRecord::Schema.define(version: 20140705000010) do
 
   create_table "tasks", force: true do |t|
     t.string   "content"
+    t.integer  "count",      default: 0
+    t.boolean  "status",     default: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

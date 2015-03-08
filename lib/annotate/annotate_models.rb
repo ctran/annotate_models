@@ -1,3 +1,5 @@
+require 'bigdecimal'
+
 module AnnotateModels
   # Annotate Models plugin use this header
   COMPAT_PREFIX    = "== Schema Info"
@@ -94,6 +96,10 @@ module AnnotateModels
       end
     end
 
+    def schema_default(klass, column)
+      quote(klass.column_defaults[column.name])
+    end
+
     # Use the column information in an ActiveRecord class
     # to create a comment block containing a line for
     # each column. The line contains the column name,
@@ -130,7 +136,7 @@ module AnnotateModels
       cols = classified_sort(cols) if(options[:classified_sort])
       cols.each do |col|
         attrs = []
-        attrs << "default(#{quote(col.default)})" unless col.default.nil?
+        attrs << "default(#{schema_default(klass, col)})" unless col.default.nil?
         attrs << "not null" unless col.null
         attrs << "primary key" if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect{|c|c.to_sym}.include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
 

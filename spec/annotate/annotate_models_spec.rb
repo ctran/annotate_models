@@ -10,7 +10,10 @@ describe AnnotateModels do
       :table_name   => table_name,
       :primary_key  => primary_key,
       :column_names => columns.map { |col| col.name.to_s },
-      :columns      => columns
+      :columns      => columns,
+      :column_defaults => Hash[columns.map { |col| 
+        [col.name, col.default] 
+      }]
     }
 
     double("An ActiveRecord class", options)
@@ -102,6 +105,24 @@ EOS
 #
 #  id   :integer          not null
 #  name :enum             not null, (enum1, enum2)
+#
+EOS
+  end
+
+  it "should get schema info for integer and boolean with default" do
+           klass = mock_class(:users, :id, [
+              mock_column(:id, :integer),
+              mock_column(:size, :integer, :default => 20),
+              mock_column(:flag, :boolean, :default => false)
+            ])
+            expect(AnnotateModels.get_schema_info(klass, "Schema Info")).to eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id   :integer          not null, primary key
+#  size :integer          default(20), not null
+#  flag :boolean          default(FALSE), not null
 #
 EOS
   end
