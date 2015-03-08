@@ -1,3 +1,5 @@
+require 'bigdecimal'
+
 module AnnotateModels
   # Annotate Models plugin use this header
   COMPAT_PREFIX    = "== Schema Info"
@@ -31,6 +33,12 @@ module AnnotateModels
   FABRICATORS_TEST_DIR  = File.join("test", "fabricators")
   FABRICATORS_SPEC_DIR  = File.join("spec", "fabricators")
 
+  # Serializers https://github.com/rails-api/active_model_serializers
+  SERIALIZERS_DIR       = File.join("app",  "serializers")
+  SERIALIZERS_TEST_DIR  = File.join("test", "serializers")
+  SERIALIZERS_SPEC_DIR  = File.join("spec", "serializers")
+
+
   TEST_PATTERNS = [
     File.join(UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
     File.join(MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
@@ -55,13 +63,19 @@ module AnnotateModels
     File.join(FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb"),
   ]
 
+  SERIALIZER_PATTERNS = [
+    File.join(SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
+    File.join(SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
+    File.join(SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
+  ]
+
   # Don't show limit (#) on these column types
   # Example: show "integer" instead of "integer(4)"
   NO_LIMIT_COL_TYPES = ["integer", "boolean"]
 
   class << self
     def model_dir
-      @model_dir || "app/models"
+      @model_dir.is_a?(Array) ? @model_dir : [@model_dir || "app/models"]
     end
 
     def model_dir=(dir)
@@ -80,6 +94,10 @@ module AnnotateModels
       else
         value.inspect
       end
+    end
+
+    def schema_default(klass, column)
+      quote(klass.column_defaults[column.name])
     end
 
     # Use the column information in an ActiveRecord class
@@ -113,10 +131,12 @@ module AnnotateModels
       if options[:ignore_columns]
         cols.reject! { |col| col.name.match(/#{options[:ignore_columns]}/) }
       end
+
       cols = cols.sort_by(&:name) if(options[:sort])
+      cols = classified_sort(cols) if(options[:classified_sort])
       cols.each do |col|
         attrs = []
-        attrs << "default(#{quote(col.default)})" unless col.default.nil?
+        attrs << "default(#{schema_default(klass, col)})" unless col.default.nil?
         attrs << "not null" unless col.null
         attrs << "primary key" if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect{|c|c.to_sym}.include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
 
@@ -151,7 +171,7 @@ module AnnotateModels
         if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
           indices = klass.connection.indexes(klass.table_name)
           if indices = indices.select { |ind| ind.columns.include? col.name }
-            indices.each do |ind|
+            indices.sort_by{|ind| ind.name}.each do |ind|
               ind = ind.columns.reject! { |i| i == col.name }
               attrs << (ind.length == 0 ? "indexed" : "indexed => [#{ind.join(", ")}]")
             end
@@ -212,7 +232,7 @@ module AnnotateModels
     # === Options (opts)
     #  :force<Symbol>:: whether to update the file even if it doesn't seem to need it.
     #  :position_in_*<Symbol>:: where to place the annotated section in fixture or model file,
-    #                           :before or :after. Default is :before.
+    #                           :before, :top, :after or :bottom. Default is :before.
     #
     def annotate_one_file(file_name, info_block, position, options={})
       if File.exist?(file_name)
@@ -241,15 +261,18 @@ module AnnotateModels
             new_content = old_content.sub(PATTERN, "\n" + info_block)
           end
 
+          wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
+          wrapper_close = options[:wrapper_close] ? "\n# #{options[:wrapper_close]}" : ""
+          wrapped_info_block = "#{wrapper_open}#{info_block}#{wrapper_close}"
           # if there *was* no old schema info (no substitution happened) or :force was passed,
           # we simply need to insert it in correct position
           if new_content == old_content || options[:force]
             old_content.sub!(encoding, '')
             old_content.sub!(PATTERN, '')
 
-            new_content = options[position].to_s == 'after' ?
-              (encoding_header + (old_content.rstrip + "\n\n" + info_block)) :
-              (encoding_header + info_block + "\n" + old_content)
+            new_content = %w(after bottom).include?(options[position].to_s) ?
+              (encoding_header + (old_content.rstrip + "\n\n" + wrapped_info_block)) :
+              (encoding_header + wrapped_info_block + "\n" + old_content)
           end
 
           File.open(file_name, "wb") { |f| f.puts new_content }
@@ -296,31 +319,23 @@ module AnnotateModels
         did_annotate = false
         model_name = klass.name.underscore
         table_name = klass.table_name
-        model_file_name = File.join(model_dir, file)
+        model_file_name = File.join(file)
 
         if annotate_one_file(model_file_name, info, :position_in_class, options_with_position(options, :position_in_class))
           did_annotate = true
         end
 
-        unless options[:exclude_tests]
-          did_annotate = TEST_PATTERNS.
-            map { |file| resolve_filename(file, model_name, table_name) }.
-            map { |file| annotate_one_file(file, info, :position_in_test, options_with_position(options, :position_in_test)) }.
-            detect { |result| result } || did_annotate
-        end
+        %w(test fixture factory serializer).each do |key|
+          exclusion_key = "exclude_#{key.pluralize}".to_sym
+          patterns_constant = "#{key.upcase}_PATTERNS".to_sym
+          position_key = "position_in_#{key}".to_sym
 
-        unless options[:exclude_fixtures]
-          did_annotate = FIXTURE_PATTERNS.
-            map { |file| resolve_filename(file, model_name, table_name) }.
-            map { |file| annotate_one_file(file, info, :position_in_fixture, options_with_position(options, :position_in_fixture)) }.
-            detect { |result| result } || did_annotate
-        end
-
-        unless options[:exclude_factories]
-          did_annotate = FACTORY_PATTERNS.
-            map { |file| resolve_filename(file, model_name, table_name) }.
-            map { |file| annotate_one_file(file, info, :position_in_factory, options_with_position(options, :position_in_factory)) }.
-            detect { |result| result } || did_annotate
+          unless options[exclusion_key]
+            did_annotate = self.const_get(patterns_constant).
+              map { |file| resolve_filename(file, model_name, table_name) }.
+              map { |file| annotate_one_file(file, info, position_key, options_with_position(options, position_key)) }.
+              detect { |result| result } || did_annotate
+          end
         end
 
         return did_annotate
@@ -335,35 +350,37 @@ module AnnotateModels
       options.merge(:position=>(options[position_in] || options[:position]))
     end
 
-    # Return a list of the model files to annotate. If we have
-    # command line arguments, they're assumed to be either
-    # the underscore or CamelCase versions of model names.
-    # Otherwise we take all the model files in the
-    # model_dir directory.
+    # Return a list of the model files to annotate. 
+    # If we have command line arguments, they're assumed to the path
+    # of model files from root dir. Otherwise we take all the model files 
+    # in the model_dir directory.
     def get_model_files(options)
+      models = []
       if(!options[:is_rake])
-        models = ARGV.dup
-        models.shift
-      else
-        models = []
+        models = ARGV.dup.reject{|m| m.match(/^(.*)=/)}
       end
-      models.reject!{|m| m.match(/^(.*)=/)}
+
       if models.empty?
         begin
-          Dir.chdir(model_dir) do
-            models = if options[:ignore_model_sub_dir]
-              Dir["*.rb"]
-            else
-              Dir["**/*.rb"].reject{ |f| f["concerns/"] }
+          model_dir.each do |dir|
+            Dir.chdir(dir) do
+              lst = 
+                if options[:ignore_model_sub_dir]
+                  Dir["*.rb"].map{ |f| [dir, f] }
+                else
+                  Dir["**/*.rb"].reject{ |f| f["concerns/"] }.map{ |f| [dir, f] }
+                end
+              models.concat(lst)
             end
           end
         rescue SystemCallError
-          puts "No models found in directory '#{model_dir}'."
+          puts "No models found in directory '#{model_dir.join("', '")}'."
           puts "Either specify models on the command line, or use the --model-dir option."
           puts "Call 'annotate --help' for more info."
           exit 1
         end
       end
+
       models
     end
 
@@ -372,11 +389,13 @@ module AnnotateModels
     # in subdirectories without namespacing.
     def get_model_class(file)
       model_path = file.gsub(/\.rb$/, '')
+      model_dir.each { |dir| model_path = model_path.gsub(/^#{dir}/, '').gsub(/^\//, '') }
       begin
         get_loaded_model(model_path) or raise LoadError.new("cannot load a model from #{file}")
       rescue LoadError
         # this is for non-rails projects, which don't get Rails auto-require magic
-        if Kernel.require(File.expand_path("#{model_dir}/#{model_path}"))
+        file_path = File.expand_path(file)
+        if File.file?(file_path) && Kernel.require(file_path)
           retry
         elsif model_path.match(/\//)
           model_path = model_path.split('/')[1..-1].join('/').to_s
@@ -421,10 +440,10 @@ module AnnotateModels
 
       annotated = []
       get_model_files(options).each do |file|
-        annotate_model_file(annotated, file, header, options)
+        annotate_model_file(annotated, File.join(file), header, options)
       end
       if annotated.empty?
-        puts "Nothing annotated."
+        puts "Nothing to annotate."
       else
         puts "Annotated (#{annotated.length}): #{annotated.join(', ')}"
       end
@@ -449,12 +468,13 @@ module AnnotateModels
       deannotated = []
       deannotated_klass = false
       get_model_files(options).each do |file|
+        file = File.join(file)
         begin
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
             model_name = klass.name.underscore
             table_name = klass.table_name
-            model_file_name = File.join(model_dir, file)
+            model_file_name = file
             deannotated_klass = true if(remove_annotation_of_file(model_file_name))
 
             (TEST_PATTERNS + FIXTURE_PATTERNS + FACTORY_PATTERNS).
@@ -468,7 +488,7 @@ module AnnotateModels
           end
           deannotated << klass if(deannotated_klass)
         rescue Exception => e
-          puts "Unable to deannotate #{file}: #{e.message}"
+          puts "Unable to deannotate #{File.join(file)}: #{e.message}"
           puts "\t" + e.backtrace.join("\n\t") if options[:trace]
         end
       end
@@ -479,6 +499,28 @@ module AnnotateModels
       return filename_template.
         gsub('%MODEL_NAME%', model_name).
         gsub('%TABLE_NAME%', table_name || model_name.pluralize)
+    end
+
+    def classified_sort(cols)
+      rest_cols = []
+      timestamps = []
+      associations = []
+      id = nil
+
+      cols = cols.each do |c|
+        if c.name.eql?("id")
+          id = c
+        elsif (c.name.eql?("created_at") || c.name.eql?("updated_at"))
+          timestamps << c
+        elsif c.name[-3,3].eql?("_id")
+          associations << c
+        else
+          rest_cols << c
+        end
+      end
+      [rest_cols, timestamps, associations].each {|a| a.sort_by!(&:name) }
+
+      return ([id] << rest_cols << timestamps << associations).flatten
     end
   end
 end

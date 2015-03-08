@@ -10,7 +10,10 @@ describe AnnotateModels do
       :table_name   => table_name,
       :primary_key  => primary_key,
       :column_names => columns.map { |col| col.name.to_s },
-      :columns      => columns
+      :columns      => columns,
+      :column_defaults => Hash[columns.map { |col| 
+        [col.name, col.default] 
+      }]
     }
 
     double("An ActiveRecord class", options)
@@ -106,6 +109,24 @@ EOS
 EOS
   end
 
+  it "should get schema info for integer and boolean with default" do
+           klass = mock_class(:users, :id, [
+              mock_column(:id, :integer),
+              mock_column(:size, :integer, :default => 20),
+              mock_column(:flag, :boolean, :default => false)
+            ])
+            expect(AnnotateModels.get_schema_info(klass, "Schema Info")).to eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id   :integer          not null, primary key
+#  size :integer          default(20), not null
+#  flag :boolean          default(FALSE), not null
+#
+EOS
+  end
+
   it "should get schema info as RDoc" do
     klass = mock_class(:users, :id, [
                                      mock_column(:id, :integer),
@@ -136,9 +157,8 @@ EOS
 
     # todo: use 'files' gem instead
     def create(file, body="hi")
-      file_path = File.join(AnnotateModels.model_dir, file)
+      file_path = File.join(AnnotateModels.model_dir[0], file)
       FileUtils.mkdir_p(File.dirname(file_path))
-
       File.open(file_path, "wb") do |f|
         f.puts(body)
       end
@@ -146,7 +166,7 @@ EOS
     end
 
     def check_class_name(file, class_name)
-      klass = AnnotateModels.get_model_class(file)
+      klass = AnnotateModels.get_model_class(File.join(AnnotateModels.model_dir[0], file))
 
       expect(klass).not_to eq(nil)
       expect(klass.name).to eq(class_name)
@@ -294,7 +314,7 @@ EOS
           CONSTANT = 1
         end
       EOS
-      path = File.expand_path("#{AnnotateModels.model_dir}/loaded_class")
+      path = File.expand_path('loaded_class', AnnotateModels.model_dir[0])
       Kernel.load "#{path}.rb"
       expect(Kernel).not_to receive(:require).with(path)
 
@@ -425,9 +445,39 @@ end
       expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
     end
 
+    it "should put annotation before class if :position == 'top'" do
+      annotate_one_file :position => "top"
+      expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
+    end
+
+    it "should put annotation before class if :position => :top" do
+      annotate_one_file :position => :top
+      expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
+    end
+
+    it "should put annotation after class if :position => 'after'" do
+      annotate_one_file :position => 'after'
+      expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
+    end
+
     it "should put annotation after class if :position => :after" do
       annotate_one_file :position => :after
       expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
+    end
+
+    it "should put annotation after class if :position => 'bottom'" do
+      annotate_one_file :position => 'bottom'
+      expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
+    end
+
+    it "should put annotation after class if :position => :bottom" do
+      annotate_one_file :position => :bottom
+      expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
+    end
+
+    it 'should wrap annotation if wrapper is specified' do
+      annotate_one_file :wrapper_open => 'START', :wrapper_close => 'END'
+      expect(File.read(@model_file_name)).to eq("# START\n#{@schema_info}\n# END\n#{@file_content}")
     end
 
     describe "with existing annotation => :before" do
@@ -527,7 +577,7 @@ end
        it "displays an error message" do
          expect(capturing(:stdout) {
            AnnotateModels.do_annotations :model_dir => @model_dir, :is_rake => true
-         }).to include("Unable to annotate user.rb: oops")
+         }).to include("Unable to annotate #{@model_dir}/user.rb: oops")
        end
 
        it "displays the full stack trace with --trace" do
@@ -557,7 +607,7 @@ end
        it "displays an error message" do
          expect(capturing(:stdout) {
            AnnotateModels.remove_annotations :model_dir => @model_dir, :is_rake => true
-         }).to include("Unable to deannotate user.rb: oops")
+         }).to include("Unable to deannotate #{@model_dir}/user.rb: oops")
        end
 
        it "displays the full stack trace" do

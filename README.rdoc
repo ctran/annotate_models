@@ -51,7 +51,7 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of
 
 Into Gemfile from rubygems.org:
 
-    gem 'annotate', ">=2.6.0"
+    gem 'annotate', '~> 2.6.6'
 
 Into Gemfile from Github:
 
@@ -86,13 +86,13 @@ To annotate just your models, tests, and factories:
 
 To annotate just your models:
 
-    annotate --exclude tests,fixtures,factories
+    annotate --exclude tests,fixtures,factories,serializers
 
 To annotate routes.rb:
 
     annotate --routes
 
-To remove model/test/fixture/factory annotations:
+To remove model/test/fixture/factory/serializer annotations:
 
     annotate --delete
 
@@ -137,11 +137,11 @@ executed whenever you run +rake db:migrate+ (but only in development mode).
 If you want to disable this behavior permanently, edit the +.rake+ file and
 change:
 
-    'skip_on_db_migrate'   => "false",
+    'skip_on_db_migrate'   => 'false',
 
 To:
 
-    'skip_on_db_migrate'   => "true",
+    'skip_on_db_migrate'   => 'true',
 
 If you want to run +rake db:migrate+ as a one-off without running annotate,
 you can do so with a simple environment variable, instead of editing the
@@ -154,33 +154,41 @@ you can do so with a simple environment variable, instead of editing the
 
     Usage: annotate [options] [model_file]*
         -d, --delete                     Remove annotations from all model files or the routes.rb file
-        -p, --position [before|after]    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/routes file(s)
-            --pc, --position-in-class [before|after]
+        -p, --position [before|top|after|bottom]    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/routes file(s)
+            --pc, --position-in-class [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of the model file
-            --pf, --position-in-factory [before|after]
+            --pf, --position-in-factory [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of any factory files
-            --px, --position-in-fixture [before|after]
+            --px, --position-in-fixture [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of any fixture files
-            --pt, --position-in-test [before|after]
+            --pt, --position-in-test [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of any test files
-            --pr, --position-in-routes [before|after]
+            --pr, --position-in-routes [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of the routes.rb file
+            --ps, --position-in-serializer [before|top|after|bottom]
+                                         Place the annotations at the top (before) or the bottom (after) of the serializer files
+            --w, --wrapper STR           Wrap annotation with the text passed as parameter.
+                                         If --w option is used, the same text will be used as opening and closing
+            --wo, --wrapper-open STR     Annotation wrapper opening.
+            --wc, --wrapper-close STR    Annotation wrapper closing
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
         -i, --show-indexes               List the table's database indexes in the annotation
         -s, --simple-indexes             Concat the column's related indexes in the annotation
-            --model-dir dir              Annotate model files stored in dir rather than app/models
+            --model-dir dir              Annotate model files stored in dir rather than app/models, separate multiple dirs with comas
             --ignore-model-subdirects    Ignore subdirectories of the models directory
             --sort                       Sort columns alphabetically, rather than in creation order
         -R, --require path               Additional file to require before loading models, may be used multiple times
-        -e [tests,fixtures,factories],   Do not annotate fixtures, test files, and/or factories
-            --exclude
+        -e [tests,fixtures,factories,serializers],
+            --exclude                    Do not annotate fixtures, test files, factories, and/or serializers
         -f [bare|rdoc|markdown],         Render Schema Infomation as plain/RDoc/Markdown
             --format
             --force                      Force new annotations even if there are no changes.
+            --timestamp                  Include timestamp in (routes) annotation
             --trace                      If unable to annotate a file, print the full stack trace, not just the exception message.
-        --timestamp                      Include an updated time in routes.rb
+        -I, --ignore-columns REGEX       don't annotate columns that match a given REGEX (i.e., `annotate -I '^(id|updated_at|created_at)'`
+
 
 
 == Sorting

@@ -32,44 +32,63 @@ OptionParser.new do |opts|
     target[:task] = :remove_annotations
   end
 
-  opts.on('-p', '--position [before|after]', ['before', 'after'],
+  opts.on('-p', '--position [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/routes file(s)") do |p|
     ENV['position'] = p
     [
-      'position_in_class','position_in_factory','position_in_fixture','position_in_test', 'position_in_routes'
+      'position_in_class','position_in_factory','position_in_fixture','position_in_test', 'position_in_routes', 'position_in_serializer'
     ].each do |key|
       ENV[key] = p unless(has_set_position[key])
     end
   end
 
-  opts.on('--pc', '--position-in-class [before|after]', ['before', 'after'],
+  opts.on('--pc', '--position-in-class [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of the model file") do |p|
     ENV['position_in_class'] = p
     has_set_position['position_in_class'] = true
   end
 
-  opts.on('--pf', '--position-in-factory [before|after]', ['before', 'after'],
+  opts.on('--pf', '--position-in-factory [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of any factory files") do |p|
     ENV['position_in_factory'] = p
     has_set_position['position_in_factory'] = true
   end
 
-  opts.on('--px', '--position-in-fixture [before|after]', ['before', 'after'],
+  opts.on('--px', '--position-in-fixture [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of any fixture files") do |p|
     ENV['position_in_fixture'] = p
     has_set_position['position_in_fixture'] = true
   end
 
-  opts.on('--pt', '--position-in-test [before|after]', ['before', 'after'],
+  opts.on('--pt', '--position-in-test [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of any test files") do |p|
     ENV['position_in_test'] = p
     has_set_position['position_in_test'] = true
   end
 
-  opts.on('--pr', '--position-in-routes [before|after]', ['before', 'after'],
+  opts.on('--pr', '--position-in-routes [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
           "Place the annotations at the top (before) or the bottom (after) of the routes.rb file") do |p|
     ENV['position_in_routes'] = p
     has_set_position['position_in_routes'] = true
+  end
+
+  opts.on('--ps', '--position-in-serializer [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
+          "Place the annotations at the top (before) or the bottom (after) of the serializer files") do |p|
+    ENV['position_in_serializer'] = p
+    has_set_position['position_in_serializer'] = true
+  end
+
+  opts.on('--w', '--wrapper STR', 'Wrap annotation with the text passed as parameter.',
+          'If --w option is used, the same text will be used as opening and closing') do |p|
+    ENV['wrapper'] = p
+  end
+
+  opts.on('--wo', '--wrapper-open STR', 'Annotation wrapper opening.') do |p|
+    ENV['wrapper_open'] = p
+  end
+
+  opts.on('--wc', '--wrapper-close STR', 'Annotation wrapper closing') do |p|
+    ENV['wrapper_close'] = p
   end
 
   opts.on('-r', '--routes',
@@ -101,7 +120,7 @@ OptionParser.new do |opts|
   end
 
   opts.on('--model-dir dir',
-          "Annotate model files stored in dir rather than app/models") do |dir|
+          "Annotate model files stored in dir rather than app/models, separate multiple dirs with comas") do |dir|
     ENV['model_dir'] = dir
   end
 
@@ -115,6 +134,11 @@ OptionParser.new do |opts|
     ENV['sort'] = "yes"
   end
 
+  opts.on('--classified-sort',
+          "Sort columns alphabetically, but first goes id, then the rest columns, then the timestamp columns and then the association columns") do |dir|
+    ENV['classified_sort'] = "yes"
+  end
+
   opts.on('-R', '--require path',
           "Additional file to require before loading models, may be used multiple times") do |path|
     if !ENV['require'].blank?
@@ -124,7 +148,7 @@ OptionParser.new do |opts|
     end
   end
 
-  opts.on('-e', '--exclude [tests,fixtures,factories]', Array, "Do not annotate fixtures, test files, and/or factories") do |exclusions|
+  opts.on('-e', '--exclude [tests,fixtures,factories,serializers]', Array, "Do not annotate fixtures, test files, factories, and/or serializers") do |exclusions|
     exclusions ||= %w(tests fixtures factories)
     exclusions.each { |exclusion| ENV["exclude_#{exclusion}"] = "yes" }
   end
