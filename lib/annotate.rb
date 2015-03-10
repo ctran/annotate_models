@@ -71,7 +71,7 @@ module Annotate
       options[key] = (!ENV[key.to_s].blank?) ? ENV[key.to_s].split(',') : []
     end
 
-    if(!options[:model_dir])
+    if(options[:model_dir].empty?)
       options[:model_dir] = ['app/models']
     end
 
