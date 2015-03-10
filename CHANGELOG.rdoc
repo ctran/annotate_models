@@ -1,3 +1,6 @@
+== 2.6.7
+* Nothing annotated unless options[:model_dir] is specified, #234
+
 == 2.6.6
 * Makes it possible to wrap annotations, #225
 * Fix single model generation, #214
