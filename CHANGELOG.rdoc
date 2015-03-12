@@ -1,3 +1,6 @@
+== 2.6.8
+* Nothing annotated unless options[:model_dir] is specified, #234
+
 == 2.6.7
 * Nothing annotated unless options[:model_dir] is specified, #234
 
