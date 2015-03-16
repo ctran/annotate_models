@@ -7,7 +7,7 @@ module AnnotateModels
   PREFIX           = "== Schema Information"
   PREFIX_MD        = "## Schema Information"
   END_MARK         = "== Schema Information End"
-  PATTERN          = /^\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\n(#.*\n)*\n*/
+  PATTERN          = /^\r?\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\r?\n(#.*\r?\n)*(\r?\n)*/
 
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
