@@ -193,6 +193,10 @@ module AnnotateModels
         info << get_index_info(klass, options)
       end
 
+      if options[:show_foreign_keys] && klass.table_exists?
+        info << get_foreign_key_info(klass, options)
+      end
+
       if options[:format_rdoc]
         info << "#--\n"
         info << "# #{END_MARK}\n"
@@ -221,6 +225,28 @@ module AnnotateModels
         end
       end
       return index_info
+    end
+
+    def get_foreign_key_info(klass, options={})
+      if(options[:format_markdown])
+        fk_info = "#\n# ### Foreign Keys\n#\n"
+      else
+        fk_info = "#\n# Foreign Keys\n#\n"
+      end
+
+      foreign_keys = klass.connection.respond_to?(:foreign_keys) ? klass.connection.foreign_keys(klass.table_name) : []
+      return "" if foreign_keys.empty?
+
+      max_size = foreign_keys.collect{|fk| fk.name.size}.max + 1
+      foreign_keys.sort_by{|fk| fk.name}.each do |fk|
+        ref_info = "#{fk.column} => #{fk.to_table}.#{fk.primary_key}"
+        if(options[:format_markdown])
+          fk_info << sprintf("# * `%s`:\n#     * **`%s`**\n", fk.name, ref_info)
+        else
+          fk_info << sprintf("#  %-#{max_size}.#{max_size}s %s", fk.name, "(#{ref_info})").rstrip + "\n"
+        end
+      end
+      return fk_info
     end
 
     # Add a schema block to a file. If the file already contains
@@ -350,9 +376,9 @@ module AnnotateModels
       options.merge(:position=>(options[position_in] || options[:position]))
     end
 
-    # Return a list of the model files to annotate. 
+    # Return a list of the model files to annotate.
     # If we have command line arguments, they're assumed to the path
-    # of model files from root dir. Otherwise we take all the model files 
+    # of model files from root dir. Otherwise we take all the model files
     # in the model_dir directory.
     def get_model_files(options)
       models = []
@@ -364,7 +390,7 @@ module AnnotateModels
         begin
           model_dir.each do |dir|
             Dir.chdir(dir) do
-              lst = 
+              lst =
                 if options[:ignore_model_sub_dir]
                   Dir["*.rb"].map{ |f| [dir, f] }
                 else
