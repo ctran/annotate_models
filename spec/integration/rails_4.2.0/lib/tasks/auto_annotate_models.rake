@@ -11,6 +11,7 @@ if Rails.env.development?
       'position_in_test'     => "before",
       'position_in_fixture'  => "before",
       'position_in_factory'  => "before",
+      'show_foreign_keys'    => "true",
       'show_indexes'         => "true",
       'simple_indexes'       => "false",
       'model_dir'            => "app/models",
