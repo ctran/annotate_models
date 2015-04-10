@@ -477,6 +477,7 @@ module AnnotateModels
 
     def annotate_model_file(annotated, file, header, options)
       begin
+        return false if (/# -\*- SkipSchemaAnnotations.*/ =~ (File.exist?(file) ? File.read(file) : '') )
         klass = get_model_class(file)
         if klass && klass < ActiveRecord::Base && !klass.abstract_class? && klass.table_exists?
           if annotate(klass, file, header, options)
