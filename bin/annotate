@@ -33,7 +33,7 @@ OptionParser.new do |opts|
   end
 
   opts.on('-p', '--position [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
-          "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/routes file(s)") do |p|
+          "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)") do |p|
     ENV['position'] = p
     [
       'position_in_class','position_in_factory','position_in_fixture','position_in_test', 'position_in_routes', 'position_in_serializer'
