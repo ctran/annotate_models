@@ -335,9 +335,11 @@ module AnnotateModels
     #  :position_in_test<Symbol>:: where to place the annotated section in test/spec file(s)
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
     #  :position_in_factory<Symbol>:: where to place the annotated section in factory file
+    #  :position_in_serializer<Symbol>:: where to place the annotated section in serializer file
     #  :exclude_tests<Symbol>:: whether to skip modification of test/spec files
     #  :exclude_fixtures<Symbol>:: whether to skip modification of fixture files
     #  :exclude_factories<Symbol>:: whether to skip modification of factory files
+    #  :exclude_serializers<Symbol>:: whether to skip modification of serializer files
     #
     def annotate(klass, file, header, options={})
       begin
@@ -503,7 +505,7 @@ module AnnotateModels
             model_file_name = file
             deannotated_klass = true if(remove_annotation_of_file(model_file_name))
 
-            (TEST_PATTERNS + FIXTURE_PATTERNS + FACTORY_PATTERNS).
+            (TEST_PATTERNS + FIXTURE_PATTERNS + FACTORY_PATTERNS + SERIALIZER_PATTERNS).
               map { |file| resolve_filename(file, model_name, table_name) }.
               each do |file|
                 if File.exist?(file)
