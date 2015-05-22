@@ -1,3 +1,9 @@
+== 2.6.9
+* Support foreigh key (#241)
+* Check if model has skip tag in annotate_model_file (#167)
+* Fix issue where serializer-related flags weren't being honored (#246)
+* Prefer SQL column type over normalized AR type (#231)
+
 == 2.6.8
 * Nothing annotated unless options[:model_dir] is specified, #234
 
