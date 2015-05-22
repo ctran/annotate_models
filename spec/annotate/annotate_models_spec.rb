@@ -45,7 +45,7 @@ describe AnnotateModels do
 
     stubs = default_options.dup
     stubs.merge!(options)
-    stubs.merge!(:name => name, :sql_type => type, :type => type)
+    stubs.merge!(:name => name, :type => type)
 
     double("Column", stubs)
   end
