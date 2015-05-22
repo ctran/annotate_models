@@ -4,15 +4,32 @@ require 'annotate/annotate_models'
 require 'annotate/active_record_patch'
 
 describe AnnotateModels do
-  def mock_class(table_name, primary_key, columns)
+  def mock_foreign_key(name, from_column, to_table, to_column = 'id')
+    double("ForeignKeyDefinition",
+      :name         => name,
+      :column       => from_column,
+      :to_table     => to_table,
+      :primary_key  => to_column,
+    )
+  end
+
+  def mock_connection(indexes = [], foreign_keys = [])
+    double("Conn",
+      :indexes      => indexes,
+      :foreign_keys => foreign_keys,
+    )
+  end
+
+  def mock_class(table_name, primary_key, columns, foreign_keys = [])
     options = {
-      :connection   => double("Conn", :indexes => []),
-      :table_name   => table_name,
-      :primary_key  => primary_key,
-      :column_names => columns.map { |col| col.name.to_s },
-      :columns      => columns,
-      :column_defaults => Hash[columns.map { |col| 
-        [col.name, col.default] 
+      :connection       => mock_connection([], foreign_keys),
+      :table_exists?    => true,
+      :table_name       => table_name,
+      :primary_key      => primary_key,
+      :column_names     => columns.map { |col| col.name.to_s },
+      :columns          => columns,
+      :column_defaults  => Hash[columns.map { |col|
+        [col.name, col.default]
       }]
     }
 
@@ -28,7 +45,7 @@ describe AnnotateModels do
 
     stubs = default_options.dup
     stubs.merge!(options)
-    stubs.merge!(:name => name, :type => type)
+    stubs.merge!(:name => name, :sql_type => type, :type => type)
 
     double("Column", stubs)
   end
@@ -123,6 +140,33 @@ EOS
 #  id   :integer          not null, primary key
 #  size :integer          default(20), not null
 #  flag :boolean          default(FALSE), not null
+#
+EOS
+  end
+
+  it "should get foreign key info" do
+           klass = mock_class(:users, :id, [
+              mock_column(:id, :integer),
+              mock_column(:foreign_thing_id, :integer),
+            ],
+            [
+              mock_foreign_key(
+                'fk_rails_02e851e3b7',
+                'foreign_thing_id',
+                'foreign_things'
+              )
+            ])
+            expect(AnnotateModels.get_schema_info(klass, "Schema Info", :show_foreign_keys => true)).to eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id               :integer          not null, primary key
+#  foreign_thing_id :integer          not null
+#
+# Foreign Keys
+#
+#  fk_rails_02e851e3b7  (foreign_thing_id => foreign_things.id)
 #
 EOS
   end

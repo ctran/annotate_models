@@ -175,6 +175,7 @@ you can do so with a simple environment variable, instead of editing the
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
         -i, --show-indexes               List the table's database indexes in the annotation
+        -k, --show-foreign-keys          List the table's foreign key constraints in the annotation
         -s, --simple-indexes             Concat the column's related indexes in the annotation
             --model-dir dir              Annotate model files stored in dir rather than app/models, separate multiple dirs with comas
             --ignore-model-subdirects    Ignore subdirectories of the models directory

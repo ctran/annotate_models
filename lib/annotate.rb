@@ -20,13 +20,13 @@ module Annotate
   POSITION_OPTIONS=[
     :position_in_routes, :position_in_class, :position_in_test,
     :position_in_fixture, :position_in_factory, :position,
-    :position_in_serializer,
+    :position_in_serializer
   ]
   FLAG_OPTIONS=[
     :show_indexes, :simple_indexes, :include_version, :exclude_tests,
     :exclude_fixtures, :exclude_factories, :ignore_model_sub_dir,
     :format_bare, :format_rdoc, :format_markdown, :sort, :force, :trace,
-    :timestamp, :exclude_serializers, :classified_sort
+    :timestamp, :exclude_serializers, :classified_sort, :show_foreign_keys,
   ]
   OTHER_OPTIONS=[
     :ignore_columns

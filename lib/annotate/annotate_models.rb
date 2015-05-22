@@ -7,7 +7,7 @@ module AnnotateModels
   PREFIX           = "== Schema Information"
   PREFIX_MD        = "## Schema Information"
   END_MARK         = "== Schema Information End"
-  PATTERN          = /^\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\n(#.*\n)*\n*/
+  PATTERN          = /^\r?\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\r?\n(#.*\r?\n)*(\r?\n)*/
 
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
@@ -140,7 +140,7 @@ module AnnotateModels
         attrs << "not null" unless col.null
         attrs << "primary key" if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect{|c|c.to_sym}.include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
 
-        col_type = (col.type || col.sql_type).to_s
+        col_type = (col.sql_type || col.type).to_s
         if col_type == "decimal"
           col_type << "(#{col.precision}, #{col.scale})"
         elsif col_type != "spatial"
@@ -193,6 +193,10 @@ module AnnotateModels
         info << get_index_info(klass, options)
       end
 
+      if options[:show_foreign_keys] && klass.table_exists?
+        info << get_foreign_key_info(klass, options)
+      end
+
       if options[:format_rdoc]
         info << "#--\n"
         info << "# #{END_MARK}\n"
@@ -221,6 +225,28 @@ module AnnotateModels
         end
       end
       return index_info
+    end
+
+    def get_foreign_key_info(klass, options={})
+      if(options[:format_markdown])
+        fk_info = "#\n# ### Foreign Keys\n#\n"
+      else
+        fk_info = "#\n# Foreign Keys\n#\n"
+      end
+
+      foreign_keys = klass.connection.respond_to?(:foreign_keys) ? klass.connection.foreign_keys(klass.table_name) : []
+      return "" if foreign_keys.empty?
+
+      max_size = foreign_keys.collect{|fk| fk.name.size}.max + 1
+      foreign_keys.sort_by{|fk| fk.name}.each do |fk|
+        ref_info = "#{fk.column} => #{fk.to_table}.#{fk.primary_key}"
+        if(options[:format_markdown])
+          fk_info << sprintf("# * `%s`:\n#     * **`%s`**\n", fk.name, ref_info)
+        else
+          fk_info << sprintf("#  %-#{max_size}.#{max_size}s %s", fk.name, "(#{ref_info})").rstrip + "\n"
+        end
+      end
+      return fk_info
     end
 
     # Add a schema block to a file. If the file already contains
@@ -309,9 +335,11 @@ module AnnotateModels
     #  :position_in_test<Symbol>:: where to place the annotated section in test/spec file(s)
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
     #  :position_in_factory<Symbol>:: where to place the annotated section in factory file
+    #  :position_in_serializer<Symbol>:: where to place the annotated section in serializer file
     #  :exclude_tests<Symbol>:: whether to skip modification of test/spec files
     #  :exclude_fixtures<Symbol>:: whether to skip modification of fixture files
     #  :exclude_factories<Symbol>:: whether to skip modification of factory files
+    #  :exclude_serializers<Symbol>:: whether to skip modification of serializer files
     #
     def annotate(klass, file, header, options={})
       begin
@@ -350,9 +378,9 @@ module AnnotateModels
       options.merge(:position=>(options[position_in] || options[:position]))
     end
 
-    # Return a list of the model files to annotate. 
+    # Return a list of the model files to annotate.
     # If we have command line arguments, they're assumed to the path
-    # of model files from root dir. Otherwise we take all the model files 
+    # of model files from root dir. Otherwise we take all the model files
     # in the model_dir directory.
     def get_model_files(options)
       models = []
@@ -364,7 +392,7 @@ module AnnotateModels
         begin
           model_dir.each do |dir|
             Dir.chdir(dir) do
-              lst = 
+              lst =
                 if options[:ignore_model_sub_dir]
                   Dir["*.rb"].map{ |f| [dir, f] }
                 else
@@ -451,6 +479,7 @@ module AnnotateModels
 
     def annotate_model_file(annotated, file, header, options)
       begin
+        return false if (/# -\*- SkipSchemaAnnotations.*/ =~ (File.exist?(file) ? File.read(file) : '') )
         klass = get_model_class(file)
         if klass && klass < ActiveRecord::Base && !klass.abstract_class? && klass.table_exists?
           if annotate(klass, file, header, options)
@@ -477,7 +506,7 @@ module AnnotateModels
             model_file_name = file
             deannotated_klass = true if(remove_annotation_of_file(model_file_name))
 
-            (TEST_PATTERNS + FIXTURE_PATTERNS + FACTORY_PATTERNS).
+            (TEST_PATTERNS + FIXTURE_PATTERNS + FACTORY_PATTERNS + SERIALIZER_PATTERNS).
               map { |file| resolve_filename(file, model_name, table_name) }.
               each do |file|
                 if File.exist?(file)

@@ -33,7 +33,7 @@ OptionParser.new do |opts|
   end
 
   opts.on('-p', '--position [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
-          "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/routes file(s)") do |p|
+          "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)") do |p|
     ENV['position'] = p
     [
       'position_in_class','position_in_factory','position_in_fixture','position_in_test', 'position_in_routes', 'position_in_serializer'
@@ -107,6 +107,11 @@ OptionParser.new do |opts|
   opts.on('-m', '--show-migration',
           "Include the migration version number in the annotation") do
     ENV['include_version'] = "yes"
+  end
+
+  opts.on('-k', '--show-foreign-keys',
+          "List the table's foreign key constraints in the annotation") do
+    ENV['show_foreign_keys'] = "yes"
   end
 
   opts.on('-i', '--show-indexes',
