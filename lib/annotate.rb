@@ -29,7 +29,7 @@ module Annotate
     :timestamp, :exclude_serializers, :classified_sort, :show_foreign_keys,
   ]
   OTHER_OPTIONS=[
-    :ignore_columns
+    :ignore_columns, :skip_on_db_migrate
   ]
   PATH_OPTIONS=[
     :require, :model_dir
