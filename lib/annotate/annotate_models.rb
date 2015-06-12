@@ -48,6 +48,8 @@ module AnnotateModels
   FIXTURE_PATTERNS = [
     File.join(FIXTURE_TEST_DIR, "%TABLE_NAME%.yml"),
     File.join(FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
+    File.join(FIXTURE_TEST_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
+    File.join(FIXTURE_SPEC_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
   ]
 
   FACTORY_PATTERNS = [
@@ -527,6 +529,7 @@ module AnnotateModels
     def resolve_filename(filename_template, model_name, table_name)
       return filename_template.
         gsub('%MODEL_NAME%', model_name).
+        gsub('%PLURALIZED_MODEL_NAME%', model_name.pluralize).
         gsub('%TABLE_NAME%', table_name || model_name.pluralize)
     end
 

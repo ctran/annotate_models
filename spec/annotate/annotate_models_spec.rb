@@ -435,6 +435,35 @@ end
     end
   end
 
+  describe '#resolve_filename' do
+
+    it 'should return the test path for a model' do
+      filename_template = 'test/unit/%MODEL_NAME%_test.rb'
+      model_name        = 'example_model'
+      table_name        = 'example_models'
+
+      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      expect(filename). to eq 'test/unit/example_model_test.rb'
+    end
+
+    it 'should return the fixture path for a model' do
+      filename_template = 'test/fixtures/%TABLE_NAME%.yml'
+      model_name        = 'example_model'
+      table_name        = 'example_models'
+
+      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      expect(filename). to eq 'test/fixtures/example_models.yml'
+    end
+
+    it 'should return the fixture path for a nested model' do
+      filename_template = 'test/fixtures/%PLURALIZED_MODEL_NAME%.yml'
+      model_name        = 'parent/child'
+      table_name        = 'parent_children'
+
+      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      expect(filename). to eq 'test/fixtures/parent/children.yml'
+    end
+  end
   describe "annotating a file" do
     before do
       @model_dir = Dir.mktmpdir('annotate_models')
