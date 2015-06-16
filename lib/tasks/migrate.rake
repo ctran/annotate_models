@@ -2,22 +2,20 @@
 # (They are not used to build annotate itself.)
 
 # Append annotations to Rake tasks for ActiveRecord, so annotate automatically gets
-# run after doing db:migrate.
+# run after doing db:migrate. 
 # Unfortunately it relies on ENV for options; it'd be nice to be able to set options
 # in a per-project config file so this task can read them.
 namespace :db do
-  [:migrate, :rollback].each do |cmd|
-    task cmd do
-      Annotate::Migration.update_annotations
-    end
+  task :migrate do
+    Annotate::Migration.update_annotations
+  end
 
-    namespace cmd do
-      [:change, :up, :down, :reset, :redo].each do |t|
-        task t do
-          Annotate::Migration.update_annotations
-        end
+  namespace :migrate do
+    [:change, :up, :down, :reset, :redo].each do |t|
+      task t do
+        Annotate::Migration.update_annotations 
       end
-    end
+    end 
   end
 end
 
@@ -28,7 +26,7 @@ module Annotate
     def self.update_annotations
       unless @@working || (ENV['skip_on_db_migrate'] =~ /(true|t|yes|y|1)$/i)
         @@working = true
-        Rake::Task['annotate_models'].invoke
+        Rake::Task['annotate_models'].invoke 
       end
     end
   end
