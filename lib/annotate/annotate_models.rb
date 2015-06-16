@@ -93,6 +93,7 @@ module AnnotateModels
       when Float, Fixnum, Bignum    then value.to_s
         # BigDecimals need to be output in a non-normalized form and quoted.
       when BigDecimal               then value.to_s('F')
+      when Array                    then value.map {|v| quote(v)}
       else
         value.inspect
       end
