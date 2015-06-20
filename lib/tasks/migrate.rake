@@ -5,16 +5,18 @@
 # run after doing db:migrate.
 
 namespace :db do
-  task :migrate do
-    Rake::Task['set_annotation_options'].invoke
-    Annotate::Migration.update_annotations
-  end
+  [:migrate, :rollback].each do |cmd|
+    task cmd do
+      Rake::Task['set_annotation_options'].invoke
+      Annotate::Migration.update_annotations
+    end
 
-  namespace :migrate do
-    [:change, :up, :down, :reset, :redo].each do |t|
-      task t do
-        Rake::Task['set_annotation_options'].invoke
-        Annotate::Migration.update_annotations
+    namespace cmd do
+      [:change, :up, :down, :reset, :redo].each do |t|
+        task t do
+          Rake::Task['set_annotation_options'].invoke
+          Annotate::Migration.update_annotations
+        end
       end
     end
   end
