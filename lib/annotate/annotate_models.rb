@@ -292,7 +292,7 @@ module AnnotateModels
           end
 
           wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
-          wrapper_close = options[:wrapper_close] ? "\n# #{options[:wrapper_close]}" : ""
+          wrapper_close = options[:wrapper_close] ? "# #{options[:wrapper_close]}\n" : ""
           wrapped_info_block = "#{wrapper_open}#{info_block}#{wrapper_close}"
           # if there *was* no old schema info (no substitution happened) or :force was passed,
           # we simply need to insert it in correct position
