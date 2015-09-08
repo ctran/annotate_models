@@ -51,7 +51,7 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of
 
 Into Gemfile from rubygems.org:
 
-    gem 'annotate', '~> 2.6.10'
+    gem 'annotate'
 
 Into Gemfile from Github:
 
@@ -100,9 +100,7 @@ To remove routes.rb annotations:
 
     annotate --routes --delete
 
-
-== Configuration
-
+To automatically annotate every time you run +db:migrate+, either run +rails g annotate:install+ or add +Annotate.load_tasks+ to your `Rakefile`. See the [configuration in Rails](#configuration-in-rails) section for more info.
 
 === Usage Outside of Rails
 
@@ -110,7 +108,6 @@ Everything above applies, except that +--routes+ is not meaningful, and you will
 probably need to explicitly set one or more +--require+ option(s), and/or one
 or more +--model-dir+ options to inform annotate about the structure of your
 project and help it bootstrap and load the relevant code.
-
 
 
 == Configuration
@@ -130,7 +127,13 @@ default options:
 Edit this file to control things like output format, where annotations are
 added (top or bottom of file), and in which artifacts.
 
-== Rails Integration
+The generated rakefile +lib/tasks/auto_annotate_models.rake+ also contains
+`Annotate.load_tasks`. This adds a few rake tasks which duplicate command-line
+functionality:
+
+    rake annotate_models                          # Add schema information (as comments) to model and fixture files
+    rake annotate_routes                          # Adds the route map to routes.rb
+    rake remove_annotation                        # Remove schema information from model and fixture files
 
 By default, once you've generated a configuration file, annotate will be
 executed whenever you run +rake db:migrate+ (but only in development mode).
