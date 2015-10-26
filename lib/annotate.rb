@@ -78,6 +78,12 @@ module Annotate
     return options
   end
 
+  def self.reset_options
+    [POSITION_OPTIONS, FLAG_OPTIONS, PATH_OPTIONS, OTHER_OPTIONS].flatten.each do |key|
+      ENV[key.to_s] = nil
+    end
+  end
+
   def self.skip_on_migration?
     ENV['skip_on_db_migrate'] =~ TRUE_RE
   end
