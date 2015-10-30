@@ -29,7 +29,7 @@ module Annotate
     :timestamp, :exclude_serializers, :classified_sort, :show_foreign_keys,
   ]
   OTHER_OPTIONS=[
-    :ignore_columns, :skip_on_db_migrate
+    :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close
   ]
   PATH_OPTIONS=[
     :require, :model_dir
@@ -76,6 +76,12 @@ module Annotate
     end
 
     return options
+  end
+
+  def self.reset_options
+    [POSITION_OPTIONS, FLAG_OPTIONS, PATH_OPTIONS, OTHER_OPTIONS].flatten.each do |key|
+      ENV[key.to_s] = nil
+    end
   end
 
   def self.skip_on_migration?
