@@ -29,7 +29,7 @@ module Annotate
     :timestamp, :exclude_serializers, :classified_sort, :show_foreign_keys,
   ]
   OTHER_OPTIONS=[
-    :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close
+    :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close, :wrapper
   ]
   PATH_OPTIONS=[
     :require, :model_dir
@@ -74,6 +74,9 @@ module Annotate
     if(options[:model_dir].empty?)
       options[:model_dir] = ['app/models']
     end
+
+    options[:wrapper_open] ||= options[:wrapper]
+    options[:wrapper_close] ||= options[:wrapper]
 
     return options
   end
