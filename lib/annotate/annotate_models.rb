@@ -17,6 +17,12 @@ module AnnotateModels
   FIXTURE_TEST_DIR      = File.join("test", "fixtures")
   FIXTURE_SPEC_DIR      = File.join("spec", "fixtures")
 
+  # Other test files
+  CONTROLLER_TEST_DIR   = File.join("test", "controllers")
+  CONTROLLER_SPEC_DIR   = File.join("spec", "controllers")
+  REQUEST_SPEC_DIR      = File.join("spec", "requests")
+  ROUTING_SPEC_DIR      = File.join("spec", "routing")
+
   # Object Daddy http://github.com/flogic/object_daddy/tree/master
   EXEMPLARS_TEST_DIR    = File.join("test", "exemplars")
   EXEMPLARS_SPEC_DIR    = File.join("spec", "exemplars")
@@ -50,6 +56,13 @@ module AnnotateModels
     File.join(FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
     File.join(FIXTURE_TEST_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
     File.join(FIXTURE_SPEC_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
+  ]
+
+  SCAFFOLD_PATTERNS = [
+    File.join(CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
+    File.join(CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
+    File.join(REQUEST_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_spec.rb"),
+    File.join(ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb"),
   ]
 
   FACTORY_PATTERNS = [
@@ -344,6 +357,7 @@ module AnnotateModels
     #  :exclude_fixtures<Symbol>:: whether to skip modification of fixture files
     #  :exclude_factories<Symbol>:: whether to skip modification of factory files
     #  :exclude_serializers<Symbol>:: whether to skip modification of serializer files
+    #  :exclude_scaffolds<Symbol>:: whether to skip modification of scaffold files
     #
     def annotate(klass, file, header, options={})
       begin
@@ -357,7 +371,7 @@ module AnnotateModels
           did_annotate = true
         end
 
-        %w(test fixture factory serializer).each do |key|
+        %w(test fixture factory serializer scaffold).each do |key|
           exclusion_key = "exclude_#{key.pluralize}".to_sym
           patterns_constant = "#{key.upcase}_PATTERNS".to_sym
           position_key = "position_in_#{key}".to_sym
@@ -510,7 +524,7 @@ module AnnotateModels
             model_file_name = file
             deannotated_klass = true if(remove_annotation_of_file(model_file_name))
 
-            (TEST_PATTERNS + FIXTURE_PATTERNS + FACTORY_PATTERNS + SERIALIZER_PATTERNS).
+            (TEST_PATTERNS + SCAFFOLD_PATTERNS + FIXTURE_PATTERNS + FACTORY_PATTERNS + SERIALIZER_PATTERNS).
               map { |file| resolve_filename(file, model_name, table_name) }.
               each do |file|
                 if File.exist?(file)
