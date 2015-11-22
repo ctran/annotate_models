@@ -21,6 +21,7 @@ task :annotate_models => :environment do
   options[:show_indexes] = Annotate.true?(ENV['show_indexes'])
   options[:simple_indexes] = Annotate.true?(ENV['simple_indexes'])
   options[:model_dir] = ENV['model_dir'] ? ENV['model_dir'].split(',') : ['app/models']
+  options[:root_dir] = ENV['root_dir'] ? ENV['root_dir'].split(',') : ['/']
   options[:include_version] = Annotate.true?(ENV['include_version'])
   options[:require] = ENV['require'] ? ENV['require'].split(',') : []
   options[:exclude_tests] = Annotate.true?(ENV['exclude_tests'])
@@ -48,6 +49,7 @@ task :remove_annotation => :environment do
 
   options={ :is_rake => true }
   options[:model_dir] = ENV['model_dir']
+  options[:root_dir] = ENV['root_dir']
   options[:require] = ENV['require'] ? ENV['require'].split(',') : []
   options[:trace] = Annotate.true?(ENV['trace'])
   AnnotateModels.remove_annotations(options)

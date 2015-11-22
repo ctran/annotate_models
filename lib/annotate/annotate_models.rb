@@ -44,46 +44,6 @@ module AnnotateModels
   SERIALIZERS_TEST_DIR  = File.join("test", "serializers")
   SERIALIZERS_SPEC_DIR  = File.join("spec", "serializers")
 
-
-  TEST_PATTERNS = [
-    File.join(UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
-    File.join(MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
-    File.join(SPEC_MODEL_DIR, "%MODEL_NAME%_spec.rb"),
-  ]
-
-  FIXTURE_PATTERNS = [
-    File.join(FIXTURE_TEST_DIR, "%TABLE_NAME%.yml"),
-    File.join(FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
-    File.join(FIXTURE_TEST_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
-    File.join(FIXTURE_SPEC_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
-  ]
-
-  SCAFFOLD_PATTERNS = [
-    File.join(CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
-    File.join(CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
-    File.join(REQUEST_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_spec.rb"),
-    File.join(ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb"),
-  ]
-
-  FACTORY_PATTERNS = [
-    File.join(EXEMPLARS_TEST_DIR,     "%MODEL_NAME%_exemplar.rb"),
-    File.join(EXEMPLARS_SPEC_DIR,     "%MODEL_NAME%_exemplar.rb"),
-    File.join(BLUEPRINTS_TEST_DIR,    "%MODEL_NAME%_blueprint.rb"),
-    File.join(BLUEPRINTS_SPEC_DIR,    "%MODEL_NAME%_blueprint.rb"),
-    File.join(FACTORY_GIRL_TEST_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
-    File.join(FACTORY_GIRL_SPEC_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
-    File.join(FACTORY_GIRL_TEST_DIR,  "%TABLE_NAME%.rb"),            # (new style)
-    File.join(FACTORY_GIRL_SPEC_DIR,  "%TABLE_NAME%.rb"),            # (new style)
-    File.join(FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
-    File.join(FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb"),
-  ]
-
-  SERIALIZER_PATTERNS = [
-    File.join(SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
-    File.join(SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
-    File.join(SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
-  ]
-
   # Don't show limit (#) on these column types
   # Example: show "integer" instead of "integer(4)"
   NO_LIMIT_COL_TYPES = ["integer", "boolean"]
@@ -95,6 +55,64 @@ module AnnotateModels
 
     def model_dir=(dir)
       @model_dir = dir
+    end
+
+    def root_dir
+      @root_dir.is_a?(Array) ? @root_dir : [@root_dir || "/"]
+    end
+
+    def root_dir=(dir)
+      @root_dir = dir
+    end
+
+    def get_patterns(pattern_types)
+      current_patterns = []
+      root_dir.each do |root_directory|
+        Array(pattern_types).each do |pattern_type|
+          current_patterns += case pattern_type
+          when 'test'
+            [
+              File.join(root_directory, UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
+              File.join(root_directory, MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
+              File.join(root_directory, SPEC_MODEL_DIR, "%MODEL_NAME%_spec.rb"),
+            ]
+          when 'fixture'
+            [
+              File.join(root_directory, FIXTURE_TEST_DIR, "%TABLE_NAME%.yml"),
+              File.join(root_directory, FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
+              File.join(root_directory, FIXTURE_TEST_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
+              File.join(root_directory, FIXTURE_SPEC_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
+            ]
+          when 'scaffold'
+            [
+              File.join(root_directory, CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
+              File.join(root_directory, CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
+              File.join(root_directory, REQUEST_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_spec.rb"),
+              File.join(root_directory, ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb"),
+            ]
+          when 'factory'
+            [
+              File.join(root_directory, EXEMPLARS_TEST_DIR,     "%MODEL_NAME%_exemplar.rb"),
+              File.join(root_directory, EXEMPLARS_SPEC_DIR,     "%MODEL_NAME%_exemplar.rb"),
+              File.join(root_directory, BLUEPRINTS_TEST_DIR,    "%MODEL_NAME%_blueprint.rb"),
+              File.join(root_directory, BLUEPRINTS_SPEC_DIR,    "%MODEL_NAME%_blueprint.rb"),
+              File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
+              File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
+              File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%TABLE_NAME%.rb"),            # (new style)
+              File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%TABLE_NAME%.rb"),            # (new style)
+              File.join(root_directory, FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
+              File.join(root_directory, FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb"),
+            ]
+          when 'serializer'
+            [
+              File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
+              File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
+              File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
+            ]
+          end
+        end
+      end
+      return current_patterns.map{ |p| p.sub(/^[\/]*/, '') }
     end
 
     # Simple quoting for the default column value
@@ -373,11 +391,11 @@ module AnnotateModels
 
         %w(test fixture factory serializer scaffold).each do |key|
           exclusion_key = "exclude_#{key.pluralize}".to_sym
-          patterns_constant = "#{key.upcase}_PATTERNS".to_sym
+          patterns_type = "#{key.downcase}"
           position_key = "position_in_#{key}".to_sym
 
           unless options[exclusion_key]
-            did_annotate = self.const_get(patterns_constant).
+            did_annotate = self.get_patterns(patterns_type).
               map { |file| resolve_filename(file, model_name, table_name) }.
               map { |file| annotate_one_file(file, info, position_key, options_with_position(options, position_key)) }.
               detect { |result| result } || did_annotate
@@ -483,6 +501,7 @@ module AnnotateModels
       end
 
       self.model_dir = options[:model_dir] if options[:model_dir]
+      self.root_dir = options[:root_dir] if options[:root_dir]
 
       annotated = []
       get_model_files(options).each do |file|
@@ -512,6 +531,7 @@ module AnnotateModels
 
     def remove_annotations(options={})
       self.model_dir = options[:model_dir] if options[:model_dir]
+      self.root_dir = options[:root_dir] if options[:root_dir]
       deannotated = []
       deannotated_klass = false
       get_model_files(options).each do |file|
@@ -524,7 +544,7 @@ module AnnotateModels
             model_file_name = file
             deannotated_klass = true if(remove_annotation_of_file(model_file_name))
 
-            (TEST_PATTERNS + SCAFFOLD_PATTERNS + FIXTURE_PATTERNS + FACTORY_PATTERNS + SERIALIZER_PATTERNS).
+            (get_patterns(%w[test scaffold fixture factory serializer])).
               map { |file| resolve_filename(file, model_name, table_name) }.
               each do |file|
                 if File.exist?(file)

@@ -16,6 +16,7 @@ if Rails.env.development?
       'show_indexes'            => 'true',
       'simple_indexes'          => 'false',
       'model_dir'               => 'app/models',
+      'root_dir'                => '/',
       'include_version'         => 'false',
       'require'                 => '',
       'exclude_tests'           => 'false',
