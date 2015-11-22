@@ -44,6 +44,9 @@ module AnnotateModels
   SERIALIZERS_TEST_DIR  = File.join("test", "serializers")
   SERIALIZERS_SPEC_DIR  = File.join("spec", "serializers")
 
+  # Controller files
+  CONTROLLER_DIR        = File.join("app", "controllers")
+
   # Don't show limit (#) on these column types
   # Example: show "integer" instead of "integer(4)"
   NO_LIMIT_COL_TYPES = ["integer", "boolean"]
@@ -108,6 +111,10 @@ module AnnotateModels
               File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
               File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
               File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
+            ]
+          when 'controller'
+            [
+              File.join(root_directory, CONTROLLER_DIR,  "%PLURALIZED_MODEL_NAME%_controller.rb")
             ]
           end
         end
@@ -376,6 +383,7 @@ module AnnotateModels
     #  :exclude_factories<Symbol>:: whether to skip modification of factory files
     #  :exclude_serializers<Symbol>:: whether to skip modification of serializer files
     #  :exclude_scaffolds<Symbol>:: whether to skip modification of scaffold files
+    #  :exclude_controllers<Symbol>:: whether to skip modification of controller files
     #
     def annotate(klass, file, header, options={})
       begin
@@ -389,7 +397,7 @@ module AnnotateModels
           did_annotate = true
         end
 
-        %w(test fixture factory serializer scaffold).each do |key|
+        %w(test fixture factory serializer scaffold controller).each do |key|
           exclusion_key = "exclude_#{key.pluralize}".to_sym
           patterns_type = "#{key.downcase}"
           position_key = "position_in_#{key}".to_sym
@@ -544,7 +552,7 @@ module AnnotateModels
             model_file_name = file
             deannotated_klass = true if(remove_annotation_of_file(model_file_name))
 
-            (get_patterns(%w[test scaffold fixture factory serializer])).
+            (get_patterns(%w[test scaffold fixture factory serializer controller])).
               map { |file| resolve_filename(file, model_name, table_name) }.
               each do |file|
                 if File.exist?(file)
