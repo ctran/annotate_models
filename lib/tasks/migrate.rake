@@ -29,7 +29,13 @@ module Annotate
     def self.update_annotations
       unless @@working || Annotate.skip_on_migration?
         @@working = true
-        Rake::Task['annotate_models'].invoke
+        if Rake::Task.task_defined?("annotate_models")
+          Rake::Task["annotate_models"].invoke
+        elsif Rake::Task.task_defined?("app:annotate_models")
+          Rake::Task["app:annotate_models"].invoke
+        else
+          raise "Don't know how to build task 'annotate_models'"
+        end
       end
     end
   end
