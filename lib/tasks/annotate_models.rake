@@ -1,6 +1,6 @@
 annotate_lib = File.expand_path(File.dirname(File.dirname(__FILE__)))
 
-if(!ENV['is_cli'])
+if !ENV['is_cli']
   task :set_annotation_options
   task :annotate_models => :set_annotation_options
 end
@@ -38,7 +38,8 @@ task :annotate_models => :environment do
   options[:trace] = Annotate.true?(ENV['trace'])
   options[:wrapper_open] = Annotate.fallback(ENV['wrapper_open'], ENV['wrapper'])
   options[:wrapper_close] = Annotate.fallback(ENV['wrapper_close'], ENV['wrapper'])
-  options[:ignore_columns] = ENV['ignore_columns']
+  options[:ignore_columns] = ENV.fetch('ignore_columns', nil)
+
   AnnotateModels.do_annotations(options)
 end
 

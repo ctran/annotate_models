@@ -143,10 +143,13 @@ module AnnotateModels
         info<< "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
       end
 
-      cols = klass.columns.dup
-      if options[:ignore_columns]
-        cols.reject! { |col| col.name.match(/#{options[:ignore_columns]}/) }
-      end
+      cols = if ignore_columns = options[:ignore_columns]
+               klass.columns.reject do |col|
+                 col.name.match(/#{ignore_columns}/)
+               end
+             else
+               klass.columns
+             end
 
       cols = cols.sort_by(&:name) if(options[:sort])
       cols = classified_sort(cols) if(options[:classified_sort])

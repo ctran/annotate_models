@@ -24,6 +24,7 @@ if Rails.env.development?
       'exclude_serializers'     => 'false',
       'exclude_scaffolds'       => 'false',
       'ignore_model_sub_dir'    => 'false',
+      'ignore_columns'          => nil,
       'skip_on_db_migrate'      => 'false',
       'format_bare'             => 'true',
       'format_rdoc'             => 'false',
