@@ -38,6 +38,7 @@ task :annotate_models => :environment do
   options[:trace] = Annotate.true?(ENV['trace'])
   options[:wrapper_open] = Annotate.fallback(ENV['wrapper_open'], ENV['wrapper'])
   options[:wrapper_close] = Annotate.fallback(ENV['wrapper_close'], ENV['wrapper'])
+  options[:ignore_columns] = ENV['ignore_columns']
   AnnotateModels.do_annotations(options)
 end
 

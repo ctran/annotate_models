@@ -143,7 +143,7 @@ module AnnotateModels
         info<< "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
       end
 
-      cols = klass.columns
+      cols = klass.columns.dup
       if options[:ignore_columns]
         cols.reject! { |col| col.name.match(/#{options[:ignore_columns]}/) }
       end
