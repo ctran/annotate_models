@@ -129,6 +129,11 @@ OptionParser.new do |opts|
     ENV['model_dir'] = dir
   end
 
+  opts.on('--root-dir dir',
+          "Annotate files stored within root dir projects, separate multiple dirs with comas") do |dir|
+    ENV['root_dir'] = dir
+  end
+
   opts.on('--ignore-model-subdirects',
           "Ignore subdirectories of the models directory") do |dir|
     ENV['ignore_model_sub_dir'] = "yes"
