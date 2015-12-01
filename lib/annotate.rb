@@ -33,7 +33,7 @@ module Annotate
     :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close, :wrapper
   ]
   PATH_OPTIONS=[
-    :require, :model_dir
+    :require, :model_dir, :root_dir
   ]
 
 
@@ -74,6 +74,10 @@ module Annotate
 
     if(options[:model_dir].empty?)
       options[:model_dir] = ['app/models']
+    end
+
+    if(options[:root_dir].empty?)
+      options[:root_dir] = ['']
     end
 
     options[:wrapper_open] ||= options[:wrapper]
