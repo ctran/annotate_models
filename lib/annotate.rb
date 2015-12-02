@@ -27,7 +27,7 @@ module Annotate
     :exclude_fixtures, :exclude_factories, :ignore_model_sub_dir,
     :format_bare, :format_rdoc, :format_markdown, :sort, :force, :trace,
     :timestamp, :exclude_serializers, :classified_sort, :show_foreign_keys,
-    :exclude_scaffolds, :exclude_controllers
+    :exclude_scaffolds, :exclude_controllers, :exclude_helpers
   ]
   OTHER_OPTIONS=[
     :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close, :wrapper

@@ -9,7 +9,7 @@ module AnnotateModels
   END_MARK         = "== Schema Information End"
   PATTERN          = /^\r?\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\r?\n(#.*\r?\n)*(\r?\n)*/
 
-  MATCHED_TYPES = %w(test fixture factory serializer scaffold controller)
+  MATCHED_TYPES = %w(test fixture factory serializer scaffold controller helper)
 
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
@@ -48,6 +48,9 @@ module AnnotateModels
 
   # Controller files
   CONTROLLER_DIR        = File.join("app", "controllers")
+
+  # Helper files
+  HELPER_DIR            = File.join("app", "helpers")
 
   # Don't show limit (#) on these column types
   # Example: show "integer" instead of "integer(4)"
@@ -117,6 +120,10 @@ module AnnotateModels
           when 'controller'
             [
               File.join(root_directory, CONTROLLER_DIR,  "%PLURALIZED_MODEL_NAME%_controller.rb")
+            ]
+          when 'helper'
+            [
+              File.join(root_directory, HELPER_DIR,  "%PLURALIZED_MODEL_NAME%_helper.rb")
             ]
           end
         end
@@ -389,6 +396,7 @@ module AnnotateModels
     #  :exclude_serializers<Symbol>:: whether to skip modification of serializer files
     #  :exclude_scaffolds<Symbol>:: whether to skip modification of scaffold files
     #  :exclude_controllers<Symbol>:: whether to skip modification of controller files
+    #  :exclude_helpers<Symbol>:: whether to skip modification of helper files
     #
     def annotate(klass, file, header, options={})
       begin
