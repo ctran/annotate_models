@@ -29,6 +29,7 @@ task :annotate_models => :environment do
   options[:exclude_fixtures] = Annotate.true?(ENV['exclude_fixtures'])
   options[:exclude_serializers] = Annotate.true?(ENV['exclude_serializers'])
   options[:exclude_scaffolds] = Annotate.true?(ENV['exclude_scaffolds'])
+  options[:exclude_controllers] = Annotate.true?(ENV['exclude_controllers'])
   options[:ignore_model_sub_dir] = Annotate.true?(ENV['ignore_model_sub_dir'])
   options[:format_bare] = Annotate.true?(ENV['format_bare'])
   options[:format_rdoc] = Annotate.true?(ENV['format_rdoc'])
