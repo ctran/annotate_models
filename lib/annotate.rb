@@ -36,24 +36,26 @@ module Annotate
     :require, :model_dir, :root_dir
   ]
 
-
   ##
   # Set default values that can be overridden via environment variables.
   #
   def self.set_defaults(options = {})
     return if(@has_set_defaults)
     @has_set_defaults = true
+
     options = HashWithIndifferentAccess.new(options)
+
     [POSITION_OPTIONS, FLAG_OPTIONS, PATH_OPTIONS, OTHER_OPTIONS].flatten.each do |key|
-      if(options.has_key?(key))
-        default_value = if(options[key].is_a?(Array))
+      if options.has_key?(key)
+        default_value = if options[key].is_a?(Array)
           options[key].join(",")
         else
           options[key]
         end
       end
-      default_value = ENV[key.to_s] if(!ENV[key.to_s].blank?)
-      ENV[key.to_s] = default_value.to_s
+
+      default_value = ENV[key.to_s] if !ENV[key.to_s].blank?
+      ENV[key.to_s] = default_value.nil? ? nil : default_value.to_s
     end
   end
 
