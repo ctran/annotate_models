@@ -9,7 +9,7 @@ module AnnotateModels
   END_MARK         = "== Schema Information End"
   PATTERN          = /^\r?\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\r?\n(#.*\r?\n)*(\r?\n)*/
 
-  MATCHED_TYPES = %w(test fixture factory serializer scaffold)
+  MATCHED_TYPES = %w(test fixture factory serializer scaffold controller helper)
 
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
@@ -45,6 +45,12 @@ module AnnotateModels
   SERIALIZERS_DIR       = File.join("app",  "serializers")
   SERIALIZERS_TEST_DIR  = File.join("test", "serializers")
   SERIALIZERS_SPEC_DIR  = File.join("spec", "serializers")
+
+  # Controller files
+  CONTROLLER_DIR        = File.join("app", "controllers")
+
+  # Helper files
+  HELPER_DIR            = File.join("app", "helpers")
 
   # Don't show limit (#) on these column types
   # Example: show "integer" instead of "integer(4)"
@@ -110,6 +116,14 @@ module AnnotateModels
               File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
               File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
               File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
+            ]
+          when 'controller'
+            [
+              File.join(root_directory, CONTROLLER_DIR,  "%PLURALIZED_MODEL_NAME%_controller.rb")
+            ]
+          when 'helper'
+            [
+              File.join(root_directory, HELPER_DIR,  "%PLURALIZED_MODEL_NAME%_helper.rb")
             ]
           end
         end
@@ -381,6 +395,8 @@ module AnnotateModels
     #  :exclude_factories<Symbol>:: whether to skip modification of factory files
     #  :exclude_serializers<Symbol>:: whether to skip modification of serializer files
     #  :exclude_scaffolds<Symbol>:: whether to skip modification of scaffold files
+    #  :exclude_controllers<Symbol>:: whether to skip modification of controller files
+    #  :exclude_helpers<Symbol>:: whether to skip modification of helper files
     #
     def annotate(klass, file, header, options={})
       begin
