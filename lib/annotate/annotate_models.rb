@@ -288,7 +288,9 @@ module AnnotateModels
         fk_info = "#\n# Foreign Keys\n#\n"
       end
 
-      foreign_keys = klass.connection.respond_to?(:foreign_keys) ? klass.connection.foreign_keys(klass.table_name) : []
+      return "" unless klass.connection.supports_foreign_keys? && klass.connection.respond_to?(:foreign_keys)
+
+      foreign_keys = klass.connection.foreign_keys(klass.table_name)
       return "" if foreign_keys.empty?
 
       max_size = foreign_keys.collect{|fk| fk.name.size}.max + 1

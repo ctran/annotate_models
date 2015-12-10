@@ -17,6 +17,7 @@ describe AnnotateModels do
     double("Conn",
       :indexes      => indexes,
       :foreign_keys => foreign_keys,
+      :supports_foreign_keys? => true,
     )
   end
 
