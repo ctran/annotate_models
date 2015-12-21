@@ -502,14 +502,20 @@ end
       Annotate::PATH_OPTIONS.each { |key| ENV[key.to_s] = '' }
     end
 
-    def encoding_comments_list_each
+    def magic_comments_list_each
       [
         '# encoding: UTF-8',
         '# coding: UTF-8',
         '# -*- coding: UTF-8 -*-',
         '#encoding: utf-8',
-        '# -*- encoding : utf-8 -*-'
-      ].each{|encoding_comment| yield encoding_comment }
+        '# encoding: utf-8',
+        '# -*- encoding : utf-8 -*-',
+        "# encoding: utf-8\n# frozen_string_literal: true",
+        "# frozen_string_literal: true\n# encoding: utf-8",
+        '# frozen_string_literal: true',
+        '#frozen_string_literal: false',
+        '# -*- frozen_string_literal : true -*-',
+      ].each{|magic_comment| yield magic_comment }
     end
 
     it "should put annotation before class if :position == 'before'" do
@@ -626,17 +632,22 @@ end
       expect(File.read(model_file_name)).to eq("#{schema_info}\n#{file_content}")
     end
 
-    it "should not touch encoding comments" do
-      encoding_comments_list_each do |encoding_comment|
+    it "should not touch magic comments" do
+      magic_comments_list_each do |magic_comment|
         write_model "user.rb", <<-EOS
-#{encoding_comment}
+#{magic_comment}
 class User < ActiveRecord::Base
 end
         EOS
 
         annotate_one_file :position => :before
 
-        expect(File.open(@model_file_name, &:readline)).to eq("#{encoding_comment}\n")
+        lines= magic_comment.split("\n")
+        File.open @model_file_name do |file|
+          lines.count.times do |index|
+            expect(file.readline).to eq "#{lines[index]}\n"
+          end
+        end
       end
     end
 

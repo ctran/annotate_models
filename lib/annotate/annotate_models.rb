@@ -330,8 +330,8 @@ module AnnotateModels
         old_columns = old_header && old_header.scan(column_pattern).sort
         new_columns = new_header && new_header.scan(column_pattern).sort
 
-        encoding = Regexp.new(/(^#\s*encoding:.*\n)|(^# coding:.*\n)|(^# -\*- coding:.*\n)|(^# -\*- encoding\s?:.*\n)/)
-        encoding_header = old_content.match(encoding).to_s
+        magic_comment_matcher= Regexp.new(/(^#\s*encoding:.*\n)|(^# coding:.*\n)|(^# -\*- coding:.*\n)|(^# -\*- encoding\s?:.*\n)|(^#\s*frozen_string_literal:.+\n)|(^# -\*- frozen_string_literal\s*:.+-\*-\n)/)
+        magic_comments= old_content.scan(magic_comment_matcher).flatten.compact
 
         if old_columns == new_columns && !options[:force]
           return false
@@ -349,12 +349,12 @@ module AnnotateModels
           # if there *was* no old schema info (no substitution happened) or :force was passed,
           # we simply need to insert it in correct position
           if new_content == old_content || options[:force]
-            old_content.sub!(encoding, '')
+            old_content.sub!(magic_comment_matcher, '')
             old_content.sub!(PATTERN, '')
 
             new_content = %w(after bottom).include?(options[position].to_s) ?
-              (encoding_header + (old_content.rstrip + "\n\n" + wrapped_info_block)) :
-              (encoding_header + wrapped_info_block + "\n" + old_content)
+              (magic_comments.join + (old_content.rstrip + "\n\n" + wrapped_info_block)) :
+              (magic_comments.join + wrapped_info_block + "\n" + old_content)
           end
 
           File.open(file_name, "wb") { |f| f.puts new_content }
