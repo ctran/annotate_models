@@ -418,8 +418,8 @@ module AnnotateModels
 
           unless options[exclusion_key]
             did_annotate = self.get_patterns(key).
-              map { |file| resolve_filename(file, model_name, table_name) }.
-              map { |file| annotate_one_file(file, info, position_key, options_with_position(options, position_key)) }.
+              map { |f| resolve_filename(f, model_name, table_name) }.
+              map { |f| annotate_one_file(f, info, position_key, options_with_position(options, position_key)) }.
               detect { |result| result } || did_annotate
           end
         end
@@ -567,10 +567,10 @@ module AnnotateModels
             deannotated_klass = true if(remove_annotation_of_file(model_file_name))
 
             get_patterns.
-              map { |file| resolve_filename(file, model_name, table_name) }.
-              each do |file|
-                if File.exist?(file)
-                  remove_annotation_of_file(file)
+              map { |f| resolve_filename(f, model_name, table_name) }.
+              each do |f|
+                if File.exist?(f)
+                  remove_annotation_of_file(f)
                   deannotated_klass = true
                 end
               end
