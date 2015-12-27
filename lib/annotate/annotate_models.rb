@@ -481,7 +481,7 @@ module AnnotateModels
       rescue LoadError
         # this is for non-rails projects, which don't get Rails auto-require magic
         file_path = File.expand_path(file)
-        if File.file?(file_path) && Kernel.require(file_path)
+        if File.file?(file_path) && silence_warnings { Kernel.require(file_path) }
           retry
         elsif model_path.match(/\//)
           model_path = model_path.split('/')[1..-1].join('/').to_s
@@ -611,6 +611,14 @@ module AnnotateModels
       [rest_cols, timestamps, associations].each {|a| a.sort_by!(&:name) }
 
       return ([id] << rest_cols << timestamps << associations).flatten
+    end
+
+    # Ignore warnings for the duration of the block ()
+    def silence_warnings
+      old_verbose, $VERBOSE = $VERBOSE, nil
+      yield
+    ensure
+      $VERBOSE = old_verbose
     end
   end
 end
