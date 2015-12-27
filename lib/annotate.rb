@@ -7,7 +7,7 @@ begin
   # ActiveSupport 3.x...
   require 'active_support/hash_with_indifferent_access'
   require 'active_support/core_ext/object/blank'
-rescue Exception => e
+rescue Exception
   # ActiveSupport 2.x...
   require 'active_support/core_ext/hash/indifferent_access'
   require 'active_support/core_ext/blank'
@@ -140,7 +140,7 @@ module Annotate
   def self.bootstrap_rake
     begin
       require 'rake/dsl_definition'
-    rescue Exception => e
+    rescue Exception
       # We might just be on an old version of Rake...
     end
     require 'rake'
