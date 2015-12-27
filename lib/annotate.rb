@@ -30,7 +30,7 @@ module Annotate
     :exclude_scaffolds, :exclude_controllers, :exclude_helpers
   ]
   OTHER_OPTIONS=[
-    :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close, :wrapper
+    :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close, :wrapper, :routes
   ]
   PATH_OPTIONS=[
     :require, :model_dir, :root_dir
@@ -96,6 +96,14 @@ module Annotate
 
   def self.skip_on_migration?
     ENV['skip_on_db_migrate'] =~ TRUE_RE
+  end
+
+  def self.include_routes?
+    ENV['routes'] =~ TRUE_RE
+  end
+
+  def self.include_models?
+    true
   end
 
   def self.loaded_tasks=(val); @loaded_tasks = val; end

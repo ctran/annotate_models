@@ -530,7 +530,7 @@ module AnnotateModels
         annotate_model_file(annotated, File.join(file), header, options)
       end
       if annotated.empty?
-        puts "Nothing to annotate."
+        puts "Model files unchanged."
       else
         puts "Annotated (#{annotated.length}): #{annotated.join(', ')}"
       end
@@ -542,7 +542,7 @@ module AnnotateModels
         klass = get_model_class(file)
         if klass && klass < ActiveRecord::Base && !klass.abstract_class? && klass.table_exists?
           if annotate(klass, file, header, options)
-            annotated << klass
+            annotated << file
           end
         end
       rescue Exception => e
