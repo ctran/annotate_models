@@ -182,6 +182,10 @@ OptionParser.new do |opts|
     ENV['hide_limit_column_types'] = "#{values}"
   end
 
+  opts.on('--ignore-unknown-models', "don't display warnings for bad model files" ) do |values|
+    ENV['ignore_unknown_models'] = "true"
+  end
+
 end.parse!
 
 options = Annotate.setup_options({ :is_rake => ENV['is_rake'] && !ENV['is_rake'].empty? })

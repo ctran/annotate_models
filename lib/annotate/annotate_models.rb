@@ -488,7 +488,7 @@ module AnnotateModels
       model_path = file.gsub(/\.rb$/, '')
       model_dir.each { |dir| model_path = model_path.gsub(/^#{dir}/, '').gsub(/^\//, '') }
       begin
-        get_loaded_model(model_path) or raise LoadError.new("cannot load a model from #{file}")
+        get_loaded_model(model_path) or raise BadModelFileError.new
       rescue LoadError
         # this is for non-rails projects, which don't get Rails auto-require magic
         file_path = File.expand_path(file)
@@ -555,6 +555,11 @@ module AnnotateModels
           if annotate(klass, file, header, options)
             annotated << file
           end
+        end
+      rescue BadModelFileError => e
+        unless options[:ignore_unknown_models]
+          puts "Unable to annotate #{file}: #{e.message}"
+          puts "\t" + e.backtrace.join("\n\t") if options[:trace]
         end
       rescue Exception => e
         puts "Unable to annotate #{file}: #{e.message}"
@@ -630,6 +635,12 @@ module AnnotateModels
       yield
     ensure
       $VERBOSE = old_verbose
+    end
+  end
+
+  class BadModelFileError < LoadError
+    def to_s
+      "file doesn't contain a valid model class"
     end
   end
 end
