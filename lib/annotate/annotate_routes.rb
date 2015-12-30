@@ -37,7 +37,8 @@ module AnnotateRoutes
       "#"
     ] + routes_map.map { |line| "# #{line}".rstrip }
 
-    (content, where_header_found) = strip_annotations(File.read(routes_file))
+    existing_text = File.read(routes_file)
+    (content, where_header_found) = strip_annotations(existing_text)
     changed = where_header_found != 0 # This will either be :before, :after, or
                                       # a number.  If the number is > 0, the
                                       # annotation was found somewhere in the
@@ -60,21 +61,25 @@ module AnnotateRoutes
 
     content = position_after ? (content + header) : header + content
 
-    write_contents(content)
-
-    puts "Route file annotated."
+    if write_contents(existing_text, content)
+      puts "#{routes_file} annotated."
+    else
+      puts "#{routes_file} unchanged."
+    end
   end
 
   def self.remove_annotations(options={})
     return unless(routes_exists?)
-
-    (content, where_header_found) = strip_annotations(File.read(routes_file))
+    existing_text = File.read(routes_file)
+    (content, where_header_found) = strip_annotations(existing_text)
 
     content = strip_on_removal(content, where_header_found)
 
-    write_contents(content)
-
-    puts "Removed annotations from routes file."
+    if write_contents(existing_text, content)
+      puts "Removed annotations from #{routes_file}."
+    else
+      puts "#{routes_file} unchanged."
+    end
   end
 
 protected
@@ -89,11 +94,15 @@ protected
     return routes_exists
   end
 
-  def self.write_contents(content)
-    content << '' unless(content.last == '') # Make sure we end on a trailing
-                                             # newline.
+  def self.write_contents(existing_text, new_content)
+    # Make sure we end on a trailing newline.
+    new_content << '' unless(new_content.last == '')
+    new_text = new_content.join("\n")
 
-    File.open(routes_file, "wb") { |f| f.puts(content.join("\n")) }
+    return false if existing_text == new_text
+
+    File.open(routes_file, "wb") { |f| f.puts(new_text) }
+    return true
   end
 
   def self.strip_annotations(content)

@@ -18,18 +18,16 @@ require 'optparse'
 require 'annotate'
 Annotate.bootstrap_rake
 
-target = {
-  :klass => AnnotateModels,
-  :task => :do_annotations,
-}
 has_set_position = {}
+target_action = :do_annotations
+
 OptionParser.new do |opts|
   opts.banner = "Usage: annotate [options] [model_file]*"
 
   opts.on('-d', '--delete',
           "Remove annotations from all model files or the routes.rb file") do
 
-    target[:task] = :remove_annotations
+    target_action = :remove_annotations
   end
 
   opts.on('-p', '--position [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
@@ -93,10 +91,7 @@ OptionParser.new do |opts|
 
   opts.on('-r', '--routes',
           "Annotate routes.rb with the output of 'rake routes'") do
-    target = {
-      :klass => AnnotateRoutes,
-      :task => :do_annotations
-    }
+    ENV['routes'] = 'true'
   end
 
   opts.on('-v', '--version',
@@ -127,6 +122,11 @@ OptionParser.new do |opts|
   opts.on('--model-dir dir',
           "Annotate model files stored in dir rather than app/models, separate multiple dirs with comas") do |dir|
     ENV['model_dir'] = dir
+  end
+
+  opts.on('--root-dir dir',
+          "Annotate files stored within root dir projects, separate multiple dirs with comas") do |dir|
+    ENV['root_dir'] = dir
   end
 
   opts.on('--ignore-model-subdirects',
@@ -178,8 +178,18 @@ OptionParser.new do |opts|
     ENV['ignore_columns'] = regex
   end
 
+  opts.on('--hide-limit-column-types VALUES', "don't show limit for given column types, separated by comas (i.e., `integer,boolean,text`)" ) do |values|
+    ENV['hide_limit_column_types'] = "#{values}"
+  end
+
+  opts.on('--ignore-unknown-models', "don't display warnings for bad model files" ) do |values|
+    ENV['ignore_unknown_models'] = "true"
+  end
+
 end.parse!
 
 options = Annotate.setup_options({ :is_rake => ENV['is_rake'] && !ENV['is_rake'].empty? })
 Annotate.eager_load(options)
-target[:klass].send(target[:task], options)
+
+AnnotateModels.send(target_action, options) if Annotate.include_models?
+AnnotateRoutes.send(target_action, options) if Annotate.include_routes?

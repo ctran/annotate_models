@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'rake', '>= 0.8.7', :require => false
-gem 'activerecord', '>= 2.3.0', :require => false
+gem 'rake', '>= 10.4.2', :require => false
+gem 'activerecord', '>= 4.2.5', :require => false
 
 group :development do
   gem 'mg', :require => false
@@ -23,6 +23,6 @@ group :development, :test do
 end
 
 group :test do
-  gem 'wrong', '>=0.6.2', :require => false
-  gem 'files', '>=0.2.1', :require => false
+  gem 'wrong', :require => false
+  gem 'files', :require => false
 end

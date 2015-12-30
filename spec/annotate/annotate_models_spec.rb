@@ -2,6 +2,7 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 require 'annotate/annotate_models'
 require 'annotate/active_record_patch'
+require 'active_support/core_ext/string'
 
 describe AnnotateModels do
   def mock_foreign_key(name, from_column, to_table, to_column = 'id')
@@ -17,6 +18,7 @@ describe AnnotateModels do
     double("Conn",
       :indexes      => indexes,
       :foreign_keys => foreign_keys,
+      :supports_foreign_keys? => true,
     )
   end
 
@@ -56,11 +58,14 @@ describe AnnotateModels do
   it { expect(AnnotateModels.quote(25)).to eql("25") }
   it { expect(AnnotateModels.quote(25.6)).to eql("25.6") }
   it { expect(AnnotateModels.quote(1e-20)).to eql("1.0e-20") }
+  it { expect(AnnotateModels.quote(BigDecimal.new("1.2"))).to eql("1.2") }
+  it { expect(AnnotateModels.quote([BigDecimal.new("1.2")])).to eql(["1.2"]) }
 
-  it "should get schema info" do
+  it "should get schema info with default options" do
     klass = mock_class(:users, :id, [
-                                     mock_column(:id, :integer),
-                                     mock_column(:name, :string, :limit => 50)
+                                     mock_column(:id, :integer,  :limit => 8),
+                                     mock_column(:name, :string, :limit => 50),
+                                     mock_column(:notes, :text,  :limit => 55),
                                     ])
 
     expect(AnnotateModels.get_schema_info(klass, "Schema Info")).to eql(<<-EOS)
@@ -68,8 +73,9 @@ describe AnnotateModels do
 #
 # Table name: users
 #
-#  id   :integer          not null, primary key
-#  name :string(50)       not null
+#  id    :integer          not null, primary key
+#  name  :string(50)       not null
+#  notes :text(55)         not null
 #
 EOS
   end
@@ -187,6 +193,61 @@ EOS
 # #{AnnotateModels::END_MARK}
 #++
 EOS
+  end
+
+  describe "#get_schema_info with custom options" do
+    def self.when_called_with(options = {})
+      expected = options.delete(:returns)
+
+      it "should work with options = #{options}" do
+        klass = mock_class(:users, :id, [
+                                       mock_column(:id,     :integer, :limit => 8),
+                                       mock_column(:active, :boolean, :limit => 1),
+                                       mock_column(:name,   :string,  :limit => 50),
+                                       mock_column(:notes,  :text,    :limit => 55),
+                                      ])
+        schema_info = AnnotateModels.get_schema_info(klass, "Schema Info", options)
+        expect(schema_info).to eql(expected)
+      end
+    end
+
+    when_called_with hide_limit_column_types: '', returns: <<-EOS.strip_heredoc
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id     :integer          not null, primary key
+      #  active :boolean          not null
+      #  name   :string(50)       not null
+      #  notes  :text(55)         not null
+      #
+    EOS
+
+    when_called_with hide_limit_column_types: 'integer,boolean', returns:
+      <<-EOS.strip_heredoc
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id     :integer          not null, primary key
+      #  active :boolean          not null
+      #  name   :string(50)       not null
+      #  notes  :text(55)         not null
+      #
+    EOS
+    
+    when_called_with hide_limit_column_types: 'integer,boolean,string,text', returns:
+      <<-EOS.strip_heredoc
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id     :integer          not null, primary key
+      #  active :boolean          not null
+      #  name   :string           not null
+      #  notes  :text             not null
+      #
+    EOS
   end
 
   describe "#get_model_class" do
@@ -435,6 +496,35 @@ end
     end
   end
 
+  describe '#resolve_filename' do
+
+    it 'should return the test path for a model' do
+      filename_template = 'test/unit/%MODEL_NAME%_test.rb'
+      model_name        = 'example_model'
+      table_name        = 'example_models'
+
+      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      expect(filename). to eq 'test/unit/example_model_test.rb'
+    end
+
+    it 'should return the fixture path for a model' do
+      filename_template = 'test/fixtures/%TABLE_NAME%.yml'
+      model_name        = 'example_model'
+      table_name        = 'example_models'
+
+      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      expect(filename). to eq 'test/fixtures/example_models.yml'
+    end
+
+    it 'should return the fixture path for a nested model' do
+      filename_template = 'test/fixtures/%PLURALIZED_MODEL_NAME%.yml'
+      model_name        = 'parent/child'
+      table_name        = 'parent_children'
+
+      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      expect(filename). to eq 'test/fixtures/parent/children.yml'
+    end
+  end
   describe "annotating a file" do
     before do
       @model_dir = Dir.mktmpdir('annotate_models')
@@ -448,6 +538,7 @@ end
                                         mock_column(:name, :string, :limit => 50)
                                        ])
       @schema_info = AnnotateModels.get_schema_info(@klass, "== Schema Info")
+      Annotate.reset_options
     end
 
     def write_model file_name, file_content
@@ -469,14 +560,20 @@ end
       Annotate::PATH_OPTIONS.each { |key| ENV[key.to_s] = '' }
     end
 
-    def encoding_comments_list_each
+    def magic_comments_list_each
       [
         '# encoding: UTF-8',
         '# coding: UTF-8',
         '# -*- coding: UTF-8 -*-',
         '#encoding: utf-8',
-        '# -*- encoding : utf-8 -*-'
-      ].each{|encoding_comment| yield encoding_comment }
+        '# encoding: utf-8',
+        '# -*- encoding : utf-8 -*-',
+        "# encoding: utf-8\n# frozen_string_literal: true",
+        "# frozen_string_literal: true\n# encoding: utf-8",
+        '# frozen_string_literal: true',
+        '#frozen_string_literal: false',
+        '# -*- frozen_string_literal : true -*-',
+      ].each{|magic_comment| yield magic_comment }
     end
 
     it "should put annotation before class if :position == 'before'" do
@@ -521,7 +618,7 @@ end
 
     it 'should wrap annotation if wrapper is specified' do
       annotate_one_file :wrapper_open => 'START', :wrapper_close => 'END'
-      expect(File.read(@model_file_name)).to eq("# START\n#{@schema_info}\n# END\n#{@file_content}")
+      expect(File.read(@model_file_name)).to eq("# START\n#{@schema_info}# END\n\n#{@file_content}")
     end
 
     describe "with existing annotation => :before" do
@@ -593,17 +690,22 @@ end
       expect(File.read(model_file_name)).to eq("#{schema_info}\n#{file_content}")
     end
 
-    it "should not touch encoding comments" do
-      encoding_comments_list_each do |encoding_comment|
+    it "should not touch magic comments" do
+      magic_comments_list_each do |magic_comment|
         write_model "user.rb", <<-EOS
-#{encoding_comment}
+#{magic_comment}
 class User < ActiveRecord::Base
 end
         EOS
 
         annotate_one_file :position => :before
 
-        expect(File.open(@model_file_name, &:readline)).to eq("#{encoding_comment}\n")
+        lines= magic_comment.split("\n")
+        File.open @model_file_name do |file|
+          lines.count.times do |index|
+            expect(file.readline).to eq "#{lines[index]}\n"
+          end
+        end
       end
     end
 

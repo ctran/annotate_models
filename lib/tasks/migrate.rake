@@ -2,20 +2,23 @@
 # (They are not used to build annotate itself.)
 
 # Append annotations to Rake tasks for ActiveRecord, so annotate automatically gets
-# run after doing db:migrate. 
-# Unfortunately it relies on ENV for options; it'd be nice to be able to set options
-# in a per-project config file so this task can read them.
-namespace :db do
-  task :migrate do
-    Annotate::Migration.update_annotations
-  end
+# run after doing db:migrate.
 
-  namespace :migrate do
-    [:change, :up, :down, :reset, :redo].each do |t|
-      task t do
-        Annotate::Migration.update_annotations 
+namespace :db do
+  [:migrate, :rollback].each do |cmd|
+    task cmd do
+      Rake::Task['set_annotation_options'].invoke
+      Annotate::Migration.update_annotations
+    end
+
+    namespace cmd do
+      [:change, :up, :down, :reset, :redo].each do |t|
+        task t do
+          Rake::Task['set_annotation_options'].invoke
+          Annotate::Migration.update_annotations
+        end
       end
-    end 
+    end
   end
 end
 
@@ -24,9 +27,25 @@ module Annotate
     @@working = false
 
     def self.update_annotations
-      unless @@working || (ENV['skip_on_db_migrate'] =~ /(true|t|yes|y|1)$/i)
+      unless @@working || Annotate.skip_on_migration?
         @@working = true
-        Rake::Task['annotate_models'].invoke 
+
+        self.update_models if Annotate.include_models?
+        self.update_routes if Annotate.include_routes?
+      end
+    end
+
+    def self.update_models
+      if Rake::Task.task_defined?("annotate_models")
+        Rake::Task["annotate_models"].invoke
+      elsif Rake::Task.task_defined?("app:annotate_models")
+        Rake::Task["app:annotate_models"].invoke
+      end
+    end
+
+    def self.update_routes
+      if Rake::Task.task_defined?("annotate_routes")
+        Rake::Task["annotate_routes"].invoke
       end
     end
   end
