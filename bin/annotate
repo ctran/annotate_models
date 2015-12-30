@@ -178,6 +178,10 @@ OptionParser.new do |opts|
     ENV['ignore_columns'] = regex
   end
 
+  opts.on('--hide-limit-column-types VALUES', "don't show limit for given column types, separated by comas (i.e., `integer,boolean,text`)" ) do |values|
+    ENV['hide_limit_column_types'] = "#{values}"
+  end
+
 end.parse!
 
 options = Annotate.setup_options({ :is_rake => ENV['is_rake'] && !ENV['is_rake'].empty? })

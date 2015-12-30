@@ -29,6 +29,7 @@ if Rails.env.development?
       'exclude_helpers'         => 'false',
       'ignore_model_sub_dir'    => 'false',
       'ignore_columns'          => nil,
+      'hide_limit_column_types' => '<%= AnnotateModels::NO_LIMIT_COL_TYPES.join(',') %>',
       'skip_on_db_migrate'      => 'false',
       'format_bare'             => 'true',
       'format_rdoc'             => 'false',
