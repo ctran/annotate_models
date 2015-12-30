@@ -1,3 +1,6 @@
+== 2.7.0
+See https://github.com/ctran/annotate_models/releases/tag/v2.7.0
+
 == 2.6.9
 * Support foreigh key (#241)
 * Check if model has skip tag in annotate_model_file (#167)
