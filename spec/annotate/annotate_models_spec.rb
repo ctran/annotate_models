@@ -2,6 +2,7 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 require 'annotate/annotate_models'
 require 'annotate/active_record_patch'
+require 'active_support/core_ext/string'
 
 describe AnnotateModels do
   def mock_foreign_key(name, from_column, to_table, to_column = 'id')
@@ -60,10 +61,11 @@ describe AnnotateModels do
   it { expect(AnnotateModels.quote(BigDecimal.new("1.2"))).to eql("1.2") }
   it { expect(AnnotateModels.quote([BigDecimal.new("1.2")])).to eql(["1.2"]) }
 
-  it "should get schema info" do
+  it "should get schema info with default options" do
     klass = mock_class(:users, :id, [
-                                     mock_column(:id, :integer),
-                                     mock_column(:name, :string, :limit => 50)
+                                     mock_column(:id, :integer,  :limit => 8),
+                                     mock_column(:name, :string, :limit => 50),
+                                     mock_column(:notes, :text,  :limit => 55),
                                     ])
 
     expect(AnnotateModels.get_schema_info(klass, "Schema Info")).to eql(<<-EOS)
@@ -71,8 +73,9 @@ describe AnnotateModels do
 #
 # Table name: users
 #
-#  id   :integer          not null, primary key
-#  name :string(50)       not null
+#  id    :integer          not null, primary key
+#  name  :string(50)       not null
+#  notes :text(55)         not null
 #
 EOS
   end
@@ -190,6 +193,61 @@ EOS
 # #{AnnotateModels::END_MARK}
 #++
 EOS
+  end
+
+  describe "#get_schema_info with custom options" do
+    def self.when_called_with(options = {})
+      expected = options.delete(:returns)
+
+      it "should work with options = #{options}" do
+        klass = mock_class(:users, :id, [
+                                       mock_column(:id,     :integer, :limit => 8),
+                                       mock_column(:active, :boolean, :limit => 1),
+                                       mock_column(:name,   :string,  :limit => 50),
+                                       mock_column(:notes,  :text,    :limit => 55),
+                                      ])
+        schema_info = AnnotateModels.get_schema_info(klass, "Schema Info", options)
+        expect(schema_info).to eql(expected)
+      end
+    end
+
+    when_called_with hide_limit_column_types: '', returns: <<-EOS.strip_heredoc
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id     :integer          not null, primary key
+      #  active :boolean          not null
+      #  name   :string(50)       not null
+      #  notes  :text(55)         not null
+      #
+    EOS
+
+    when_called_with hide_limit_column_types: 'integer,boolean', returns:
+      <<-EOS.strip_heredoc
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id     :integer          not null, primary key
+      #  active :boolean          not null
+      #  name   :string(50)       not null
+      #  notes  :text(55)         not null
+      #
+    EOS
+    
+    when_called_with hide_limit_column_types: 'integer,boolean,string,text', returns:
+      <<-EOS.strip_heredoc
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id     :integer          not null, primary key
+      #  active :boolean          not null
+      #  name   :string           not null
+      #  notes  :text             not null
+      #
+    EOS
   end
 
   describe "#get_model_class" do

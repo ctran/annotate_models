@@ -202,7 +202,7 @@ module AnnotateModels
             if col.limit.is_a? Array
               attrs << "(#{col.limit.join(', ')})"
             else
-              col_type << "(#{col.limit})" unless NO_LIMIT_COL_TYPES.include?(col_type)
+              col_type << "(#{col.limit})" unless hide_limit?(col_type, options)
             end
           end
         end
@@ -279,6 +279,17 @@ module AnnotateModels
         end
       end
       return index_info
+    end
+
+    def hide_limit?(col_type, options)
+      excludes = 
+        if options[:hide_limit_column_types].blank?
+          NO_LIMIT_COL_TYPES
+        else
+          options[:hide_limit_column_types].split(',')
+        end
+
+      excludes.include?(col_type)
     end
 
     def get_foreign_key_info(klass, options={})
