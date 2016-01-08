@@ -44,7 +44,7 @@ It also annotates geometrical columns, geom type and srid, when using
    #  path            :geometry        line_string, 4326
 
 Also, if you pass the -r option, it'll annotate routes.rb with the output of
-+rake routes+.
+<code>rake routes</code>.
 
 
 == Install
@@ -71,7 +71,7 @@ Into environment gems from Github checkout:
 
 == Usage
 
-(If you used the Gemfile install, prefix the below commands with +bundle exec+.)
+(If you used the Gemfile install, prefix the below commands with <code>bundle exec</code>.)
 
 === Usage in Rails
 
@@ -100,7 +100,7 @@ To remove routes.rb annotations:
 
     annotate --routes --delete
 
-To automatically annotate every time you run +db:migrate+, either run +rails g annotate:install+ or add +Annotate.load_tasks+ to your `Rakefile`. See the [configuration in Rails](#configuration-in-rails) section for more info.
+To automatically annotate every time you run <code>db:migrate</code>, either run <code>rails g annotate:install</code> or add +Annotate.load_tasks+ to your `Rakefile`. See the [configuration in Rails](#configuration-in-rails) section for more info.
 
 === Usage Outside of Rails
 
@@ -136,7 +136,7 @@ functionality:
     rake remove_annotation                        # Remove schema information from model and fixture files
 
 By default, once you've generated a configuration file, annotate will be
-executed whenever you run +rake db:migrate+ (but only in development mode).
+executed whenever you run <code>rake db:migrate</code> (but only in development mode).
 If you want to disable this behavior permanently, edit the +.rake+ file and
 change:
 
@@ -146,7 +146,7 @@ To:
 
     'skip_on_db_migrate'   => 'true',
 
-If you want to run +rake db:migrate+ as a one-off without running annotate,
+If you want to run <code>rake db:migrate</code> as a one-off without running annotate,
 you can do so with a simple environment variable, instead of editing the
 +.rake+ file:
 
