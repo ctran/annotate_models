@@ -178,10 +178,6 @@ OptionParser.new do |opts|
     ENV['ignore_columns'] = regex
   end
 
-  opts.on('-I', '--ignore-routes REGEX', "don't annotate routes that match a given REGEX (i.e., `annotate -I '(mobile|resque|pghero)'`" ) do |regex|
-    ENV['ignore_routes'] = regex
-  end
-
   opts.on('--hide-limit-column-types VALUES', "don't show limit for given column types, separated by comas (i.e., `integer,boolean,text`)" ) do |values|
     ENV['hide_limit_column_types'] = "#{values}"
   end
