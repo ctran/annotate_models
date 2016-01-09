@@ -31,7 +31,7 @@ module Annotate
   ]
   OTHER_OPTIONS=[
     :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close, :wrapper, :routes,
-    :hide_limit_column_types, :ignore_routes
+    :hide_limit_column_types,
   ]
   PATH_OPTIONS=[
     :require, :model_dir, :root_dir
