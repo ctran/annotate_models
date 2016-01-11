@@ -32,6 +32,10 @@ module AnnotateRoutes
     # keep the line around.
     routes_map.shift if(routes_map.first =~ /^\(in \//)
 
+    # Skip routes which match given regex
+    # Note: it matches the complete line (route_name, path, controller/action)
+    routes_map.reject!{|line| line.match(/#{options[:ignore_routes]}/)} if options[:ignore_routes]
+
     header = [
       "#{PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime("%Y-%m-%d %H:%M")})" : ""),
       "#"
