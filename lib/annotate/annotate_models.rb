@@ -320,7 +320,9 @@ module AnnotateModels
     # a schema info block (a comment starting with "== Schema Information"), check if it
     # matches the block that is already there. If so, leave it be. If not, remove the old
     # info block and write a new one.
-    # Returns true or false depending on whether the file was modified.
+    # 
+    # == Returns:
+    # true or false depending on whether the file was modified.
     #
     # === Options (opts)
     #  :force<Symbol>:: whether to update the file even if it doesn't seem to need it.
@@ -394,8 +396,6 @@ module AnnotateModels
     # info block (basically a comment containing information
     # on the columns and their types) and put it at the front
     # of the model and fixture source files.
-    # Returns true or false depending on whether the source
-    # files were modified.
     #
     # === Options (opts)
     #  :position_in_class<Symbol>:: where to place the annotated section in model file
@@ -411,16 +411,19 @@ module AnnotateModels
     #  :exclude_controllers<Symbol>:: whether to skip modification of controller files
     #  :exclude_helpers<Symbol>:: whether to skip modification of helper files
     #
+    # == Returns:
+    # an array of file names that were annotated.
+    #
     def annotate(klass, file, header, options={})
       begin
         info = get_schema_info(klass, header, options)
-        did_annotate = false
         model_name = klass.name.underscore
         table_name = klass.table_name
         model_file_name = File.join(file)
+        annotated = []
 
         if annotate_one_file(model_file_name, info, :position_in_class, options_with_position(options, :position_in_class))
-          did_annotate = true
+          annotated << model_file_name
         end
 
         MATCHED_TYPES.each do |key|
@@ -428,18 +431,21 @@ module AnnotateModels
           position_key = "position_in_#{key}".to_sym
 
           unless options[exclusion_key]
-            did_annotate = self.get_patterns(key).
+            self.get_patterns(key).
               map { |f| resolve_filename(f, model_name, table_name) }.
-              map { |f| annotate_one_file(f, info, position_key, options_with_position(options, position_key)) }.
-              detect { |result| result } || did_annotate
+              each { |f| 
+                if annotate_one_file(f, info, position_key, options_with_position(options, position_key))
+                  annotated << f
+                end
+              }
           end
         end
-
-        return did_annotate
       rescue Exception => e
         puts "Unable to annotate #{file}: #{e.message}"
         puts "\t" + e.backtrace.join("\n\t") if options[:trace]
       end
+
+      return annotated
     end
 
     # position = :position_in_fixture or :position_in_class
@@ -537,9 +543,10 @@ module AnnotateModels
       self.root_dir = options[:root_dir] if options[:root_dir]
 
       annotated = []
-      get_model_files(options).each do |file|
-        annotate_model_file(annotated, File.join(file), header, options)
+      get_model_files(options).each do |path, filename|
+        annotate_model_file(annotated, File.join(path, filename), header, options)
       end
+
       if annotated.empty?
         puts "Model files unchanged."
       else
@@ -552,9 +559,7 @@ module AnnotateModels
         return false if (/# -\*- SkipSchemaAnnotations.*/ =~ (File.exist?(file) ? File.read(file) : '') )
         klass = get_model_class(file)
         if klass && klass < ActiveRecord::Base && !klass.abstract_class? && klass.table_exists?
-          if annotate(klass, file, header, options)
-            annotated << file
-          end
+          annotated.concat(annotate(klass, file, header, options))
         end
       rescue BadModelFileError => e
         unless options[:ignore_unknown_models]

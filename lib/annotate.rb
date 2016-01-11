@@ -14,6 +14,8 @@ rescue Exception
 end
 
 module Annotate
+  TRUE_RE = /^(true|t|yes|y|1)$/i
+
   ##
   # The set of available options to customize the behavior of Annotate.
   #
@@ -60,7 +62,9 @@ module Annotate
     end
   end
 
-  TRUE_RE = /^(true|t|yes|y|1)$/i
+  ##
+  # TODO: what is the difference between this and set_defaults?
+  # 
   def self.setup_options(options = {})
     POSITION_OPTIONS.each do |key|
       options[key] = fallback(ENV[key.to_s], ENV['position'], 'before')
@@ -85,6 +89,11 @@ module Annotate
 
     options[:wrapper_open] ||= options[:wrapper]
     options[:wrapper_close] ||= options[:wrapper]
+
+    # These were added in 2.7.0 but so this is to revert to old behavior by default
+    options[:exclude_scaffolds] = Annotate.true?(ENV.fetch('exclude_scaffolds', 'true'))
+    options[:exclude_controllers] = Annotate.true?(ENV.fetch('exclude_controllers', 'true'))
+    options[:exclude_helpers] = Annotate.true?(ENV.fetch('exclude_helpers', 'true'))
 
     return options
   end
