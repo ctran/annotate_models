@@ -9,7 +9,7 @@ module AnnotateModels
   END_MARK         = "== Schema Information End"
   PATTERN          = /^\r?\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\r?\n(#.*\r?\n)*(\r?\n)*/
 
-  MATCHED_TYPES = %w(test fixture factory serializer scaffold controller helper)
+  MATCHED_TYPES = %w(test fixture factory serializer scaffold controller admin helper)
 
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
@@ -48,6 +48,9 @@ module AnnotateModels
 
   # Controller files
   CONTROLLER_DIR        = File.join("app", "controllers")
+
+  # Active admin registry files
+  ACTIVEADMIN_DIR        = File.join("app", "admin")
 
   # Helper files
   HELPER_DIR            = File.join("app", "helpers")
@@ -120,6 +123,10 @@ module AnnotateModels
           when 'controller'
             [
               File.join(root_directory, CONTROLLER_DIR,  "%PLURALIZED_MODEL_NAME%_controller.rb")
+            ]
+          when 'admin'
+            [
+              File.join(root_directory, ACTIVEADMIN_DIR,  "%MODEL_NAME%.rb")
             ]
           when 'helper'
             [
@@ -282,7 +289,7 @@ module AnnotateModels
     end
 
     def hide_limit?(col_type, options)
-      excludes = 
+      excludes =
         if options[:hide_limit_column_types].blank?
           NO_LIMIT_COL_TYPES
         else
@@ -320,7 +327,7 @@ module AnnotateModels
     # a schema info block (a comment starting with "== Schema Information"), check if it
     # matches the block that is already there. If so, leave it be. If not, remove the old
     # info block and write a new one.
-    # 
+    #
     # == Returns:
     # true or false depending on whether the file was modified.
     #
@@ -433,7 +440,7 @@ module AnnotateModels
           unless options[exclusion_key]
             self.get_patterns(key).
               map { |f| resolve_filename(f, model_name, table_name) }.
-              each { |f| 
+              each { |f|
                 if annotate_one_file(f, info, position_key, options_with_position(options, position_key))
                   annotated << f
                 end
