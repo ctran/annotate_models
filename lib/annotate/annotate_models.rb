@@ -59,6 +59,9 @@ module AnnotateModels
   # Example: show "integer" instead of "integer(4)"
   NO_LIMIT_COL_TYPES = ["integer", "boolean"]
 
+  # Don't show default value for these column types
+  NO_DEFAULT_COL_TYPES = ["json", "jsonb"]
+
   class << self
     def model_dir
       @model_dir.is_a?(Array) ? @model_dir : [@model_dir || "app/models"]
@@ -198,7 +201,7 @@ module AnnotateModels
         col_type = (col.type || col.sql_type).to_s
 
         attrs = []
-        attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || col_type == "jsonb"
+        attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || NO_DEFAULT_COL_TYPES.include?(col_type)
         attrs << "not null" unless col.null
         attrs << "primary key" if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect{|c|c.to_sym}.include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
 

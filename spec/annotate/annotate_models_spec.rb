@@ -150,6 +150,25 @@ EOS
 EOS
   end
 
+  it "should ignore default value of json columns " do
+    klass = mock_class(:users, nil, [
+                                     mock_column(:id, :integer),
+                                     mock_column(:profile,  :json, :default => '{}'),
+                                     mock_column(:settings, :jsonb, :default => '{}')
+                                    ])
+
+    expect(AnnotateModels.get_schema_info(klass, "Schema Info")).to eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id       :integer          not null
+#  profile  :json             not null
+#  settings :jsonb            not null
+#
+EOS
+  end
+
   it "should get foreign key info" do
            klass = mock_class(:users, :id, [
               mock_column(:id, :integer),
