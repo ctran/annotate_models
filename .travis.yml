@@ -8,3 +8,6 @@ rvm:
   - 2.3.0
 before_install:
   - rvm @global do gem install bundler
+script:
+  - bundle exec rspec
+  - bundle exec rubocop
