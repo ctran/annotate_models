@@ -628,7 +628,7 @@ module AnnotateModels
       associations = []
       id = nil
 
-      cols = cols.each do |c|
+      cols.each do |c|
         if c.name.eql?("id")
           id = c
         elsif (c.name.eql?("created_at") || c.name.eql?("updated_at"))
