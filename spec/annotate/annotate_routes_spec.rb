@@ -12,14 +12,14 @@ describe AnnotateRoutes do
   end
 
   it "should check if routes.rb exists" do
-    expect(File).to receive(:exists?).with(ROUTE_FILE).and_return(false)
+    expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(false)
     expect(AnnotateRoutes).to receive(:puts).with("Can`t find routes.rb")
     AnnotateRoutes.do_annotations
   end
 
   describe "When adding" do
     before(:each) do
-      expect(File).to receive(:exists?).with(ROUTE_FILE).and_return(true)
+      expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
       expect(AnnotateRoutes).to receive(:`).with("rake routes").and_return("")
     end
 
@@ -44,7 +44,7 @@ describe AnnotateRoutes do
   describe "When adding with older Rake versions" do
 
     before(:each) do
-      expect(File).to receive(:exists?).with(ROUTE_FILE).and_return(true)
+      expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
       expect(AnnotateRoutes).to receive(:`).with("rake routes").and_return("(in /bad/line)\ngood line")
       expect(File).to receive(:open).with(ROUTE_FILE, "wb").and_yield(mock_file)
       expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
@@ -67,7 +67,7 @@ describe AnnotateRoutes do
   describe "When adding with newer Rake versions" do
 
     before(:each) do
-      expect(File).to receive(:exists?).with(ROUTE_FILE).and_return(true)
+      expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
       expect(AnnotateRoutes).to receive(:`).with("rake routes").and_return("another good line\ngood line")
       expect(File).to receive(:open).with(ROUTE_FILE, "wb").and_yield(mock_file)
       expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
@@ -97,7 +97,7 @@ describe AnnotateRoutes do
   describe "When removing" do
 
     before(:each) do
-      expect(File).to receive(:exists?).with(ROUTE_FILE).and_return(true)
+      expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
       expect(File).to receive(:open).with(ROUTE_FILE, "wb").and_yield(mock_file)
       expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_REMOVED)
     end

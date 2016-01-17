@@ -103,7 +103,7 @@ module AnnotateRoutes
 
     def routes_exists?
       routes_exists = File.exist?(routes_file)
-      puts "Can't find routes.rb" unless routes_exists
+      puts 'Can`t find routes.rb' unless routes_exists
       routes_exists
     end
 
