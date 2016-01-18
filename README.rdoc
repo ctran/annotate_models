@@ -2,6 +2,7 @@
 
 {<img src="https://badge.fury.io/rb/annotate.svg" alt="Gem Version" />}[http://badge.fury.io/rb/annotate]
 {<img src="https://travis-ci.org/ctran/annotate_models.png" />}[https://travis-ci.org/ctran/annotate_models]
+{<img src="https://codeclimate.com/github/ctran/annotate_models/badges/gpa.svg" />}[https://codeclimate.com/github/ctran/annotate_models]
 {<img src="https://gemnasium.com/ctran/annotate_models.png" />}[https://gemnasium.com/ctran/annotate_models]
 
 Add a comment summarizing the current schema to the top or bottom of each of
