@@ -1,6 +1,7 @@
 == Annotate (aka AnnotateModels)
 
 {<img src="https://badge.fury.io/rb/annotate.svg" alt="Gem Version" />}[http://badge.fury.io/rb/annotate]
+{<img src="https://img.shields.io/gem/dt/annotate_models.svg?style=flat" />}[https://rubygems.org/gems/annotate_models]
 {<img src="https://travis-ci.org/ctran/annotate_models.png" />}[https://travis-ci.org/ctran/annotate_models]
 {<img src="https://codeclimate.com/github/ctran/annotate_models/badges/gpa.svg" />}[https://codeclimate.com/github/ctran/annotate_models]
 {<img src="https://gemnasium.com/ctran/annotate_models.png" />}[https://gemnasium.com/ctran/annotate_models]
