@@ -16,6 +16,7 @@ group :development, :test do
   gem 'guard-rspec', require: false
   gem 'terminal-notifier-guard', require: false
   gem 'simplecov', require: false
+  gem 'rubocop', require: false unless RUBY_VERSION =~ /^1.8/
 
   platforms :mri do
     gem 'pry', require: false
