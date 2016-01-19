@@ -18,7 +18,7 @@
 # Released under the same license as Ruby. No Support. No Warranty.
 #
 module AnnotateRoutes
-  PREFIX = "# == Route Map"
+  PREFIX = '# == Route Map'
 
   def self.do_annotations(options={})
     return unless(routes_exists?)
@@ -37,8 +37,8 @@ module AnnotateRoutes
     routes_map.reject!{|line| line.match(/#{options[:ignore_routes]}/)} if options[:ignore_routes]
 
     header = [
-      "#{PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime("%Y-%m-%d %H:%M")})" : ""),
-      "#"
+      "#{PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : ''),
+      '#'
     ] + routes_map.map { |line| "# #{line}".rstrip }
 
     existing_text = File.read(routes_file)
@@ -49,7 +49,7 @@ module AnnotateRoutes
                                       # middle of the file.  If the number is
                                       # zero, no annotation was found.
 
-    if(position_after)
+    if position_after
       # Ensure we have adequate trailing newlines at the end of the file to
       # ensure a blank line separating the content from the annotation.
       content << '' if(content.last != '')
@@ -89,12 +89,12 @@ module AnnotateRoutes
 protected
 
   def self.routes_file
-    @routes_rb ||= File.join("config", "routes.rb")
+    @routes_rb ||= File.join('config', 'routes.rb')
   end
 
   def self.routes_exists?
     routes_exists = File.exists?(routes_file)
-    puts "Can`t find routes.rb" if(!routes_exists)
+    puts "Can't find routes.rb" if(!routes_exists)
     return routes_exists
   end
 
@@ -105,7 +105,7 @@ protected
 
     return false if existing_text == new_text
 
-    File.open(routes_file, "wb") { |f| f.puts(new_text) }
+    File.open(routes_file, 'wb') { |f| f.puts(new_text) }
     return true
   end
 
@@ -117,13 +117,13 @@ protected
     content.split(/\n/, -1).each do |line|
       line_number += 1
       begin
-        if(mode == :header)
-          if(line !~ /\s*#/)
+        if mode == :header
+          if line !~ /\s*#/
             mode = :content
             raise unless (line == '')
           end
-        elsif(mode == :content)
-          if(line =~ /^\s*#\s*== Route.*$/)
+        elsif mode == :content
+          if line =~ /^\s*#\s*== Route.*$/
             header_found_at = line_number
             mode = :header
           else
@@ -147,9 +147,9 @@ protected
   end
 
   def self.strip_on_removal(content, where_header_found)
-    if(where_header_found == :before)
+    if where_header_found == :before
       content.shift while(content.first == '')
-    elsif(where_header_found == :after)
+    elsif where_header_found == :after
       content.pop while(content.last == '')
     end
     # TODO: If the user buried it in the middle, we should probably see about

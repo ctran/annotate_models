@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-unless File.exists?('./Rakefile') || File.exists?('./Gemfile')
-  abort "Please run annotate from the root of the project."
+unless File.exist?('./Rakefile') || File.exist?('./Gemfile')
+  abort 'Please run annotate from the root of the project.'
 end
 
 require 'rubygems'
@@ -20,58 +20,55 @@ Annotate.bootstrap_rake
 
 has_set_position = {}
 target_action = :do_annotations
+positions = %w(before top after bottom)
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: annotate [options] [model_file]*"
+  opts.banner = 'Usage: annotate [options] [model_file]*'
 
-  opts.on('-d', '--delete',
-          "Remove annotations from all model files or the routes.rb file") do
-
+  opts.on('-d', '--delete', 'Remove annotations from all model files or the routes.rb file') do
     target_action = :remove_annotations
   end
 
-  opts.on('-p', '--position [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
-          "Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)") do |p|
+  opts.on('-p', '--position [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)') do |p|
     ENV['position'] = p
-    [
-      'position_in_class','position_in_factory','position_in_fixture','position_in_test', 'position_in_routes', 'position_in_serializer'
-    ].each do |key|
+    %w(position_in_class position_in_factory position_in_fixture position_in_test position_in_routes position_in_serializer).each do |key|
       ENV[key] = p unless(has_set_position[key])
     end
   end
 
-  opts.on('--pc', '--position-in-class [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
-          "Place the annotations at the top (before) or the bottom (after) of the model file") do |p|
+  opts.on('--pc', '--position-in-class [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of the model file') do |p|
     ENV['position_in_class'] = p
     has_set_position['position_in_class'] = true
   end
 
-  opts.on('--pf', '--position-in-factory [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
-          "Place the annotations at the top (before) or the bottom (after) of any factory files") do |p|
+  opts.on('--pf', '--position-in-factory [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of any factory files') do |p|
     ENV['position_in_factory'] = p
     has_set_position['position_in_factory'] = true
   end
 
-  opts.on('--px', '--position-in-fixture [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
-          "Place the annotations at the top (before) or the bottom (after) of any fixture files") do |p|
+  opts.on('--px', '--position-in-fixture [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of any fixture files') do |p|
     ENV['position_in_fixture'] = p
     has_set_position['position_in_fixture'] = true
   end
 
-  opts.on('--pt', '--position-in-test [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
-          "Place the annotations at the top (before) or the bottom (after) of any test files") do |p|
+  opts.on('--pt', '--position-in-test [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of any test files') do |p|
     ENV['position_in_test'] = p
     has_set_position['position_in_test'] = true
   end
 
-  opts.on('--pr', '--position-in-routes [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
-          "Place the annotations at the top (before) or the bottom (after) of the routes.rb file") do |p|
+  opts.on('--pr', '--position-in-routes [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of the routes.rb file') do |p|
     ENV['position_in_routes'] = p
     has_set_position['position_in_routes'] = true
   end
 
-  opts.on('--ps', '--position-in-serializer [before|top|after|bottom]', ['before', 'top', 'after', 'bottom'],
-          "Place the annotations at the top (before) or the bottom (after) of the serializer files") do |p|
+  opts.on('--ps', '--position-in-serializer [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of the serializer files') do |p|
     ENV['position_in_serializer'] = p
     has_set_position['position_in_serializer'] = true
   end
@@ -89,34 +86,32 @@ OptionParser.new do |opts|
     ENV['wrapper_close'] = p
   end
 
-  opts.on('-r', '--routes',
-          "Annotate routes.rb with the output of 'rake routes'") do
+  opts.on('-r', '--routes', "Annotate routes.rb with the output of 'rake routes'") do
     ENV['routes'] = 'true'
   end
 
   opts.on('-v', '--version',
-          "Show the current version of this gem") do
+          'Show the current version of this gem') do
     puts "annotate v#{Annotate.version}"; exit
   end
 
-  opts.on('-m', '--show-migration',
-          "Include the migration version number in the annotation") do
-    ENV['include_version'] = "yes"
+  opts.on('-m', '--show-migration', 'Include the migration version number in the annotation') do
+    ENV['include_version'] = 'yes'
   end
 
   opts.on('-k', '--show-foreign-keys',
           "List the table's foreign key constraints in the annotation") do
-    ENV['show_foreign_keys'] = "yes"
+    ENV['show_foreign_keys'] = 'yes'
   end
 
   opts.on('-i', '--show-indexes',
           "List the table's database indexes in the annotation") do
-    ENV['show_indexes'] = "yes"
+    ENV['show_indexes'] = 'yes'
   end
 
   opts.on('-s', '--simple-indexes',
           "Concat the column's related indexes in the annotation") do
-    ENV['simple_indexes'] = "yes"
+    ENV['simple_indexes'] = 'yes'
   end
 
   opts.on('--model-dir dir',
@@ -131,17 +126,17 @@ OptionParser.new do |opts|
 
   opts.on('--ignore-model-subdirects',
           "Ignore subdirectories of the models directory") do |dir|
-    ENV['ignore_model_sub_dir'] = "yes"
+    ENV['ignore_model_sub_dir'] = 'yes'
   end
 
   opts.on('--sort',
           "Sort columns alphabetically, rather than in creation order") do |dir|
-    ENV['sort'] = "yes"
+    ENV['sort'] = 'yes'
   end
 
   opts.on('--classified-sort',
           "Sort columns alphabetically, but first goes id, then the rest columns, then the timestamp columns and then the association columns") do |dir|
-    ENV['classified_sort'] = "yes"
+    ENV['classified_sort'] = 'yes'
   end
 
   opts.on('-R', '--require path',
@@ -155,10 +150,10 @@ OptionParser.new do |opts|
 
   opts.on('-e', '--exclude [tests,fixtures,factories,serializers]', Array, "Do not annotate fixtures, test files, factories, and/or serializers") do |exclusions|
     exclusions ||= %w(tests fixtures factories)
-    exclusions.each { |exclusion| ENV["exclude_#{exclusion}"] = "yes" }
+    exclusions.each { |exclusion| ENV["exclude_#{exclusion}"] = 'yes' }
   end
 
-  opts.on('-f', '--format [bare|rdoc|markdown]', ['bare', 'rdoc', 'markdown'], 'Render Schema Infomation as plain/RDoc/Markdown') do |fmt|
+  opts.on('-f', '--format [bare|rdoc|markdown]', %w(bare rdoc markdown), 'Render Schema Infomation as plain/RDoc/Markdown') do |fmt|
     ENV["format_#{fmt}"] = 'yes'
   end
 
@@ -186,8 +181,8 @@ OptionParser.new do |opts|
     ENV['hide_limit_column_types'] = "#{values}"
   end
 
-  opts.on('--ignore-unknown-models', "don't display warnings for bad model files" ) do |values|
-    ENV['ignore_unknown_models'] = "true"
+  opts.on('--ignore-unknown-models', "don't display warnings for bad model files" ) do |_values|
+    ENV['ignore_unknown_models'] = 'true'
   end
 
 end.parse!
