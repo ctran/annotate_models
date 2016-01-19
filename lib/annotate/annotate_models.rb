@@ -628,12 +628,12 @@ module AnnotateModels
       associations = []
       id = nil
 
-      cols = cols.each do |c|
-        if c.name.eql?("id")
+      cols.each do |c|
+        if c.name.eql?('id')
           id = c
-        elsif (c.name.eql?("created_at") || c.name.eql?("updated_at"))
+        elsif (c.name.eql?('created_at') || c.name.eql?('updated_at'))
           timestamps << c
-        elsif c.name[-3,3].eql?("_id")
+        elsif c.name[-3,3].eql?('_id')
           associations << c
         else
           rest_cols << c
