@@ -163,11 +163,9 @@ module Annotate
     end
     require 'rake'
 
-    if File.exists?('./Rakefile')
-      load './Rakefile'
-    end
+    load './Rakefile' if File.exist?('./Rakefile')
     Rake::Task[:environment].invoke rescue nil
-    if(!defined?(Rails))
+    if !defined?(Rails)
       # Not in a Rails project, so time to load up the parts of
       # ActiveSupport we need.
       require 'active_support'
