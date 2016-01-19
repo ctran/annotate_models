@@ -12,10 +12,13 @@ group :development do
 end
 
 group :development, :test do
-  gem 'rspec', :require => false
-  gem 'guard-rspec', :require => false
-  gem 'terminal-notifier-guard', :require => false
-  gem 'rubocop', :require => false unless RUBY_VERSION =~ /^1.8/
+  gem 'rspec', require: false
+  gem 'guard-rspec', require: false
+  gem 'terminal-notifier-guard', require: false
+  gem 'simplecov', require: false
+  gem 'rubocop', require: false unless RUBY_VERSION =~ /^1.8/
+  gem 'coveralls'
+  gem 'codeclimate-test-reporter'
 
   platforms :mri do
     gem 'pry', require: false
