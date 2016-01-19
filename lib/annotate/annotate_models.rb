@@ -375,12 +375,14 @@ module AnnotateModels
             old_content.sub!(magic_comment_matcher, '')
             old_content.sub!(PATTERN, '')
 
-            new_content = %w(after bottom).include?(options[position].to_s) ?
-              (magic_comments.join + (old_content.rstrip + "\n\n" + wrapped_info_block)) :
-              (magic_comments.join + wrapped_info_block + "\n" + old_content)
+            if %w(after bottom).include?(options[position].to_s)
+              new_content = magic_comments.join + (old_content.rstrip + "\n\n" + wrapped_info_block)
+            else
+              new_content = magic_comments.join + wrapped_info_block + "\n" + old_content
+            end
           end
 
-          File.open(file_name, "wb") { |f| f.puts new_content }
+          File.open(file_name, 'wb') { |f| f.puts new_content }
           return true
         end
       else
@@ -391,14 +393,13 @@ module AnnotateModels
     def remove_annotation_of_file(file_name)
       if File.exist?(file_name)
         content = File.read(file_name)
-
         content.sub!(PATTERN, '')
 
-        File.open(file_name, "wb") { |f| f.puts content }
+        File.open(file_name, 'wb') { |f| f.puts content }
 
-        return true
+        true
       else
-        return false
+        false
       end
     end
 
