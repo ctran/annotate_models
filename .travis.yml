@@ -6,5 +6,12 @@ rvm:
   - 2.1
   - 2.2
   - 2.3.0
+  - ruby-head
+matrix:
+  allow_failures:
+    - rvm: ruby-head
 before_install:
   - rvm @global do gem install bundler
+script:
+  - bundle exec rspec
+  - bundle exec rubocop
