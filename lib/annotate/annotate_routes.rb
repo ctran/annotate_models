@@ -26,7 +26,7 @@ module AnnotateRoutes
     routes_map = AnnotateRoutes.app_routes_map(options)
 
     header = [
-      "#{PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : ''), '#'
+        "#{PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : ''), '#'
     ] + routes_map.map { |line| "# #{line}".rstrip }
 
     existing_text = File.read(routes_file)
@@ -58,16 +58,16 @@ module AnnotateRoutes
     # In old versions of Rake, the first line of output was the cwd.  Not so
     # much in newer ones.  We ditch that line if it exists, and if not, we
     # keep the line around.
-    routes_map.shift if(routes_map.first =~ /^\(in \//)
+    routes_map.shift if routes_map.first =~ /^\(in \//
 
     # Skip routes which match given regex
     # Note: it matches the complete line (route_name, path, controller/action)
-    routes_map.reject!{|line| line.match(/#{options[:ignore_routes]}/)} if options[:ignore_routes]
+    routes_map.reject! { |line| line.match(/#{options[:ignore_routes]}/) } if options[:ignore_routes]
 
     routes_map
   end
 
-protected
+  protected
 
   def self.routes_file
     @routes_rb ||= File.join('config', 'routes.rb')
@@ -81,7 +81,8 @@ protected
   end
 
   def self.write_contents(existing_text, header, options = {})
-    new_text = annotate_rutes(existing_text, header, options)
+    content, where_header_found = strip_annotations(existing_text)
+    new_text = annotate_routes(header, content, where_header_found, options)
 
     if existing_text == new_text
       false
@@ -91,9 +92,7 @@ protected
     end
   end
 
-  def self.annotate_rutes(existing_text, header, options = {})
-    content, where_header_found = strip_annotations(existing_text)
-
+  def self.annotate_routes(header, content, where_header_found, options = {})
     if %w(before top).include?(options[:position_in_routes])
       header = header << '' if content.first != ''
       new_content = header + content
@@ -125,20 +124,16 @@ protected
     mode = :content
     header_found_at = 0
     content.split(/\n/, -1).each_with_index do |line, line_number|
-      begin
-        if mode == :header && line !~ /\s*#/
-          mode = :content
-          raise unless line == ''
-        elsif mode == :content
-          if line =~ /^\s*#\s*== Route.*$/
-            header_found_at = line_number + 1 # index start's at 0
-            mode = :header
-          else
-            real_content << line
-          end
+      if mode == :header && line !~ /\s*#/
+        mode = :content
+        next unless line == ''
+      elsif mode == :content
+        if line =~ /^\s*#\s*== Route.*$/
+          header_found_at = line_number + 1 # index start's at 0
+          mode = :header
+        else
+          real_content << line
         end
-      rescue
-        retry
       end
     end
 
@@ -155,9 +150,9 @@ protected
 
   def self.strip_on_removal(content, where_header_found)
     if where_header_found == :before
-      content.shift while(content.first == '')
+      content.shift while content.first == ''
     elsif where_header_found == :after
-      content.pop while(content.last == '')
+      content.pop while content.last == ''
     end
     # TODO: If the user buried it in the middle, we should probably see about
     # TODO: preserving a single line of space between the content above and
