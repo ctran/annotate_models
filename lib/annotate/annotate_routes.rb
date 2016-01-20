@@ -33,8 +33,6 @@ module AnnotateRoutes
 
     if write_contents(existing_text, header, options)
       puts "#{routes_file} annotated."
-    else
-      puts "#{routes_file} unchanged."
     end
   end
 
@@ -47,10 +45,10 @@ module AnnotateRoutes
 
     if write_contents(existing_text, content, options)
       puts "Removed annotations from #{routes_file}."
-    else
-      puts "#{routes_file} unchanged."
     end
   end
+
+  private
 
   def self.app_routes_map(options)
     routes_map = `rake routes`.split(/\n/, -1)
@@ -62,12 +60,12 @@ module AnnotateRoutes
 
     # Skip routes which match given regex
     # Note: it matches the complete line (route_name, path, controller/action)
-    routes_map.reject! { |line| line.match(/#{options[:ignore_routes]}/) } if options[:ignore_routes]
+    if options[:ignore_routes]
+      routes_map.reject! { |line| line =~ /#{options[:ignore_routes]}/ }
+    end
 
     routes_map
   end
-
-  protected
 
   def self.routes_file
     @routes_rb ||= File.join('config', 'routes.rb')
@@ -82,9 +80,14 @@ module AnnotateRoutes
 
   def self.write_contents(existing_text, header, options = {})
     content, where_header_found = strip_annotations(existing_text)
-    new_text = annotate_routes(header, content, where_header_found, options)
+    new_content = annotate_routes(header, content, where_header_found, options)
+
+    # Make sure we end on a trailing newline.
+    new_content << '' unless new_content.last == ''
+    new_text = new_content.join("\n")
 
     if existing_text == new_text
+      puts "#{routes_file} unchanged."
       false
     else
       File.open(routes_file, 'wb') { |f| f.puts(new_text) }
@@ -108,9 +111,7 @@ module AnnotateRoutes
       new_content = content + header
     end
 
-    # Make sure we end on a trailing newline.
-    new_content << '' unless new_content.last == ''
-    new_content.join("\n")
+    new_content
   end
 
   # TODO: write the method doc using ruby rdoc formats
@@ -123,6 +124,7 @@ module AnnotateRoutes
     real_content = []
     mode = :content
     header_found_at = 0
+
     content.split(/\n/, -1).each_with_index do |line, line_number|
       if mode == :header && line !~ /\s*#/
         mode = :content
@@ -137,15 +139,18 @@ module AnnotateRoutes
       end
     end
 
+    return real_content, where_header_found(real_content, header_found_at)
+  end
+
+  def self.where_header_found(real_content, header_found_at)
     # By default assume the annotation was found in the middle of the file...
-    where_header_found = 0
     if header_found_at == 1 # ... unless we have evidence it was at the beginning ...
-      where_header_found = :before
+      return :before
     elsif header_found_at >= real_content.count # ... or that it was at the end.
-      where_header_found = :after
+      return :after
     end
 
-    return real_content, where_header_found
+    return header_found_at
   end
 
   def self.strip_on_removal(content, where_header_found)
@@ -154,6 +159,7 @@ module AnnotateRoutes
     elsif where_header_found == :after
       content.pop while content.last == ''
     end
+
     # TODO: If the user buried it in the middle, we should probably see about
     # TODO: preserving a single line of space between the content above and
     # TODO: below...
