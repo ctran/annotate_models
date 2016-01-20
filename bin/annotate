@@ -20,6 +20,7 @@ Annotate.bootstrap_rake
 
 has_set_position = {}
 target_action = :do_annotations
+positions = %w(before top after bottom)
 
 OptionParser.new do |opts|
   opts.banner = 'Usage: annotate [options] [model_file]*'
@@ -280,7 +281,7 @@ OptionParser.new do |opts|
 
   opts.on(
     '--ignore-unknown-models', "don't display warnings for bad model files"
-  ) do |_|
+  ) do |_values|
     ENV['ignore_unknown_models'] = 'true'
   end
 end.parse!

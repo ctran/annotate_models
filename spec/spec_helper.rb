@@ -1,3 +1,15 @@
+require 'coveralls'
+require 'codeclimate-test-reporter'
+require 'simplecov'
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+    Coveralls::SimpleCov::Formatter,
+    SimpleCov::Formatter::HTMLFormatter,
+    CodeClimate::TestReporter::Formatter
+]
+
+SimpleCov.start
+
 require 'rubygems'
 require 'bundler'
 Bundler.setup
@@ -18,10 +30,7 @@ module Annotate
   module Integration
     ABSOLUTE_GEM_ROOT=File.expand_path('../../', __FILE__)
 
-    CRUFT_PATTERNS=[
-      "%SCENARIO%/bin/*", "%SCENARIO%/log/*", "%SCENARIO%/tmp/*",
-      "%SCENARIO%/.bundle"
-    ]
+    CRUFT_PATTERNS= %w(%SCENARIO%/bin/* %SCENARIO%/log/* %SCENARIO%/tmp/* %SCENARIO%/.bundle)
     SCENARIO_HOME=File.join(File.dirname(__FILE__), 'integration')
     SCENARIOS=Dir.glob("#{SCENARIO_HOME}/*").
       select { |candidate| File.directory?(candidate) }.
