@@ -1,9 +1,11 @@
 # monkey patches
 
-module ::ActiveRecord
-  class Base
-    def self.method_missing(name, *args)
-      # ignore this, so unknown/unloaded macros won't cause parsing to fail
+class Object
+  module ActiveRecord
+    # Ignore unknown/unloaded macros that will cause parsing to fail.
+    class Base
+      def self.method_missing(*)
+      end
     end
   end
 end

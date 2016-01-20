@@ -16,25 +16,23 @@ ENV['rvm_pretty_print_flag'] = '0'
 ENV['BUNDLE_GEMFILE'] = './Gemfile'
 
 describe "annotate inside Rails, using #{CURRENT_RUBY}" do
-  
-  here = File.expand_path('..', __FILE__)
   chosen_scenario = nil
-  if(!ENV['SCENARIO'].blank?)
+  if !ENV['SCENARIO'].blank?
     chosen_scenario = File.expand_path(ENV['SCENARIO'])
     raise "Can't find specified scenario '#{chosen_scenario}'!" unless(File.directory?(chosen_scenario))
   end
   Annotate::Integration::SCENARIOS.each do |test_rig, base_dir, test_name|
     next if(chosen_scenario && chosen_scenario != test_rig)
     it "works under #{test_name}" do
-      if(!USING_RVM)
-        skip "Must have RVM installed."
+      if !USING_RVM
+        skip 'Must have RVM installed.'
         next
       end
 
       # Don't proceed if the working copy is dirty!
       expect(Annotate::Integration.is_clean?(test_rig)).to eq(true)
 
-      skip "temporarily ignored until Travis can run them"
+      skip 'temporarily ignored until Travis can run them'
 
       Bundler.with_clean_env do
         dir base_dir do
