@@ -139,18 +139,18 @@ module AnnotateRoutes
       end
     end
 
-    return real_content, where_header_found(real_content, header_found_at)
+    where_header_found(real_content, header_found_at)
   end
 
   def self.where_header_found(real_content, header_found_at)
     # By default assume the annotation was found in the middle of the file...
     if header_found_at == 1 # ... unless we have evidence it was at the beginning ...
-      return :before
+      return real_content, :before
     elsif header_found_at >= real_content.count # ... or that it was at the end.
-      return :after
+      return real_content, :after
     end
 
-    return header_found_at
+    return real_content, header_found_at
   end
 
   def self.strip_on_removal(content, where_header_found)
