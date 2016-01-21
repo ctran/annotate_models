@@ -64,7 +64,7 @@ module AnnotateModels
 
   class << self
     def model_dir
-      @model_dir.is_a?(Array) ? @model_dir : [@model_dir || "app/models"]
+      @model_dir.is_a?(Array) ? @model_dir : [@model_dir || 'app/models']
     end
 
     def model_dir=(dir)
@@ -72,70 +72,85 @@ module AnnotateModels
     end
 
     def root_dir
-      @root_dir.is_a?(Array) ? @root_dir : [@root_dir || ""]
+      @root_dir.is_a?(Array) ? @root_dir : [@root_dir || '']
     end
 
     def root_dir=(dir)
       @root_dir = dir
     end
 
+    def test_files
+      [
+          File.join(root_directory, UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
+          File.join(root_directory, MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
+          File.join(root_directory, SPEC_MODEL_DIR, "%MODEL_NAME%_spec.rb"),
+      ]
+    end
+
+    def fixture_files
+      [
+          File.join(root_directory, FIXTURE_TEST_DIR, "%TABLE_NAME%.yml"),
+          File.join(root_directory, FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
+          File.join(root_directory, FIXTURE_TEST_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
+          File.join(root_directory, FIXTURE_SPEC_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
+      ]
+    end
+
+    def scaffold_files
+      [
+          File.join(root_directory, CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
+          File.join(root_directory, CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
+          File.join(root_directory, REQUEST_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_spec.rb"),
+          File.join(root_directory, ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb"),
+      ]
+    end
+
+    def factory_files
+      [
+          File.join(root_directory, EXEMPLARS_TEST_DIR,     "%MODEL_NAME%_exemplar.rb"),
+          File.join(root_directory, EXEMPLARS_SPEC_DIR,     "%MODEL_NAME%_exemplar.rb"),
+          File.join(root_directory, BLUEPRINTS_TEST_DIR,    "%MODEL_NAME%_blueprint.rb"),
+          File.join(root_directory, BLUEPRINTS_SPEC_DIR,    "%MODEL_NAME%_blueprint.rb"),
+          File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
+          File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
+          File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%TABLE_NAME%.rb"),            # (new style)
+          File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%TABLE_NAME%.rb"),            # (new style)
+          File.join(root_directory, FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
+          File.join(root_directory, FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb"),
+      ]
+    end
+
+    def serialize_files
+      [
+          File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
+          File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
+          File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
+      ]
+    end
+
+    def files_by_pattern(root_directory, pattern_type)
+      case pattern_type
+        when 'test'       then test_files
+        when 'fixture'    then fixture_files
+        when 'scaffold'   then scaffold_files
+        when 'factory'    then factory_files
+        when 'serializer' then serialize_files
+        when 'controller'
+          [File.join(root_directory, CONTROLLER_DIR, "%PLURALIZED_MODEL_NAME%_controller.rb")]
+        when 'admin'
+          [File.join(root_directory, ACTIVEADMIN_DIR, "%MODEL_NAME%.rb")]
+        when 'helper'
+          [File.join(root_directory, HELPER_DIR, "%PLURALIZED_MODEL_NAME%_helper.rb")]
+        else
+          []
+      end
+    end
+
     def get_patterns(pattern_types=MATCHED_TYPES)
       current_patterns = []
       root_dir.each do |root_directory|
         Array(pattern_types).each do |pattern_type|
-          current_patterns += case pattern_type
-          when 'test'
-            [
-              File.join(root_directory, UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
-              File.join(root_directory, MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
-              File.join(root_directory, SPEC_MODEL_DIR, "%MODEL_NAME%_spec.rb"),
-            ]
-          when 'fixture'
-            [
-              File.join(root_directory, FIXTURE_TEST_DIR, "%TABLE_NAME%.yml"),
-              File.join(root_directory, FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
-              File.join(root_directory, FIXTURE_TEST_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
-              File.join(root_directory, FIXTURE_SPEC_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
-            ]
-          when 'scaffold'
-            [
-              File.join(root_directory, CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
-              File.join(root_directory, CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
-              File.join(root_directory, REQUEST_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_spec.rb"),
-              File.join(root_directory, ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb"),
-            ]
-          when 'factory'
-            [
-              File.join(root_directory, EXEMPLARS_TEST_DIR,     "%MODEL_NAME%_exemplar.rb"),
-              File.join(root_directory, EXEMPLARS_SPEC_DIR,     "%MODEL_NAME%_exemplar.rb"),
-              File.join(root_directory, BLUEPRINTS_TEST_DIR,    "%MODEL_NAME%_blueprint.rb"),
-              File.join(root_directory, BLUEPRINTS_SPEC_DIR,    "%MODEL_NAME%_blueprint.rb"),
-              File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
-              File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
-              File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%TABLE_NAME%.rb"),            # (new style)
-              File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%TABLE_NAME%.rb"),            # (new style)
-              File.join(root_directory, FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
-              File.join(root_directory, FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb"),
-            ]
-          when 'serializer'
-            [
-              File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
-              File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
-              File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
-            ]
-          when 'controller'
-            [
-              File.join(root_directory, CONTROLLER_DIR,  "%PLURALIZED_MODEL_NAME%_controller.rb")
-            ]
-          when 'admin'
-            [
-              File.join(root_directory, ACTIVEADMIN_DIR,  "%MODEL_NAME%.rb")
-            ]
-          when 'helper'
-            [
-              File.join(root_directory, HELPER_DIR,  "%PLURALIZED_MODEL_NAME%_helper.rb")
-            ]
-          end
+          current_patterns += files_by_pattern(root_directory, pattern_type)
         end
       end
       current_patterns.map{ |p| p.sub(/^[\/]*/, '') }
@@ -144,9 +159,9 @@ module AnnotateModels
     # Simple quoting for the default column value
     def quote(value)
       case value
-      when NilClass                 then "NULL"
-      when TrueClass                then "TRUE"
-      when FalseClass               then "FALSE"
+      when NilClass                 then 'NULL'
+      when TrueClass                then 'TRUE'
+      when FalseClass               then 'FALSE'
       when Float, Fixnum, Bignum    then value.to_s
         # BigDecimals need to be output in a non-normalized form and quoted.
       when BigDecimal               then value.to_s('F')
@@ -167,7 +182,7 @@ module AnnotateModels
     def get_schema_info(klass, header, options = {})
       info = "# #{header}\n"
       info<< "#\n"
-      if(options[:format_markdown])
+      if options[:format_markdown]
         info<< "# Table name: `#{klass.table_name}`\n"
         info<< "#\n"
         info<< "# ### Columns\n"
@@ -182,7 +197,7 @@ module AnnotateModels
       md_type_allowance = 18
       bare_type_allowance = 16
 
-      if(options[:format_markdown])
+      if options[:format_markdown]
         info<< sprintf( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
         info<< "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
       end
@@ -536,22 +551,23 @@ module AnnotateModels
       end
     end
 
+    def parse_options(options={})
+      self.model_dir = options[:model_dir] if options[:model_dir]
+      self.root_dir = options[:root_dir] if options[:root_dir]
+    end
+
     # We're passed a name of things that might be
     # ActiveRecord models. If we can find the class, and
     # if its a subclass of ActiveRecord::Base,
     # then pass it to the associated block
     def do_annotations(options={})
+      parse_options(options)
+
       header = options[:format_markdown] ? PREFIX_MD.dup : PREFIX.dup
-
-      if options[:include_version]
-        version = ActiveRecord::Migrator.current_version rescue 0
-        if version > 0
-          header << "\n# Schema version: #{version}"
-        end
+      version = ActiveRecord::Migrator.current_version rescue 0
+      if options[:include_version] && version > 0
+        header << "\n# Schema version: #{version}"
       end
-
-      self.model_dir = options[:model_dir] if options[:model_dir]
-      self.root_dir = options[:root_dir] if options[:root_dir]
 
       annotated = []
       get_model_files(options).each do |path, filename|
@@ -559,7 +575,7 @@ module AnnotateModels
       end
 
       if annotated.empty?
-        puts "Model files unchanged."
+        puts 'Model files unchanged.'
       else
         puts "Annotated (#{annotated.length}): #{annotated.join(', ')}"
       end
@@ -584,8 +600,8 @@ module AnnotateModels
     end
 
     def remove_annotations(options={})
-      self.model_dir = options[:model_dir] if options[:model_dir]
-      self.root_dir = options[:root_dir] if options[:root_dir]
+      parse_options(options)
+
       deannotated = []
       deannotated_klass = false
       get_model_files(options).each do |file|
@@ -596,7 +612,7 @@ module AnnotateModels
             model_name = klass.name.underscore
             table_name = klass.table_name
             model_file_name = file
-            deannotated_klass = true if(remove_annotation_of_file(model_file_name))
+            deannotated_klass = true if remove_annotation_of_file(model_file_name)
 
             get_patterns.
               map { |f| resolve_filename(f, model_name, table_name) }.
@@ -607,7 +623,7 @@ module AnnotateModels
                 end
               end
           end
-          deannotated << klass if(deannotated_klass)
+          deannotated << klass if deannotated_klass
         rescue Exception => e
           puts "Unable to deannotate #{File.join(file)}: #{e.message}"
           puts "\t" + e.backtrace.join("\n\t") if options[:trace]
@@ -617,10 +633,10 @@ module AnnotateModels
     end
 
     def resolve_filename(filename_template, model_name, table_name)
-      return filename_template.
-        gsub('%MODEL_NAME%', model_name).
-        gsub('%PLURALIZED_MODEL_NAME%', model_name.pluralize).
-        gsub('%TABLE_NAME%', table_name || model_name.pluralize)
+      filename_template.
+          gsub('%MODEL_NAME%', model_name).
+          gsub('%PLURALIZED_MODEL_NAME%', model_name.pluralize).
+          gsub('%TABLE_NAME%', table_name || model_name.pluralize)
     end
 
     def classified_sort(cols)
