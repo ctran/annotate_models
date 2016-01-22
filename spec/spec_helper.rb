@@ -14,6 +14,7 @@ require 'rubygems'
 require 'bundler'
 Bundler.setup
 
+require 'rake'
 require 'rspec'
 require 'wrong/adapters/rspec'
 
@@ -25,6 +26,10 @@ require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/class/subclasses'
 require 'active_support/core_ext/string/inflections'
 require 'annotate'
+
+require 'rubocop/rake_task'
+RuboCop::RakeTask.new
+Rake::Task['rubocop'].invoke
 
 module Annotate
   module Integration
