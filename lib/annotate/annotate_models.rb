@@ -1,6 +1,8 @@
 require 'bigdecimal'
 
 module AnnotateModels
+  TRUE_RE = /^(true|t|yes|y|1)$/i
+
   # Annotate Models plugin use this header
   COMPAT_PREFIX    = "== Schema Info"
   COMPAT_PREFIX_MD = "## Schema Info"
@@ -9,7 +11,7 @@ module AnnotateModels
   END_MARK         = "== Schema Information End"
   PATTERN          = /^\r?\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\r?\n(#.*\r?\n)*(\r?\n)*/
 
-  MATCHED_TYPES = %w(test fixture factory serializer scaffold controller admin helper)
+  MATCHED_TYPES = %w(test fixture factory serializer scaffold controller helper)
 
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
@@ -79,7 +81,7 @@ module AnnotateModels
       @root_dir = dir
     end
 
-    def test_files
+    def test_files(root_directory)
       [
           File.join(root_directory, UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
           File.join(root_directory, MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
@@ -87,7 +89,7 @@ module AnnotateModels
       ]
     end
 
-    def fixture_files
+    def fixture_files(root_directory)
       [
           File.join(root_directory, FIXTURE_TEST_DIR, "%TABLE_NAME%.yml"),
           File.join(root_directory, FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
@@ -96,7 +98,7 @@ module AnnotateModels
       ]
     end
 
-    def scaffold_files
+    def scaffold_files(root_directory)
       [
           File.join(root_directory, CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
           File.join(root_directory, CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
@@ -105,7 +107,7 @@ module AnnotateModels
       ]
     end
 
-    def factory_files
+    def factory_files(root_directory)
       [
           File.join(root_directory, EXEMPLARS_TEST_DIR,     "%MODEL_NAME%_exemplar.rb"),
           File.join(root_directory, EXEMPLARS_SPEC_DIR,     "%MODEL_NAME%_exemplar.rb"),
@@ -120,7 +122,7 @@ module AnnotateModels
       ]
     end
 
-    def serialize_files
+    def serialize_files(root_directory)
       [
           File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
           File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
@@ -130,11 +132,11 @@ module AnnotateModels
 
     def files_by_pattern(root_directory, pattern_type)
       case pattern_type
-        when 'test'       then test_files
-        when 'fixture'    then fixture_files
-        when 'scaffold'   then scaffold_files
-        when 'factory'    then factory_files
-        when 'serializer' then serialize_files
+        when 'test'       then test_files(root_directory)
+        when 'fixture'    then fixture_files(root_directory)
+        when 'scaffold'   then scaffold_files(root_directory)
+        when 'factory'    then factory_files(root_directory)
+        when 'serializer' then serialize_files(root_directory)
         when 'controller'
           [File.join(root_directory, CONTROLLER_DIR, "%PLURALIZED_MODEL_NAME%_controller.rb")]
         when 'admin'
@@ -146,7 +148,7 @@ module AnnotateModels
       end
     end
 
-    def get_patterns(pattern_types=MATCHED_TYPES)
+    def get_patterns(pattern_types=[])
       current_patterns = []
       root_dir.each do |root_directory|
         Array(pattern_types).each do |pattern_type|
@@ -401,7 +403,7 @@ module AnnotateModels
           return true
         end
       else
-        return false
+        false
       end
     end
 
@@ -416,6 +418,13 @@ module AnnotateModels
       else
         false
       end
+    end
+
+    def matched_types(options)
+      types = MATCHED_TYPES
+      types << 'admin' if options[:active_admin] =~ TRUE_RE && !types.include?('admin')
+
+      types
     end
 
     # Given the name of an ActiveRecord class, create a schema
@@ -452,7 +461,7 @@ module AnnotateModels
           annotated << model_file_name
         end
 
-        MATCHED_TYPES.each do |key|
+        matched_types(options).each do |key|
           exclusion_key = "exclude_#{key.pluralize}".to_sym
           position_key = "position_in_#{key}".to_sym
 
@@ -471,12 +480,12 @@ module AnnotateModels
         puts "\t" + e.backtrace.join("\n\t") if options[:trace]
       end
 
-      return annotated
+      annotated
     end
 
     # position = :position_in_fixture or :position_in_class
     def options_with_position(options, position_in)
-      options.merge(:position=>(options[position_in] || options[:position]))
+      options.merge(position: (options[position_in] || options[:position]))
     end
 
     # Return a list of the model files to annotate.
@@ -485,7 +494,7 @@ module AnnotateModels
     # in the model_dir directory.
     def get_model_files(options)
       models = []
-      if(!options[:is_rake])
+      if !options[:is_rake]
         models = ARGV.dup.reject{|m| m.match(/^(.*)=/)}
       end
 
@@ -614,7 +623,7 @@ module AnnotateModels
             model_file_name = file
             deannotated_klass = true if remove_annotation_of_file(model_file_name)
 
-            get_patterns.
+            get_patterns(matched_types(options)).
               map { |f| resolve_filename(f, model_name, table_name) }.
               each do |f|
                 if File.exist?(f)

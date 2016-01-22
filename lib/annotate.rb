@@ -33,7 +33,7 @@ module Annotate
   ]
   OTHER_OPTIONS=[
     :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close, :wrapper, :routes,
-    :hide_limit_column_types, :ignore_routes
+    :hide_limit_column_types, :ignore_routes, :active_admin
   ]
   PATH_OPTIONS=[
     :require, :model_dir, :root_dir
@@ -51,13 +51,13 @@ module Annotate
     [POSITION_OPTIONS, FLAG_OPTIONS, PATH_OPTIONS, OTHER_OPTIONS].flatten.each do |key|
       if options.has_key?(key)
         default_value = if options[key].is_a?(Array)
-          options[key].join(",")
+          options[key].join(',')
         else
           options[key]
         end
       end
 
-      default_value = ENV[key.to_s] if !ENV[key.to_s].blank?
+      default_value = ENV[key.to_s] unless ENV[key.to_s].blank?
       ENV[key.to_s] = default_value.nil? ? nil : default_value.to_s
     end
   end
@@ -79,13 +79,8 @@ module Annotate
       options[key] = (!ENV[key.to_s].blank?) ? ENV[key.to_s].split(',') : []
     end
 
-    if(options[:model_dir].empty?)
-      options[:model_dir] = ['app/models']
-    end
-
-    if(options[:root_dir].empty?)
-      options[:root_dir] = ['']
-    end
+    options[:model_dir] = ['app/models'] if options[:model_dir].empty?
+    options[:root_dir] = [''] if options[:root_dir].empty?
 
     options[:wrapper_open] ||= options[:wrapper]
     options[:wrapper_close] ||= options[:wrapper]
@@ -132,10 +127,10 @@ module Annotate
 
   def self.eager_load(options)
     self.load_requires(options)
-    require "annotate/active_record_patch"
+    require 'annotate/active_record_patch'
 
-    if(defined?(Rails))
-      if(Rails.version.split('.').first.to_i < 3)
+    if defined?(Rails)
+      if Rails.version.split('.').first.to_i < 3
         Rails.configuration.eager_load_paths.each do |load_path|
           matcher = /\A#{Regexp.escape(load_path)}(.*)\.rb\Z/
           Dir.glob("#{load_path}/**/*.rb").sort.each do |file|
