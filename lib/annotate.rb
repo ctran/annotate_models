@@ -19,41 +19,41 @@ module Annotate
   ##
   # The set of available options to customize the behavior of Annotate.
   #
-  POSITION_OPTIONS = [
+  POSITION_OPTIONS=[
     :position_in_routes, :position_in_class, :position_in_test,
     :position_in_fixture, :position_in_factory, :position,
     :position_in_serializer
-  ].freeze
-  FLAG_OPTIONS = [
+  ]
+  FLAG_OPTIONS=[
     :show_indexes, :simple_indexes, :include_version, :exclude_tests,
     :exclude_fixtures, :exclude_factories, :ignore_model_sub_dir,
     :format_bare, :format_rdoc, :format_markdown, :sort, :force, :trace,
     :timestamp, :exclude_serializers, :classified_sort, :show_foreign_keys,
-    :exclude_scaffolds, :exclude_controllers, :exclude_helpers, :ignore_unknown_models
-  ].freeze
-  OTHER_OPTIONS = [
+    :exclude_scaffolds, :exclude_controllers, :exclude_helpers, :ignore_unknown_models,
+  ]
+  OTHER_OPTIONS=[
     :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close, :wrapper, :routes,
     :hide_limit_column_types, :ignore_routes, :active_admin
-  ].freeze
-  PATH_OPTIONS = [
+  ]
+  PATH_OPTIONS=[
     :require, :model_dir, :root_dir
-  ].freeze
+  ]
 
   ##
   # Set default values that can be overridden via environment variables.
   #
   def self.set_defaults(options = {})
-    return if @has_set_defaults
+    return if(@has_set_defaults)
     @has_set_defaults = true
 
     options = HashWithIndifferentAccess.new(options)
 
     [POSITION_OPTIONS, FLAG_OPTIONS, PATH_OPTIONS, OTHER_OPTIONS].flatten.each do |key|
-      if options.key?(key)
+      if options.has_key?(key)
         default_value = if options[key].is_a?(Array)
-                          options[key].join(',')
-                        else
-                          options[key]
+          options[key].join(',')
+        else
+          options[key]
         end
       end
 
@@ -64,7 +64,7 @@ module Annotate
 
   ##
   # TODO: what is the difference between this and set_defaults?
-  #
+  # 
   def self.setup_options(options = {})
     POSITION_OPTIONS.each do |key|
       options[key] = fallback(ENV[key.to_s], ENV['position'], 'before')
@@ -73,10 +73,10 @@ module Annotate
       options[key] = true?(ENV[key.to_s])
     end
     OTHER_OPTIONS.each do |key|
-      options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s] : nil
+      options[key] = (!ENV[key.to_s].blank?) ? ENV[key.to_s] : nil
     end
     PATH_OPTIONS.each do |key|
-      options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s].split(',') : []
+      options[key] = (!ENV[key.to_s].blank?) ? ENV[key.to_s].split(',') : []
     end
 
     options[:model_dir] = ['app/models'] if options[:model_dir].empty?
@@ -90,7 +90,7 @@ module Annotate
     options[:exclude_controllers] = Annotate.true?(ENV.fetch('exclude_controllers', 'true'))
     options[:exclude_helpers] = Annotate.true?(ENV.fetch('exclude_helpers', 'true'))
 
-    options
+    return options
   end
 
   def self.reset_options
@@ -111,16 +111,11 @@ module Annotate
     true
   end
 
-  def self.loaded_tasks=(val)
-    @loaded_tasks = val
-  end
-
-  def self.loaded_tasks
-    @loaded_tasks
-  end
+  def self.loaded_tasks=(val); @loaded_tasks = val; end
+  def self.loaded_tasks; return @loaded_tasks; end
 
   def self.load_tasks
-    return if loaded_tasks
+    return if(self.loaded_tasks)
     self.loaded_tasks = true
 
     Dir[File.join(File.dirname(__FILE__), 'tasks', '**/*.rake')].each { |rake| load rake }
@@ -131,7 +126,7 @@ module Annotate
   end
 
   def self.eager_load(options)
-    load_requires(options)
+    self.load_requires(options)
     require 'annotate/active_record_patch'
 
     if defined?(Rails)
@@ -166,11 +161,7 @@ module Annotate
     require 'rake'
 
     load './Rakefile' if File.exist?('./Rakefile')
-    begin
-      Rake::Task[:environment].invoke
-    rescue
-      nil
-    end
+    Rake::Task[:environment].invoke rescue nil
     unless defined?(Rails)
       # Not in a Rails project, so time to load up the parts of
       # ActiveSupport we need.
@@ -179,17 +170,17 @@ module Annotate
       require 'active_support/core_ext/string/inflections'
     end
 
-    load_tasks
+    self.load_tasks
     Rake::Task[:set_annotation_options].invoke
   end
 
   def self.fallback(*args)
-    args.detect { |arg| !arg.blank? }
+    return args.detect { |arg| !arg.blank? }
   end
 
   def self.true?(val)
-    return false if val.blank?
-    return false unless val =~ TRUE_RE
-    true
+    return false if(val.blank?)
+    return false unless(val =~ TRUE_RE)
+    return true
   end
 end
