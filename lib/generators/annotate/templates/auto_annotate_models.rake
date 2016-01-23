@@ -31,7 +31,7 @@ if Rails.env.development?
       'ignore_columns'          => nil,
       'ignore_routes'           => nil,
       'ignore_unknown_models'   => 'false',
-      'hide_limit_column_types' => '<%= AnnotateModels::NO_LIMIT_COL_TYPES.join(',') %>',
+      'hide_limit_column_types' => '<%= AnnotateModels::NO_LIMIT_COL_TYPES.join(",") %>',
       'skip_on_db_migrate'      => 'false',
       'format_bare'             => 'true',
       'format_rdoc'             => 'false',
@@ -40,7 +40,7 @@ if Rails.env.development?
       'force'                   => 'false',
       'trace'                   => 'false',
       'wrapper_open'            => nil,
-      'wrapper_close'           => nil,
+      'wrapper_close'           => nil
     )
   end
 

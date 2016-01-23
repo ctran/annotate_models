@@ -1,9 +1,9 @@
-require 'coveralls'
+# require 'coveralls'
 require 'codeclimate-test-reporter'
 require 'simplecov'
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
-    Coveralls::SimpleCov::Formatter,
+    # Coveralls::SimpleCov::Formatter,
     SimpleCov::Formatter::HTMLFormatter,
     CodeClimate::TestReporter::Formatter
 ]
@@ -14,6 +14,7 @@ require 'rubygems'
 require 'bundler'
 Bundler.setup
 
+require 'rake'
 require 'rspec'
 require 'wrong/adapters/rspec'
 
@@ -25,6 +26,10 @@ require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/class/subclasses'
 require 'active_support/core_ext/string/inflections'
 require 'annotate'
+
+require 'rubocop/rake_task'
+RuboCop::RakeTask.new
+Rake::Task['rubocop'].invoke
 
 module Annotate
   module Integration
@@ -49,7 +54,7 @@ module Annotate
     end
 
     def self.nuke_all_cruft
-      SCENARIOS.each do |test_rig, base_dir, test_name|
+      SCENARIOS.each do |test_rig, _base_dir, _test_name|
         nuke_cruft(test_rig)
       end
     end

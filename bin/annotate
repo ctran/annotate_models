@@ -8,7 +8,7 @@ require 'rubygems'
 begin
   require 'bundler'
   Bundler.setup
-rescue Exception => e
+rescue Exception
 end
 
 here = File.expand_path(File.dirname __FILE__)
@@ -33,7 +33,7 @@ OptionParser.new do |opts|
           'Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)') do |p|
     ENV['position'] = p
     %w(position_in_class position_in_factory position_in_fixture position_in_test position_in_routes position_in_serializer).each do |key|
-      ENV[key] = p unless(has_set_position[key])
+      ENV[key] = p unless (has_set_position[key])
     end
   end
 
@@ -88,6 +88,10 @@ OptionParser.new do |opts|
 
   opts.on('-r', '--routes', "Annotate routes.rb with the output of 'rake routes'") do
     ENV['routes'] = 'true'
+  end
+
+  opts.on('-aa', '--active-admin', 'Annotate active_admin models') do |p|
+    ENV['active_admin'] = p
   end
 
   opts.on('-v', '--version',
@@ -169,25 +173,25 @@ OptionParser.new do |opts|
     ENV['trace'] = 'yes'
   end
 
-  opts.on('-I', '--ignore-columns REGEX', "don't annotate columns that match a given REGEX (i.e., `annotate -I '^(id|updated_at|created_at)'`" ) do |regex|
+  opts.on('-I', '--ignore-columns REGEX', "don't annotate columns that match a given REGEX (i.e., `annotate -I '^(id|updated_at|created_at)'`") do |regex|
     ENV['ignore_columns'] = regex
   end
 
-  opts.on('--ignore-routes REGEX', "don't annotate routes that match a given REGEX (i.e., `annotate -I '(mobile|resque|pghero)'`" ) do |regex|
+  opts.on('--ignore-routes REGEX', "don't annotate routes that match a given REGEX (i.e., `annotate -I '(mobile|resque|pghero)'`") do |regex|
     ENV['ignore_routes'] = regex
   end
 
-  opts.on('--hide-limit-column-types VALUES', "don't show limit for given column types, separated by comas (i.e., `integer,boolean,text`)" ) do |values|
+  opts.on('--hide-limit-column-types VALUES', "don't show limit for given column types, separated by comas (i.e., `integer,boolean,text`)") do |values|
     ENV['hide_limit_column_types'] = "#{values}"
   end
 
-  opts.on('--ignore-unknown-models', "don't display warnings for bad model files" ) do |_values|
+  opts.on('--ignore-unknown-models', "don't display warnings for bad model files") do |values|
     ENV['ignore_unknown_models'] = 'true'
   end
 
 end.parse!
 
-options = Annotate.setup_options({ :is_rake => ENV['is_rake'] && !ENV['is_rake'].empty? })
+options = Annotate.setup_options({is_rake: ENV['is_rake'] && !ENV['is_rake'].empty?})
 Annotate.eager_load(options)
 
 AnnotateModels.send(target_action, options) if Annotate.include_models?
