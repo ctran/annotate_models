@@ -2,12 +2,12 @@ require File.dirname(__FILE__) + '/../spec_helper.rb'
 require 'annotate/annotate_routes'
 
 describe AnnotateRoutes do
-  ROUTE_FILE = 'config/routes.rb'
-  ANNOTATION_ADDED = "#{ROUTE_FILE} annotated."
-  ANNOTATION_REMOVED = "Removed annotations from #{ROUTE_FILE}."
-  FILE_UNCHANGED = "#{ROUTE_FILE} unchanged."
+  ROUTE_FILE = 'config/routes.rb'.freeze
+  ANNOTATION_ADDED = "#{ROUTE_FILE} annotated.".freeze
+  ANNOTATION_REMOVED = "Removed annotations from #{ROUTE_FILE}.".freeze
+  FILE_UNCHANGED = "#{ROUTE_FILE} unchanged.".freeze
 
-  def mock_file(stubs={})
+  def mock_file(stubs = {})
     @mock_file ||= double(File, stubs)
   end
 
@@ -24,7 +24,7 @@ describe AnnotateRoutes do
     end
 
     it 'should insert annotations if file does not contain annotations' do
-      expect(File).to receive(:read).with(ROUTE_FILE).and_return("")
+      expect(File).to receive(:read).with(ROUTE_FILE).and_return('')
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
       expect(@mock_file).to receive(:puts).with("\n# == Route Map\n#\n")
       expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
@@ -64,7 +64,7 @@ describe AnnotateRoutes do
   describe 'When adding with newer Rake versions' do
     before(:each) do
       expect(File).to receive(:exists?).with(ROUTE_FILE).and_return(true)
-      expect(AnnotateRoutes).to receive(:`).with("rake routes").and_return("another good line\ngood line")
+      expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return("another good line\ngood line")
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
       expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
     end
@@ -84,7 +84,7 @@ describe AnnotateRoutes do
     it 'should add a timestamp when :timestamp is passed' do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
       expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
-      AnnotateRoutes.do_annotations :timestamp => true
+      AnnotateRoutes.do_annotations timestamp: true
     end
   end
 
