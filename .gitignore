@@ -9,7 +9,6 @@
 /.rbx
 /.rvmrc
 /.yardoc/*
-/Gemfile.lock
 /coverage/*
 /dist
 /doc/*
