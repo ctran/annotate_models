@@ -54,7 +54,7 @@ module Annotate
     end
 
     def self.nuke_all_cruft
-      SCENARIOS.each do |test_rig, base_dir, test_name|
+      SCENARIOS.each do |test_rig, _base_dir, _test_name|
         nuke_cruft(test_rig)
       end
     end

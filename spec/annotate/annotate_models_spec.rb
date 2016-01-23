@@ -7,18 +7,18 @@ require 'active_support/core_ext/string'
 describe AnnotateModels do
   def mock_foreign_key(name, from_column, to_table, to_column = 'id')
     double("ForeignKeyDefinition",
-      :name         => name,
-      :column       => from_column,
-      :to_table     => to_table,
-      :primary_key  => to_column,
+           :name         => name,
+           :column       => from_column,
+           :to_table     => to_table,
+           :primary_key  => to_column,
     )
   end
 
   def mock_connection(indexes = [], foreign_keys = [])
     double("Conn",
-      :indexes      => indexes,
-      :foreign_keys => foreign_keys,
-      :supports_foreign_keys? => true,
+           :indexes      => indexes,
+           :foreign_keys => foreign_keys,
+           :supports_foreign_keys? => true,
     )
   end
 
@@ -47,7 +47,8 @@ describe AnnotateModels do
 
     stubs = default_options.dup
     stubs.merge!(options)
-    stubs.merge!(:name => name, :type => type)
+    stubs[:name] = name
+stubs[:type] = type
 
     double("Column", stubs)
   end
@@ -174,13 +175,13 @@ EOS
               mock_column(:id, :integer),
               mock_column(:foreign_thing_id, :integer),
             ],
-            [
-              mock_foreign_key(
-                'fk_rails_02e851e3b7',
-                'foreign_thing_id',
-                'foreign_things'
-              )
-            ])
+                              [
+                                mock_foreign_key(
+                                  'fk_rails_02e851e3b7',
+                                  'foreign_thing_id',
+                                  'foreign_things'
+                                )
+                              ])
             expect(AnnotateModels.get_schema_info(klass, "Schema Info", :show_foreign_keys => true)).to eql(<<-EOS)
 # Schema Info
 #
@@ -274,7 +275,7 @@ EOS
 
     module ::ActiveRecord
       class Base
-        def self.has_many name
+        def self.has_many _name
         end
       end
     end
@@ -644,7 +645,7 @@ end
       before do
         annotate_one_file :position => :before
         another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer),]),
-                                                           "== Schema Info")
+                                                             "== Schema Info")
         @schema_info = another_schema_info
       end
 
@@ -668,7 +669,7 @@ end
       before do
         annotate_one_file :position => :after
         another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer),]),
-                                                           "== Schema Info")
+                                                             "== Schema Info")
         @schema_info = another_schema_info
       end
 

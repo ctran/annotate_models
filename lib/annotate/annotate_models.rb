@@ -59,27 +59,23 @@ module AnnotateModels
 
   # Don't show limit (#) on these column types
   # Example: show "integer" instead of "integer(4)"
-  NO_LIMIT_COL_TYPES = ["integer", "boolean"]
+  NO_LIMIT_COL_TYPES = %w(integer boolean)
 
   # Don't show default value for these column types
-  NO_DEFAULT_COL_TYPES = ["json", "jsonb"]
+  NO_DEFAULT_COL_TYPES = %w(json jsonb)
 
   class << self
     def model_dir
       @model_dir.is_a?(Array) ? @model_dir : [@model_dir || 'app/models']
     end
 
-    def model_dir=(dir)
-      @model_dir = dir
-    end
+    attr_writer :model_dir
 
     def root_dir
       @root_dir.is_a?(Array) ? @root_dir : [@root_dir || '']
     end
 
-    def root_dir=(dir)
-      @root_dir = dir
-    end
+    attr_writer :root_dir
 
     def test_files(root_directory)
       [
@@ -193,7 +189,7 @@ module AnnotateModels
       end
       info<< "#\n"
 
-      max_size = klass.column_names.map{|name| name.size}.max || 0
+      max_size = klass.column_names.map(&:size).max || 0
       max_size += options[:format_rdoc] ? 5 : 1
       md_names_overhead = 6
       md_type_allowance = 18
@@ -212,20 +208,20 @@ module AnnotateModels
                klass.columns
              end
 
-      cols = cols.sort_by(&:name) if(options[:sort])
-      cols = classified_sort(cols) if(options[:classified_sort])
+      cols = cols.sort_by(&:name) if options[:sort]
+      cols = classified_sort(cols) if options[:classified_sort]
       cols.each do |col|
         col_type = (col.type || col.sql_type).to_s
 
         attrs = []
         attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || NO_DEFAULT_COL_TYPES.include?(col_type)
-        attrs << "not null" unless col.null
-        attrs << "primary key" if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect{|c|c.to_sym}.include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
+        attrs << 'not null' unless col.null
+        attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
 
-        if col_type == "decimal"
+        if col_type == 'decimal'
           col_type << "(#{col.precision}, #{col.scale})"
-        elsif col_type != "spatial"
-          if (col.limit)
+        elsif col_type != 'spatial'
+          if col.limit
             if col.limit.is_a? Array
               attrs << "(#{col.limit.join(', ')})"
             else
@@ -235,15 +231,13 @@ module AnnotateModels
         end
 
         # Check out if we got an array column
-        if col.respond_to?(:array) && col.array
-          attrs << "is an Array"
-        end
+        attrs << 'is an Array' if col.respond_to?(:array) && col.array
 
         # Check out if we got a geometric column
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
           attrs << "#{col.geometry_type}, #{col.srid}"
-        elsif col.respond_to?(:geometric_type) and col.geometric_type.present?
+        elsif col.respond_to?(:geometric_type) && col.geometric_type.present?
           attrs << "#{col.geometric_type.to_s.downcase}, #{col.srid}"
         end
 
@@ -252,7 +246,7 @@ module AnnotateModels
         if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
           indices = klass.connection.indexes(klass.table_name)
           if indices = indices.select { |ind| ind.columns.include? col.name }
-            indices.sort_by{|ind| ind.name}.each do |ind|
+            indices.sort_by(&:name).each do |ind|
               ind = ind.columns.reject! { |i| i == col.name }
               attrs << (ind.length == 0 ? "indexed" : "indexed => [#{ind.join(", ")}]")
             end
@@ -288,24 +282,25 @@ module AnnotateModels
     end
 
     def get_index_info(klass, options={})
-      if(options[:format_markdown])
+      if options[:format_markdown]
         index_info = "#\n# ### Indexes\n#\n"
       else
         index_info = "#\n# Indexes\n#\n"
       end
 
       indexes = klass.connection.indexes(klass.table_name)
-      return "" if indexes.empty?
+      return '' if indexes.empty?
 
       max_size = indexes.collect{|index| index.name.size}.max + 1
-      indexes.sort_by{|index| index.name}.each do |index|
-        if(options[:format_markdown])
+      indexes.sort_by(&:name).each do |index|
+        if options[:format_markdown]
           index_info << sprintf("# * `%s`%s:\n#     * **`%s`**\n", index.name, index.unique ? " (_unique_)" : "", index.columns.join("`**\n#     * **`"))
         else
           index_info << sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{index.columns.join(",")})", index.unique ? "UNIQUE" : "").rstrip + "\n"
         end
       end
-      return index_info
+      
+      index_info
     end
 
     def hide_limit?(col_type, options)
@@ -320,27 +315,28 @@ module AnnotateModels
     end
 
     def get_foreign_key_info(klass, options={})
-      if(options[:format_markdown])
+      if options[:format_markdown]
         fk_info = "#\n# ### Foreign Keys\n#\n"
       else
         fk_info = "#\n# Foreign Keys\n#\n"
       end
 
-      return "" unless klass.connection.supports_foreign_keys? && klass.connection.respond_to?(:foreign_keys)
+      return '' unless klass.connection.supports_foreign_keys? && klass.connection.respond_to?(:foreign_keys)
 
       foreign_keys = klass.connection.foreign_keys(klass.table_name)
-      return "" if foreign_keys.empty?
+      return '' if foreign_keys.empty?
 
       max_size = foreign_keys.collect{|fk| fk.name.size}.max + 1
-      foreign_keys.sort_by{|fk| fk.name}.each do |fk|
+      foreign_keys.sort_by(&:name).each do |fk|
         ref_info = "#{fk.column} => #{fk.to_table}.#{fk.primary_key}"
-        if(options[:format_markdown])
+        if options[:format_markdown]
           fk_info << sprintf("# * `%s`:\n#     * **`%s`**\n", fk.name, ref_info)
         else
           fk_info << sprintf("#  %-#{max_size}.#{max_size}s %s", fk.name, "(#{ref_info})").rstrip + "\n"
         end
       end
-      return fk_info
+
+      fk_info
     end
 
     # Add a schema block to a file. If the file already contains
@@ -359,7 +355,7 @@ module AnnotateModels
     def annotate_one_file(file_name, info_block, position, options={})
       if File.exist?(file_name)
         old_content = File.read(file_name)
-        return false if(old_content =~ /# -\*- SkipSchemaAnnotations.*\n/)
+        return false if old_content =~ /# -\*- SkipSchemaAnnotations.*\n/
 
         # Ignore the Schema version line because it changes with each migration
         header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?)/
@@ -529,13 +525,13 @@ module AnnotateModels
       model_path = file.gsub(/\.rb$/, '')
       model_dir.each { |dir| model_path = model_path.gsub(/^#{dir}/, '').gsub(/^\//, '') }
       begin
-        get_loaded_model(model_path) or raise BadModelFileError.new
+        get_loaded_model(model_path) || raise(BadModelFileError.new)
       rescue LoadError
         # this is for non-rails projects, which don't get Rails auto-require magic
         file_path = File.expand_path(file)
         if File.file?(file_path) && silence_warnings { Kernel.require(file_path) }
           retry
-        elsif model_path.match(/\//)
+        elsif model_path =~ /\//
           model_path = model_path.split('/')[1..-1].join('/').to_s
           retry
         else
@@ -552,8 +548,8 @@ module AnnotateModels
         # Revert to the old way but it is not really robust
         ObjectSpace.each_object(::Class).
           select do |c|
-            Class === c and    # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
-            c.ancestors.respond_to?(:include?) and  # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
+            Class === c &&    # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
+            c.ancestors.respond_to?(:include?) &&  # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
             c.ancestors.include?(ActiveRecord::Base)
           end.
           detect { |c| ActiveSupport::Inflector.underscore(c.to_s) == model_path }
@@ -592,7 +588,7 @@ module AnnotateModels
 
     def annotate_model_file(annotated, file, header, options)
       begin
-        return false if (/# -\*- SkipSchemaAnnotations.*/ =~ (File.exist?(file) ? File.read(file) : '') )
+        return false if /# -\*- SkipSchemaAnnotations.*/ =~ (File.exist?(file) ? File.read(file) : '')
         klass = get_model_class(file)
         if klass && klass < ActiveRecord::Base && !klass.abstract_class? && klass.table_exists?
           annotated.concat(annotate(klass, file, header, options))
@@ -657,7 +653,7 @@ module AnnotateModels
       cols.each do |c|
         if c.name.eql?('id')
           id = c
-        elsif (c.name.eql?('created_at') || c.name.eql?('updated_at'))
+        elsif c.name.eql?('created_at') || c.name.eql?('updated_at')
           timestamps << c
         elsif c.name[-3,3].eql?('_id')
           associations << c
