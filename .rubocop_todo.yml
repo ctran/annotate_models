@@ -576,14 +576,6 @@ Style/SymbolLiteral:
   Exclude:
     - 'spec/annotate/annotate_models_spec.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-# IgnoredMethods: respond_to
-Style/SymbolProc:
-  Exclude:
-    - 'lib/annotate/annotate_models.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 Style/Tab:
@@ -631,14 +623,6 @@ Style/TrailingWhitespace:
 
 # Offense count: 2
 # Cop supports --auto-correct.
-# Configuration parameters: ExactNameMatch, AllowPredicates, AllowDSLWriters, IgnoreClassMethods, Whitelist.
-# Whitelist: to_ary, to_a, to_c, to_enum, to_h, to_hash, to_i, to_int, to_io, to_open, to_path, to_proc, to_r, to_regexp, to_str, to_s, to_sym
-Style/TrivialAccessors:
-  Exclude:
-    - 'lib/annotate/annotate_models.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
 Style/UnneededInterpolation:
   Exclude:
     - 'lib/annotate/annotate_routes.rb'
@@ -652,11 +636,3 @@ Style/UnneededPercentQ:
     - 'spec/integration/rails_2.3_with_bundler/config/boot.rb'
     - 'spec/integration/standalone.rb'
     - 'spec/spec_helper.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: SupportedStyles, WordRegex.
-# SupportedStyles: percent, brackets
-Style/WordArray:
-  EnforcedStyle: percent
-  MinSize: 3

@@ -59,27 +59,23 @@ module AnnotateModels
 
   # Don't show limit (#) on these column types
   # Example: show "integer" instead of "integer(4)"
-  NO_LIMIT_COL_TYPES = ["integer", "boolean"]
+  NO_LIMIT_COL_TYPES = %w(integer boolean)
 
   # Don't show default value for these column types
-  NO_DEFAULT_COL_TYPES = ["json", "jsonb"]
+  NO_DEFAULT_COL_TYPES = %w(json jsonb)
 
   class << self
     def model_dir
       @model_dir.is_a?(Array) ? @model_dir : [@model_dir || 'app/models']
     end
 
-    def model_dir=(dir)
-      @model_dir = dir
-    end
+    attr_writer :model_dir
 
     def root_dir
       @root_dir.is_a?(Array) ? @root_dir : [@root_dir || '']
     end
 
-    def root_dir=(dir)
-      @root_dir = dir
-    end
+    attr_writer :root_dir
 
     def test_files(root_directory)
       [
@@ -193,7 +189,7 @@ module AnnotateModels
       end
       info<< "#\n"
 
-      max_size = klass.column_names.map{|name| name.size}.max || 0
+      max_size = klass.column_names.map(&:size).max || 0
       max_size += options[:format_rdoc] ? 5 : 1
       md_names_overhead = 6
       md_type_allowance = 18
@@ -220,7 +216,7 @@ module AnnotateModels
         attrs = []
         attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || NO_DEFAULT_COL_TYPES.include?(col_type)
         attrs << 'not null' unless col.null
-        attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect{|c|c.to_sym}.include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
+        attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
 
         if col_type == 'decimal'
           col_type << "(#{col.precision}, #{col.scale})"
@@ -250,7 +246,7 @@ module AnnotateModels
         if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
           indices = klass.connection.indexes(klass.table_name)
           if indices = indices.select { |ind| ind.columns.include? col.name }
-            indices.sort_by{|ind| ind.name}.each do |ind|
+            indices.sort_by(&:name).each do |ind|
               ind = ind.columns.reject! { |i| i == col.name }
               attrs << (ind.length == 0 ? "indexed" : "indexed => [#{ind.join(", ")}]")
             end
@@ -296,7 +292,7 @@ module AnnotateModels
       return '' if indexes.empty?
 
       max_size = indexes.collect{|index| index.name.size}.max + 1
-      indexes.sort_by{|index| index.name}.each do |index|
+      indexes.sort_by(&:name).each do |index|
         if options[:format_markdown]
           index_info << sprintf("# * `%s`%s:\n#     * **`%s`**\n", index.name, index.unique ? " (_unique_)" : "", index.columns.join("`**\n#     * **`"))
         else
@@ -331,7 +327,7 @@ module AnnotateModels
       return '' if foreign_keys.empty?
 
       max_size = foreign_keys.collect{|fk| fk.name.size}.max + 1
-      foreign_keys.sort_by{|fk| fk.name}.each do |fk|
+      foreign_keys.sort_by(&:name).each do |fk|
         ref_info = "#{fk.column} => #{fk.to_table}.#{fk.primary_key}"
         if options[:format_markdown]
           fk_info << sprintf("# * `%s`:\n#     * **`%s`**\n", fk.name, ref_info)
