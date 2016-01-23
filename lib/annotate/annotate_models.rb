@@ -461,6 +461,12 @@ module AnnotateModels
           exclusion_key = "exclude_#{key.pluralize}".to_sym
           position_key = "position_in_#{key}".to_sym
 
+          # Same options for active_admin models
+          if key == 'admin'
+            exclusion_key = 'exclude_class'.to_sym
+            position_key = 'position_in_class'.to_sym
+          end
+
           unless options[exclusion_key]
             self.get_patterns(key).
               map { |f| resolve_filename(f, model_name, table_name) }.
