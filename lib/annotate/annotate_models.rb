@@ -241,7 +241,7 @@ module AnnotateModels
         # and print the type and SRID
         if col.respond_to?(:geometry_type)
           attrs << "#{col.geometry_type}, #{col.srid}"
-        elsif col.respond_to?(:geometric_type) and col.geometric_type.present?
+        elsif col.respond_to?(:geometric_type) && col.geometric_type.present?
           attrs << "#{col.geometric_type.to_s.downcase}, #{col.srid}"
         end
 
@@ -529,13 +529,13 @@ module AnnotateModels
       model_path = file.gsub(/\.rb$/, '')
       model_dir.each { |dir| model_path = model_path.gsub(/^#{dir}/, '').gsub(/^\//, '') }
       begin
-        get_loaded_model(model_path) or raise BadModelFileError.new
+        get_loaded_model(model_path) || raise(BadModelFileError.new)
       rescue LoadError
         # this is for non-rails projects, which don't get Rails auto-require magic
         file_path = File.expand_path(file)
         if File.file?(file_path) && silence_warnings { Kernel.require(file_path) }
           retry
-        elsif model_path.match(/\//)
+        elsif model_path =~ /\//
           model_path = model_path.split('/')[1..-1].join('/').to_s
           retry
         else
@@ -552,8 +552,8 @@ module AnnotateModels
         # Revert to the old way but it is not really robust
         ObjectSpace.each_object(::Class).
           select do |c|
-            Class === c and    # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
-            c.ancestors.respond_to?(:include?) and  # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
+            Class === c &&    # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
+            c.ancestors.respond_to?(:include?) &&  # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
             c.ancestors.include?(ActiveRecord::Base)
           end.
           detect { |c| ActiveSupport::Inflector.underscore(c.to_s) == model_path }
