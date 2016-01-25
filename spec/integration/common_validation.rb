@@ -53,7 +53,7 @@ module Annotate
         File.read("test/fixtures/tasks.yml").should == fixture
       end
 
-    protected
+      protected
 
       def self.apply_annotation(test_rig, fname, annotation, place_before=true)
         corpus = File.read(File.join(test_rig, fname))
