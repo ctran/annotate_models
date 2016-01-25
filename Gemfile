@@ -17,7 +17,7 @@ group :development, :test do
   gem 'terminal-notifier-guard', require: false
   gem 'simplecov', require: false
   gem 'rubocop', require: false unless RUBY_VERSION =~ /^1.8/
-  gem 'coveralls'
+  # gem 'coveralls'
   gem 'codeclimate-test-reporter'
 
   platforms :mri do
