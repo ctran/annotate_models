@@ -54,7 +54,7 @@ describe "annotate inside Rails, using #{CURRENT_RUBY}" do
           ENV['rvm_ruby_string']=CURRENT_RUBY
 
           require "#{base_dir}" # Will get "#{base_dir}.rb"...
-          klass = "Annotate::Validations::#{base_dir.gsub('.', '_').classify}".constantize
+          klass = "Annotate::Validations::#{base_dir.tr('.', '_').classify}".constantize
 
           Dir.chdir(temp_dir) do
             # bash is required by rvm
