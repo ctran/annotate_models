@@ -403,10 +403,11 @@ module AnnotateModels
       end
     end
 
-    def remove_annotation_of_file(file_name)
+    def remove_annotation_of_file(file_name, options={})
       if File.exist?(file_name)
         content = File.read(file_name)
-        content.sub!(PATTERN, '')
+        wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
+        content.sub!(/(#{wrapper_open})?#{PATTERN}/, '')
 
         File.open(file_name, 'wb') { |f| f.puts content }
 
@@ -623,13 +624,13 @@ module AnnotateModels
             model_name = klass.name.underscore
             table_name = klass.table_name
             model_file_name = file
-            deannotated_klass = true if remove_annotation_of_file(model_file_name)
+            deannotated_klass = true if remove_annotation_of_file(model_file_name, options)
 
             get_patterns(matched_types(options)).
               map { |f| resolve_filename(f, model_name, table_name) }.
               each do |f|
                 if File.exist?(f)
-                  remove_annotation_of_file(f)
+                  remove_annotation_of_file(f, options)
                   deannotated_klass = true
                 end
               end

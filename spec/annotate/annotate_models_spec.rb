@@ -514,6 +514,55 @@ class Foo < ActiveRecord::Base
 end
       EOS
     end
+
+    it "should remove opening wrapper" do
+      path = create "opening_wrapper.rb", <<-EOS
+# wrapper
+# == Schema Information
+#
+# Table name: foo
+#
+#  id                  :integer         not null, primary key
+#  created_at          :datetime
+#  updated_at          :datetime
+#
+
+class Foo < ActiveRecord::Base
+end
+      EOS
+
+      AnnotateModels.remove_annotation_of_file(path, wrapper_open: 'wrapper')
+
+      expect(content(path)).to eq <<-EOS
+class Foo < ActiveRecord::Base
+end
+      EOS
+    end
+
+    it "should remove closing wrapper" do
+      path = create "closing_wrapper.rb", <<-EOS
+class Foo < ActiveRecord::Base
+end
+
+# == Schema Information
+#
+# Table name: foo
+#
+#  id                  :integer         not null, primary key
+#  created_at          :datetime
+#  updated_at          :datetime
+#
+# wrapper
+
+      EOS
+
+      AnnotateModels.remove_annotation_of_file(path, wrapper_close: 'wrapper')
+
+      expect(content(path)).to eq <<-EOS
+class Foo < ActiveRecord::Base
+end
+      EOS
+    end
   end
 
   describe '#resolve_filename' do
