@@ -347,6 +347,7 @@ module AnnotateModels
     #
     def annotate(klass, file, header, options={})
       begin
+        klass.reset_column_information
         info = get_schema_info(klass, header, options)
         did_annotate = false
         model_name = klass.name.underscore
