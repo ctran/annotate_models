@@ -133,8 +133,8 @@ namespace :integration do
     integration_dir = File.expand_path(File.join(File.dirname(__FILE__), 'spec', 'integration'))
     # fixture_dir = File.expand_path(File.join(File.dirname(__FILE__), 'spec', 'fixtures'))
     target_dir = File.expand_path(ENV['TARGET']) if ENV['TARGET']
-    fail 'Must specify TARGET=x, where x is an integration test scenario!' unless target_dir && Dir.exist?(target_dir)
-    fail 'TARGET directory must be within spec/integration/!' unless target_dir.start_with?(integration_dir)
+    raise 'Must specify TARGET=x, where x is an integration test scenario!' unless target_dir && Dir.exist?(target_dir)
+    raise 'TARGET directory must be within spec/integration/!' unless target_dir.start_with?(integration_dir)
     candidates = {}
     FileList[
       "#{target_dir}/.rvmrc",

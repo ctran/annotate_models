@@ -248,7 +248,7 @@ module AnnotateModels
           if indices = indices.select { |ind| ind.columns.include? col.name }
             indices.sort_by(&:name).each do |ind|
               ind = ind.columns.reject! { |i| i == col.name }
-              attrs << (ind.length == 0 ? "indexed" : "indexed => [#{ind.join(", ")}]")
+              attrs << (ind.empty? ? "indexed" : "indexed => [#{ind.join(", ")}]")
             end
           end
         end
