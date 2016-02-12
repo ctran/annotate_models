@@ -542,7 +542,7 @@ Style/SpaceAfterComma:
 
 # Offense count: 16
 # Cop supports --auto-correct.
-Style/SpaceAfterControlKeyword:
+Style/SpaceAroundKeyword:
   Exclude:
     - 'spec/integration/common_validation.rb'
     - 'spec/integration/integration_spec.rb'
