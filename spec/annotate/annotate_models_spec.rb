@@ -48,7 +48,7 @@ describe AnnotateModels do
     stubs = default_options.dup
     stubs.merge!(options)
     stubs[:name] = name
-stubs[:type] = type
+    stubs[:type] = type
 
     double("Column", stubs)
   end
@@ -218,14 +218,20 @@ EOS
   describe "#get_schema_info with custom options" do
     def self.when_called_with(options = {})
       expected = options.delete(:returns)
+      default_columns = [
+        [:id, :integer, { :limit => 8 }],
+        [:active, :boolean, { :limit => 1 }],
+        [:name, :string, { :limit => 50 }],
+        [:notes, :text, { :limit => 55 }]
+      ]
 
       it "should work with options = #{options}" do
-        klass = mock_class(:users, :id, [
-                                       mock_column(:id,     :integer, :limit => 8),
-                                       mock_column(:active, :boolean, :limit => 1),
-                                       mock_column(:name,   :string,  :limit => 50),
-                                       mock_column(:notes,  :text,    :limit => 55),
-                                      ])
+        with_columns = (options.delete(:with_columns) || default_columns).map do |column|
+          mock_column(column[0], column[1], column[2])
+        end
+
+        klass = mock_class(:users, :id, with_columns)
+
         schema_info = AnnotateModels.get_schema_info(klass, "Schema Info", options)
         expect(schema_info).to eql(expected)
       end
@@ -266,6 +272,24 @@ EOS
       #  active :boolean          not null
       #  name   :string           not null
       #  notes  :text             not null
+      #
+    EOS
+
+    mocked_columns_without_id = [
+      [:active, :boolean, { :limit => 1 }],
+      [:name, :string, { :limit => 50 }],
+      [:notes, :text, { :limit => 55 }]
+    ]
+
+    when_called_with classified_sort: 'yes', with_columns: mocked_columns_without_id, returns:
+      <<-EOS.strip_heredoc
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  active :boolean          not null
+      #  name   :string(50)       not null
+      #  notes  :text(55)         not null
       #
     EOS
   end
