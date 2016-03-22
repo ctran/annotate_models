@@ -5,12 +5,14 @@ require 'annotate/active_record_patch'
 require 'active_support/core_ext/string'
 
 describe AnnotateModels do
-  def mock_foreign_key(name, from_column, to_table, to_column = 'id')
+  def mock_foreign_key(name, from_column, to_table, to_column = 'id', constraints = {})
     double("ForeignKeyDefinition",
            :name         => name,
            :column       => from_column,
            :to_table     => to_table,
            :primary_key  => to_column,
+           :on_delete    => constraints[:on_delete],
+           :on_update    => constraints[:on_update]
     )
   end
 
@@ -197,6 +199,36 @@ EOS
 EOS
   end
 
+  it "should get foreign key info if on_delete/on_update options present" do
+    klass = mock_class(:users, :id, [
+       mock_column(:id, :integer),
+       mock_column(:foreign_thing_id, :integer),
+     ],
+                       [
+                         mock_foreign_key(
+                           'fk_rails_02e851e3b7',
+                           'foreign_thing_id',
+                           'foreign_things',
+                           'id',
+                           on_delete: 'on_delete_value',
+                           on_update: 'on_update_value'
+                         )
+                       ])
+    expect(AnnotateModels.get_schema_info(klass, "Schema Info", :show_foreign_keys => true)).to eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id               :integer          not null, primary key
+#  foreign_thing_id :integer          not null
+#
+# Foreign Keys
+#
+#  fk_rails_02e851e3b7  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
+#
+EOS
+  end
+
   it "should get schema info as RDoc" do
     klass = mock_class(:users, :id, [
                                      mock_column(:id, :integer),
@@ -261,7 +293,7 @@ EOS
       #  notes  :text(55)         not null
       #
     EOS
-    
+
     when_called_with hide_limit_column_types: 'integer,boolean,string,text', returns:
       <<-EOS.strip_heredoc
       # Schema Info

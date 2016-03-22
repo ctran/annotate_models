@@ -330,10 +330,14 @@ module AnnotateModels
       max_size = foreign_keys.collect{|fk| fk.name.size}.max + 1
       foreign_keys.sort_by(&:name).each do |fk|
         ref_info = "#{fk.column} => #{fk.to_table}.#{fk.primary_key}"
+        constraints_info = ''
+        constraints_info += "ON DELETE => #{fk.on_delete} " if fk.on_delete
+        constraints_info += "ON UPDATE => #{fk.on_update} " if fk.on_update
+        constraints_info.strip!
         if options[:format_markdown]
-          fk_info << sprintf("# * `%s`:\n#     * **`%s`**\n", fk.name, ref_info)
+          fk_info << sprintf("# * `%s`%s:\n#     * **`%s`**\n", fk.name, constraints_info.blank? ? '' : " (_#{constraints_info}_)", ref_info)
         else
-          fk_info << sprintf("#  %-#{max_size}.#{max_size}s %s", fk.name, "(#{ref_info})").rstrip + "\n"
+          fk_info << sprintf("#  %-#{max_size}.#{max_size}s %s %s", fk.name, "(#{ref_info})", constraints_info).rstrip + "\n"
         end
       end
 
