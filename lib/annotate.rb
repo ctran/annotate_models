@@ -108,7 +108,7 @@ module Annotate
   end
 
   def self.include_models?
-    true
+    ENV['ignore_models'] !~ TRUE_RE
   end
 
   def self.loaded_tasks=(val)

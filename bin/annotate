@@ -128,6 +128,11 @@ OptionParser.new do |opts|
     ENV['root_dir'] = dir
   end
 
+  opts.on('--ignore-models',
+          "Don't annotate models") do |dir|
+    ENV['ignore_models'] = 'yes'
+  end
+
   opts.on('--ignore-model-subdirects',
           "Ignore subdirectories of the models directory") do |dir|
     ENV['ignore_model_sub_dir'] = 'yes'
