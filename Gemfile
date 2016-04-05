@@ -6,7 +6,7 @@ gem 'activerecord', '>= 4.2.5', require: false
 group :development do
   gem 'mg', require: false
   gem 'bump'
-  platforms :mri do
+  platforms :mri, :mingw do
     gem 'yard', require: false
   end
 end
@@ -20,7 +20,7 @@ group :development, :test do
   gem 'coveralls'
   gem 'codeclimate-test-reporter'
 
-  platforms :mri do
+  platforms :mri, :mingw do
     gem 'pry', require: false
     gem 'pry-coolline', require: false
   end
