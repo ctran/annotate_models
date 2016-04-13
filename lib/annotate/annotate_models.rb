@@ -9,7 +9,6 @@ module AnnotateModels
   PREFIX           = "== Schema Information"
   PREFIX_MD        = "## Schema Information"
   END_MARK         = "== Schema Information End"
-  PATTERN          = /^\r?\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\r?\n(#.*\r?\n)*(\r?\n)*/
 
   MATCHED_TYPES = %w(test fixture factory serializer scaffold controller helper)
 
@@ -65,6 +64,13 @@ module AnnotateModels
   NO_DEFAULT_COL_TYPES = %w(json jsonb)
 
   class << self
+    def annotate_pattern(options = {})
+      if options[:wrapper_open]
+        return /(?:^\n?# (?:#{options[:wrapper_open]}).*\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\n(#.*\n)*\n*)|^\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\n(#.*\n)*\n*/
+      end
+      /^\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\n(#.*\n)*\n*/
+    end
+
     def model_dir
       @model_dir.is_a?(Array) ? @model_dir : [@model_dir || 'app/models']
     end
@@ -378,10 +384,10 @@ module AnnotateModels
           return false
         else
           # Replace inline the old schema info with the new schema info
-          new_content = old_content.sub(PATTERN, info_block + "\n")
+          new_content = old_content.sub(annotate_pattern(options), info_block + "\n")
 
           if new_content.end_with?(info_block + "\n")
-            new_content = old_content.sub(PATTERN, "\n" + info_block)
+            new_content = old_content.sub(annotate_pattern(options), "\n" + info_block)
           end
 
           wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
@@ -391,7 +397,7 @@ module AnnotateModels
           # we simply need to insert it in correct position
           if new_content == old_content || options[:force]
             old_content.sub!(magic_comment_matcher, '')
-            old_content.sub!(PATTERN, '')
+            old_content.sub!(annotate_pattern(options), '')
 
             if %w(after bottom).include?(options[position].to_s)
               new_content = magic_comments.join + (old_content.rstrip + "\n\n" + wrapped_info_block)
@@ -412,7 +418,7 @@ module AnnotateModels
       if File.exist?(file_name)
         content = File.read(file_name)
         wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
-        content.sub!(/(#{wrapper_open})?#{PATTERN}/, '')
+        content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, '')
 
         File.open(file_name, 'wb') { |f| f.puts content }
 
