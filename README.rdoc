@@ -100,7 +100,7 @@ To remove routes.rb annotations:
 
     annotate --routes --delete
 
-To automatically annotate every time you run +db:migrate+, either run +rails g annotate:install+ or add +Annotate.load_tasks+ to your `Rakefile`. See the [configuration in Rails](#configuration-in-rails) section for more info.
+To automatically annotate every time you run +db:migrate+, either run +rails g annotate:install+ or add +Annotate.load_tasks+ to your `Rakefile`. See the {configuration in Rails}[link:README.rdoc#configuration-in-rails] section for more info.
 
 === Usage Outside of Rails
 
