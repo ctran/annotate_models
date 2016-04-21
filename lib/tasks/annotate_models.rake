@@ -31,6 +31,7 @@ task annotate_models: :environment do
   options[:exclude_scaffolds] = Annotate.true?(ENV['exclude_scaffolds'])
   options[:exclude_controllers] = Annotate.true?(ENV.fetch('exclude_controllers', 'true'))
   options[:exclude_helpers] = Annotate.true?(ENV.fetch('exclude_helpers', 'true'))
+  options[:exclude_sti_subclasses] = Annotate.true?(ENV['exclude_sti_subclasses'])
   options[:ignore_model_sub_dir] = Annotate.true?(ENV['ignore_model_sub_dir'])
   options[:format_bare] = Annotate.true?(ENV['format_bare'])
   options[:format_rdoc] = Annotate.true?(ENV['format_rdoc'])
