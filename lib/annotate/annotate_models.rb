@@ -453,6 +453,7 @@ module AnnotateModels
     #  :exclude_scaffolds<Symbol>:: whether to skip modification of scaffold files
     #  :exclude_controllers<Symbol>:: whether to skip modification of controller files
     #  :exclude_helpers<Symbol>:: whether to skip modification of helper files
+    #  :exclude_sti_subclasses<Symbol>:: whether to skip modification of files for STI subclasses
     #
     # == Returns:
     # an array of file names that were annotated.
@@ -606,10 +607,24 @@ module AnnotateModels
 
     def annotate_model_file(annotated, file, header, options)
       begin
-        return false if /# -\*- SkipSchemaAnnotations.*/ =~ (File.exist?(file) ? File.read(file) : '')
-        klass = get_model_class(file)
-        if klass && klass < ActiveRecord::Base && !klass.abstract_class? && klass.table_exists?
-          annotated.concat(annotate(klass, file, header, options))
+        if File.exists?(file)
+          old_content = File.read(file)
+          return false if old_content =~ /# -\*- SkipSchemaAnnotations.*\n/
+
+          # always_annotate = true if old content has the AlwaysAnnotate comment.
+          always_annotate = (old_content =~ /# -\*- AlwaysAnnotate.*\n/)
+
+          klass = get_model_class(file)
+          do_annotate = klass &&
+            klass < ActiveRecord::Base &&
+            (always_annotate || !options[:exclude_sti_subclasses] || !(klass.superclass < ActiveRecord::Base && klass.table_name == klass.superclass.table_name)) &&
+            !klass.abstract_class? &&
+            klass.table_exists?
+          if do_annotate
+            annotated.concat(annotate(klass, file, header, options))
+          end
+        else
+          return false
         end
       rescue BadModelFileError => e
         unless options[:ignore_unknown_models]

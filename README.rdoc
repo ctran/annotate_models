@@ -120,6 +120,10 @@ anywhere in the file:
 
     # -*- SkipSchemaAnnotations
 
+If you want to always annotate a particular model, add this string anywhere in the file (note: SkipSchemaAnnotations takes precedence over this option):
+
+    # -*- AlwaysAnnotate
+
 === Configuration in Rails
 
 To generate a configuration file (in the form of a +.rake+ file), to set
