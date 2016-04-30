@@ -27,6 +27,7 @@ describe AnnotateModels do
   def mock_class(table_name, primary_key, columns, foreign_keys = [])
     options = {
       :connection       => mock_connection([], foreign_keys),
+      :name             => table_name.to_s.capitalize,
       :table_exists?    => true,
       :table_name       => table_name,
       :primary_key      => primary_key,
@@ -650,6 +651,7 @@ end
       expect(filename). to eq 'test/fixtures/parent/children.yml'
     end
   end
+
   describe "annotating a file" do
     before do
       @model_dir = Dir.mktmpdir('annotate_models')
@@ -685,6 +687,18 @@ end
       Annotate::PATH_OPTIONS.each { |key| ENV[key.to_s] = '' }
     end
 
+    def annotate klass, options = {}
+      Annotate.set_defaults(options)
+      options = Annotate.setup_options(options)
+      AnnotateModels.annotate(klass, @model_file_name, AnnotateModels::COMPAT_PREFIX, options)
+
+      # Wipe settings so the next call will pick up new values...
+      Annotate.instance_variable_set('@has_set_defaults', false)
+      Annotate::POSITION_OPTIONS.each { |key| ENV[key.to_s] = '' }
+      Annotate::FLAG_OPTIONS.each { |key| ENV[key.to_s] = '' }
+      Annotate::PATH_OPTIONS.each { |key| ENV[key.to_s] = '' }
+    end
+
     def magic_comments_list_each
       [
         '# encoding: UTF-8',
@@ -699,6 +713,24 @@ end
         '#frozen_string_literal: false',
         '# -*- frozen_string_literal : true -*-',
       ].each{|magic_comment| yield magic_comment }
+    end
+
+    it "annotates model if :include_model option is true" do
+      klass = mock_class(:users, :id, [
+                                       mock_column(:id, :integer,  :limit => 8),
+                                       mock_column(:name, :string, :limit => 50),
+                                      ])
+      annotate klass, :include_model => true
+      expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
+    end
+
+    it "doesn't annotate model if :include_model option is false" do
+      klass = mock_class(:users, :id, [
+                                       mock_column(:id, :integer,  :limit => 8),
+                                       mock_column(:name, :string, :limit => 50),
+                                      ])
+      annotate klass, :include_model => false
+      expect(File.read(@model_file_name)).to eq(@file_content)
     end
 
     it "should put annotation before class if :position == 'before'" do

@@ -29,6 +29,12 @@ OptionParser.new do |opts|
     target_action = :remove_annotations
   end
 
+  opts.on('-t', '--types [model,test,fixture,factory,serializer,scaffold,controller,helper,route,admin]', Array,
+          'Comma-separated list of types that should be annotated.') do |types|
+    types ||= %w(model test fixture factory serializer scaffold controller helper route admin)
+    types.each { |type| ENV["include_#{type}"] = 'yes' }
+  end
+
   opts.on('-p', '--position [before|top|after|bottom]', positions,
           'Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)') do |p|
     ENV['position'] = p
