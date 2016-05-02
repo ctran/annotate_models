@@ -31,8 +31,7 @@ OptionParser.new do |opts|
 
   opts.on('-t', '--types [model,test,fixture,factory,serializer,scaffold,controller,helper,route,admin]', Array,
           'Comma-separated list of types that should be annotated.') do |types|
-    types ||= %w(model test fixture factory serializer scaffold controller helper route admin)
-    types.each { |type| ENV["include_#{type}"] = 'yes' }
+    ENV['types'] = types.join(',')
   end
 
   opts.on('-p', '--position [before|top|after|bottom]', positions,

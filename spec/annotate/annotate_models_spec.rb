@@ -715,21 +715,21 @@ end
       ].each{|magic_comment| yield magic_comment }
     end
 
-    it "annotates model if :include_model option is true" do
+    it "annotates model if :types option includes model" do
       klass = mock_class(:users, :id, [
                                        mock_column(:id, :integer,  :limit => 8),
                                        mock_column(:name, :string, :limit => 50),
                                       ])
-      annotate klass, :include_model => true
+      annotate klass, :types => ['model']
       expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
     end
 
-    it "doesn't annotate model if :include_model option is false" do
+    it "doesn't annotate model if :types option doesn't include model" do
       klass = mock_class(:users, :id, [
                                        mock_column(:id, :integer,  :limit => 8),
                                        mock_column(:name, :string, :limit => 50),
                                       ])
-      annotate klass, :include_model => false
+      annotate klass, :types => ['route']
       expect(File.read(@model_file_name)).to eq(@file_content)
     end
 
