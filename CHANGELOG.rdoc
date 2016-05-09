@@ -1,3 +1,6 @@
+== 2.7.1
+See https://github.com/ctran/annotate_models/releases/tag/v2.7.1
+
 == 2.7.0
 See https://github.com/ctran/annotate_models/releases/tag/v2.7.0
 
