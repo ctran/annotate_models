@@ -10,6 +10,10 @@ rvm:
 matrix:
   allow_failures:
     - rvm: ruby-head
+    - rvm: 1.9.3
+    - rvm: 2.0
+    - rvm: 2.1
+    - rvm: 2.2
 before_install:
   - rvm @global do gem install bundler
 script:
