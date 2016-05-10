@@ -905,7 +905,7 @@ end
     after { Object.send :remove_const, 'Foo' }
 
     it 'skips attempt to annotate if no table exists for model' do
-      annotate_model_file = AnnotateModels.annotate_model_file([], 'foo.rb', nil, nil)
+      annotate_model_file = AnnotateModels.annotate_model_file([], 'foo.rb', nil, {})
 
       expect(annotate_model_file).to eq nil
     end
