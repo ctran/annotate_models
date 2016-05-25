@@ -116,9 +116,9 @@ module AnnotateModels
               File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
               File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
               File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
-              File.join(root_directory, SERIALIZERS_DIR,       "api", "*", "%MODEL_NAME%_serializer.rb"),
-              File.join(root_directory, SERIALIZERS_TEST_DIR,  "api", "*", "%MODEL_NAME%_serializer_spec.rb"),
-              File.join(root_directory, SERIALIZERS_SPEC_DIR,  "api", "*", "%MODEL_NAME%_serializer_spec.rb")
+              File.join(root_directory, SERIALIZERS_DIR,       "api", "v1", "%MODEL_NAME%_serializer.rb"),
+              File.join(root_directory, SERIALIZERS_TEST_DIR,  "api", "v1", "%MODEL_NAME%_serializer_spec.rb"),
+              File.join(root_directory, SERIALIZERS_SPEC_DIR,  "api", "v1", "%MODEL_NAME%_serializer_spec.rb")
             ]
           when 'controller'
             [
