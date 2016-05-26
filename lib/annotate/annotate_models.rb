@@ -119,8 +119,8 @@ module AnnotateModels
                 File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
               ]
 
-            if options[:additional_subdirs].try(:any?)
-              options[:additional_subdirs].each do |subdir|
+            if options[:additional_subdir].try(:any?)
+              options[:additional_subdir].each do |subdir|
                 files.push(
                   File.join(root_directory, SERIALIZERS_DIR, subdir, "%MODEL_NAME%_serializer.rb"),
                   File.join(root_directory, SERIALIZERS_TEST_DIR, subdir, "%MODEL_NAME%_serializer_spec.rb"),
@@ -136,8 +136,8 @@ module AnnotateModels
                 File.join(root_directory, CONTROLLER_DIR,  "%PLURALIZED_MODEL_NAME%_controller.rb")
               ]
 
-            if options[:additional_subdirs].try(:any?)
-              options[:additional_subdirs].each do |subdir|
+            if options[:additional_subdir].try(:any?)
+              options[:additional_subdir].each do |subdir|
                 files.push(
                   File.join(root_directory, CONTROLLER_DIR, subdir, "%PLURALIZED_MODEL_NAME%_controller.rb")
                 )

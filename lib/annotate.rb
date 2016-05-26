@@ -34,7 +34,7 @@ module Annotate
     :hide_limit_column_types,
   ]
   PATH_OPTIONS=[
-    :require, :model_dir, :root_dir, :additional_subdirs
+    :require, :model_dir, :root_dir, :additional_subdir
   ]
 
   ##
