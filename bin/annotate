@@ -186,7 +186,7 @@ OptionParser.new do |opts|
     ENV['ignore_unknown_models'] = "true"
   end
 
-  opts.on('--additional-subdir dir', "Additionally annotate files in subdir of each controller/serializer dir, separate multiple dirs with comas" ) do |dir|
+  opts.on('--additional-subdir dir', "Additionally annotate files in subdir of each scaffold/serializer/controller/helper dir, separate multiple dirs with comas" ) do |dir|
     ENV['additional_subdir'] = "#{dir}"
   end
 
