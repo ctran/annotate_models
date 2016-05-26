@@ -184,7 +184,7 @@ you can do so with a simple environment variable, instead of editing the
         -i, --show-indexes               List the table's database indexes in the annotation
         -k, --show-foreign-keys          List the table's foreign key constraints in the annotation
         -s, --simple-indexes             Concat the column's related indexes in the annotation
-            --model-dir dir              Annotate model files stored in dir rather than app/models, separate multiple dirs with comas
+            --model-dir dir              Annotate model files stored in dir rather than app/models, separate multiple dirs with commas
             --ignore-model-subdirects    Ignore subdirectories of the models directory
             --sort                       Sort columns alphabetically, rather than in creation order
         -R, --require path               Additional file to require before loading models, may be used multiple times
