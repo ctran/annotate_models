@@ -92,12 +92,26 @@ module AnnotateModels
               File.join(root_directory, FIXTURE_SPEC_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
             ]
           when 'scaffold'
-            [
-              File.join(root_directory, CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
-              File.join(root_directory, CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
-              File.join(root_directory, REQUEST_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_spec.rb"),
-              File.join(root_directory, ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb"),
-            ]
+            files =
+              [
+                File.join(root_directory, CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
+                File.join(root_directory, CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
+                File.join(root_directory, REQUEST_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_spec.rb"),
+                File.join(root_directory, ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb"),
+              ]
+
+            if options[:additional_subdir].try(:any?)
+              options[:additional_subdir].each do |subdir|
+                files.push(
+                  File.join(root_directory, CONTROLLER_TEST_DIR, subdir, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
+                  File.join(root_directory, CONTROLLER_SPEC_DIR, subdir, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
+                  File.join(root_directory, REQUEST_SPEC_DIR,    subdir, "%PLURALIZED_MODEL_NAME%_spec.rb")
+                  File.join(root_directory, ROUTING_SPEC_DIR,    subdir, "%PLURALIZED_MODEL_NAME%_routing_spec.rb")
+                )
+              end
+            end
+
+            files
           when 'factory'
             [
               File.join(root_directory, EXEMPLARS_TEST_DIR,     "%MODEL_NAME%_exemplar.rb"),
@@ -146,9 +160,20 @@ module AnnotateModels
 
             files
           when 'helper'
-            [
-              File.join(root_directory, HELPER_DIR,  "%PLURALIZED_MODEL_NAME%_helper.rb")
-            ]
+            files =
+              [
+                File.join(root_directory, HELPER_DIR,  "%PLURALIZED_MODEL_NAME%_helper.rb")
+              ]
+
+            if options[:additional_subdir].try(:any?)
+              options[:additional_subdir].each do |subdir|
+                files.push(
+                  File.join(root_directory, HELPER_DIR, subdir, "%PLURALIZED_MODEL_NAME%_helper.rb")
+                )
+              end
+            end
+
+            files
           end
         end
       end
