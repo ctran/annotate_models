@@ -186,6 +186,10 @@ OptionParser.new do |opts|
     ENV['ignore_unknown_models'] = "true"
   end
 
+  opts.on('--additional-subdirs DIRECTORIES', "Specify additional subdirs when searching for models in different folder types (controllers, serializers, etc.), separate multiple dirs with commas" ) do |directories|
+    ENV['additional_subdirs'] = "#{directories}"
+  end
+
 end.parse!
 
 options = Annotate.setup_options({ :is_rake => ENV['is_rake'] && !ENV['is_rake'].empty? })

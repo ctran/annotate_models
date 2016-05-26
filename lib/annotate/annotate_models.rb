@@ -112,18 +112,39 @@ module AnnotateModels
               File.join(root_directory, FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb"),
             ]
           when 'serializer'
-            [
-              File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
-              File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
-              File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
-              File.join(root_directory, SERIALIZERS_DIR,       "api", "v1", "%MODEL_NAME%_serializer.rb"),
-              File.join(root_directory, SERIALIZERS_TEST_DIR,  "api", "v1", "%MODEL_NAME%_serializer_spec.rb"),
-              File.join(root_directory, SERIALIZERS_SPEC_DIR,  "api", "v1", "%MODEL_NAME%_serializer_spec.rb")
-            ]
+            files =
+              [
+                File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
+                File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
+                File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
+              ]
+
+            if options[:additional_subdirs].try(:any?)
+              options[:additional_subdirs].each do |subdir|
+                files.push(
+                  File.join(root_directory, SERIALIZERS_DIR, subdir, "%MODEL_NAME%_serializer.rb"),
+                  File.join(root_directory, SERIALIZERS_TEST_DIR, subdir, "%MODEL_NAME%_serializer_spec.rb"),
+                  File.join(root_directory, SERIALIZERS_SPEC_DIR, subdir, "%MODEL_NAME%_serializer_spec.rb")
+                )
+              end
+            end
+
+            files
           when 'controller'
-            [
-              File.join(root_directory, CONTROLLER_DIR,  "%PLURALIZED_MODEL_NAME%_controller.rb")
-            ]
+            files =
+              [
+                File.join(root_directory, CONTROLLER_DIR,  "%PLURALIZED_MODEL_NAME%_controller.rb")
+              ]
+
+            if options[:additional_subdirs].try(:any?)
+              options[:additional_subdirs].each do |subdir|
+                files.push(
+                  File.join(root_directory, CONTROLLER_DIR, subdir, "%PLURALIZED_MODEL_NAME%_controller.rb")
+                )
+              end
+            end
+
+            files
           when 'helper'
             [
               File.join(root_directory, HELPER_DIR,  "%PLURALIZED_MODEL_NAME%_helper.rb")
@@ -431,7 +452,7 @@ module AnnotateModels
           position_key = "position_in_#{key}".to_sym
 
           unless options[exclusion_key]
-            did_annotate = self.get_patterns(key).
+            did_annotate = self.get_patterns(key, options).
               map { |f| resolve_filename(f, model_name, table_name) }.
               map { |f| annotate_one_file(f, info, position_key, options_with_position(options, position_key)) }.
               detect { |result| result } || did_annotate

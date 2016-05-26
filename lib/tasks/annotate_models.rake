@@ -42,6 +42,7 @@ task :annotate_models => :environment do
   options[:wrapper_open] = Annotate.fallback(ENV['wrapper_open'], ENV['wrapper'])
   options[:wrapper_close] = Annotate.fallback(ENV['wrapper_close'], ENV['wrapper'])
   options[:ignore_columns] = ENV.fetch('ignore_columns', nil)
+  options[:additional_subdirs] = ENV.fetch('additional_subdirs', nil)
 
   AnnotateModels.do_annotations(options)
 end
