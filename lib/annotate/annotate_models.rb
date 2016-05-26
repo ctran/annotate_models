@@ -105,7 +105,7 @@ module AnnotateModels
                 files.push(
                   File.join(root_directory, CONTROLLER_TEST_DIR, subdir, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
                   File.join(root_directory, CONTROLLER_SPEC_DIR, subdir, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
-                  File.join(root_directory, REQUEST_SPEC_DIR,    subdir, "%PLURALIZED_MODEL_NAME%_spec.rb")
+                  File.join(root_directory, REQUEST_SPEC_DIR,    subdir, "%PLURALIZED_MODEL_NAME%_spec.rb"),
                   File.join(root_directory, ROUTING_SPEC_DIR,    subdir, "%PLURALIZED_MODEL_NAME%_routing_spec.rb")
                 )
               end
