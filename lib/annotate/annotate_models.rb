@@ -73,7 +73,7 @@ module AnnotateModels
       @root_dir = dir
     end
 
-    def get_patterns(pattern_types=MATCHED_TYPES)
+    def get_patterns(pattern_types = MATCHED_TYPES, options = {})
       current_patterns = []
       root_dir.each do |root_directory|
         Array(pattern_types).each do |pattern_type|
