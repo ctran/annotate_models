@@ -161,7 +161,7 @@ module AnnotateModels
     end
 
     # Simple quoting for the default column value
-    def quote(value)
+    def quote(value, column, klass = nil)
       case value
       when NilClass                 then 'NULL'
       when TrueClass                then 'TRUE'
@@ -170,13 +170,18 @@ module AnnotateModels
         # BigDecimals need to be output in a non-normalized form and quoted.
       when BigDecimal               then value.to_s('F')
       when Array                    then value.map {|v| quote(v)}
+      when String                   then value.inspect
       else
-        value.inspect
+        if defined?(Rails) && !klass.nil?
+          quote(klass._default_attributes[column.name].type.serialize(value), column)
+        else
+          value.inspect
+        end
       end
     end
 
     def schema_default(klass, column)
-      quote(klass.column_defaults[column.name])
+      quote(klass.column_defaults[column.name], column, klass)
     end
 
     # Use the column information in an ActiveRecord class
