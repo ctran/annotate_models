@@ -61,7 +61,7 @@ module AnnotateModels
   NO_LIMIT_COL_TYPES = %w(integer boolean)
 
   # Don't show default value for these column types
-  NO_DEFAULT_COL_TYPES = %w(json jsonb)
+  NO_DEFAULT_COL_TYPES = %w(json jsonb hstore)
 
   class << self
     def annotate_pattern(options = {})
