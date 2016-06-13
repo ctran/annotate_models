@@ -153,11 +153,12 @@ EOS
 EOS
   end
 
-  it "should ignore default value of json columns " do
+  it "should ignore default value of json and hstore columns " do
     klass = mock_class(:users, nil, [
                                      mock_column(:id, :integer),
-                                     mock_column(:profile,  :json, :default => '{}'),
-                                     mock_column(:settings, :jsonb, :default => '{}')
+                                     mock_column(:profile,    :json,   :default => '{}'),
+                                     mock_column(:settings,   :jsonb,  :default => '{}'),
+                                     mock_column(:parameters, :hstore, :default => '{}'),
                                     ])
 
     expect(AnnotateModels.get_schema_info(klass, "Schema Info")).to eql(<<-EOS)
@@ -165,9 +166,10 @@ EOS
 #
 # Table name: users
 #
-#  id       :integer          not null
-#  profile  :json             not null
-#  settings :jsonb            not null
+#  id         :integer          not null
+#  profile    :json             not null
+#  settings   :jsonb            not null
+#  parameters :hstore           not null
 #
 EOS
   end
