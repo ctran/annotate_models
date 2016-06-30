@@ -43,8 +43,12 @@ task annotate_models: :environment do
   options[:wrapper_open] = Annotate.fallback(ENV['wrapper_open'], ENV['wrapper'])
   options[:wrapper_close] = Annotate.fallback(ENV['wrapper_close'], ENV['wrapper'])
   options[:ignore_columns] = ENV.fetch('ignore_columns', nil)
+<<<<<<< HEAD
   options[:ignore_routes] = ENV.fetch('ignore_routes', nil)
   options[:hide_limit_column_types] = Annotate.fallback(ENV['hide_limit_column_types'], '')
+=======
+  options[:additional_subdirs] = ENV.fetch('additional_subdirs', nil)
+>>>>>>> 6cacbe2327dbfbaacfba327c9d321a283542af47
 
   AnnotateModels.do_annotations(options)
 end

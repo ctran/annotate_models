@@ -34,11 +34,19 @@ module Annotate
   ].freeze
   OTHER_OPTIONS = [
     :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close, :wrapper, :routes,
+<<<<<<< HEAD
     :hide_limit_column_types, :ignore_routes, :active_admin
   ].freeze
   PATH_OPTIONS = [
     :require, :model_dir, :root_dir
   ].freeze
+=======
+    :hide_limit_column_types,
+  ]
+  PATH_OPTIONS=[
+    :require, :model_dir, :root_dir, :additional_subdir
+  ]
+>>>>>>> 6cacbe2327dbfbaacfba327c9d321a283542af47
 
   ##
   # Set default values that can be overridden via environment variables.
