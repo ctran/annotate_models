@@ -37,7 +37,7 @@ module Annotate
     :hide_limit_column_types, :ignore_routes, :active_admin
   ].freeze
   PATH_OPTIONS = [
-    :require, :model_dir, :root_dir
+    :require, :model_dir, :root_dir, :additional_subdir
   ].freeze
 
   ##
