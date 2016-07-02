@@ -83,7 +83,7 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def test_files(root_directory, options)
+    def test_files(root_directory)
       [
           File.join(root_directory, UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
           File.join(root_directory, MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
@@ -91,7 +91,7 @@ module AnnotateModels
       ]
     end
 
-    def fixture_files(root_directory, options)
+    def fixture_files(root_directory)
       [
           File.join(root_directory, FIXTURE_TEST_DIR, "%TABLE_NAME%.yml"),
           File.join(root_directory, FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
@@ -106,7 +106,7 @@ module AnnotateModels
           File.join(root_directory, CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
           File.join(root_directory, CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
           File.join(root_directory, REQUEST_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_spec.rb"),
-          File.join(root_directory, ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb"),
+          File.join(root_directory, ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb")
         ]
 
       if options[:additional_subdir].try(:any?)
@@ -123,7 +123,7 @@ module AnnotateModels
       files
     end
 
-    def factory_files(root_directory, options)
+    def factory_files(root_directory)
       [
           File.join(root_directory, EXEMPLARS_TEST_DIR,     "%MODEL_NAME%_exemplar.rb"),
           File.join(root_directory, EXEMPLARS_SPEC_DIR,     "%MODEL_NAME%_exemplar.rb"),
@@ -195,10 +195,10 @@ module AnnotateModels
 
     def files_by_pattern(root_directory, pattern_type, options)
       case pattern_type
-        when 'test'       then test_files(root_directory, options)
-        when 'fixture'    then fixture_files(root_directory, options)
+        when 'test'       then test_files(root_directory)
+        when 'fixture'    then fixture_files(root_directory)
         when 'scaffold'   then scaffold_files(root_directory, options)
-        when 'factory'    then factory_files(root_directory, options)
+        when 'factory'    then factory_files(root_directory)
         when 'serializer' then serialize_files(root_directory, options)
         when 'controller' then controller_files(root_directory, options)
         when 'helper'     then helper_files(root_directory, options)
