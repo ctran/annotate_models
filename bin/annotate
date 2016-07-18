@@ -185,6 +185,10 @@ OptionParser.new do |opts|
     ENV['hide_limit_column_types'] = "#{values}"
   end
 
+  opts.on('--hide-default-column-types VALUES', "don't show default for given column types, separated by commas (i.e., `json,jsonb,hstore`)") do |values|
+    ENV['hide_default_column_types'] = "#{values}"
+  end
+
   opts.on('--ignore-unknown-models', "don't display warnings for bad model files") do |values|
     ENV['ignore_unknown_models'] = 'true'
   end
