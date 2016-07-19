@@ -305,6 +305,20 @@ EOS
         #
         # Table name: users
         #
+        #  profile    :json             not null
+        #  settings   :jsonb            not null
+        #  parameters :hstore           not null
+        #
+      EOS
+
+      when_called_with hide_default_column_types: 'skip',
+                       with_columns: mocked_columns_without_id,
+                       returns:
+        <<-EOS.strip_heredoc
+        # Schema Info
+        #
+        # Table name: users
+        #
         #  profile    :json             default({}), not null
         #  settings   :jsonb            default({}), not null
         #  parameters :hstore           default({}), not null

@@ -321,9 +321,13 @@ module AnnotateModels
     end
 
     def hide_default?(col_type, options)
-      return false if options[:hide_default_column_types].blank?
+      excludes =
+        if options[:hide_default_column_types].blank?
+          NO_DEFAULT_COL_TYPES
+        else
+          options[:hide_default_column_types].split(',')
+        end
 
-      excludes = options[:hide_default_column_types].split(',')
       excludes.include?(col_type)
     end
 
