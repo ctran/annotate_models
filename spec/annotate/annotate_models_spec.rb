@@ -118,6 +118,7 @@ EOS
 #
 EOS
   end
+
   it "should get schema info with enum type " do
     klass = mock_class(:users, nil, [
                                      mock_column(:id, :integer),
@@ -131,6 +132,29 @@ EOS
 #
 #  id   :integer          not null
 #  name :enum             not null, (enum1, enum2)
+#
+EOS
+  end
+
+  it "should get schema info with unsigned" do
+    klass = mock_class(:users, nil, [
+                                     mock_column(:id, :integer),
+                                     mock_column(:integer, :integer, :unsigned? => true),
+                                     mock_column(:bigint,  :bigint,  :unsigned? => true),
+                                     mock_column(:float,   :float,   :unsigned? => true),
+                                     mock_column(:decimal, :decimal, :unsigned? => true, :precision => 10, :scale => 2),
+                                    ])
+
+    expect(AnnotateModels.get_schema_info(klass, "Schema Info")).to eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id      :integer          not null
+#  integer :integer          unsigned, not null
+#  bigint  :bigint           unsigned, not null
+#  float   :float            unsigned, not null
+#  decimal :decimal(10, 2)   unsigned, not null
 #
 EOS
   end

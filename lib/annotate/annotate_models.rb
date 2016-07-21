@@ -187,15 +187,7 @@ module AnnotateModels
     # the type (and length), and any optional attributes
     def get_schema_info(klass, header, options = {})
       info = "# #{header}\n"
-      info<< "#\n"
-      if options[:format_markdown]
-        info<< "# Table name: `#{klass.table_name}`\n"
-        info<< "#\n"
-        info<< "# ### Columns\n"
-      else
-        info<< "# Table name: #{klass.table_name}\n"
-      end
-      info<< "#\n"
+      info << get_schema_header_text(klass, options)
 
       max_size = klass.column_names.map(&:size).max || 0
       max_size += options[:format_rdoc] ? 5 : 1
@@ -220,9 +212,9 @@ module AnnotateModels
       cols = classified_sort(cols) if options[:classified_sort]
       cols.each do |col|
         col_type = (col.type || col.sql_type).to_s
-
         attrs = []
         attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || hide_default?(col_type, options)
+        attrs << 'unsigned' if col.respond_to?(:unsigned?) && col.unsigned?
         attrs << 'not null' unless col.null
         attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
 
@@ -280,6 +272,23 @@ module AnnotateModels
         info << get_foreign_key_info(klass, options)
       end
 
+      info << get_schema_footer_text(klass, options)
+    end
+
+    def get_schema_header_text(klass, options = {})
+      info = "#\n"
+      if options[:format_markdown]
+        info << "# Table name: `#{klass.table_name}`\n"
+        info << "#\n"
+        info << "# ### Columns\n"
+      else
+        info<< "# Table name: #{klass.table_name}\n"
+      end
+      info << "#\n"
+    end
+
+    def get_schema_footer_text(_klass, options = {})
+      info = ""
       if options[:format_rdoc]
         info << "#--\n"
         info << "# #{END_MARK}\n"
