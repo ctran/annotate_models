@@ -221,6 +221,7 @@ module AnnotateModels
 
         attrs = []
         attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || NO_DEFAULT_COL_TYPES.include?(col_type)
+        attrs << 'unsigned' if col.respond_to?(:unsigned?) && col.unsigned?
         attrs << 'not null' unless col.null
         attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
 
