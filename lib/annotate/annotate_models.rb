@@ -1,4 +1,5 @@
-# rubocop:disable ClassLength
+# rubocop:disable  Metrics/ModuleLength
+
 require 'bigdecimal'
 
 module AnnotateModels
