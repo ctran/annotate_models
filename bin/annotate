@@ -119,12 +119,12 @@ OptionParser.new do |opts|
   end
 
   opts.on('--model-dir dir',
-          "Annotate model files stored in dir rather than app/models, separate multiple dirs with comas") do |dir|
+          "Annotate model files stored in dir rather than app/models, separate multiple dirs with commas") do |dir|
     ENV['model_dir'] = dir
   end
 
   opts.on('--root-dir dir',
-          "Annotate files stored within root dir projects, separate multiple dirs with comas") do |dir|
+          "Annotate files stored within root dir projects, separate multiple dirs with commas") do |dir|
     ENV['root_dir'] = dir
   end
 
@@ -181,7 +181,7 @@ OptionParser.new do |opts|
     ENV['ignore_routes'] = regex
   end
 
-  opts.on('--hide-limit-column-types VALUES', "don't show limit for given column types, separated by comas (i.e., `integer,boolean,text`)") do |values|
+  opts.on('--hide-limit-column-types VALUES', "don't show limit for given column types, separated by commas (i.e., `integer,boolean,text`)") do |values|
     ENV['hide_limit_column_types'] = "#{values}"
   end
 
