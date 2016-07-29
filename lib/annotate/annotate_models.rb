@@ -220,7 +220,7 @@ module AnnotateModels
         col_type = (col.type || col.sql_type).to_s
 
         attrs = []
-        attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || NO_DEFAULT_COL_TYPES.include?(col_type)
+        attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || hide_default?(col_type, options)
         attrs << 'not null' unless col.null
         attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
 
@@ -315,6 +315,17 @@ module AnnotateModels
           NO_LIMIT_COL_TYPES
         else
           options[:hide_limit_column_types].split(',')
+        end
+
+      excludes.include?(col_type)
+    end
+
+    def hide_default?(col_type, options)
+      excludes =
+        if options[:hide_default_column_types].blank?
+          NO_DEFAULT_COL_TYPES
+        else
+          options[:hide_default_column_types].split(',')
         end
 
       excludes.include?(col_type)

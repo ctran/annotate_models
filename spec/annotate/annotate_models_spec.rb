@@ -153,27 +153,6 @@ EOS
 EOS
   end
 
-  it "should ignore default value of json and hstore columns " do
-    klass = mock_class(:users, nil, [
-                                     mock_column(:id, :integer),
-                                     mock_column(:profile,    :json,   :default => '{}'),
-                                     mock_column(:settings,   :jsonb,  :default => '{}'),
-                                     mock_column(:parameters, :hstore, :default => '{}'),
-                                    ])
-
-    expect(AnnotateModels.get_schema_info(klass, "Schema Info")).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id         :integer          not null
-#  profile    :json             not null
-#  settings   :jsonb            not null
-#  parameters :hstore           not null
-#
-EOS
-  end
-
   it "should get foreign key info" do
            klass = mock_class(:users, :id, [
               mock_column(:id, :integer),
@@ -271,61 +250,115 @@ EOS
       end
     end
 
-    when_called_with hide_limit_column_types: '', returns: <<-EOS.strip_heredoc
-      # Schema Info
-      #
-      # Table name: users
-      #
-      #  id     :integer          not null, primary key
-      #  active :boolean          not null
-      #  name   :string(50)       not null
-      #  notes  :text(55)         not null
-      #
-    EOS
+    describe 'hide_limit_column_types option' do
+      when_called_with hide_limit_column_types: '', returns: <<-EOS.strip_heredoc
+        # Schema Info
+        #
+        # Table name: users
+        #
+        #  id     :integer          not null, primary key
+        #  active :boolean          not null
+        #  name   :string(50)       not null
+        #  notes  :text(55)         not null
+        #
+      EOS
 
-    when_called_with hide_limit_column_types: 'integer,boolean', returns:
-      <<-EOS.strip_heredoc
-      # Schema Info
-      #
-      # Table name: users
-      #
-      #  id     :integer          not null, primary key
-      #  active :boolean          not null
-      #  name   :string(50)       not null
-      #  notes  :text(55)         not null
-      #
-    EOS
+      when_called_with hide_limit_column_types: 'integer,boolean', returns:
+        <<-EOS.strip_heredoc
+        # Schema Info
+        #
+        # Table name: users
+        #
+        #  id     :integer          not null, primary key
+        #  active :boolean          not null
+        #  name   :string(50)       not null
+        #  notes  :text(55)         not null
+        #
+      EOS
 
-    when_called_with hide_limit_column_types: 'integer,boolean,string,text', returns:
-      <<-EOS.strip_heredoc
-      # Schema Info
-      #
-      # Table name: users
-      #
-      #  id     :integer          not null, primary key
-      #  active :boolean          not null
-      #  name   :string           not null
-      #  notes  :text             not null
-      #
-    EOS
+      when_called_with hide_limit_column_types: 'integer,boolean,string,text', returns:
+        <<-EOS.strip_heredoc
+        # Schema Info
+        #
+        # Table name: users
+        #
+        #  id     :integer          not null, primary key
+        #  active :boolean          not null
+        #  name   :string           not null
+        #  notes  :text             not null
+        #
+      EOS
+    end
 
-    mocked_columns_without_id = [
-      [:active, :boolean, { :limit => 1 }],
-      [:name, :string, { :limit => 50 }],
-      [:notes, :text, { :limit => 55 }]
-    ]
+    describe 'hide_default_column_types option' do
+      mocked_columns_without_id = [
+        [:profile, :json, default: {}],
+        [:settings, :jsonb, default: {}],
+        [:parameters, :hstore, default: {}]
+      ]
 
-    when_called_with classified_sort: 'yes', with_columns: mocked_columns_without_id, returns:
-      <<-EOS.strip_heredoc
-      # Schema Info
-      #
-      # Table name: users
-      #
-      #  active :boolean          not null
-      #  name   :string(50)       not null
-      #  notes  :text(55)         not null
-      #
-    EOS
+      when_called_with hide_default_column_types: '',
+                       with_columns: mocked_columns_without_id,
+                       returns:
+        <<-EOS.strip_heredoc
+        # Schema Info
+        #
+        # Table name: users
+        #
+        #  profile    :json             not null
+        #  settings   :jsonb            not null
+        #  parameters :hstore           not null
+        #
+      EOS
+
+      when_called_with hide_default_column_types: 'skip',
+                       with_columns: mocked_columns_without_id,
+                       returns:
+        <<-EOS.strip_heredoc
+        # Schema Info
+        #
+        # Table name: users
+        #
+        #  profile    :json             default({}), not null
+        #  settings   :jsonb            default({}), not null
+        #  parameters :hstore           default({}), not null
+        #
+      EOS
+
+      when_called_with hide_default_column_types: 'json',
+                       with_columns: mocked_columns_without_id,
+                       returns:
+        <<-EOS.strip_heredoc
+        # Schema Info
+        #
+        # Table name: users
+        #
+        #  profile    :json             not null
+        #  settings   :jsonb            default({}), not null
+        #  parameters :hstore           default({}), not null
+        #
+      EOS
+    end
+
+    describe 'classified_sort option' do
+      mocked_columns_without_id = [
+        [:active, :boolean, { :limit => 1 }],
+        [:name, :string, { :limit => 50 }],
+        [:notes, :text, { :limit => 55 }]
+      ]
+
+      when_called_with classified_sort: 'yes', with_columns: mocked_columns_without_id, returns:
+        <<-EOS.strip_heredoc
+        # Schema Info
+        #
+        # Table name: users
+        #
+        #  active :boolean          not null
+        #  name   :string(50)       not null
+        #  notes  :text(55)         not null
+        #
+      EOS
+    end
   end
 
   describe "#get_model_class" do
