@@ -1,3 +1,5 @@
+# rubocop:disable  Metrics/ModuleLength
+
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'annotate/version'
 require 'annotate/annotate_models'
