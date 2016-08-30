@@ -24,7 +24,8 @@ task annotate_models: :environment do
   options[:root_dir] = ENV['root_dir'] ? ENV['root_dir'].split(',') : ['']
   options[:include_version] = Annotate.true?(ENV['include_version'])
   options[:require] = ENV['require'] ? ENV['require'].split(',') : []
-  options[:exclude_tests] = Annotate.true?(ENV['exclude_tests'])
+  options[:exclude_model_tests] = Annotate.true?(ENV['exclude_model_tests'])
+  options[:exclude_controller_tests] = Annotate.true?(ENV['exclude_controller_tests'])
   options[:exclude_factories] = Annotate.true?(ENV['exclude_factories'])
   options[:exclude_fixtures] = Annotate.true?(ENV['exclude_fixtures'])
   options[:exclude_serializers] = Annotate.true?(ENV['exclude_serializers'])
