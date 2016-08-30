@@ -85,11 +85,18 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def test_files(root_directory)
+    def model_test_files(root_directory)
       [
           File.join(root_directory, UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
           File.join(root_directory, MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
           File.join(root_directory, SPEC_MODEL_DIR, "%MODEL_NAME%_spec.rb")
+      ]
+    end
+
+    def controller_test_files(root_directory)
+      [
+          File.join(root_directory, CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
+          File.join(root_directory, CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb")
       ]
     end
 
@@ -104,8 +111,6 @@ module AnnotateModels
 
     def scaffold_files(root_directory)
       [
-          File.join(root_directory, CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
-          File.join(root_directory, CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
           File.join(root_directory, REQUEST_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_spec.rb"),
           File.join(root_directory, ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb")
       ]
@@ -136,19 +141,20 @@ module AnnotateModels
 
     def files_by_pattern(root_directory, pattern_type)
       case pattern_type
-        when 'test'       then test_files(root_directory)
-        when 'fixture'    then fixture_files(root_directory)
-        when 'scaffold'   then scaffold_files(root_directory)
-        when 'factory'    then factory_files(root_directory)
-        when 'serializer' then serialize_files(root_directory)
-        when 'controller'
-          [File.join(root_directory, CONTROLLER_DIR, "%PLURALIZED_MODEL_NAME%_controller.rb")]
-        when 'admin'
-          [File.join(root_directory, ACTIVEADMIN_DIR, "%MODEL_NAME%.rb")]
-        when 'helper'
-          [File.join(root_directory, HELPER_DIR, "%PLURALIZED_MODEL_NAME%_helper.rb")]
-        else
-          []
+      when 'model_test'       then model_test_files(root_directory)
+      when 'controller_test'  then controller_test_files(root_directory)
+      when 'fixture'          then fixture_files(root_directory)
+      when 'scaffold'         then scaffold_files(root_directory)
+      when 'factory'          then factory_files(root_directory)
+      when 'serializer'       then serialize_files(root_directory)
+      when 'controller'
+        [File.join(root_directory, CONTROLLER_DIR, "%PLURALIZED_MODEL_NAME%_controller.rb")]
+      when 'admin'
+        [File.join(root_directory, ACTIVEADMIN_DIR, "%MODEL_NAME%.rb")]
+      when 'helper'
+        [File.join(root_directory, HELPER_DIR, "%PLURALIZED_MODEL_NAME%_helper.rb")]
+      else
+        []
       end
     end
 
@@ -468,7 +474,8 @@ module AnnotateModels
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
     #  :position_in_factory<Symbol>:: where to place the annotated section in factory file
     #  :position_in_serializer<Symbol>:: where to place the annotated section in serializer file
-    #  :exclude_tests<Symbol>:: whether to skip modification of test/spec files
+    #  :exclude_model_tests<Symbol>:: whether to skip modification of test/spec files derived from models
+    #  :exclude_controller_tests<Symbol>:: whether to skip modification of test/spec files derived from controllers
     #  :exclude_fixtures<Symbol>:: whether to skip modification of fixture files
     #  :exclude_factories<Symbol>:: whether to skip modification of factory files
     #  :exclude_serializers<Symbol>:: whether to skip modification of serializer files
