@@ -37,5 +37,12 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<activerecord>, [">= 3.2", "< 6.0"])
   end
 
-  s.add_dependency "ruby_dep", "<= 1.3.1"
+  begin
+    require "ruby_dep/travis"
+    s.required_ruby_version = RubyDep::Travis.new.version_constraint
+  rescue LoadError
+    abort "Install 'ruby_dep' gem before building this gem"
+  end
+
+  s.add_development_dependency 'ruby_dep', '~> 1.1'
 end
