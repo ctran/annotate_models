@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.name = "annotate"
   s.version = Annotate.version
 
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.1.0'
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Alex Chaffee", "Cuong Tran", "Marcos Piccinini", "Turadg Aleahmad", "Jon Frisby"]
   s.description = "Annotates Rails/ActiveRecord Models, routes, fixtures, and others based on the database schema."
@@ -36,4 +36,13 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rake>, [">= 0.8.7"])
     s.add_dependency(%q<activerecord>, [">= 3.2", "< 6.0"])
   end
+
+  begin
+    require "ruby_dep/travis"
+    s.required_ruby_version = RubyDep::Travis.new.version_constraint
+  rescue LoadError
+    abort "Install 'ruby_dep' gem before building this gem"
+  end
+
+  s.add_development_dependency 'ruby_dep', '~> 1.1'
 end
