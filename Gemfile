@@ -19,6 +19,7 @@ group :development, :test do
   gem 'rubocop', '~> 0.37.2', require: false unless RUBY_VERSION =~ /^1.8/
   gem 'coveralls'
   gem 'codeclimate-test-reporter'
+  gem 'ruby_dep', '1.3.1'
 
   platforms :mri, :mingw do
     gem 'pry', require: false
