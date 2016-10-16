@@ -209,9 +209,9 @@ EOS
 #
 # Foreign Keys
 #
-#  custom_fk_name       (other_thing_id => other_things.id)
-#  fk_rails_a70234b26c  (third_thing_id => third_things.id)
-#  fk_rails_cf2568e89e  (foreign_thing_id => foreign_things.id)
+#  custom_fk_name  (other_thing_id => other_things.id)
+#  fk_rails_...    (foreign_thing_id => foreign_things.id)
+#  fk_rails_...    (third_thing_id => third_things.id)
 #
 EOS
   end
@@ -241,7 +241,7 @@ EOS
 #
 # Foreign Keys
 #
-#  fk_rails_02e851e3b7  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
+#  fk_rails_...  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
 #
 EOS
   end
