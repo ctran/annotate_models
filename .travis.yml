@@ -16,6 +16,8 @@ matrix:
     - rvm: 2.0
     - rvm: 2.1
     - rvm: 2.2
+    - rvm: 2.2.3
+    - rvm: 2.2.4
 before_install:
   - rvm @global do gem install bundler
 script:
