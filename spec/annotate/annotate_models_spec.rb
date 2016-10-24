@@ -184,9 +184,19 @@ EOS
             ],
                               [
                                 mock_foreign_key(
-                                  'fk_rails_02e851e3b7',
+                                  'fk_rails_cf2568e89e',
                                   'foreign_thing_id',
                                   'foreign_things'
+                                ),
+                                mock_foreign_key(
+                                  'custom_fk_name',
+                                  'other_thing_id',
+                                  'other_things'
+                                ),
+                                mock_foreign_key(
+                                  'fk_rails_a70234b26c',
+                                  'third_thing_id',
+                                  'third_things'
                                 )
                               ])
             expect(AnnotateModels.get_schema_info(klass, "Schema Info", :show_foreign_keys => true)).to eql(<<-EOS)
@@ -199,7 +209,9 @@ EOS
 #
 # Foreign Keys
 #
-#  fk_rails_02e851e3b7  (foreign_thing_id => foreign_things.id)
+#  custom_fk_name  (other_thing_id => other_things.id)
+#  fk_rails_...    (foreign_thing_id => foreign_things.id)
+#  fk_rails_...    (third_thing_id => third_things.id)
 #
 EOS
   end
@@ -229,7 +241,7 @@ EOS
 #
 # Foreign Keys
 #
-#  fk_rails_02e851e3b7  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
+#  fk_rails_...  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
 #
 EOS
   end
