@@ -24,7 +24,8 @@ module Annotate
   POSITION_OPTIONS = [
     :position_in_routes, :position_in_class, :position_in_test,
     :position_in_fixture, :position_in_factory, :position,
-    :position_in_serializer
+    :position_in_serializer, :position_in_scaffold, 
+    :position_in_controller, :position_in_helper, 
   ].freeze
   FLAG_OPTIONS = [
     :show_indexes, :simple_indexes, :include_version, :exclude_tests,
