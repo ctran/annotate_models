@@ -313,7 +313,7 @@ module AnnotateModels
         if options[:format_markdown]
           index_info << sprintf("# * `%s`%s:\n#     * **`%s`**\n", index.name, index.unique ? " (_unique_)" : "", Array(index.columns).join("`**\n#     * **`"))
         else
-          index_info << sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{Array(index.columns).join(",")})", index.unique ? "UNIQUE" : "").rstrip + "\n"
+          index_info << sprintf("#  %-#{max_size}.#{max_size}s %s %s %s %s", index.name, "(#{Array(index.columns).join(",")})", index.unique ? "UNIQUE" : "", index.where, (index.using != :btree ? index.using : "")).rstrip + "\n"
         end
       end
 
