@@ -85,7 +85,7 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def test_files(root_directory)
+    def test_files(root_directory, options)
       [
           File.join(root_directory, UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
           File.join(root_directory, MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
@@ -93,7 +93,7 @@ module AnnotateModels
       ]
     end
 
-    def fixture_files(root_directory)
+    def fixture_files(root_directory, options)
       [
           File.join(root_directory, FIXTURE_TEST_DIR, "%TABLE_NAME%.yml"),
           File.join(root_directory, FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
@@ -102,16 +102,30 @@ module AnnotateModels
       ]
     end
 
-    def scaffold_files(root_directory)
-      [
+    def scaffold_files(root_directory, options)
+      files =
+        [
           File.join(root_directory, CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
           File.join(root_directory, CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
           File.join(root_directory, REQUEST_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_spec.rb"),
-          File.join(root_directory, ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb")
-      ]
+          File.join(root_directory, ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb"),
+        ]
+
+      if options[:additional_subdir].try(:any?)
+        options[:additional_subdir].each do |subdir|
+          files.push(
+            File.join(root_directory, CONTROLLER_TEST_DIR, subdir, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
+            File.join(root_directory, CONTROLLER_SPEC_DIR, subdir, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
+            File.join(root_directory, REQUEST_SPEC_DIR,    subdir, "%PLURALIZED_MODEL_NAME%_spec.rb"),
+            File.join(root_directory, ROUTING_SPEC_DIR,    subdir, "%PLURALIZED_MODEL_NAME%_routing_spec.rb")
+          )
+        end
+      end
+
+      files
     end
 
-    def factory_files(root_directory)
+    def factory_files(root_directory, options)
       [
           File.join(root_directory, EXEMPLARS_TEST_DIR,     "%MODEL_NAME%_exemplar.rb"),
           File.join(root_directory, EXEMPLARS_SPEC_DIR,     "%MODEL_NAME%_exemplar.rb"),
@@ -126,37 +140,82 @@ module AnnotateModels
       ]
     end
 
-    def serialize_files(root_directory)
-      [
+    def serialize_files(root_directory, options)
+      files =
+        [
           File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
           File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
           File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
-      ]
+        ]
+
+      if options[:additional_subdir].try(:any?)
+        options[:additional_subdir].each do |subdir|
+          files.push(
+            File.join(root_directory, SERIALIZERS_DIR, subdir, "%MODEL_NAME%_serializer.rb"),
+            File.join(root_directory, SERIALIZERS_TEST_DIR, subdir, "%MODEL_NAME%_serializer_spec.rb"),
+            File.join(root_directory, SERIALIZERS_SPEC_DIR, subdir, "%MODEL_NAME%_serializer_spec.rb")
+          )
+        end
+      end
+
+      files
     end
 
-    def files_by_pattern(root_directory, pattern_type)
+    def controller_files(root_directory, options)
+      files =
+        [
+          File.join(root_directory, CONTROLLER_DIR,  "%PLURALIZED_MODEL_NAME%_controller.rb")
+        ]
+
+      if options[:additional_subdir].try(:any?)
+        options[:additional_subdir].each do |subdir|
+          files.push(
+            File.join(root_directory, CONTROLLER_DIR, subdir, "%PLURALIZED_MODEL_NAME%_controller.rb")
+          )
+        end
+      end
+
+      files
+    end
+
+    def helper_files(root_directory, options)
+      files =
+        [
+          File.join(root_directory, HELPER_DIR,  "%PLURALIZED_MODEL_NAME%_helper.rb")
+        ]
+
+      if options[:additional_subdir].try(:any?)
+        options[:additional_subdir].each do |subdir|
+          files.push(
+            File.join(root_directory, HELPER_DIR, subdir, "%PLURALIZED_MODEL_NAME%_helper.rb")
+          )
+        end
+      end
+
+      files
+    end
+
+    def files_by_pattern(root_directory, pattern_type, options)
       case pattern_type
-        when 'test'       then test_files(root_directory)
-        when 'fixture'    then fixture_files(root_directory)
-        when 'scaffold'   then scaffold_files(root_directory)
-        when 'factory'    then factory_files(root_directory)
-        when 'serializer' then serialize_files(root_directory)
-        when 'controller'
-          [File.join(root_directory, CONTROLLER_DIR, "%PLURALIZED_MODEL_NAME%_controller.rb")]
+        when 'test'       then test_files(root_directory, options)
+        when 'fixture'    then fixture_files(root_directory, options)
+        when 'scaffold'   then scaffold_files(root_directory, options)
+        when 'factory'    then factory_files(root_directory, options)
+        when 'serializer' then serialize_files(root_directory, options)
+        when 'controller' then controller_files(root_directory, options)
+        when 'helper'     then helper_files(root_directory, options)
         when 'admin'
           [File.join(root_directory, ACTIVEADMIN_DIR, "%MODEL_NAME%.rb")]
-        when 'helper'
-          [File.join(root_directory, HELPER_DIR, "%PLURALIZED_MODEL_NAME%_helper.rb")]
         else
           []
       end
     end
 
-    def get_patterns(pattern_types=[])
+    def get_patterns(pattern_types=[], options = {})
       current_patterns = []
       root_dir.each do |root_directory|
         Array(pattern_types).each do |pattern_type|
-          current_patterns += files_by_pattern(root_directory, pattern_type)
+          current_patterns += files_by_pattern(root_directory, pattern_type, options)
         end
       end
       current_patterns.map{ |p| p.sub(/^[\/]*/, '') }
@@ -518,7 +577,7 @@ module AnnotateModels
           end
 
           unless options[exclusion_key]
-            self.get_patterns(key).
+            self.get_patterns(key, options).
               map { |f| resolve_filename(f, model_name, table_name) }.
               each { |f|
                 if annotate_one_file(f, info, position_key, options_with_position(options, position_key))
@@ -680,7 +739,7 @@ module AnnotateModels
             model_file_name = file
             deannotated_klass = true if remove_annotation_of_file(model_file_name, options)
 
-            get_patterns(matched_types(options)).
+            get_patterns(matched_types(options), options).
               map { |f| resolve_filename(f, model_name, table_name) }.
               each do |f|
                 if File.exist?(f)
