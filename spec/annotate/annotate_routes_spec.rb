@@ -41,6 +41,15 @@ describe AnnotateRoutes do
       AnnotateRoutes.do_annotations(ignore_routes: 'my_route')
     end
 
+    it 'should insert annotations if file does not contain annotations and position top' do
+      expect(File).to receive(:read).with(ROUTE_FILE).and_return("")
+      expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+      expect(@mock_file).to receive(:puts).with("# == Route Map\n#\n")
+      expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
+
+      AnnotateRoutes.do_annotations(position_in_routes: 'top')
+    end
+
     it 'should skip annotations if file does already contain annotation' do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("\n# == Route Map\n#\n")
       expect(AnnotateRoutes).to receive(:puts).with(FILE_UNCHANGED)
