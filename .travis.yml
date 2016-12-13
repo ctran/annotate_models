@@ -16,4 +16,4 @@ matrix:
 before_install:
   - rvm @global do gem install bundler
 script:
-  - bundle exec rspec
+  - bundle exec rubocop && bundle exec rspec
