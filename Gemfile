@@ -17,7 +17,7 @@ group :development, :test do
   gem 'guard-rspec', require: false
   gem 'terminal-notifier-guard', require: false
   gem 'simplecov', require: false
-  gem 'rubocop', '~> 0.39.0', require: false unless RUBY_VERSION =~ /^1.8/
+  gem 'rubocop', '~> 0.46.0', require: false unless RUBY_VERSION =~ /^1.8/
   gem 'coveralls'
   gem 'codeclimate-test-reporter'
   gem 'ruby_dep', '1.3.1'
