@@ -27,10 +27,6 @@ require 'active_support/core_ext/class/subclasses'
 require 'active_support/core_ext/string/inflections'
 require 'annotate'
 
-require 'rubocop/rake_task'
-RuboCop::RakeTask.new
-Rake::Task['rubocop'].invoke
-
 module Annotate
   module Integration
     ABSOLUTE_GEM_ROOT=File.expand_path('../../', __FILE__)
