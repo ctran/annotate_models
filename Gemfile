@@ -12,6 +12,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'byebug'
   gem 'rspec', require: false
   gem 'guard-rspec', require: false
   gem 'terminal-notifier-guard', require: false

@@ -26,6 +26,7 @@ require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/class/subclasses'
 require 'active_support/core_ext/string/inflections'
 require 'annotate'
+require 'byebug'
 
 module Annotate
   module Integration
