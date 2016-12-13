@@ -5,6 +5,14 @@ require 'annotate/active_record_patch'
 require 'active_support/core_ext/string'
 
 describe AnnotateModels do
+  def mock_index(name, columns = [], unique = false)
+    double("IndexKeyDefinition",
+           :name          => name,
+           :columns       => columns,
+           :unique        => unique
+    )
+  end
+
   def mock_foreign_key(name, from_column, to_table, to_column = 'id', constraints = {})
     double("ForeignKeyDefinition",
            :name         => name,
@@ -20,13 +28,13 @@ describe AnnotateModels do
     double("Conn",
            :indexes      => indexes,
            :foreign_keys => foreign_keys,
-           :supports_foreign_keys? => true,
+           :supports_foreign_keys? => true
     )
   end
 
-  def mock_class(table_name, primary_key, columns, foreign_keys = [])
+  def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [])
     options = {
-      :connection       => mock_connection([], foreign_keys),
+      :connection       => mock_connection(indexes, foreign_keys),
       :table_exists?    => true,
       :table_name       => table_name,
       :primary_key      => primary_key,
@@ -34,7 +42,8 @@ describe AnnotateModels do
       :columns          => columns,
       :column_defaults  => Hash[columns.map { |col|
         [col.name, col.default]
-      }]
+      }],
+      :table_name_prefix => '',
     }
 
     double("An ActiveRecord class", options)
@@ -181,7 +190,7 @@ EOS
            klass = mock_class(:users, :id, [
               mock_column(:id, :integer),
               mock_column(:foreign_thing_id, :integer),
-            ],
+            ], [],
                               [
                                 mock_foreign_key(
                                   'fk_rails_cf2568e89e',
@@ -220,7 +229,7 @@ EOS
     klass = mock_class(:users, :id, [
        mock_column(:id, :integer),
        mock_column(:foreign_thing_id, :integer),
-     ],
+     ], [],
                        [
                          mock_foreign_key(
                            'fk_rails_02e851e3b7',
@@ -242,6 +251,44 @@ EOS
 # Foreign Keys
 #
 #  fk_rails_...  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
+#
+EOS
+  end
+
+  it "should get indexes keys" do
+    klass = mock_class(:users, :id, [
+       mock_column(:id, :integer),
+       mock_column(:foreign_thing_id, :integer),
+     ], [mock_index('index_rails_02e851e3b7', ['id']),
+         mock_index('index_rails_02e851e3b8', ['foreign_thing_id'])])
+    expect(AnnotateModels.get_schema_info(klass, "Schema Info", :show_indexes => true)).to eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id               :integer          not null, primary key
+#  foreign_thing_id :integer          not null
+#
+# Indexes
+#
+#  index_rails_02e851e3b7  (id)
+#  index_rails_02e851e3b8  (foreign_thing_id)
+#
+EOS
+  end
+
+  it "should not crash getting indexes keys" do
+    klass = mock_class(:users, :id, [
+       mock_column(:id, :integer),
+       mock_column(:foreign_thing_id, :integer),
+     ], [])
+    expect(AnnotateModels.get_schema_info(klass, "Schema Info", :show_indexes => true)).to eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id               :integer          not null, primary key
+#  foreign_thing_id :integer          not null
 #
 EOS
   end
