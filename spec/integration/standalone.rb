@@ -4,7 +4,7 @@ module Annotate
   module Validations
     class Standalone < Base
       def self.schema_annotation
-        return <<-RUBY
+        <<-RUBY
 # == Schema Information
 #
 # Table name: tasks
@@ -18,9 +18,7 @@ RUBY
       end
 
       def self.test_commands
-        return %q{
-          bin/annotate --require ./config/init.rb
-        }
+        'bin/annotate --require ./config/init.rb'
       end
 
       def self.verify_output(output)
@@ -28,13 +26,15 @@ RUBY
       end
 
       def self.verify_files(test_rig)
-        return Annotate::Validations::Common.verify_files({
-          :model => true,
-          :test => false,
-          :fixture => false,
-          :factory => false,
-          :routes => false
-        }, test_rig, self.schema_annotation, nil, true)
+        Annotate::Validations::Common.verify_files(
+          {
+            model: true,
+            test: false,
+            fixture: false,
+            factory: false,
+            routes: false
+          }, test_rig, schema_annotation, nil, true
+        )
       end
     end
   end

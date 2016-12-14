@@ -71,27 +71,28 @@ module Annotate
   module Validations
     class Base
       def self.test_commands
-        return Annotate::Validations::Common.test_commands
+        Annotate::Validations::Common.test_commands
       end
 
       def self.verify_output(output)
-        return Annotate::Validations::Common.verify_output(output)
+        Annotate::Validations::Common.verify_output(output)
       end
 
       def self.verify_files(test_rig)
-        return Annotate::Validations::Common.verify_files({
-          :model => true,
-          :test => true,
-          :fixture => true,
-          :factory => false,
-          :routes => true
-        }, test_rig, self.schema_annotation, self.route_annotation, true)
+        Annotate::Validations::Common.verify_files(
+          {
+            model: true,
+            test: true,
+            fixture: true,
+            factory: false,
+            routes: true
+          }, test_rig, schema_annotation, route_annotation, true
+        )
       end
 
       def self.foo
         require 'pry'
         require 'pry-coolline'
-        binding.pry
       end
     end
   end

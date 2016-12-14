@@ -1,5 +1,5 @@
 # Smoke test to assure basic functionality works on a variety of Rails versions.
-$:.unshift(File.dirname(__FILE__))
+$LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'spec_helper'
 require 'files'
 require 'wrong'
@@ -7,7 +7,7 @@ require 'rake'
 include Files
 include Wrong::D
 
-BASEDIR=File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
+BASEDIR = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 RVM_BIN = `which rvm`.chomp
 USING_RVM = (RVM_BIN != '')
 
@@ -24,13 +24,13 @@ describe "annotate inside Rails, using #{CURRENT_RUBY}" do
   Annotate::Integration::SCENARIOS.each do |test_rig, base_dir, test_name|
     next if(chosen_scenario && chosen_scenario != test_rig)
     it "works under #{test_name}" do
-      if !USING_RVM
+      unless USING_RVM
         skip 'Must have RVM installed.'
         next
       end
 
       # Don't proceed if the working copy is dirty!
-      expect(Annotate::Integration.is_clean?(test_rig)).to eq(true)
+      expect(Annotate::Integration.clean?(test_rig)).to eq(true)
 
       skip 'temporarily ignored until Travis can run them'
 
@@ -53,7 +53,7 @@ describe "annotate inside Rails, using #{CURRENT_RUBY}" do
           # make sure it's there so our .rvmrc will work.
           ENV['rvm_ruby_string']=CURRENT_RUBY
 
-          require "#{base_dir}" # Will get "#{base_dir}.rb"...
+          require base_dir.to_s # Will get "#{base_dir}.rb"...
           klass = "Annotate::Validations::#{base_dir.tr('.', '_').classify}".constantize
 
           Dir.chdir(temp_dir) do
