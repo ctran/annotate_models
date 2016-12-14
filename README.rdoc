@@ -5,6 +5,7 @@
 {<img src="https://travis-ci.org/ctran/annotate_models.svg?branch=develop" />}[https://travis-ci.org/ctran/annotate_models]
 {<img src="https://coveralls.io/repos/ctran/annotate_models/badge.svg?branch=develop" />}[https://coveralls.io/r/ctran/annotate_models?branch=develop]
 {<img src="https://codeclimate.com/github/ctran/annotate_models/badges/gpa.svg" />}[https://codeclimate.com/github/ctran/annotate_models]
+{<img src="http://inch-ci.org/github/ctran/annotate_models.svg?branch=develop" alt="Inline docs" />}[http://inch-ci.org/github/ctran/annotate_models]
 {<img src="https://gemnasium.com/ctran/annotate_models.png" />}[https://gemnasium.com/ctran/annotate_models]
 
 Add a comment summarizing the current schema to the top or bottom of each of
@@ -58,7 +59,7 @@ Into Gemfile from rubygems.org:
 
 Into Gemfile from Github:
 
-    gem 'annotate', github: 'ctran/annotate_models'
+    gem 'annotate', git: 'https://github.com/ctran/annotate_models.git'
 
 Into environment gems from rubygems.org:
 
@@ -66,7 +67,7 @@ Into environment gems from rubygems.org:
 
 Into environment gems from Github checkout:
 
-    git clone git://github.com/ctran/annotate_models.git annotate_models
+    git clone https://github.com/ctran/annotate_models.git annotate_models
     cd annotate_models
     rake build
     gem install pkg/annotate-*.gem
