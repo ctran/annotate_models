@@ -20,3 +20,4 @@
 /spec/integration/*/db/test.*
 /spec/integration/*/log/*
 /spec/integration/*/tmp/*
+.byebug_history

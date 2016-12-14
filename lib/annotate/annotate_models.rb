@@ -168,7 +168,7 @@ module AnnotateModels
       when NilClass                 then 'NULL'
       when TrueClass                then 'TRUE'
       when FalseClass               then 'FALSE'
-      when Float, Fixnum, Bignum    then value.to_s
+      when Float, Integer           then value.to_s
         # BigDecimals need to be output in a non-normalized form and quoted.
       when BigDecimal               then value.to_s('F')
       when Array                    then value.map {|v| quote(v)}
@@ -179,6 +179,18 @@ module AnnotateModels
 
     def schema_default(klass, column)
       quote(klass.column_defaults[column.name])
+    end
+
+    def retrieve_indexes_from_table(klass)
+      table_name = klass.table_name
+      return [] unless table_name
+
+      indexes = klass.connection.indexes(table_name)
+      return indexes if indexes.any? || !klass.table_name_prefix
+
+      # Try to search the table without prefix
+      table_name.to_s.slice!(klass.table_name_prefix)
+      klass.connection.indexes(table_name)
     end
 
     # Use the column information in an ActiveRecord class
@@ -244,7 +256,7 @@ module AnnotateModels
         # Check if the column has indices and print "indexed" if true
         # If the index includes another column, print it too.
         if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
-          indices = klass.connection.indexes(klass.table_name)
+          indices = retrieve_indexes_from_table(klass)
           if indices = indices.select { |ind| ind.columns.include? col.name }
             indices.sort_by(&:name).each do |ind|
               ind = ind.columns.reject! { |i| i == col.name }
@@ -305,7 +317,7 @@ module AnnotateModels
         index_info = "#\n# Indexes\n#\n"
       end
 
-      indexes = klass.connection.indexes(klass.table_name)
+      indexes = retrieve_indexes_from_table(klass)
       return '' if indexes.empty?
 
       max_size = indexes.collect{|index| index.name.size}.max + 1
