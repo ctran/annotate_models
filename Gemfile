@@ -23,6 +23,7 @@ group :development, :test do
   gem 'codeclimate-test-reporter'
   gem 'coveralls'
 
+  gem 'overcommit'
   gem 'ruby_dep', '1.3.1'
 
   platforms :mri, :mingw do
