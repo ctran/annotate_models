@@ -284,6 +284,25 @@ EOS
 EOS
   end
 
+  it 'should get simple indexes keys' do
+    klass = mock_class(:users,
+                       :id,
+                       [
+                         mock_column(:id, :integer),
+                         mock_column(:foreign_thing_id, :integer)
+                       ], [mock_index('index_rails_02e851e3b7', ['id']),
+                       mock_index('index_rails_02e851e3b8', ['foreign_thing_id'])])
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', simple_indexes: true)).to eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id               :integer          not null, primary key
+#  foreign_thing_id :integer          not null
+#
+EOS
+  end
+
   it 'should not crash getting indexes keys' do
     klass = mock_class(:users,
                        :id,
@@ -309,7 +328,7 @@ EOS
                          mock_column(:id, :integer),
                          mock_column(:name, :string, limit: 50)
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, :format_rdoc => true)).to eql(<<-EOS)
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_rdoc: true)).to eql(<<-EOS)
 # #{AnnotateModels::PREFIX}
 #
 # Table name: users
@@ -319,6 +338,94 @@ EOS
 #--
 # #{AnnotateModels::END_MARK}
 #++
+EOS
+  end
+
+  it 'should get schema info as Markdown' do
+    klass = mock_class(:users,
+                       :id,
+                       [
+                         mock_column(:id, :integer),
+                         mock_column(:name, :string, limit: 50)
+                       ])
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true)).to eql(<<-EOS)
+# #{AnnotateModels::PREFIX}
+#
+# Table name: `users`
+#
+# ### Columns
+#
+# Name        | Type               | Attributes
+# ----------- | ------------------ | ---------------------------
+# **`id`**    | `integer`          | `not null, primary key`
+# **`name`**  | `string(50)`       | `not null`
+#
+EOS
+  end
+
+  it 'should get schema info as Markdown with foreign keys' do
+    klass = mock_class(:users,
+                       :id,
+                       [
+                         mock_column(:id, :integer),
+                         mock_column(:foreign_thing_id, :integer)
+                       ],
+                       [],
+                       [
+                         mock_foreign_key('fk_rails_02e851e3b7',
+                                          'foreign_thing_id',
+                                          'foreign_things',
+                                          'id',
+                                          on_delete: 'on_delete_value',
+                                          on_update: 'on_update_value')
+                       ])
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_foreign_keys: true)).to eql(<<-EOS)
+# #{AnnotateModels::PREFIX}
+#
+# Table name: `users`
+#
+# ### Columns
+#
+# Name                    | Type               | Attributes
+# ----------------------- | ------------------ | ---------------------------
+# **`id`**                | `integer`          | `not null, primary key`
+# **`foreign_thing_id`**  | `integer`          | `not null`
+#
+# ### Foreign Keys
+#
+# * `fk_rails_...` (_ON DELETE => on_delete_value ON UPDATE => on_update_value_):
+#     * **`foreign_thing_id => foreign_things.id`**
+#
+EOS
+  end
+
+  it 'should get schema info as Markdown with indexes' do
+    klass = mock_class(:users,
+                       :id,
+                       [
+                         mock_column(:id, :integer),
+                         mock_column(:name, :string, limit: 50)
+                       ], [mock_index('index_rails_02e851e3b7', ['id']),
+                       mock_index('index_rails_02e851e3b8', ['foreign_thing_id'])])
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
+# #{AnnotateModels::PREFIX}
+#
+# Table name: `users`
+#
+# ### Columns
+#
+# Name        | Type               | Attributes
+# ----------- | ------------------ | ---------------------------
+# **`id`**    | `integer`          | `not null, primary key`
+# **`name`**  | `string(50)`       | `not null`
+#
+# ### Indexes
+#
+# * `index_rails_02e851e3b7`:
+#     * **`id`**
+# * `index_rails_02e851e3b8`:
+#     * **`foreign_thing_id`**
+#
 EOS
   end
 
