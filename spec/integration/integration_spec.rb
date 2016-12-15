@@ -17,12 +17,13 @@ ENV['BUNDLE_GEMFILE'] = './Gemfile'
 
 describe "annotate inside Rails, using #{CURRENT_RUBY}" do
   chosen_scenario = nil
-  if !ENV['SCENARIO'].blank?
+  unless ENV['SCENARIO'].blank?
     chosen_scenario = File.expand_path(ENV['SCENARIO'])
-    raise "Can't find specified scenario '#{chosen_scenario}'!" unless(File.directory?(chosen_scenario))
+    raise "Can't find specified scenario '#{chosen_scenario}'!" unless File.directory?(chosen_scenario)
   end
+
   Annotate::Integration::SCENARIOS.each do |test_rig, base_dir, test_name|
-    next if(chosen_scenario && chosen_scenario != test_rig)
+    next if chosen_scenario && chosen_scenario != test_rig
     it "works under #{test_name}" do
       unless USING_RVM
         skip 'Must have RVM installed.'
@@ -51,7 +52,7 @@ describe "annotate inside Rails, using #{CURRENT_RUBY}" do
 
           # By default, rvm_ruby_string isn't inherited over properly, so let's
           # make sure it's there so our .rvmrc will work.
-          ENV['rvm_ruby_string']=CURRENT_RUBY
+          ENV['rvm_ruby_string'] = CURRENT_RUBY
 
           require base_dir.to_s # Will get "#{base_dir}.rb"...
           klass = "Annotate::Validations::#{base_dir.tr('.', '_').classify}".constantize
