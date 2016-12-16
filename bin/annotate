@@ -90,12 +90,11 @@ OptionParser.new do |opts|
     ENV['routes'] = 'true'
   end
 
-  opts.on('-aa', '--active-admin', 'Annotate active_admin models') do |p|
-    ENV['active_admin'] = p
+  opts.on('-aa', '--active-admin', 'Annotate active_admin models') do
+    ENV['active_admin'] = 'true'
   end
 
-  opts.on('-v', '--version',
-          'Show the current version of this gem') do
+  opts.on('-v', '--version', 'Show the current version of this gem') do
     puts "annotate v#{Annotate.version}"; exit
   end
 
