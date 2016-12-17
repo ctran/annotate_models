@@ -567,14 +567,7 @@ EOS
   describe '#get_model_class' do
     require 'tmpdir'
 
-    module ::ActiveRecord
-      class Base
-        def self.has_many _name
-        end
-      end
-    end
-
-    # todo: use 'files' gem instead
+    # TODO: use 'files' gem instead
     def create(file, body = 'hi')
       file_path = File.join(AnnotateModels.model_dir[0], file)
       FileUtils.mkdir_p(File.dirname(file_path))
