@@ -17,6 +17,47 @@ describe AnnotateRoutes do
     AnnotateRoutes.do_annotations
   end
 
+  describe 'Annotate#example' do
+    before(:each) do
+      expect(File).to receive(:exists?).with(ROUTE_FILE).and_return(true)
+
+      expect(File).to receive(:read).with(ROUTE_FILE).and_return("")
+      expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return('                                      Prefix Verb       URI Pattern                                               Controller#Action
+                                   myaction1 GET        /url1(.:format)                                           mycontroller1#action
+                                   myaction2 POST       /url2(.:format)                                           mycontroller2#action
+                                   myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action')
+
+      expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
+    end
+
+    it 'annotate normal' do
+      expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+      expect(@mock_file).to receive(:puts).with("
+# == Route Map
+#
+#                                       Prefix Verb       URI Pattern                                               Controller#Action
+#                                    myaction1 GET        /url1(.:format)                                           mycontroller1#action
+#                                    myaction2 POST       /url2(.:format)                                           mycontroller2#action
+#                                    myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action\n")
+
+      AnnotateRoutes.do_annotations
+    end
+
+    it 'annotate markdown' do
+      expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+      expect(@mock_file).to receive(:puts).with("
+# ## Route Map
+#
+# Prefix    | Verb       | URI Pattern     | Controller#Action   
+# --------- | ---------- | --------------- | --------------------
+# myaction1 | GET        | /url1(.:format) | mycontroller1#action
+# myaction2 | POST       | /url2(.:format) | mycontroller2#action
+# myaction3 | DELETE-GET | /url3(.:format) | mycontroller3#action\n")
+
+      AnnotateRoutes.do_annotations(format_markdown: true)
+    end
+  end
+
   describe 'When adding' do
     before(:each) do
       expect(File).to receive(:exists?).with(ROUTE_FILE).and_return(true)
