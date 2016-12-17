@@ -18,33 +18,60 @@
 # Released under the same license as Ruby. No Support. No Warranty.
 #
 module AnnotateRoutes
-  PREFIX = '# == Route Map'
+  PREFIX = '== Route Map'.freeze
+  PREFIX_MD = '## Route Map'.freeze
+  HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action']
 
-  def self.do_annotations(options={})
-    return unless routes_exists?
+  class << self
+    def content(line, maxs, options = {})
+      return line.rstrip unless options[:format_markdown]
 
-    routes_map = AnnotateRoutes.app_routes_map(options)
+      line.each_with_index.map do |elem, index|
+        min_length = maxs.map { |arr| arr[index] }.max || 0
 
-    header = [
-        "#{PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : ''), '#'
-    ] + routes_map.map { |line| "# #{line}".rstrip }
-
-    existing_text = File.read(routes_file)
-
-    if write_contents(existing_text, header, options)
-      puts "#{routes_file} annotated."
+        sprintf("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
+      end.join(' | ')
     end
-  end
 
-  def self.remove_annotations(options={})
-    return unless routes_exists?
-    existing_text = File.read(routes_file)
-    content, where_header_found = strip_annotations(existing_text)
+    def header(options = {})
+      routes_map = app_routes_map(options)
 
-    content = strip_on_removal(content, where_header_found)
+      out = ["# #{options[:format_markdown] ? PREFIX_MD : PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')]
+      out += ['#']
+      return out if routes_map.size.zero?
 
-    if write_contents(existing_text, content, options)
-      puts "Removed annotations from #{routes_file}."
+      maxs = [HEADER_ROW.map(&:size)] + routes_map[1..-1].map { |line| line.split.map(&:size) }
+      max = maxs.map(&:max).max
+
+      if options[:format_markdown]
+        out += ["# #{content(HEADER_ROW, maxs, options)}"]
+        out += ["# #{content(['-' * max, '-' * max, '-' * max, '-' * max], maxs, options)}"]
+      else
+        out += ["# #{content(routes_map[0], maxs, options)}"]
+      end
+
+      out + routes_map[1..-1].map { |line| "# #{content(options[:format_markdown] ? line.split(' ') : line, maxs, options)}" }
+    end
+
+    def do_annotations(options = {})
+      return unless routes_exists?
+      existing_text = File.read(routes_file)
+
+      if write_contents(existing_text, header(options), options)
+        puts "#{routes_file} annotated."
+      end
+    end
+
+    def remove_annotations(options={})
+      return unless routes_exists?
+      existing_text = File.read(routes_file)
+      content, where_header_found = strip_annotations(existing_text)
+
+      content = strip_on_removal(content, where_header_found)
+
+      if write_contents(existing_text, content, options)
+        puts "Removed annotations from #{routes_file}."
+      end
     end
   end
 
