@@ -41,9 +41,10 @@ module AnnotateRoutes
       return out if routes_map.size.zero?
 
       maxs = [HEADER_ROW.map(&:size)] + routes_map[1..-1].map { |line| line.split.map(&:size) }
-      max = maxs.map(&:max).max
 
       if options[:format_markdown]
+        max = maxs.map(&:max).compact.max
+
         out += ["# #{content(HEADER_ROW, maxs, options)}"]
         out += ["# #{content(['-' * max, '-' * max, '-' * max, '-' * max], maxs, options)}"]
       else
