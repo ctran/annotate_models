@@ -10,7 +10,7 @@ task annotate_models: :environment do
   require "#{annotate_lib}/annotate/annotate_models"
   require "#{annotate_lib}/annotate/active_record_patch"
 
-  options={is_rake: true}
+  options = {is_rake: true}
   ENV['position'] = options[:position] = Annotate.fallback(ENV['position'], 'before')
   options[:position_in_class] = Annotate.fallback(ENV['position_in_class'], ENV['position'])
   options[:position_in_fixture] = Annotate.fallback(ENV['position_in_fixture'], ENV['position'])
@@ -45,6 +45,7 @@ task annotate_models: :environment do
   options[:ignore_columns] = ENV.fetch('ignore_columns', nil)
   options[:ignore_routes] = ENV.fetch('ignore_routes', nil)
   options[:hide_limit_column_types] = Annotate.fallback(ENV['hide_limit_column_types'], '')
+  options[:hide_default_column_types] = Annotate.fallback(ENV['hide_default_column_types'], '')
 
   AnnotateModels.do_annotations(options)
 end
@@ -54,7 +55,7 @@ task remove_annotation: :environment do
   require "#{annotate_lib}/annotate/annotate_models"
   require "#{annotate_lib}/annotate/active_record_patch"
 
-  options={is_rake: true}
+  options = {is_rake: true}
   options[:model_dir] = ENV['model_dir']
   options[:root_dir] = ENV['root_dir']
   options[:require] = ENV['require'] ? ENV['require'].split(',') : []
