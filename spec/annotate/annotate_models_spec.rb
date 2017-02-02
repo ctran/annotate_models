@@ -303,6 +303,25 @@ EOS
 EOS
   end
 
+  it 'should get simple indexes keys if one is in string form' do
+    klass = mock_class(:users,
+                       :id,
+                       [
+                         mock_column("id", :integer),
+                         mock_column("name", :string)
+                       ], [mock_index('index_rails_02e851e3b7', ['id']),
+                       mock_index('index_rails_02e851e3b8', 'LOWER(name)')])
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', simple_indexes: true)).to eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id   :integer          not null, primary key, indexed
+#  name :string           not null
+#
+EOS
+  end
+
   it 'should not crash getting indexes keys' do
     klass = mock_class(:users,
                        :id,
