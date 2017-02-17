@@ -1,23 +1,33 @@
+/.bundle/
+/.yardoc
+/Gemfile.lock
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+
 !/spec/integration/*/log/.gitkeep
 !/spec/integration/*/tmp/.gitkeep
-*.gem
-.DS_Store
-.bundle
 .gems
-.rbenv-version
-.ruby-*
 /.idea/
 /.rbx
-/.rvmrc
-/.yardoc/*
-/Gemfile.lock
-/coverage/*
 /dist
-/doc/*
-/pkg/*
 /spec/debug.log
 /spec/integration/*/bin/
 /spec/integration/*/db/test.*
 /spec/integration/*/log/*
 /spec/integration/*/tmp/*
+
+*.gem
 .byebug_history
+
+# rbenv
+.ruby-version
+
+# RVM
+.rvmrc
+
+# macOS
+.DS_Store
