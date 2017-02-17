@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
 
   spec.extra_rdoc_files = ['README.rdoc', 'CHANGELOG.rdoc', 'TODO.rdoc']
 
+  spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'bump'
   spec.add_development_dependency 'mg'
   spec.add_development_dependency 'yard'
