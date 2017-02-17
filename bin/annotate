@@ -95,7 +95,7 @@ OptionParser.new do |opts|
   end
 
   opts.on('-v', '--version', 'Show the current version of this gem') do
-    puts "annotate v#{Annotate.version}"; exit
+    puts "annotate v#{Annotate::VERSION}"; exit
   end
 
   opts.on('-m', '--show-migration', 'Include the migration version number in the annotation') do
