@@ -16,6 +16,7 @@ matrix:
     - rvm: 2.1
     - rvm: 2.4.0
 before_install:
-  - rvm @global do gem install bundler
+  - gem update --system
+  - gem update bundler
 script:
   - bundle exec rubocop && bundle exec rspec
