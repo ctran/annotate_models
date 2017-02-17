@@ -24,6 +24,25 @@ Gem::Specification.new do |spec|
 
   spec.extra_rdoc_files = ['README.rdoc', 'CHANGELOG.rdoc', 'TODO.rdoc']
 
+  spec.add_development_dependency 'bump'
+  spec.add_development_dependency 'mg'
+  spec.add_development_dependency 'yard'
+  spec.add_development_dependency 'byebug'
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'guard-rspec'
+  spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'simplecov'
+  spec.add_development_dependency 'terminal-notifier-guard'
+  spec.add_development_dependency 'codeclimate-test-reporter'
+  spec.add_development_dependency 'coveralls'
+  spec.add_development_dependency 'overcommit'
+  spec.add_development_dependency 'ruby_dep', '1.3.1'
+  spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'pry-coolline'
+
+  spec.add_development_dependency 'files'
+  spec.add_development_dependency 'wrong'
+
   spec.add_runtime_dependency(%q<rake>, ['>= 10.4'])
   spec.add_runtime_dependency(%q<activerecord>, ['>= 3.2', '< 6.0'])
 end
