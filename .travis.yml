@@ -12,9 +12,6 @@ matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: 1.9.3
-    - rvm: 2.0
-    - rvm: 2.1
-    - rvm: 2.4.0
 before_install:
   - gem update --system
   - gem update bundler
