@@ -80,7 +80,13 @@ module AnnotateModels
     attr_writer :model_dir
 
     def root_dir
-      @root_dir.is_a?(Array) ? @root_dir : [@root_dir || '']
+      if @root_dir.blank?
+        ['']
+      elsif @root_dir.is_a?(String)
+        @root_dir.split(',')
+      else
+        @root_dir
+      end
     end
 
     attr_writer :root_dir
