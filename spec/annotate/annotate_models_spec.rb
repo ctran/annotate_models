@@ -229,6 +229,42 @@ EOS
 EOS
   end
 
+  it 'should get complete foreign key info' do
+    klass = mock_class(:users,
+                       :id,
+                       [
+                         mock_column(:id, :integer),
+                         mock_column(:foreign_thing_id, :integer)
+                       ],
+                       [],
+                       [
+                         mock_foreign_key('fk_rails_cf2568e89e',
+                                          'foreign_thing_id',
+                                          'foreign_things'),
+                         mock_foreign_key('custom_fk_name',
+                                          'other_thing_id',
+                                          'other_things'),
+                         mock_foreign_key('fk_rails_a70234b26c',
+                                          'third_thing_id',
+                                          'third_things')
+                       ])
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true, show_complete_foreign_keys: true)).to eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id               :integer          not null, primary key
+#  foreign_thing_id :integer          not null
+#
+# Foreign Keys
+#
+#  custom_fk_name       (other_thing_id => other_things.id)
+#  fk_rails_a70234b26c  (third_thing_id => third_things.id)
+#  fk_rails_cf2568e89e  (foreign_thing_id => foreign_things.id)
+#
+    EOS
+  end
+
   it 'should get foreign key info if on_delete/on_update options present' do
     klass = mock_class(:users,
                        :id,

@@ -18,6 +18,7 @@ task annotate_models: :environment do
   options[:position_in_test] = Annotate.fallback(ENV['position_in_test'], ENV['position'])
   options[:position_in_serializer] = Annotate.fallback(ENV['position_in_serializer'], ENV['position'])
   options[:show_foreign_keys] = Annotate.true?(ENV['show_foreign_keys'])
+  options[:show_complete_foreign_keys] = Annotate.true?(ENV['show_complete_foreign_keys'])
   options[:show_indexes] = Annotate.true?(ENV['show_indexes'])
   options[:simple_indexes] = Annotate.true?(ENV['simple_indexes'])
   options[:model_dir] = ENV['model_dir'] ? ENV['model_dir'].split(',') : ['app/models']
