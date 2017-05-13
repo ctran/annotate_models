@@ -458,7 +458,7 @@ EOS
         [:notes, :text, { limit: 55 }]
       ]
 
-      it 'should work with options = #{options}' do
+      it "should work with options = #{options}" do
         with_columns = (options.delete(:with_columns) || default_columns).map do |column|
           mock_column(column[0], column[1], column[2])
         end
@@ -580,6 +580,71 @@ EOS
         #  notes  :text(55)         not null
         #
       EOS
+    end
+
+    describe 'with_comment option' do
+      mocked_columns_with_comment = [
+        [:id,     :integer, { limit: 8,  comment: 'ID' }],
+        [:active, :boolean, { limit: 1,  comment: 'Active' }],
+        [:name,   :string,  { limit: 50, comment: 'Name' }],
+        [:notes,  :text,    { limit: 55, comment: 'Notes' }]
+      ]
+
+      when_called_with with_comment: 'yes',
+                       with_columns: mocked_columns_with_comment, returns:
+        <<-EOS.strip_heredoc
+        # Schema Info
+        #
+        # Table name: users
+        #
+        #  id(ID)         :integer          not null, primary key
+        #  active(Active) :boolean          not null
+        #  name(Name)     :string(50)       not null
+        #  notes(Notes)   :text(55)         not null
+        #
+      EOS
+
+      it 'should get schema info as RDoc' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer, comment: 'ID'),
+                             mock_column(:name, :string, limit: 50, comment: 'Name')
+                           ])
+        expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_rdoc: true, with_comment: true)).to eql(<<-EOS.strip_heredoc)
+        # #{AnnotateModels::PREFIX}
+        #
+        # Table name: users
+        #
+        # *id(ID)*::     <tt>integer, not null, primary key</tt>
+        # *name(Name)*:: <tt>string(50), not null</tt>
+        #--
+        # #{AnnotateModels::END_MARK}
+        #++
+        EOS
+      end
+
+      it 'should get schema info as Markdown' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer, comment: 'ID'),
+                             mock_column(:name, :string, limit: 50, comment: 'Name')
+                           ])
+        expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, with_comment: true)).to eql(<<-EOS.strip_heredoc)
+        # #{AnnotateModels::PREFIX}
+        #
+        # Table name: `users`
+        #
+        # ### Columns
+        #
+        # Name              | Type               | Attributes
+        # ----------------- | ------------------ | ---------------------------
+        # **`id(ID)`**      | `integer`          | `not null, primary key`
+        # **`name(Name)`**  | `string(50)`       | `not null`
+        #
+        EOS
+      end
     end
   end
 

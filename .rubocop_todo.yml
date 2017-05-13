@@ -103,7 +103,7 @@ Lint/UselessAccessModifier:
 
 # Offense count: 17
 Metrics/AbcSize:
-  Max: 146
+  Max: 159
 
 # Offense count: 3
 # Configuration parameters: CountComments.
@@ -116,7 +116,7 @@ Metrics/BlockNesting:
 
 # Offense count: 8
 Metrics/CyclomaticComplexity:
-  Max: 37
+  Max: 42
 
 # Offense count: 350
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
@@ -127,7 +127,7 @@ Metrics/LineLength:
 # Offense count: 24
 # Configuration parameters: CountComments.
 Metrics/MethodLength:
-  Max: 71
+  Max: 79
 
 # Offense count: 1
 # Configuration parameters: CountComments.
@@ -136,7 +136,7 @@ Metrics/ModuleLength:
 
 # Offense count: 7
 Metrics/PerceivedComplexity:
-  Max: 42
+  Max: 48
 
 # Offense count: 1
 Style/AccessorMethodName:
