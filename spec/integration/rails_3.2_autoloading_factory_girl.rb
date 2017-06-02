@@ -4,7 +4,7 @@ module Annotate
   module Validations
     class Rails32AutoloadingFactoryGirl < Base
       def self.schema_annotation
-        return <<-RUBY
+        <<-RUBY
 # == Schema Information
 #
 # Table name: tasks
@@ -18,7 +18,7 @@ RUBY
       end
 
       def self.route_annotation
-        return <<-RUBY
+        <<-RUBY
 # == Route Map (Updated YYYY-MM-DD HH:MM)
 #
 #     tasks GET    /tasks(.:format)          tasks#index
@@ -33,13 +33,15 @@ RUBY
       end
 
       def self.verify_files(test_rig)
-        return Annotate::Validations::Common.verify_files({
-          :model => true,
-          :test => true,
-          :fixture => false,
-          :factory => true,
-          :routes => true
-        }, test_rig, self.schema_annotation, self.route_annotation, true)
+        Annotate::Validations::Common.verify_files(
+          {
+            model: true,
+            test: true,
+            fixture: false,
+            factory: true,
+            routes: true
+          }, test_rig, schema_annotation, route_annotation, true
+        )
       end
     end
   end

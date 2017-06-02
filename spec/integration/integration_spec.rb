@@ -1,5 +1,5 @@
 # Smoke test to assure basic functionality works on a variety of Rails versions.
-$:.unshift(File.dirname(__FILE__))
+$LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'spec_helper'
 require 'files'
 require 'wrong'
@@ -7,7 +7,7 @@ require 'rake'
 include Files
 include Wrong::D
 
-BASEDIR=File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
+BASEDIR = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 RVM_BIN = `which rvm`.chomp
 USING_RVM = (RVM_BIN != '')
 
@@ -16,25 +16,24 @@ ENV['rvm_pretty_print_flag'] = '0'
 ENV['BUNDLE_GEMFILE'] = './Gemfile'
 
 describe "annotate inside Rails, using #{CURRENT_RUBY}" do
-  
-  here = File.expand_path('..', __FILE__)
   chosen_scenario = nil
-  if(!ENV['SCENARIO'].blank?)
+  unless ENV['SCENARIO'].blank?
     chosen_scenario = File.expand_path(ENV['SCENARIO'])
-    raise "Can't find specified scenario '#{chosen_scenario}'!" unless(File.directory?(chosen_scenario))
+    raise "Can't find specified scenario '#{chosen_scenario}'!" unless File.directory?(chosen_scenario)
   end
+
   Annotate::Integration::SCENARIOS.each do |test_rig, base_dir, test_name|
-    next if(chosen_scenario && chosen_scenario != test_rig)
+    next if chosen_scenario && chosen_scenario != test_rig
     it "works under #{test_name}" do
-      if(!USING_RVM)
-        skip "Must have RVM installed."
+      unless USING_RVM
+        skip 'Must have RVM installed.'
         next
       end
 
       # Don't proceed if the working copy is dirty!
-      expect(Annotate::Integration.is_clean?(test_rig)).to eq(true)
+      expect(Annotate::Integration.clean?(test_rig)).to eq(true)
 
-      skip "temporarily ignored until Travis can run them"
+      skip 'temporarily ignored until Travis can run them'
 
       Bundler.with_clean_env do
         dir base_dir do
@@ -53,10 +52,10 @@ describe "annotate inside Rails, using #{CURRENT_RUBY}" do
 
           # By default, rvm_ruby_string isn't inherited over properly, so let's
           # make sure it's there so our .rvmrc will work.
-          ENV['rvm_ruby_string']=CURRENT_RUBY
+          ENV['rvm_ruby_string'] = CURRENT_RUBY
 
-          require "#{base_dir}" # Will get "#{base_dir}.rb"...
-          klass = "Annotate::Validations::#{base_dir.gsub('.', '_').classify}".constantize
+          require base_dir.to_s # Will get "#{base_dir}.rb"...
+          klass = "Annotate::Validations::#{base_dir.tr('.', '_').classify}".constantize
 
           Dir.chdir(temp_dir) do
             # bash is required by rvm

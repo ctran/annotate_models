@@ -4,7 +4,7 @@ module Annotate
   module Validations
     class Rails32CustomInflection < Base
       def self.schema_annotation
-        return <<-RUBY
+        <<-RUBY
 # == Schema Information
 #
 # Table name: tasks
@@ -18,7 +18,7 @@ RUBY
       end
 
       def self.route_annotation
-        return <<-RUBY
+        <<-RUBY
 # == Route Map (Updated YYYY-MM-DD HH:MM)
 #
 #     tasks GET    /tasks(.:format)          tasks#index

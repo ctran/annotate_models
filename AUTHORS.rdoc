@@ -29,5 +29,6 @@ With help from:
 - Paul Alexander
 - Dmitry Lihachev
 - qichunren
+- Guillermo Guerrero - http://github.com/ryanfox1985
 
 and many others that I may have forgotten to add.
