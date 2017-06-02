@@ -76,8 +76,6 @@ module AnnotateRoutes
     end
   end
 
-  private
-
   def self.app_routes_map(options)
     routes_map = `rake routes`.split(/\n/, -1)
 
