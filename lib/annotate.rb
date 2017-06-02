@@ -88,7 +88,6 @@ module Annotate
     end
 
     options[:model_dir] = ['app/models'] if options[:model_dir].empty?
-    options[:root_dir] = [''] if options[:root_dir].empty?
 
     options[:wrapper_open] ||= options[:wrapper]
     options[:wrapper_close] ||= options[:wrapper]

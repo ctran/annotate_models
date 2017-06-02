@@ -103,7 +103,7 @@ Lint/UselessAccessModifier:
 
 # Offense count: 17
 Metrics/AbcSize:
-  Max: 146
+  Max: 159
 
 # Offense count: 3
 # Configuration parameters: CountComments.
@@ -116,7 +116,7 @@ Metrics/BlockNesting:
 
 # Offense count: 8
 Metrics/CyclomaticComplexity:
-  Max: 37
+  Max: 42
 
 # Offense count: 350
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
@@ -127,7 +127,7 @@ Metrics/LineLength:
 # Offense count: 24
 # Configuration parameters: CountComments.
 Metrics/MethodLength:
-  Max: 71
+  Max: 79
 
 # Offense count: 1
 # Configuration parameters: CountComments.
@@ -136,7 +136,7 @@ Metrics/ModuleLength:
 
 # Offense count: 7
 Metrics/PerceivedComplexity:
-  Max: 42
+  Max: 48
 
 # Offense count: 1
 Style/AccessorMethodName:
@@ -195,7 +195,7 @@ Style/ClassAndModuleChildren:
 # Offense count: 2
 Style/ClassVars:
   Exclude:
-    - 'lib/tasks/migrate.rake'
+    - 'lib/tasks/annotate_models_migrate.rake'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -215,7 +215,7 @@ Style/Documentation:
     - 'lib/annotate/annotate_models.rb'
     - 'lib/annotate/version.rb'
     - 'lib/generators/annotate/install_generator.rb'
-    - 'lib/tasks/migrate.rake'
+    - 'lib/tasks/annotate_models_migrate.rake'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -280,7 +280,7 @@ Style/GuardClause:
   Exclude:
     - 'lib/annotate/annotate_models.rb'
     - 'lib/annotate/annotate_routes.rb'
-    - 'lib/tasks/migrate.rake'
+    - 'lib/tasks/annotate_models_migrate.rake'
     - 'spec/integration/rails_2.3_with_bundler/config/boot.rb'
 
 # Offense count: 57
@@ -408,7 +408,7 @@ Style/RedundantReturn:
 # Cop supports --auto-correct.
 Style/RedundantSelf:
   Exclude:
-    - 'lib/tasks/migrate.rake'
+    - 'lib/tasks/annotate_models_migrate.rake'
 
 # Offense count: 12
 # Cop supports --auto-correct.
