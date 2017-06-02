@@ -613,7 +613,7 @@ module AnnotateModels
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
     def get_loaded_model(model_path)
       ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
-    rescue
+    rescue StandardError, LoadError
       # Revert to the old way but it is not really robust
       ObjectSpace.each_object(::Class)
                  .select do |c|
