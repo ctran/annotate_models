@@ -484,6 +484,21 @@ EOS
 EOS
   end
 
+  describe '#set_defaults' do
+    it 'should default show_complete_foreign_keys to false' do
+      expect(Annotate.true?(ENV['show_complete_foreign_keys'])).to be(false)
+    end
+
+    it 'should be able to set show_complete_foreign_keys to true' do
+      Annotate.set_defaults('show_complete_foreign_keys' => 'true')
+      expect(Annotate.true?(ENV['show_complete_foreign_keys'])).to be(true)
+    end
+
+    after :each do
+      ENV.delete('show_complete_foreign_keys')
+    end
+  end
+
   describe '#get_schema_info with custom options' do
     def self.when_called_with(options = {})
       expected = options.delete(:returns)
