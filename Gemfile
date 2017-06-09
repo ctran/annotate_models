@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ruby RUBY_VERSION
+
 gem 'activerecord', '>= 4.2.5', require: false
 gem 'rake', require: false
 

@@ -39,7 +39,7 @@ namespace :gem do
     spec = Gem::Specification.new do |gem|
       # See http://docs.rubygems.org/read/chapter/20
       # for more options.
-      gem.version = Annotate.version
+      gem.version = Annotate::VERSION
       gem.name = 'annotate'
       gem.homepage = 'http://github.com/ctran/annotate_models'
       gem.rubyforge_project = 'annotate'

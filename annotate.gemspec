@@ -1,11 +1,16 @@
-# -*- encoding: utf-8 -*-
+# coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'annotate/version'
 
-Gem::Specification.new do |s|
-  s.name = 'annotate'
-  s.version = Annotate.version
+Gem::Specification.new do |spec|
+  spec.name = 'annotate'
+  spec.version = Annotate::VERSION
+  spec.authors = ['Alex Chaffee', 'Cuong Tran', 'Marcos Piccinini', 'Turadg Aleahmad', 'Jon Frisby']
+  spec.email = [
+    'alex@stinky.com', 'cuong.tran@gmail.com', 'x@nofxx.com',
+    'turadg@aleahmad.net', 'jon@cloudability.com'
+  ]
 
   s.required_ruby_version = '>= 1.9.3'
   s.required_rubygems_version = Gem::Requirement.new('>= 0') if s.respond_to? :required_rubygems_version=
