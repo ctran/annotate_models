@@ -1,5 +1,5 @@
 module Annotate
   def self.version
-    '3.0.0'
+    '2.7.2'
   end
 end
