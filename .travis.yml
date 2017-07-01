@@ -1,9 +1,6 @@
 sudo: false
 language: ruby
 rvm:
-  - 1.9.3
-  - 2.0
-  - 2.1
   - 2.2.5
   - 2.3.0
   - 2.4.0
@@ -11,7 +8,6 @@ rvm:
 matrix:
   allow_failures:
     - rvm: ruby-head
-    - rvm: 1.9.3
 before_install:
   - gem update --system
   - gem update bundler
