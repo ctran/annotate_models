@@ -337,13 +337,31 @@ module AnnotateModels
       max_size = indexes.collect{|index| index.name.size}.max + 1
       indexes.sort_by(&:name).each do |index|
         index_info << if options[:format_markdown]
-                        sprintf("# * `%s`%s:\n#     * **`%s`**\n", index.name, index.unique ? " (_unique_)" : "", Array(index.columns).join("`**\n#     * **`"))
+                        final_index_string_in_markdown(index)
                       else
-                        sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{Array(index.columns).join(",")})", index.unique ? "UNIQUE" : "").rstrip + "\n"
+                        final_index_string(index, max_size)
                       end
       end
 
       index_info
+    end
+
+    def index_columns_info(index)
+      Array(index.columns).map do |col|
+        if index.try(:orders) && index.orders[col.to_s]
+          "#{col} #{index.orders[col.to_s].upcase}"
+        else
+          col.to_s
+        end
+      end
+    end
+
+    def final_index_string_in_markdown(index)
+      sprintf("# * `%s`%s:\n#     * **`%s`**\n", index.name, index.unique ? " (_unique_)" : "", index_columns_info(index).join("`**\n#     * **`"))
+    end
+
+    def final_index_string(index, max_size)
+      sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{index_columns_info(index).join(',')})", index.unique ? "UNIQUE" : "").rstrip + "\n"
     end
 
     def hide_limit?(col_type, options)
