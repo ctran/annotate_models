@@ -65,6 +65,21 @@ module AnnotateModels
   # Don't show default value for these column types
   NO_DEFAULT_COL_TYPES = %w(json jsonb hstore).freeze
 
+  INDEX_CLAUSES = {
+    unique: {
+      default: 'UNIQUE',
+      markdown: '_unique_'
+    },
+    where: {
+      default: 'WHERE',
+      markdown: '_where_'
+    },
+    using: {
+      default: 'USING',
+      markdown: '_using_'
+    }
+  }.freeze
+
   class << self
     def annotate_pattern(options = {})
       if options[:wrapper_open]
@@ -356,12 +371,54 @@ module AnnotateModels
       end
     end
 
+    def index_unique_info(index, format = :default)
+      index.unique ? " #{INDEX_CLAUSES[:unique][format]}" : ''
+    end
+
+    def index_where_info(index, format = :default)
+      value = index.try(:where).try(:to_s)
+      if value.blank?
+        ''
+      else
+        " #{INDEX_CLAUSES[:where][format]} #{value}"
+      end
+    end
+
+    def index_using_info(index, format = :default)
+      value = index.try(:using) && index.using.try(:to_sym)
+      if !value.blank? && value != :btree
+        " #{INDEX_CLAUSES[:using][format]} #{value}"
+      else
+        ''
+      end
+    end
+
     def final_index_string_in_markdown(index)
-      sprintf("# * `%s`%s:\n#     * **`%s`**\n", index.name, index.unique ? " (_unique_)" : "", index_columns_info(index).join("`**\n#     * **`"))
+      details = sprintf(
+        "%s%s%s",
+        index_unique_info(index, :markdown),
+        index_where_info(index, :markdown),
+        index_using_info(index, :markdown)
+      ).strip
+      details = " (#{details})" unless details.blank?
+
+      sprintf(
+        "# * `%s`%s:\n#     * **`%s`**\n",
+        index.name,
+        details,
+        index_columns_info(index).join("`**\n#     * **`")
+      )
     end
 
     def final_index_string(index, max_size)
-      sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{index_columns_info(index).join(',')})", index.unique ? "UNIQUE" : "").rstrip + "\n"
+      sprintf(
+        "#  %-#{max_size}.#{max_size}s %s%s%s%s",
+        index.name,
+        "(#{index_columns_info(index).join(',')})",
+        index_unique_info(index),
+        index_where_info(index),
+        index_using_info(index)
+      ).rstrip + "\n"
     end
 
     def hide_limit?(col_type, options)
