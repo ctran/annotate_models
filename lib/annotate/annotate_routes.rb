@@ -77,7 +77,7 @@ module AnnotateRoutes
   end
 
   def self.app_routes_map(options)
-    routes_map = `rake routes`.split(/\n/, -1)
+    routes_map = `rake routes`.chomp("\n").split(/\n/, -1)
 
     # In old versions of Rake, the first line of output was the cwd.  Not so
     # much in newer ones.  We ditch that line if it exists, and if not, we
