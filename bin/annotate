@@ -202,7 +202,7 @@ end.parse!
 options = Annotate.setup_options(
   is_rake: ENV['is_rake'] && !ENV['is_rake'].empty?
 )
-Annotate.eager_load(options)
+Annotate.eager_load(options) if Annotate.include_models?
 
 AnnotateModels.send(target_action, options) if Annotate.include_models?
 AnnotateRoutes.send(target_action, options) if Annotate.include_routes?
