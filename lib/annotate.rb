@@ -114,7 +114,7 @@ module Annotate
   end
 
   def self.include_models?
-    true
+    ENV['routes'] !~ TRUE_RE
   end
 
   def self.loaded_tasks=(val)
