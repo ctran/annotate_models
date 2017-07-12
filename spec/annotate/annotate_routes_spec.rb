@@ -22,10 +22,10 @@ describe AnnotateRoutes do
       expect(File).to receive(:exists?).with(ROUTE_FILE).and_return(true)
 
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("")
-      expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return('                                      Prefix Verb       URI Pattern                                               Controller#Action
+      expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return("                                      Prefix Verb       URI Pattern                                               Controller#Action
                                    myaction1 GET        /url1(.:format)                                           mycontroller1#action
                                    myaction2 POST       /url2(.:format)                                           mycontroller2#action
-                                   myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action')
+                                   myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action\n")
 
       expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
     end
