@@ -142,6 +142,8 @@ module AnnotateModels
         File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
         File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%TABLE_NAME%.rb"),            # (new style)
         File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%TABLE_NAME%.rb"),            # (new style)
+        File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%PLURALIZED_MODEL_NAME%.rb"), # (new style)
+        File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%PLURALIZED_MODEL_NAME%.rb"), # (new style)
         File.join(root_directory, FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
         File.join(root_directory, FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb")
       ]
