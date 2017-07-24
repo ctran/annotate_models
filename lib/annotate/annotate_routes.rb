@@ -66,19 +66,17 @@ module AnnotateRoutes
       return unless routes_exists?
       existing_text = File.read(routes_file)
 
-      if write_contents(existing_text, header(options), options)
+      if rewrite_contents_with_header(existing_text, header(options), options)
         puts "#{routes_file} annotated."
       end
     end
 
-    def remove_annotations(options={})
+    def remove_annotations(_options={})
       return unless routes_exists?
       existing_text = File.read(routes_file)
       content, where_header_found = strip_annotations(existing_text)
-
-      content = strip_on_removal(content, where_header_found)
-
-      if write_contents(existing_text, content, options)
+      new_content = strip_on_removal(content, where_header_found)
+      if rewrite_contents(existing_text, new_content)
         puts "Removed annotations from #{routes_file}."
       end
     end
@@ -112,7 +110,22 @@ module AnnotateRoutes
     routes_exists
   end
 
-  def self.write_contents(existing_text, header, options = {})
+  # @param [String, Array<String>]
+  def self.rewrite_contents(existing_text, new_content)
+    # Make sure we end on a trailing newline.
+    new_content << '' unless new_content.last == ''
+    new_text = new_content.join("\n")
+
+    if existing_text == new_text
+      puts "#{routes_file} unchanged."
+      false
+    else
+      File.open(routes_file, 'wb') { |f| f.puts(new_text) }
+      true
+    end
+  end
+
+  def self.rewrite_contents_with_header(existing_text, header, options = {})
     content, where_header_found = strip_annotations(existing_text)
     new_content = annotate_routes(header, content, where_header_found, options)
 
@@ -162,7 +175,7 @@ module AnnotateRoutes
     content.split(/\n/, -1).each_with_index do |line, line_number|
       if mode == :header && line !~ /\s*#/
         mode = :content
-        next unless line == ''
+        real_content << line unless line.blank?
       elsif mode == :content
         if line =~ /^\s*#\s*== Route.*$/
           header_found_at = line_number + 1 # index start's at 0
