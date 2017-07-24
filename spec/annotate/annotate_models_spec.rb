@@ -1431,6 +1431,30 @@ end
       end
     end
 
+    it 'adds an empty line between magic comments and annotation (position :before)' do
+      content = "class User < ActiveRecord::Base\nend\n"
+      magic_comments_list_each do |magic_comment|
+        model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
+
+        annotate_one_file position: :before
+        schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+
+        expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}\n#{content}")
+      end
+    end
+
+    it 'adds an empty line between magic comments and model file content (position :after)' do
+      content = "class User < ActiveRecord::Base\nend\n"
+      magic_comments_list_each do |magic_comment|
+        model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
+
+        annotate_one_file position: :after
+        schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+
+        expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{content}\n#{schema_info}")
+      end
+    end
+
     describe "if a file can't be annotated" do
       before do
         allow(AnnotateModels).to receive(:get_loaded_model).with('user').and_return(nil)

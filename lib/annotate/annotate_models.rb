@@ -503,8 +503,7 @@ module AnnotateModels
         old_columns = old_header && old_header.scan(column_pattern).sort
         new_columns = new_header && new_header.scan(column_pattern).sort
 
-        magic_comment_matcher = Regexp.new(/(^#\s*encoding:.*\n)|(^# coding:.*\n)|(^# -\*- coding:.*\n)|(^# -\*- encoding\s?:.*\n)|(^#\s*frozen_string_literal:.+\n)|(^# -\*- frozen_string_literal\s*:.+-\*-\n)/)
-        magic_comments = old_content.scan(magic_comment_matcher).flatten.compact
+        magic_comments_block = magic_comments_as_string(old_content)
 
         if old_columns == new_columns && !options[:force]
           return false
@@ -522,13 +521,13 @@ module AnnotateModels
           # if there *was* no old schema info (no substitution happened) or :force was passed,
           # we simply need to insert it in correct position
           if new_content == old_content || options[:force]
-            old_content.sub!(magic_comment_matcher, '')
+            old_content.gsub!(magic_comment_matcher, '')
             old_content.sub!(annotate_pattern(options), '')
 
             new_content = if %w(after bottom).include?(options[position].to_s)
-                            magic_comments.join + (old_content.rstrip + "\n\n" + wrapped_info_block)
+                            magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
                           else
-                            magic_comments.join + wrapped_info_block + "\n" + old_content
+                            magic_comments_block + wrapped_info_block + "\n" + old_content
                           end
           end
 
@@ -537,6 +536,20 @@ module AnnotateModels
         end
       else
         false
+      end
+    end
+
+    def magic_comment_matcher
+      Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/)
+    end
+
+    def magic_comments_as_string(content)
+      magic_comments = content.scan(magic_comment_matcher).flatten.compact
+
+      if magic_comments.any?
+        magic_comments.join + "\n"
+      else
+        ''
       end
     end
 
