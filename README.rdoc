@@ -55,11 +55,11 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of
 
 Into Gemfile from rubygems.org:
 
-    gem 'annotate'
+    gem 'annotate', require: false
 
 Into Gemfile from Github:
 
-    gem 'annotate', git: 'https://github.com/ctran/annotate_models.git'
+    gem 'annotate', github: 'ctran/annotate_models', require: false
 
 Into environment gems from rubygems.org:
 
