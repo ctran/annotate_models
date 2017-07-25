@@ -56,6 +56,21 @@ describe AnnotateRoutes do
 
       AnnotateRoutes.do_annotations(format_markdown: true)
     end
+
+    it 'wraps annotation if wrapper is specified' do
+      expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+      expect(@mock_file).to receive(:puts).with("
+# START
+# == Route Map
+#
+#                                       Prefix Verb       URI Pattern                                               Controller#Action
+#                                    myaction1 GET        /url1(.:format)                                           mycontroller1#action
+#                                    myaction2 POST       /url2(.:format)                                           mycontroller2#action
+#                                    myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action
+# END\n")
+
+      AnnotateRoutes.do_annotations(wrapper_open: 'START', wrapper_close: 'END')
+    end
   end
 
   describe 'When adding' do
