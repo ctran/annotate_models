@@ -1165,6 +1165,28 @@ end
       EOS
     end
 
+    it 'should remove annotate if CRLF is used for line breaks' do
+      path = create 'before.rb', <<-EOS
+# == Schema Information
+#
+# Table name: foo\r\n#
+#  id                  :integer         not null, primary key
+#  created_at          :datetime
+#  updated_at          :datetime
+#
+\r\n
+class Foo < ActiveRecord::Base
+end
+      EOS
+
+      AnnotateModels.remove_annotation_of_file(path)
+
+      expect(content(path)).to eq <<-EOS
+class Foo < ActiveRecord::Base
+end
+      EOS
+    end
+
     it 'should remove after annotate' do
       path = create 'after.rb', <<-EOS
 class Foo < ActiveRecord::Base
@@ -1193,6 +1215,29 @@ end
       path = create 'opening_wrapper.rb', <<-EOS
 # wrapper
 # == Schema Information
+#
+# Table name: foo
+#
+#  id                  :integer         not null, primary key
+#  created_at          :datetime
+#  updated_at          :datetime
+#
+
+class Foo < ActiveRecord::Base
+end
+      EOS
+
+      AnnotateModels.remove_annotation_of_file(path, wrapper_open: 'wrapper')
+
+      expect(content(path)).to eq <<-EOS
+class Foo < ActiveRecord::Base
+end
+      EOS
+    end
+
+    it 'should remove wrapper if CRLF is used for line breaks' do
+      path = create 'opening_wrapper.rb', <<-EOS
+# wrapper\r\n# == Schema Information
 #
 # Table name: foo
 #
