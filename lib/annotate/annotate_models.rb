@@ -530,6 +530,8 @@ module AnnotateModels
                           else
                             magic_comments.join + wrapped_info_block + "\n" + old_content
                           end
+          else
+            new_content.gsub!(info_block, "\n#{wrapped_info_block}")
           end
 
           File.open(file_name, 'wb') { |f| f.puts new_content }
