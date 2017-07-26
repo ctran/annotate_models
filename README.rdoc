@@ -59,7 +59,7 @@ Into Gemfile from rubygems.org:
 
 Into Gemfile from Github:
 
-    gem 'annotate', github: 'ctran/annotate_models', require: false
+    gem 'annotate', git: 'https://github.com/ctran/annotate_models.git', require: false
 
 Into environment gems from rubygems.org:
 
