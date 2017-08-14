@@ -654,6 +654,10 @@ module AnnotateModels
         models = ARGV.dup.reject { |m| m.match(/^(.*)=/) }
       end
 
+      tmp = []
+      models.each { |path| tmp.concat [[File.dirname(path), File.basename(path)]] }
+      models = tmp
+
       if models.empty?
         begin
           model_dir.each do |dir|
