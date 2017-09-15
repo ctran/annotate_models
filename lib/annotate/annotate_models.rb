@@ -542,7 +542,7 @@ module AnnotateModels
     end
 
     def magic_comment_matcher
-      Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/)
+      Regexp.new(/(^#\s*encoding:.*(?:\n|r\n)*)|(^# coding:.*(?:\n|\r\n)*)|(^# -\*- coding:.*(?:\n|\r\n)*)|(^# -\*- encoding\s?:.*(?:\n|\r\n)*)|(^#\s*frozen_string_literal:.+(?:\n|\r\n)*)|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n)*)/)
     end
 
     def magic_comments_as_string(content)
