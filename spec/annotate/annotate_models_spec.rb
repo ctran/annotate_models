@@ -1361,6 +1361,10 @@ end
         "# encoding: utf-8\n# frozen_string_literal: true",
         "# frozen_string_literal: true\n# encoding: utf-8",
         '# frozen_string_literal: true',
+        "# frozen_string_literal: true\n",
+        "# frozen_string_literal: true\n\n",
+        "# frozen_string_literal: true\n\n\n",
+        "# frozen_string_literal: false\n# encoding: utf-8\n\n\n\n\n\n\n\n\n\n\n\n\n",
         '#frozen_string_literal: false',
         '# -*- frozen_string_literal : true -*-'
       ].each { |magic_comment| yield magic_comment }
