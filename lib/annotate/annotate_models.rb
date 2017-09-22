@@ -651,7 +651,7 @@ module AnnotateModels
     def get_model_files(options)
       models = []
       unless options[:is_rake]
-        models = ARGV.dup.reject { |m| m.match(/^(.*)=/) }
+        models = ARGV.dup
       end
 
       if models.empty?
