@@ -649,33 +649,29 @@ module AnnotateModels
     # of model files from root dir. Otherwise we take all the model files
     # in the model_dir directory.
     def get_model_files(options)
-      models = []
-      unless options[:is_rake]
-        models = ARGV.dup
+      if !options[:is_rake] && !ARGV.empty?
+        return ARGV.dup
       end
 
-      if models.empty?
-        begin
-          model_dir.each do |dir|
-            Dir.chdir(dir) do
-              lst =
-                if options[:ignore_model_sub_dir]
-                  Dir["*.rb"].map{ |f| [dir, f] }
-                else
-                  Dir["**/*.rb"].reject{ |f| f["concerns/"] }.map{ |f| [dir, f] }
-                end
-              models.concat(lst)
-            end
-          end
-        rescue SystemCallError
-          puts "No models found in directory '#{model_dir.join("', '")}'."
-          puts "Either specify models on the command line, or use the --model-dir option."
-          puts "Call 'annotate --help' for more info."
-          exit 1
+      model_files = []
+
+      model_dir.each do |dir|
+        Dir.chdir(dir) do
+          list = if options[:ignore_model_sub_dir]
+                   Dir["*.rb"].map { |f| [dir, f] }
+                 else
+                   Dir["**/*.rb"].reject { |f| f["concerns/"] }.map { |f| [dir, f] }
+                 end
+          model_files.concat(list)
         end
       end
 
-      models
+      model_files
+    rescue SystemCallError
+      puts "No models found in directory '#{model_dir.join("', '")}'."
+      puts "Either specify models on the command line, or use the --model-dir option."
+      puts "Call 'annotate --help' for more info."
+      exit 1
     end
 
     # Retrieve the classes belonging to the model names we're asked to process
