@@ -1000,24 +1000,41 @@ EOS
       end
 
       context 'when the model files are specified' do
+        let(:additional_model_dir) { 'additional_model' }
         let(:model_files) do
           [
             File.join(model_dir, 'foo.rb'),
-            File.join(model_dir, 'bar/baz.rb')
+            "./#{File.join(additional_model_dir, 'corge/grault.rb')}" # Specification by relative path
           ]
         end
 
-        before do
-          ARGV.concat(model_files)
-
-          described_class.model_dir
-        end
+        before { ARGV.concat(model_files) }
 
         context 'when no option is specified' do
           let(:options) { {} }
 
-          it 'returns specified files' do
-            is_expected.to eq(model_files)
+          context 'when all the specified files are in `model_dir` directory' do
+            before do
+              described_class.model_dir << additional_model_dir
+            end
+
+            it 'returns specified files' do
+              is_expected.to contain_exactly(
+                [model_dir, 'foo.rb'],
+                [additional_model_dir, 'corge/grault.rb']
+              )
+            end
+          end
+
+          context 'when a model file outside `model_dir` directory is specified' do
+            it 'exits with the status code' do
+              begin
+                subject
+                raise
+              rescue SystemExit => e
+                expect(e.status).to eq(1)
+              end
+            end
           end
         end
 

@@ -649,11 +649,11 @@ module AnnotateModels
     # of model files from root dir. Otherwise we take all the model files
     # in the model_dir directory.
     def get_model_files(options)
-      if !options[:is_rake] && !ARGV.empty?
-        return ARGV.dup
-      end
-
       model_files = []
+
+      model_files = list_model_files_from_argument unless options[:is_rake]
+
+      return model_files unless model_files.empty?
 
       model_dir.each do |dir|
         Dir.chdir(dir) do
@@ -673,6 +673,28 @@ module AnnotateModels
       puts "Call 'annotate --help' for more info."
       exit 1
     end
+
+    def list_model_files_from_argument
+      return [] if ARGV.empty?
+
+      specified_files = ARGV.map { |file| File.expand_path(file) }
+
+      model_files = model_dir.flat_map do |dir|
+        absolute_dir_path = File.expand_path(dir)
+        specified_files
+          .find_all { |file| file.start_with?(absolute_dir_path) }
+          .map { |file| [dir, file.sub("#{absolute_dir_path}/", '')] }
+      end
+
+      if model_files.size != specified_files.size
+        puts "The specified file could not be found in directory '#{model_dir.join("', '")}'."
+        puts "Call 'annotate --help' for more info."
+        exit 1
+      end
+
+      model_files
+    end
+    private :list_model_files_from_argument
 
     # Retrieve the classes belonging to the model names we're asked to process
     # Check for namespaced models in subdirectories as well as models
