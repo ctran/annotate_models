@@ -249,7 +249,7 @@ module AnnotateModels
       cols = cols.sort_by(&:name) if options[:sort]
       cols = classified_sort(cols) if options[:classified_sort]
       cols.each do |col|
-        col_type = (col.type || col.sql_type).to_s
+        col_type = get_col_type(col)
         attrs = []
         attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || hide_default?(col_type, options)
         attrs << 'unsigned' if col.respond_to?(:unsigned?) && col.unsigned?
@@ -361,6 +361,14 @@ module AnnotateModels
       end
 
       index_info
+    end
+
+    def get_col_type(col)
+      if col.respond_to?(:bigint?) && col.bigint?
+        'bigint'
+      else
+        (col.type || col.sql_type).to_s
+      end
     end
 
     def index_columns_info(index)
