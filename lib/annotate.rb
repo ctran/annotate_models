@@ -33,7 +33,7 @@ module Annotate
     :timestamp, :exclude_serializers, :classified_sort,
     :show_foreign_keys, :show_complete_foreign_keys,
     :exclude_scaffolds, :exclude_controllers, :exclude_helpers,
-    :exclude_sti_subclasses, :ignore_unknown_models
+    :exclude_sti_subclasses, :ignore_unknown_models, :with_comment
   ].freeze
   OTHER_OPTIONS = [
     :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close,
