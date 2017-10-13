@@ -224,10 +224,15 @@ module AnnotateModels
       info = "# #{header}\n"
       info << get_schema_header_text(klass, options)
 
-      max_size = klass.column_names.map(&:size).max || 0
-      with_comment = options[:with_comment] && klass.columns.first.respond_to?(:comment)
-      max_size = klass.columns.map{|col| col.name.size + col.comment.size }.max || 0 if with_comment
-      max_size += 2 if with_comment
+      with_comment = options[:with_comment] &&
+                     klass.columns.first.respond_to?(:comment) &&
+                     !klass.columns.all? { |col| col.comment.nil? }
+      if with_comment
+        max_size = klass.columns.map{|col| col.name.size + (col.comment ? col.comment.size : 0) }.max || 0
+        max_size += 2
+      else
+        max_size = klass.column_names.map(&:size).max || 0
+      end
       max_size += options[:format_rdoc] ? 5 : 1
       md_names_overhead = 6
       md_type_allowance = 18
@@ -291,7 +296,7 @@ module AnnotateModels
             end
           end
         end
-        col_name = if with_comment
+        col_name = if with_comment && col.comment
                      "#{col.name}(#{col.comment})"
                    else
                      col.name

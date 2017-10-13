@@ -888,10 +888,11 @@ EOS
 
     describe 'with_comment option' do
       mocked_columns_with_comment = [
-        [:id,     :integer, { limit: 8,  comment: 'ID' }],
-        [:active, :boolean, { limit: 1,  comment: 'Active' }],
-        [:name,   :string,  { limit: 50, comment: 'Name' }],
-        [:notes,  :text,    { limit: 55, comment: 'Notes' }]
+        [:id,         :integer, { limit: 8,  comment: 'ID' }],
+        [:active,     :boolean, { limit: 1,  comment: 'Active' }],
+        [:name,       :string,  { limit: 50, comment: 'Name' }],
+        [:notes,      :text,    { limit: 55, comment: 'Notes' }],
+        [:no_comment, :text,    { limit: 20, comment: nil }]
       ]
 
       when_called_with with_comment: 'yes',
@@ -905,6 +906,7 @@ EOS
         #  active(Active) :boolean          not null
         #  name(Name)     :string(50)       not null
         #  notes(Notes)   :text(55)         not null
+        #  no_comment     :text(20)         not null
         #
       EOS
 
