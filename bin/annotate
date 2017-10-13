@@ -197,6 +197,10 @@ OptionParser.new do |opts|
   opts.on('--ignore-unknown-models', "don't display warnings for bad model files") do |values|
     ENV['ignore_unknown_models'] = 'true'
   end
+
+  opts.on('--with-comment', "include database comments") do |values|
+    ENV['with_comment'] = 'true'
+  end
 end.parse!
 
 options = Annotate.setup_options(
