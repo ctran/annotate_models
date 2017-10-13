@@ -224,16 +224,7 @@ module AnnotateModels
       info = "# #{header}\n"
       info << get_schema_header_text(klass, options)
 
-      with_comment = options[:with_comment] &&
-                     klass.columns.first.respond_to?(:comment) &&
-                     !klass.columns.all? { |col| col.comment.nil? }
-      if with_comment
-        max_size = klass.columns.map{|col| col.name.size + (col.comment ? col.comment.size : 0) }.max || 0
-        max_size += 2
-      else
-        max_size = klass.column_names.map(&:size).max || 0
-      end
-      max_size += options[:format_rdoc] ? 5 : 1
+      max_size = max_schema_info_width(klass, options)
       md_names_overhead = 6
       md_type_allowance = 18
       bare_type_allowance = 16
@@ -296,7 +287,7 @@ module AnnotateModels
             end
           end
         end
-        col_name = if with_comment && col.comment
+        col_name = if with_comments?(klass, options) && col.comment
                      "#{col.name}(#{col.comment})"
                    else
                      col.name
@@ -865,6 +856,28 @@ module AnnotateModels
       yield
     ensure
       $VERBOSE = old_verbose
+    end
+
+    private
+
+    def with_comments?(klass, options)
+      options[:with_comment] &&
+        klass.columns.first.respond_to?(:comment) &&
+        klass.columns.any? { |col| !col.comment.nil? }
+    end
+
+    def max_schema_info_width(klass, options)
+      if with_comments?(klass, options)
+        max_size = klass.columns.map do |column|
+          column.name.size + (column.comment ? column.comment.size : 0)
+        end.max || 0
+        max_size += 2
+      else
+        max_size = klass.column_names.map(&:size).max
+      end
+      max_size += options[:format_rdoc] ? 5 : 1
+
+      max_size
     end
   end
 
