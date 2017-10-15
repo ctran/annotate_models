@@ -90,7 +90,7 @@ OptionParser.new do |opts|
     ENV['routes'] = 'true'
   end
 
-  opts.on('-aa', '--active-admin', 'Annotate active_admin models') do
+  opts.on('-a', '--active-admin', 'Annotate active_admin models') do
     ENV['active_admin'] = 'true'
   end
 
@@ -198,7 +198,7 @@ OptionParser.new do |opts|
     ENV['ignore_unknown_models'] = 'true'
   end
 
-  opts.on('--with-comment', "include database comments") do |values|
+  opts.on('--with-comment', "include database comments in model annotations") do |values|
     ENV['with_comment'] = 'true'
   end
 end.parse!
