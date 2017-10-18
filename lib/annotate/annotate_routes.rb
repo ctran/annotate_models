@@ -38,7 +38,13 @@ module AnnotateRoutes
     def header(options = {})
       routes_map = app_routes_map(options)
 
+      magic_comments_map, routes_map = extract_magic_comments_from_array(routes_map)
       out = []
+
+      magic_comments_map.each do |magic_comment|
+        out << magic_comment
+      end
+
       out += ["# #{options[:wrapper_open]}"] if options[:wrapper_open]
 
       out += ["# #{options[:format_markdown] ? PREFIX_MD : PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')]
@@ -80,6 +86,28 @@ module AnnotateRoutes
         puts "Removed annotations from #{routes_file}."
       end
     end
+  end
+
+  def self.magic_comment_matcher
+    Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/)
+  end
+
+  # @param [Array<String>] content
+  # @return [Array<String>] all found magic comments
+  # @return [Array<String>] content without magic comments
+  def self.extract_magic_comments_from_array(content_array)
+    magic_comments = []
+    new_content = []
+
+    content_array.map do |row|
+      if row =~ magic_comment_matcher
+        magic_comments << row.strip
+      else
+        new_content << row
+      end
+    end
+
+    [magic_comments, new_content]
   end
 
   def self.app_routes_map(options)
@@ -143,9 +171,10 @@ module AnnotateRoutes
   end
 
   def self.annotate_routes(header, content, where_header_found, options = {})
+    magic_comments_map, content = extract_magic_comments_from_array(content)
     if %w(before top).include?(options[:position_in_routes])
       header = header << '' if content.first != ''
-      new_content = header + content
+      new_content = magic_comments_map + header + content
     else
       # Ensure we have adequate trailing newlines at the end of the file to
       # ensure a blank line separating the content from the annotation.
@@ -155,7 +184,7 @@ module AnnotateRoutes
       # the spacer we put in the first time around.
       content.shift if where_header_found == :before && content.first == ''
 
-      new_content = content + header
+      new_content = magic_comments_map + content + header
     end
 
     new_content
