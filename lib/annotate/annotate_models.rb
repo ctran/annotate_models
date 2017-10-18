@@ -12,6 +12,8 @@ module AnnotateModels
   PREFIX_MD        = '## Schema Information'.freeze
   END_MARK         = '== Schema Information End'.freeze
 
+  SKIP_ANNOTATION_PREFIX = '# -\*- SkipSchemaAnnotations'.freeze
+
   MATCHED_TYPES = %w(test fixture factory serializer scaffold controller helper).freeze
 
   # File.join for windows reverse bar compat?
@@ -498,7 +500,7 @@ module AnnotateModels
     def annotate_one_file(file_name, info_block, position, options = {})
       if File.exist?(file_name)
         old_content = File.read(file_name)
-        return false if old_content =~ /# -\*- SkipSchemaAnnotations.*\n/
+        return false if old_content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
 
         # Ignore the Schema version line because it changes with each migration
         header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?)/
@@ -562,6 +564,8 @@ module AnnotateModels
     def remove_annotation_of_file(file_name, options = {})
       if File.exist?(file_name)
         content = File.read(file_name)
+        return false if content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
+
         wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ''
         content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, '')
 
@@ -767,7 +771,7 @@ module AnnotateModels
 
     def annotate_model_file(annotated, file, header, options)
       begin
-        return false if /# -\*- SkipSchemaAnnotations.*/ =~ (File.exist?(file) ? File.read(file) : '')
+        return false if /#{SKIP_ANNOTATION_PREFIX}.*/ =~ (File.exist?(file) ? File.read(file) : '')
         klass = get_model_class(file)
         do_annotate = klass &&
           klass < ActiveRecord::Base &&

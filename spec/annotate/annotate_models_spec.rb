@@ -1400,6 +1400,28 @@ class Foo < ActiveRecord::Base
 end
       EOS
     end
+
+    it 'does not change file with #SkipSchemaAnnotations' do
+      content = <<-EOS
+# -*- SkipSchemaAnnotations
+# == Schema Information
+#
+# Table name: foo
+#
+#  id                  :integer         not null, primary key
+#  created_at          :datetime
+#  updated_at          :datetime
+#
+
+class Foo < ActiveRecord::Base
+end
+      EOS
+
+      path = create 'skip.rb', content
+
+      AnnotateModels.remove_annotation_of_file(path)
+      expect(content(path)).to eq(content)
+    end
   end
 
   describe '#resolve_filename' do
