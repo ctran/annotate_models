@@ -740,8 +740,12 @@ module AnnotateModels
     end
 
     def parse_options(options = {})
-      self.model_dir = options[:model_dir] if options[:model_dir]
+      self.model_dir = split_model_dir(options[:model_dir]) if options[:model_dir]
       self.root_dir = options[:root_dir] if options[:root_dir]
+    end
+
+    def split_model_dir(option_value)
+      option_value.split(',').map(&:strip).reject(&:empty?)
     end
 
     # We're passed a name of things that might be
