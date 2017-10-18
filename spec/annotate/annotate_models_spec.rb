@@ -72,6 +72,31 @@ describe AnnotateModels do
   it { expect(AnnotateModels.quote(BigDecimal.new('1.2'))).to eql('1.2') }
   it { expect(AnnotateModels.quote([BigDecimal.new('1.2')])).to eql(['1.2']) }
 
+  describe '#parse_options' do
+    let(:options) do
+      {
+        root_dir: '/root',
+        model_dir: 'app/models,app/one,  app/two   ,,app/three'
+      }
+    end
+
+    it 'sets @root_dir' do
+      AnnotateModels.send(:parse_options, options)
+      expect(AnnotateModels.instance_variable_get(:@root_dir)).to eq('/root')
+    end
+
+    it 'sets @model_dir separated with a comma' do
+      AnnotateModels.send(:parse_options, options)
+      expected = [
+        'app/models',
+        'app/one',
+        'app/two',
+        'app/three'
+      ]
+      expect(AnnotateModels.instance_variable_get(:@model_dir)).to eq(expected)
+    end
+  end
+
   it 'should get schema info with default options' do
     klass = mock_class(:users,
                        :id,
