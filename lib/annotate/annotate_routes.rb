@@ -39,11 +39,13 @@ module AnnotateRoutes
       routes_map = app_routes_map(options)
 
       magic_comments_map, routes_map = extract_magic_comments_from_array(routes_map)
+
       out = []
 
       magic_comments_map.each do |magic_comment|
         out << magic_comment
       end
+      out << '' if magic_comments_map.any?
 
       out += ["# #{options[:wrapper_open]}"] if options[:wrapper_open]
 
@@ -174,6 +176,7 @@ module AnnotateRoutes
     magic_comments_map, content = extract_magic_comments_from_array(content)
     if %w(before top).include?(options[:position_in_routes])
       header = header << '' if content.first != ''
+      magic_comments_map << '' if magic_comments_map.any?
       new_content = magic_comments_map + header + content
     else
       # Ensure we have adequate trailing newlines at the end of the file to
