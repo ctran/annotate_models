@@ -106,6 +106,7 @@ describe AnnotateRoutes do
           expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
           expect(@mock_file).to receive(:puts).with("
 #{magic_comment}
+
 # == Route Map
 #
 #                                       Prefix Verb       URI Pattern                                               Controller#Action
@@ -125,6 +126,7 @@ describe AnnotateRoutes do
           expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
           expect(@mock_file).to receive(:puts).with("
 #{magic_comment}
+
 # ## Route Map
 #
 # Prefix    | Verb       | URI Pattern     | Controller#Action   
@@ -144,6 +146,7 @@ describe AnnotateRoutes do
           expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
           expect(@mock_file).to receive(:puts).with("
 #{magic_comment}
+
 # START
 # == Route Map
 #
@@ -208,7 +211,7 @@ describe AnnotateRoutes do
 
         magic_comments_list_each do |magic_comment|
           expect(File).to receive(:read).with(ROUTE_FILE).and_return("#{magic_comment}\nSomething")
-          expect(@mock_file).to receive(:puts).with("#{magic_comment}\n# == Route Map\n#\n\nSomething\n")
+          expect(@mock_file).to receive(:puts).with("#{magic_comment}\n\n# == Route Map\n#\n\nSomething\n")
           expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
           AnnotateRoutes.do_annotations(position_in_routes: 'top')
         end
