@@ -169,7 +169,7 @@ module Annotate
       require 'rake/dsl_definition'
     rescue StandardError => e
       # We might just be on an old version of Rake...
-      puts e.message
+      $stderr.puts e.message
       exit e.status_code
     end
     require 'rake'

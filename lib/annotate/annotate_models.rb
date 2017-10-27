@@ -640,8 +640,8 @@ module AnnotateModels
             end
         end
       rescue StandardError => e
-        puts "Unable to annotate #{file}: #{e.message}"
-        puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+        $stderr.puts "Unable to annotate #{file}: #{e.message}"
+        $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
       end
 
       annotated
@@ -676,9 +676,9 @@ module AnnotateModels
 
       model_files
     rescue SystemCallError
-      puts "No models found in directory '#{model_dir.join("', '")}'."
-      puts "Either specify models on the command line, or use the --model-dir option."
-      puts "Call 'annotate --help' for more info."
+      $stderr.puts "No models found in directory '#{model_dir.join("', '")}'."
+      $stderr.puts "Either specify models on the command line, or use the --model-dir option."
+      $stderr.puts "Call 'annotate --help' for more info."
       exit 1
     end
 
@@ -786,12 +786,12 @@ module AnnotateModels
         annotated.concat(annotate(klass, file, header, options)) if do_annotate
       rescue BadModelFileError => e
         unless options[:ignore_unknown_models]
-          puts "Unable to annotate #{file}: #{e.message}"
-          puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+          $stderr.puts "Unable to annotate #{file}: #{e.message}"
+          $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
         end
       rescue StandardError => e
-        puts "Unable to annotate #{file}: #{e.message}"
-        puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+        $stderr.puts "Unable to annotate #{file}: #{e.message}"
+        $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
       end
     end
 
@@ -821,8 +821,8 @@ module AnnotateModels
           end
           deannotated << klass if deannotated_klass
         rescue StandardError => e
-          puts "Unable to deannotate #{File.join(file)}: #{e.message}"
-          puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+          $stderr.puts "Unable to deannotate #{File.join(file)}: #{e.message}"
+          $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
         end
       end
       puts "Removed annotations from: #{deannotated.join(', ')}"

@@ -28,7 +28,7 @@ require 'mg'
 begin
   MG.new('annotate.gemspec')
 rescue Exception
-  STDERR.puts("WARNING: Couldn't read gemspec.  As such, a number of tasks may be unavailable to you until you run 'rake gem:gemspec' to correct the issue.")
+  $stderr.puts("WARNING: Couldn't read gemspec.  As such, a number of tasks may be unavailable to you until you run 'rake gem:gemspec' to correct the issue.")
   # Gemspec is probably in a broken state, so let's give ourselves a chance to
   # build a new one...
 end

@@ -1676,22 +1676,22 @@ end
         EOS
       end
 
-      it 'displays an error message' do
-        expect(capturing(:stdout) do
+      it 'displays just the error message with trace disabled (default)' do
+        error_output = capturing(:stderr) do
           AnnotateModels.do_annotations model_dir: @model_dir, is_rake: true
-        end).to include("Unable to annotate #{@model_dir}/user.rb: oops")
+        end
+
+        expect(error_output).to include("Unable to annotate #{@model_dir}/user.rb: oops")
+        expect(error_output).not_to include('/spec/annotate/annotate_models_spec.rb:')
       end
 
-      it 'displays the full stack trace with --trace' do
-        expect(capturing(:stdout) do
-          AnnotateModels.do_annotations model_dir: @model_dir, trace: true, is_rake: true
-        end).to include('/spec/annotate/annotate_models_spec.rb:')
-      end
+      it 'displays the error message and stacktrace with trace enabled' do
+        error_output = capturing(:stderr) do
+          AnnotateModels.do_annotations model_dir: @model_dir, is_rake: true, trace: true
+        end
 
-      it 'omits the full stack trace without --trace' do
-        expect(capturing(:stdout) do
-          AnnotateModels.do_annotations model_dir: @model_dir, trace: false, is_rake: true
-        end).not_to include('/spec/annotate/annotate_models_spec.rb:')
+        expect(error_output).to include("Unable to annotate #{@model_dir}/user.rb: oops")
+        expect(error_output).to include('/spec/annotate/annotate_models_spec.rb:')
       end
     end
 
@@ -1706,22 +1706,22 @@ end
         EOS
       end
 
-      it 'displays an error message' do
-        expect(capturing(:stdout) do
+      it 'displays just the error message with trace disabled (default)' do
+        error_output = capturing(:stderr) do
           AnnotateModels.remove_annotations model_dir: @model_dir, is_rake: true
-        end).to include("Unable to deannotate #{@model_dir}/user.rb: oops")
+        end
+
+        expect(error_output).to include("Unable to deannotate #{@model_dir}/user.rb: oops")
+        expect(error_output).not_to include("/user.rb:2:in `<class:User>'")
       end
 
-      it 'displays the full stack trace' do
-        expect(capturing(:stdout) do
-          AnnotateModels.remove_annotations model_dir: @model_dir, trace: true, is_rake: true
-        end).to include("/user.rb:2:in `<class:User>'")
-      end
+      it 'displays the error message and stacktrace with trace enabled' do
+        error_output = capturing(:stderr) do
+          AnnotateModels.remove_annotations model_dir: @model_dir, is_rake: true, trace: true
+        end
 
-      it 'omits the full stack trace without --trace' do
-        expect(capturing(:stdout) do
-          AnnotateModels.remove_annotations model_dir: @model_dir, trace: false, is_rake: true
-        end).not_to include("/user.rb:2:in `<class:User>'")
+        expect(error_output).to include("Unable to deannotate #{@model_dir}/user.rb: oops")
+        expect(error_output).to include("/user.rb:2:in `<class:User>'")
       end
     end
   end
