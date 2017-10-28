@@ -197,13 +197,22 @@ module AnnotateModels
         # BigDecimals need to be output in a non-normalized form and quoted.
       when BigDecimal               then value.to_s('F')
       when Array                    then value.map { |v| quote(v) }
-      else
-        value.inspect
+      when Hash                     then value.to_s
+      else value
       end
     end
 
+    def schema_default_for_custom_attribute(klass, column)
+      type = klass.connection.lookup_cast_type_from_column(column)
+      default = type.deserialize(column.default)
+      type.type_cast_for_schema(default)
+    end
+
     def schema_default(klass, column)
-      quote(klass.column_defaults[column.name])
+      value = quote(klass.column_defaults[column.name])
+      return value if value.is_a?(String) || value.is_a?(Array)
+
+      schema_default_for_custom_attribute(klass, column)
     end
 
     def retrieve_indexes_from_table(klass)
