@@ -745,7 +745,8 @@ module AnnotateModels
     end
 
     def split_model_dir(option_value)
-      option_value.split(',').map(&:strip).reject(&:empty?)
+      option_value = option_value.is_a?(Array) ? option_value : option_value.split(',')
+      option_value.map(&:strip).reject(&:empty?)
     end
 
     # We're passed a name of things that might be
