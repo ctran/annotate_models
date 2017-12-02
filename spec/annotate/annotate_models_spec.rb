@@ -1257,11 +1257,29 @@ EOS
       EOS
       path = File.expand_path('loaded_class', AnnotateModels.model_dir[0])
       Kernel.load "#{path}.rb"
-      expect(Kernel).not_to receive(:require).with(path)
+      expect(Kernel).not_to receive(:require)
 
       expect(capturing(:stderr) do
         check_class_name 'loaded_class.rb', 'LoadedClass'
-      end).not_to include('warning: already initialized constant LoadedClass::CONSTANT')
+      end).to be_blank
+    end
+
+    it 'should not require model files twice which is inside a subdirectory' do
+      dir = Array.new(8) { (0..9).to_a.sample(random: Random.new) }.join
+      $LOAD_PATH.unshift(File.join(AnnotateModels.model_dir[0], dir))
+
+      create "#{dir}/subdir_loaded_class.rb", <<-EOS
+        class SubdirLoadedClass < ActiveRecord::Base
+          CONSTANT = 1
+        end
+      EOS
+      path = File.expand_path("#{dir}/subdir_loaded_class", AnnotateModels.model_dir[0])
+      Kernel.load "#{path}.rb"
+      expect(Kernel).not_to receive(:require)
+
+      expect(capturing(:stderr) do
+        check_class_name "#{dir}/subdir_loaded_class.rb", 'SubdirLoadedClass'
+      end).to be_blank
     end
   end
 
@@ -1667,7 +1685,7 @@ end
 
     describe "if a file can't be annotated" do
       before do
-        allow(AnnotateModels).to receive(:get_loaded_model).with('user').and_return(nil)
+        allow(AnnotateModels).to receive(:get_loaded_model_by_path).with('user').and_return(nil)
 
         write_model('user.rb', <<-EOS)
           class User < ActiveRecord::Base
@@ -1697,7 +1715,7 @@ end
 
     describe "if a file can't be deannotated" do
       before do
-        allow(AnnotateModels).to receive(:get_loaded_model).with('user').and_return(nil)
+        allow(AnnotateModels).to receive(:get_loaded_model_by_path).with('user').and_return(nil)
 
         write_model('user.rb', <<-EOS)
           class User < ActiveRecord::Base
