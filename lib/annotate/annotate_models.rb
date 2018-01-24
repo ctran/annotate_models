@@ -246,16 +246,7 @@ module AnnotateModels
         info << "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
       end
 
-      cols = if ignore_columns = options[:ignore_columns]
-               klass.columns.reject do |col|
-                 col.name.match(/#{ignore_columns}/)
-               end
-             else
-               klass.columns
-             end
-
-      cols = cols.sort_by(&:name) if options[:sort]
-      cols = classified_sort(cols) if options[:classified_sort]
+      cols = columns(klass, options)
       cols.each do |col|
         col_type = get_col_type(col)
         attrs = []
@@ -903,13 +894,15 @@ module AnnotateModels
     end
 
     def max_schema_info_width(klass, options)
+      cols = columns(klass, options)
+
       if with_comments?(klass, options)
-        max_size = klass.columns.map do |column|
+        max_size = cols.map do |column|
           column.name.size + (column.comment ? width(column.comment) : 0)
         end.max || 0
         max_size += 2
       else
-        max_size = klass.column_names.map(&:size).max
+        max_size = cols.map(&:name).map(&:size).max
       end
       max_size += options[:format_rdoc] ? 5 : 1
 
@@ -936,6 +929,55 @@ module AnnotateModels
 
     def non_ascii_length(string)
       string.to_s.chars.reject(&:ascii_only?).length
+    end
+
+    def columns(klass, options)
+      cols = klass.columns
+      cols += translated_columns(klass)
+
+      if ignore_columns = options[:ignore_columns]
+        cols = cols.reject do |col|
+          col.name.match(/#{ignore_columns}/)
+        end
+      end
+
+      cols = cols.sort_by(&:name) if options[:sort]
+      cols = classified_sort(cols) if options[:classified_sort]
+
+      cols
+    end
+
+    ##
+    # Add columns managed by the globalize gem if this gem is being used.
+    def translated_columns(klass)
+      return [] unless klass.respond_to? :translation_class
+
+      ignored_cols = ignored_translation_table_colums(klass)
+      klass.translation_class.columns.reject do |col|
+        ignored_cols.include? col.name.to_sym
+      end
+    end
+
+    ##
+    # These are the columns that the globalize gem needs to work but
+    # are not necessary for the models to be displayed as annotations.
+    def ignored_translation_table_colums(klass)
+      # Construct the foreign column name in the translations table
+      # eg. Model: Car, foreign column name: car_id
+      foreign_column_name = [
+        klass.translation_class.to_s
+             .gsub('::Translation', '').gsub('::', '_')
+             .downcase,
+        '_id'
+      ].join.to_sym
+
+      [
+        :id,
+        :created_at,
+        :updated_at,
+        :locale,
+        foreign_column_name
+      ]
     end
   end
 
