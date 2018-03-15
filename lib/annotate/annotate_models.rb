@@ -374,7 +374,7 @@ module AnnotateModels
         if index.try(:orders) && index.orders[col.to_s]
           "#{col} #{index.orders[col.to_s].upcase}"
         else
-          col.to_s
+          col.to_s.gsub("\r", '\r').gsub("\n", '\n')
         end
       end
     end
