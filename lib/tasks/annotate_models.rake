@@ -47,6 +47,7 @@ task annotate_models: :environment do
   options[:ignore_routes] = ENV.fetch('ignore_routes', nil)
   options[:hide_limit_column_types] = Annotate.fallback(ENV['hide_limit_column_types'], '')
   options[:hide_default_column_types] = Annotate.fallback(ENV['hide_default_column_types'], '')
+  options[:ignore_unknown_models] = ENV["ignore_unknown_models"]
 
   AnnotateModels.do_annotations(options)
 end
