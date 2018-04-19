@@ -517,11 +517,7 @@ module AnnotateModels
           return false
         else
           # Replace inline the old schema info with the new schema info
-          new_content = old_content.sub(annotate_pattern(options), info_block + "\n")
-
-          if new_content.end_with?(info_block + "\n")
-            new_content = old_content.sub(annotate_pattern(options), "\n" + info_block)
-          end
+          new_content = old_content.sub(annotate_pattern(options), "\n" + info_block + "\n")
 
           wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
           wrapper_close = options[:wrapper_close] ? "# #{options[:wrapper_close]}\n" : ""

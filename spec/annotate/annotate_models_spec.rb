@@ -1580,12 +1580,12 @@ end
 
       it 'should retain current position' do
         annotate_one_file
-        expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
+        expect(File.read(@model_file_name)).to eq("\n#{@schema_info}\n#{@file_content}")
       end
 
       it 'should retain current position even when :position is changed to :after' do
         annotate_one_file position: :after
-        expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
+        expect(File.read(@model_file_name)).to eq("\n#{@schema_info}\n#{@file_content}")
       end
 
       it 'should change position to :after when force: true' do
@@ -1603,12 +1603,12 @@ end
 
       it 'should retain current position' do
         annotate_one_file
-        expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
+        expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}\n")
       end
 
       it 'should retain current position even when :position is changed to :before' do
         annotate_one_file position: :before
-        expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
+        expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}\n")
       end
 
       it 'should change position to :before when force: true' do
