@@ -158,7 +158,7 @@ If you want to run <code>rake db:migrate</code> as a one-off without running ann
 you can do so with a simple environment variable, instead of editing the
 +.rake+ file:
 
-    skip_on_db_migrate=1 rake db:migrate
+    ANNOTATE_SKIP_ON_DB_MIGRATE=1 rake db:migrate
 
 
 == Options
