@@ -106,7 +106,7 @@ module Annotate
   end
 
   def self.skip_on_migration?
-    ENV['skip_on_db_migrate'] =~ TRUE_RE
+    ENV['ANNOTATE_SKIP_ON_DB_MIGRATE'] =~ TRUE_RE || ENV['skip_on_db_migrate'] =~ TRUE_RE
   end
 
   def self.include_routes?
