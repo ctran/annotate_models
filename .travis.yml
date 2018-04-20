@@ -1,15 +1,23 @@
 sudo: false
 language: ruby
 rvm:
-  - 2.2.7
-  - 2.3.4
-  - 2.4.1
-  - ruby-head
+- 2.2.7
+- 2.3.4
+- 2.4.1
+- ruby-head
 matrix:
   allow_failures:
-    - rvm: ruby-head
+  - rvm: ruby-head
 before_install:
-  - gem update --system
-  - gem update bundler
+- gem update --system
+- gem update bundler
 script:
-  - bundle exec rubocop && bundle exec rspec
+- bundle exec rubocop && bundle exec rspec
+deploy:
+  provider: rubygems
+  api_key:
+    secure: Y7DUitak26kcRAAkgph/7m6Y1wHeObD0BelSSJbmCfjkRd/qaVy7fz9VvHL9zxlRJtLGVHInyCnwcfzinibY6OFd3MoMYHKv8GFa2LxLJNEVSY46KQYFxfH5JTg1ejh6ldoJRRBoeOx9dcWS80pRNjYMKPGnpSz7yDBl1azibFs=
+  gem: annotate
+  on:
+    tags: true
+    repo: ctran/annotate_models
