@@ -17,7 +17,7 @@ your...
 - Object Daddy exemplars
 - Machinist blueprints
 - Fabrication fabricators
-- Thoughtbot's factory_girl factories, i.e. the (spec|test)/factories/<model>_factory.rb files
+- Thoughtbot's factory_bot factories, i.e. the (spec|test)/factories/<model>_factory.rb files
 - routes.rb file (for Rails projects)
 
 The schema comment looks like this:
@@ -258,7 +258,7 @@ extra carefully, and consider using one.
 
 == Links
 
-- Factory Girl: http://github.com/thoughtbot/factory_girl
+- Factory Bot: http://github.com/thoughtbot/factory_bot
 - Object Daddy: http://github.com/flogic/object_daddy
 - Machinist: http://github.com/notahat/machinist
 - Fabrication: http://github.com/paulelliott/fabrication
