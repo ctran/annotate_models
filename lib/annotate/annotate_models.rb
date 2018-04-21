@@ -12,6 +12,8 @@ module AnnotateModels
   PREFIX_MD        = '## Schema Information'.freeze
   END_MARK         = '== Schema Information End'.freeze
 
+  SKIP_ANNOTATION_PREFIX = '# -\*- SkipSchemaAnnotations'.freeze
+
   MATCHED_TYPES = %w(test fixture factory serializer scaffold controller helper).freeze
 
   # File.join for windows reverse bar compat?
@@ -65,12 +67,27 @@ module AnnotateModels
   # Don't show default value for these column types
   NO_DEFAULT_COL_TYPES = %w(json jsonb hstore).freeze
 
+  INDEX_CLAUSES = {
+    unique: {
+      default: 'UNIQUE',
+      markdown: '_unique_'
+    },
+    where: {
+      default: 'WHERE',
+      markdown: '_where_'
+    },
+    using: {
+      default: 'USING',
+      markdown: '_using_'
+    }
+  }.freeze
+
   class << self
     def annotate_pattern(options = {})
       if options[:wrapper_open]
-        return /(?:^\n?# (?:#{options[:wrapper_open]}).*\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\n(#.*\n)*\n*)|^\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\n(#.*\n)*\n*/
+        return /(?:^(\n|\r\n)?# (?:#{options[:wrapper_open]}).*(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*)|^(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*/
       end
-      /^\n?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?\n(#.*\n)*\n*/
+      /^(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*/
     end
 
     def model_dir
@@ -127,6 +144,8 @@ module AnnotateModels
         File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
         File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%TABLE_NAME%.rb"),            # (new style)
         File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%TABLE_NAME%.rb"),            # (new style)
+        File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%PLURALIZED_MODEL_NAME%.rb"), # (new style)
+        File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%PLURALIZED_MODEL_NAME%.rb"), # (new style)
         File.join(root_directory, FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
         File.join(root_directory, FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb")
       ]
@@ -195,8 +214,8 @@ module AnnotateModels
       return indexes if indexes.any? || !klass.table_name_prefix
 
       # Try to search the table without prefix
-      table_name.to_s.slice!(klass.table_name_prefix)
-      klass.connection.indexes(table_name)
+      table_name_without_prefix = table_name.to_s.sub(klass.table_name_prefix, '')
+      klass.connection.indexes(table_name_without_prefix)
     end
 
     # Use the column information in an ActiveRecord class
@@ -207,11 +226,7 @@ module AnnotateModels
       info = "# #{header}\n"
       info << get_schema_header_text(klass, options)
 
-      max_size = klass.column_names.map(&:size).max || 0
-      with_comment = options[:with_comment] && klass.columns.first.respond_to?(:comment)
-      max_size = klass.columns.map{|col| col.name.size + col.comment.size }.max || 0 if with_comment
-      max_size += 2 if with_comment
-      max_size += options[:format_rdoc] ? 5 : 1
+      max_size = max_schema_info_width(klass, options)
       md_names_overhead = 6
       md_type_allowance = 18
       bare_type_allowance = 16
@@ -232,7 +247,7 @@ module AnnotateModels
       cols = cols.sort_by(&:name) if options[:sort]
       cols = classified_sort(cols) if options[:classified_sort]
       cols.each do |col|
-        col_type = (col.type || col.sql_type).to_s
+        col_type = get_col_type(col)
         attrs = []
         attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || hide_default?(col_type, options)
         attrs << 'unsigned' if col.respond_to?(:unsigned?) && col.unsigned?
@@ -274,7 +289,7 @@ module AnnotateModels
             end
           end
         end
-        col_name = if with_comment
+        col_name = if with_comments?(klass, options) && col.comment
                      "#{col.name}(#{col.comment})"
                    else
                      col.name
@@ -337,13 +352,81 @@ module AnnotateModels
       max_size = indexes.collect{|index| index.name.size}.max + 1
       indexes.sort_by(&:name).each do |index|
         index_info << if options[:format_markdown]
-                        sprintf("# * `%s`%s:\n#     * **`%s`**\n", index.name, index.unique ? " (_unique_)" : "", Array(index.columns).join("`**\n#     * **`"))
+                        final_index_string_in_markdown(index)
                       else
-                        sprintf("#  %-#{max_size}.#{max_size}s %s %s", index.name, "(#{Array(index.columns).join(",")})", index.unique ? "UNIQUE" : "").rstrip + "\n"
+                        final_index_string(index, max_size)
                       end
       end
 
       index_info
+    end
+
+    def get_col_type(col)
+      if col.respond_to?(:bigint?) && col.bigint?
+        'bigint'
+      else
+        (col.type || col.sql_type).to_s
+      end
+    end
+
+    def index_columns_info(index)
+      Array(index.columns).map do |col|
+        if index.try(:orders) && index.orders[col.to_s]
+          "#{col} #{index.orders[col.to_s].upcase}"
+        else
+          col.to_s.gsub("\r", '\r').gsub("\n", '\n')
+        end
+      end
+    end
+
+    def index_unique_info(index, format = :default)
+      index.unique ? " #{INDEX_CLAUSES[:unique][format]}" : ''
+    end
+
+    def index_where_info(index, format = :default)
+      value = index.try(:where).try(:to_s)
+      if value.blank?
+        ''
+      else
+        " #{INDEX_CLAUSES[:where][format]} #{value}"
+      end
+    end
+
+    def index_using_info(index, format = :default)
+      value = index.try(:using) && index.using.try(:to_sym)
+      if !value.blank? && value != :btree
+        " #{INDEX_CLAUSES[:using][format]} #{value}"
+      else
+        ''
+      end
+    end
+
+    def final_index_string_in_markdown(index)
+      details = sprintf(
+        "%s%s%s",
+        index_unique_info(index, :markdown),
+        index_where_info(index, :markdown),
+        index_using_info(index, :markdown)
+      ).strip
+      details = " (#{details})" unless details.blank?
+
+      sprintf(
+        "# * `%s`%s:\n#     * **`%s`**\n",
+        index.name,
+        details,
+        index_columns_info(index).join("`**\n#     * **`")
+      )
+    end
+
+    def final_index_string(index, max_size)
+      sprintf(
+        "#  %-#{max_size}.#{max_size}s %s%s%s%s",
+        index.name,
+        "(#{index_columns_info(index).join(',')})",
+        index_unique_info(index),
+        index_where_info(index),
+        index_using_info(index)
+      ).rstrip + "\n"
     end
 
     def hide_limit?(col_type, options)
@@ -417,7 +500,7 @@ module AnnotateModels
     def annotate_one_file(file_name, info_block, position, options = {})
       if File.exist?(file_name)
         old_content = File.read(file_name)
-        return false if old_content =~ /# -\*- SkipSchemaAnnotations.*\n/
+        return false if old_content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
 
         # Ignore the Schema version line because it changes with each migration
         header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?)/
@@ -428,8 +511,7 @@ module AnnotateModels
         old_columns = old_header && old_header.scan(column_pattern).sort
         new_columns = new_header && new_header.scan(column_pattern).sort
 
-        magic_comment_matcher = Regexp.new(/(^#\s*encoding:.*\n)|(^# coding:.*\n)|(^# -\*- coding:.*\n)|(^# -\*- encoding\s?:.*\n)|(^#\s*frozen_string_literal:.+\n)|(^# -\*- frozen_string_literal\s*:.+-\*-\n)/)
-        magic_comments = old_content.scan(magic_comment_matcher).flatten.compact
+        magic_comments_block = magic_comments_as_string(old_content)
 
         if old_columns == new_columns && !options[:force]
           return false
@@ -447,13 +529,13 @@ module AnnotateModels
           # if there *was* no old schema info (no substitution happened) or :force was passed,
           # we simply need to insert it in correct position
           if new_content == old_content || options[:force]
-            old_content.sub!(magic_comment_matcher, '')
+            old_content.gsub!(magic_comment_matcher, '')
             old_content.sub!(annotate_pattern(options), '')
 
             new_content = if %w(after bottom).include?(options[position].to_s)
-                            magic_comments.join + (old_content.rstrip + "\n\n" + wrapped_info_block)
+                            magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
                           else
-                            magic_comments.join + wrapped_info_block + "\n" + old_content
+                            magic_comments_block + wrapped_info_block + "\n" + old_content
                           end
           end
 
@@ -465,9 +547,25 @@ module AnnotateModels
       end
     end
 
+    def magic_comment_matcher
+      Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/)
+    end
+
+    def magic_comments_as_string(content)
+      magic_comments = content.scan(magic_comment_matcher).flatten.compact
+
+      if magic_comments.any?
+        magic_comments.join + "\n"
+      else
+        ''
+      end
+    end
+
     def remove_annotation_of_file(file_name, options = {})
       if File.exist?(file_name)
         content = File.read(file_name)
+        return false if content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
+
         wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ''
         content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, '')
 
@@ -542,8 +640,8 @@ module AnnotateModels
             end
         end
       rescue StandardError => e
-        puts "Unable to annotate #{file}: #{e.message}"
-        puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+        $stderr.puts "Unable to annotate #{file}: #{e.message}"
+        $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
       end
 
       annotated
@@ -559,34 +657,52 @@ module AnnotateModels
     # of model files from root dir. Otherwise we take all the model files
     # in the model_dir directory.
     def get_model_files(options)
-      models = []
-      unless options[:is_rake]
-        models = ARGV.dup.reject { |m| m.match(/^(.*)=/) }
-      end
+      model_files = []
 
-      if models.empty?
-        begin
-          model_dir.each do |dir|
-            Dir.chdir(dir) do
-              lst =
-                if options[:ignore_model_sub_dir]
-                  Dir["*.rb"].map{ |f| [dir, f] }
-                else
-                  Dir["**/*.rb"].reject{ |f| f["concerns/"] }.map{ |f| [dir, f] }
-                end
-              models.concat(lst)
-            end
-          end
-        rescue SystemCallError
-          puts "No models found in directory '#{model_dir.join("', '")}'."
-          puts "Either specify models on the command line, or use the --model-dir option."
-          puts "Call 'annotate --help' for more info."
-          exit 1
+      model_files = list_model_files_from_argument unless options[:is_rake]
+
+      return model_files unless model_files.empty?
+
+      model_dir.each do |dir|
+        Dir.chdir(dir) do
+          list = if options[:ignore_model_sub_dir]
+                   Dir["*.rb"].map { |f| [dir, f] }
+                 else
+                   Dir["**/*.rb"].reject { |f| f["concerns/"] }.map { |f| [dir, f] }
+                 end
+          model_files.concat(list)
         end
       end
 
-      models
+      model_files
+    rescue SystemCallError
+      $stderr.puts "No models found in directory '#{model_dir.join("', '")}'."
+      $stderr.puts "Either specify models on the command line, or use the --model-dir option."
+      $stderr.puts "Call 'annotate --help' for more info."
+      exit 1
     end
+
+    def list_model_files_from_argument
+      return [] if ARGV.empty?
+
+      specified_files = ARGV.map { |file| File.expand_path(file) }
+
+      model_files = model_dir.flat_map do |dir|
+        absolute_dir_path = File.expand_path(dir)
+        specified_files
+          .find_all { |file| file.start_with?(absolute_dir_path) }
+          .map { |file| [dir, file.sub("#{absolute_dir_path}/", '')] }
+      end
+
+      if model_files.size != specified_files.size
+        puts "The specified file could not be found in directory '#{model_dir.join("', '")}'."
+        puts "Call 'annotate --help' for more info."
+        exit 1
+      end
+
+      model_files
+    end
+    private :list_model_files_from_argument
 
     # Retrieve the classes belonging to the model names we're asked to process
     # Check for namespaced models in subdirectories as well as models
@@ -595,11 +711,11 @@ module AnnotateModels
       model_path = file.gsub(/\.rb$/, '')
       model_dir.each { |dir| model_path = model_path.gsub(/^#{dir}/, '').gsub(/^\//, '') }
       begin
-        get_loaded_model(model_path) || raise(BadModelFileError.new)
+        get_loaded_model(model_path, file) || raise(BadModelFileError.new)
       rescue LoadError
         # this is for non-rails projects, which don't get Rails auto-require magic
         file_path = File.expand_path(file)
-        if File.file?(file_path) && silence_warnings { Kernel.require(file_path) }
+        if File.file?(file_path) && Kernel.require(file_path)
           retry
         elsif model_path =~ /\//
           model_path = model_path.split('/')[1..-1].join('/').to_s
@@ -610,10 +726,26 @@ module AnnotateModels
       end
     end
 
+    # Retrieve loaded model class
+    def get_loaded_model(model_path, file)
+      loaded_model_class = get_loaded_model_by_path(model_path)
+      return loaded_model_class if loaded_model_class
+
+      # We cannot get loaded model when `model_path` is loaded by Rails
+      # auto_load/eager_load paths. Try all possible model paths one by one.
+      absolute_file = File.expand_path(file)
+      model_paths =
+        $LOAD_PATH.select { |path| absolute_file.include?(path) }
+                  .map { |path| absolute_file.sub(path, '').sub(/\.rb$/, '').sub(/^\//, '') }
+      model_paths
+        .map { |path| get_loaded_model_by_path(path) }
+        .find { |loaded_model| !loaded_model.nil? }
+    end
+
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
-    def get_loaded_model(model_path)
+    def get_loaded_model_by_path(model_path)
       ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
-    rescue
+    rescue StandardError, LoadError
       # Revert to the old way but it is not really robust
       ObjectSpace.each_object(::Class)
                  .select do |c|
@@ -624,8 +756,13 @@ module AnnotateModels
     end
 
     def parse_options(options = {})
-      self.model_dir = options[:model_dir] if options[:model_dir]
+      self.model_dir = split_model_dir(options[:model_dir]) if options[:model_dir]
       self.root_dir = options[:root_dir] if options[:root_dir]
+    end
+
+    def split_model_dir(option_value)
+      option_value = option_value.is_a?(Array) ? option_value : option_value.split(',')
+      option_value.map(&:strip).reject(&:empty?)
     end
 
     # We're passed a name of things that might be
@@ -655,7 +792,7 @@ module AnnotateModels
 
     def annotate_model_file(annotated, file, header, options)
       begin
-        return false if /# -\*- SkipSchemaAnnotations.*/ =~ (File.exist?(file) ? File.read(file) : '')
+        return false if /#{SKIP_ANNOTATION_PREFIX}.*/ =~ (File.exist?(file) ? File.read(file) : '')
         klass = get_model_class(file)
         do_annotate = klass &&
           klass < ActiveRecord::Base &&
@@ -666,12 +803,12 @@ module AnnotateModels
         annotated.concat(annotate(klass, file, header, options)) if do_annotate
       rescue BadModelFileError => e
         unless options[:ignore_unknown_models]
-          puts "Unable to annotate #{file}: #{e.message}"
-          puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+          $stderr.puts "Unable to annotate #{file}: #{e.message}"
+          $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
         end
       rescue StandardError => e
-        puts "Unable to annotate #{file}: #{e.message}"
-        puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+        $stderr.puts "Unable to annotate #{file}: #{e.message}"
+        $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
       end
     end
 
@@ -701,8 +838,8 @@ module AnnotateModels
           end
           deannotated << klass if deannotated_klass
         rescue StandardError => e
-          puts "Unable to deannotate #{File.join(file)}: #{e.message}"
-          puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+          $stderr.puts "Unable to deannotate #{File.join(file)}: #{e.message}"
+          $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
         end
       end
       puts "Removed annotations from: #{deannotated.join(', ')}"
@@ -737,13 +874,26 @@ module AnnotateModels
       ([id] << rest_cols << timestamps << associations).flatten.compact
     end
 
-    # Ignore warnings for the duration of the block ()
-    def silence_warnings
-      old_verbose = $VERBOSE
-      $VERBOSE = nil
-      yield
-    ensure
-      $VERBOSE = old_verbose
+    private
+
+    def with_comments?(klass, options)
+      options[:with_comment] &&
+        klass.columns.first.respond_to?(:comment) &&
+        klass.columns.any? { |col| !col.comment.nil? }
+    end
+
+    def max_schema_info_width(klass, options)
+      if with_comments?(klass, options)
+        max_size = klass.columns.map do |column|
+          column.name.size + (column.comment ? column.comment.size : 0)
+        end.max || 0
+        max_size += 2
+      else
+        max_size = klass.column_names.map(&:size).max
+      end
+      max_size += options[:format_rdoc] ? 5 : 1
+
+      max_size
     end
   end
 

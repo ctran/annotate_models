@@ -17,7 +17,7 @@ your...
 - Object Daddy exemplars
 - Machinist blueprints
 - Fabrication fabricators
-- Thoughtbot's factory_girl factories, i.e. the (spec|test)/factories/<model>_factory.rb files
+- Thoughtbot's factory_bot factories, i.e. the (spec|test)/factories/<model>_factory.rb files
 - routes.rb file (for Rails projects)
 
 The schema comment looks like this:
@@ -55,11 +55,15 @@ Also, if you pass the -r option, it'll annotate routes.rb with the output of
 
 Into Gemfile from rubygems.org:
 
-    gem 'annotate'
+    group :development do
+      gem 'annotate'
+    end
 
 Into Gemfile from Github:
 
-    gem 'annotate', git: 'https://github.com/ctran/annotate_models.git'
+    group :development do
+      gem 'annotate', git: 'https://github.com/ctran/annotate_models.git'
+    end
 
 Into environment gems from rubygems.org:
 
@@ -154,14 +158,15 @@ If you want to run <code>rake db:migrate</code> as a one-off without running ann
 you can do so with a simple environment variable, instead of editing the
 +.rake+ file:
 
-    skip_on_db_migrate=1 rake db:migrate
+    ANNOTATE_SKIP_ON_DB_MIGRATE=1 rake db:migrate
 
 
 == Options
 
     Usage: annotate [options] [model_file]*
         -d, --delete                     Remove annotations from all model files or the routes.rb file
-        -p, --position [before|top|after|bottom]    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/routes file(s)
+        -p [before|top|after|bottom],    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)
+            --position
             --pc, --position-in-class [before|top|after|bottom]
                                          Place the annotations at the top (before) or the bottom (after) of the model file
             --pf, --position-in-factory [before|top|after|bottom]
@@ -179,15 +184,19 @@ you can do so with a simple environment variable, instead of editing the
             --wo, --wrapper-open STR     Annotation wrapper opening.
             --wc, --wrapper-close STR    Annotation wrapper closing
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
-        -aa, --active-admin              Annotate all activeadmin models
+        -a, --active-admin               Annotate active_admin models
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
-        -i, --show-indexes               List the table's database indexes in the annotation
         -k, --show-foreign-keys          List the table's foreign key constraints in the annotation
+            --ck, --complete-foreign-keys
+                                         Complete foreign key names in the annotation
+        -i, --show-indexes               List the table's database indexes in the annotation
         -s, --simple-indexes             Concat the column's related indexes in the annotation
             --model-dir dir              Annotate model files stored in dir rather than app/models, separate multiple dirs with commas
+            --root-dir dir               Annotate files stored within root dir projects, separate multiple dirs with commas
             --ignore-model-subdirects    Ignore subdirectories of the models directory
             --sort                       Sort columns alphabetically, rather than in creation order
+            --classified-sort            Sort columns alphabetically, but first goes id, then the rest columns, then the timestamp columns and then the association columns
         -R, --require path               Additional file to require before loading models, may be used multiple times
         -e [tests,fixtures,factories,serializers],
             --exclude                    Do not annotate fixtures, test files, factories, and/or serializers
@@ -197,6 +206,13 @@ you can do so with a simple environment variable, instead of editing the
             --timestamp                  Include timestamp in (routes) annotation
             --trace                      If unable to annotate a file, print the full stack trace, not just the exception message.
         -I, --ignore-columns REGEX       don't annotate columns that match a given REGEX (i.e., `annotate -I '^(id|updated_at|created_at)'`
+            --ignore-routes REGEX        don't annotate routes that match a given REGEX (i.e., `annotate -I '(mobile|resque|pghero)'`
+            --hide-limit-column-types VALUES
+                                         don't show limit for given column types, separated by commas (i.e., `integer,boolean,text`)
+            --hide-default-column-types VALUES
+                                         don't show default for given column types, separated by commas (i.e., `json,jsonb,hstore`)
+            --ignore-unknown-models      don't display warnings for bad model files
+            --with-comment               include database comments in model annotations
 
 
 
@@ -242,7 +258,7 @@ extra carefully, and consider using one.
 
 == Links
 
-- Factory Girl: http://github.com/thoughtbot/factory_girl
+- Factory Bot: http://github.com/thoughtbot/factory_bot
 - Object Daddy: http://github.com/flogic/object_daddy
 - Machinist: http://github.com/notahat/machinist
 - Fabrication: http://github.com/paulelliott/fabrication

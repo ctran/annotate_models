@@ -1,3 +1,5 @@
+# rubocop:disable  Metrics/ModuleLength
+
 # == Annotate Routes
 #
 # Based on:
@@ -36,7 +38,18 @@ module AnnotateRoutes
     def header(options = {})
       routes_map = app_routes_map(options)
 
-      out = ["# #{options[:format_markdown] ? PREFIX_MD : PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')]
+      magic_comments_map, routes_map = extract_magic_comments_from_array(routes_map)
+
+      out = []
+
+      magic_comments_map.each do |magic_comment|
+        out << magic_comment
+      end
+      out << '' if magic_comments_map.any?
+
+      out += ["# #{options[:wrapper_open]}"] if options[:wrapper_open]
+
+      out += ["# #{options[:format_markdown] ? PREFIX_MD : PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')]
       out += ['#']
       return out if routes_map.size.zero?
 
@@ -51,35 +64,56 @@ module AnnotateRoutes
         out += ["# #{content(routes_map[0], maxs, options)}"]
       end
 
-      out + routes_map[1..-1].map { |line| "# #{content(options[:format_markdown] ? line.split(' ') : line, maxs, options)}" }
+      out += routes_map[1..-1].map { |line| "# #{content(options[:format_markdown] ? line.split(' ') : line, maxs, options)}" }
+      out += ["# #{options[:wrapper_close]}"] if options[:wrapper_close]
+
+      out
     end
 
     def do_annotations(options = {})
       return unless routes_exists?
       existing_text = File.read(routes_file)
 
-      if write_contents(existing_text, header(options), options)
+      if rewrite_contents_with_header(existing_text, header(options), options)
         puts "#{routes_file} annotated."
       end
     end
 
-    def remove_annotations(options={})
+    def remove_annotations(_options={})
       return unless routes_exists?
       existing_text = File.read(routes_file)
       content, where_header_found = strip_annotations(existing_text)
-
-      content = strip_on_removal(content, where_header_found)
-
-      if write_contents(existing_text, content, options)
+      new_content = strip_on_removal(content, where_header_found)
+      if rewrite_contents(existing_text, new_content)
         puts "Removed annotations from #{routes_file}."
       end
     end
   end
 
-  private
+  def self.magic_comment_matcher
+    Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/)
+  end
+
+  # @param [Array<String>] content
+  # @return [Array<String>] all found magic comments
+  # @return [Array<String>] content without magic comments
+  def self.extract_magic_comments_from_array(content_array)
+    magic_comments = []
+    new_content = []
+
+    content_array.map do |row|
+      if row =~ magic_comment_matcher
+        magic_comments << row.strip
+      else
+        new_content << row
+      end
+    end
+
+    [magic_comments, new_content]
+  end
 
   def self.app_routes_map(options)
-    routes_map = `rake routes`.split(/\n/, -1)
+    routes_map = `rake routes`.chomp("\n").split(/\n/, -1)
 
     # In old versions of Rake, the first line of output was the cwd.  Not so
     # much in newer ones.  We ditch that line if it exists, and if not, we
@@ -106,7 +140,22 @@ module AnnotateRoutes
     routes_exists
   end
 
-  def self.write_contents(existing_text, header, options = {})
+  # @param [String, Array<String>]
+  def self.rewrite_contents(existing_text, new_content)
+    # Make sure we end on a trailing newline.
+    new_content << '' unless new_content.last == ''
+    new_text = new_content.join("\n")
+
+    if existing_text == new_text
+      puts "#{routes_file} unchanged."
+      false
+    else
+      File.open(routes_file, 'wb') { |f| f.puts(new_text) }
+      true
+    end
+  end
+
+  def self.rewrite_contents_with_header(existing_text, header, options = {})
     content, where_header_found = strip_annotations(existing_text)
     new_content = annotate_routes(header, content, where_header_found, options)
 
@@ -124,9 +173,11 @@ module AnnotateRoutes
   end
 
   def self.annotate_routes(header, content, where_header_found, options = {})
+    magic_comments_map, content = extract_magic_comments_from_array(content)
     if %w(before top).include?(options[:position_in_routes])
       header = header << '' if content.first != ''
-      new_content = header + content
+      magic_comments_map << '' if magic_comments_map.any?
+      new_content = magic_comments_map + header + content
     else
       # Ensure we have adequate trailing newlines at the end of the file to
       # ensure a blank line separating the content from the annotation.
@@ -136,7 +187,7 @@ module AnnotateRoutes
       # the spacer we put in the first time around.
       content.shift if where_header_found == :before && content.first == ''
 
-      new_content = content + header
+      new_content = magic_comments_map + content + header
     end
 
     new_content
@@ -156,7 +207,7 @@ module AnnotateRoutes
     content.split(/\n/, -1).each_with_index do |line, line_number|
       if mode == :header && line !~ /\s*#/
         mode = :content
-        next unless line == ''
+        real_content << line unless line.blank?
       elsif mode == :content
         if line =~ /^\s*#\s*== Route.*$/
           header_found_at = line_number + 1 # index start's at 0

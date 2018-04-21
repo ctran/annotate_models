@@ -90,7 +90,7 @@ OptionParser.new do |opts|
     ENV['routes'] = 'true'
   end
 
-  opts.on('-aa', '--active-admin', 'Annotate active_admin models') do
+  opts.on('-a', '--active-admin', 'Annotate active_admin models') do
     ENV['active_admin'] = 'true'
   end
 
@@ -105,6 +105,12 @@ OptionParser.new do |opts|
   opts.on('-k', '--show-foreign-keys',
           "List the table's foreign key constraints in the annotation") do
     ENV['show_foreign_keys'] = 'yes'
+  end
+
+  opts.on('--ck',
+          '--complete-foreign-keys', 'Complete foreign key names in the annotation') do
+    ENV['show_foreign_keys'] = 'yes'
+    ENV['show_complete_foreign_keys'] = 'yes'
   end
 
   opts.on('-i', '--show-indexes',
@@ -191,12 +197,16 @@ OptionParser.new do |opts|
   opts.on('--ignore-unknown-models', "don't display warnings for bad model files") do |values|
     ENV['ignore_unknown_models'] = 'true'
   end
+
+  opts.on('--with-comment', "include database comments in model annotations") do |values|
+    ENV['with_comment'] = 'true'
+  end
 end.parse!
 
 options = Annotate.setup_options(
   is_rake: ENV['is_rake'] && !ENV['is_rake'].empty?
 )
-Annotate.eager_load(options)
+Annotate.eager_load(options) if Annotate.include_models?
 
 AnnotateModels.send(target_action, options) if Annotate.include_models?
 AnnotateRoutes.send(target_action, options) if Annotate.include_routes?

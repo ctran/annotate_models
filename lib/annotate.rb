@@ -30,9 +30,10 @@ module Annotate
     :show_indexes, :simple_indexes, :include_version, :exclude_tests,
     :exclude_fixtures, :exclude_factories, :ignore_model_sub_dir,
     :format_bare, :format_rdoc, :format_markdown, :sort, :force, :trace,
-    :timestamp, :exclude_serializers, :classified_sort, :show_foreign_keys,
+    :timestamp, :exclude_serializers, :classified_sort,
+    :show_foreign_keys, :show_complete_foreign_keys,
     :exclude_scaffolds, :exclude_controllers, :exclude_helpers,
-    :exclude_sti_subclasses, :ignore_unknown_models
+    :exclude_sti_subclasses, :ignore_unknown_models, :with_comment
   ].freeze
   OTHER_OPTIONS = [
     :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close,
@@ -105,7 +106,7 @@ module Annotate
   end
 
   def self.skip_on_migration?
-    ENV['skip_on_db_migrate'] =~ TRUE_RE
+    ENV['ANNOTATE_SKIP_ON_DB_MIGRATE'] =~ TRUE_RE || ENV['skip_on_db_migrate'] =~ TRUE_RE
   end
 
   def self.include_routes?
@@ -113,7 +114,7 @@ module Annotate
   end
 
   def self.include_models?
-    true
+    ENV['routes'] !~ TRUE_RE
   end
 
   def self.loaded_tasks=(val)
@@ -168,7 +169,7 @@ module Annotate
       require 'rake/dsl_definition'
     rescue StandardError => e
       # We might just be on an old version of Rake...
-      puts e.message
+      $stderr.puts e.message
       exit e.status_code
     end
     require 'rake'
