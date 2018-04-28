@@ -1468,31 +1468,36 @@ end
   end
 
   describe '#resolve_filename' do
-    it 'should return the test path for a model' do
-      filename_template = 'test/unit/%MODEL_NAME%_test.rb'
-      model_name        = 'example_model'
-      table_name        = 'example_models'
+    subject { AnnotateModels.send(:resolve_filename, filename_template, model_name, table_name) }
 
-      filename = AnnotateModels.send(:resolve_filename, filename_template, model_name, table_name)
-      expect(filename). to eq 'test/unit/example_model_test.rb'
+    context "when filename_template is 'test/unit/%MODEL_NAME%_test.rb'" do
+      let :filename_template { 'test/unit/%MODEL_NAME%_test.rb' }
+      let :model_name { 'example_model' }
+      let :table_name { 'example_models' }
+
+      it 'returns the test path for a model' do
+        expect(subject). to eq 'test/unit/example_model_test.rb'
+      end
     end
 
-    it 'should return the fixture path for a model' do
-      filename_template = 'test/fixtures/%TABLE_NAME%.yml'
-      model_name        = 'example_model'
-      table_name        = 'example_models'
+    context "when filename_template is 'test/fixtures/%TABLE_NAME%.yml'" do
+      let :filename_template { 'test/fixtures/%TABLE_NAME%.yml' }
+      let :model_name { 'example_model' }
+      let :table_name { 'example_models' }
 
-      filename = AnnotateModels.send(:resolve_filename, filename_template, model_name, table_name)
-      expect(filename). to eq 'test/fixtures/example_models.yml'
+      it 'returns the test fixture path for a model' do
+        expect(subject). to eq 'test/fixtures/example_models.yml'
+      end
     end
 
-    it 'should return the fixture path for a nested model' do
-      filename_template = 'test/fixtures/%PLURALIZED_MODEL_NAME%.yml'
-      model_name        = 'parent/child'
-      table_name        = 'parent_children'
+    context "when filename_template is 'test/fixtures/%PLURALIZED_MODEL_NAME%.yml'" do
+      let :filename_template { 'test/fixtures/%PLURALIZED_MODEL_NAME%.yml' }
+      let :model_name { 'parent/child' }
+      let :table_name { 'parent_children' }
 
-      filename = AnnotateModels.send(:resolve_filename, filename_template, model_name, table_name)
-      expect(filename). to eq 'test/fixtures/parent/children.yml'
+      it 'returns the fixture path for a nested model' do
+        expect(subject). to eq 'test/fixtures/parent/children.yml'
+      end
     end
   end
 
