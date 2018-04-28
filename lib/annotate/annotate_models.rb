@@ -845,13 +845,6 @@ module AnnotateModels
       puts "Removed annotations from: #{deannotated.join(', ')}"
     end
 
-    def resolve_filename(filename_template, model_name, table_name)
-      filename_template
-        .gsub('%MODEL_NAME%', model_name)
-        .gsub('%PLURALIZED_MODEL_NAME%', model_name.pluralize)
-        .gsub('%TABLE_NAME%', table_name || model_name.pluralize)
-    end
-
     def classified_sort(cols)
       rest_cols = []
       timestamps = []
@@ -875,6 +868,13 @@ module AnnotateModels
     end
 
     private
+
+    def resolve_filename(filename_template, model_name, table_name)
+      filename_template
+        .gsub('%MODEL_NAME%', model_name)
+        .gsub('%PLURALIZED_MODEL_NAME%', model_name.pluralize)
+        .gsub('%TABLE_NAME%', table_name || model_name.pluralize)
+    end
 
     def with_comments?(klass, options)
       options[:with_comment] &&

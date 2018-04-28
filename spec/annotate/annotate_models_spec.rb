@@ -1473,7 +1473,7 @@ end
       model_name        = 'example_model'
       table_name        = 'example_models'
 
-      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      filename = AnnotateModels.send(:resolve_filename, filename_template, model_name, table_name)
       expect(filename). to eq 'test/unit/example_model_test.rb'
     end
 
@@ -1482,7 +1482,7 @@ end
       model_name        = 'example_model'
       table_name        = 'example_models'
 
-      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      filename = AnnotateModels.send(:resolve_filename, filename_template, model_name, table_name)
       expect(filename). to eq 'test/fixtures/example_models.yml'
     end
 
@@ -1491,10 +1491,11 @@ end
       model_name        = 'parent/child'
       table_name        = 'parent_children'
 
-      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      filename = AnnotateModels.send(:resolve_filename, filename_template, model_name, table_name)
       expect(filename). to eq 'test/fixtures/parent/children.yml'
     end
   end
+
   describe 'annotating a file' do
     before do
       @model_dir = Dir.mktmpdir('annotate_models')
