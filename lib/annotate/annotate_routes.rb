@@ -46,115 +46,6 @@ module AnnotateRoutes
 
     private
 
-    def annotate_routes(header, content, header_position, options = {})
-      magic_comments_map, content = extract_magic_comments_from_array(content)
-      if %w(before top).include?(options[:position_in_routes])
-        header = header << '' if content.first != ''
-        magic_comments_map << '' if magic_comments_map.any?
-        new_content = magic_comments_map + header + content
-      else
-        # Ensure we have adequate trailing newlines at the end of the file to
-        # ensure a blank line separating the content from the annotation.
-        content << '' unless content.last == ''
-
-        # We're moving something from the top of the file to the bottom, so ditch
-        # the spacer we put in the first time around.
-        content.shift if header_position == :before && content.first == ''
-
-        new_content = magic_comments_map + content + header
-      end
-
-      new_content
-    end
-
-    def header(options = {})
-      routes_map = app_routes_map(options)
-
-      magic_comments_map, routes_map = extract_magic_comments_from_array(routes_map)
-
-      out = []
-
-      magic_comments_map.each do |magic_comment|
-        out << magic_comment
-      end
-      out << '' if magic_comments_map.any?
-
-      out += ["# #{options[:wrapper_open]}"] if options[:wrapper_open]
-
-      out += ["# #{options[:format_markdown] ? PREFIX_MD : PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')]
-      out += ['#']
-      return out if routes_map.size.zero?
-
-      maxs = [HEADER_ROW.map(&:size)] + routes_map[1..-1].map { |line| line.split.map(&:size) }
-
-      if options[:format_markdown]
-        max = maxs.map(&:max).compact.max
-
-        out += ["# #{content(HEADER_ROW, maxs, options)}"]
-        out += ["# #{content(['-' * max, '-' * max, '-' * max, '-' * max], maxs, options)}"]
-      else
-        out += ["# #{content(routes_map[0], maxs, options)}"]
-      end
-
-      out += routes_map[1..-1].map { |line| "# #{content(options[:format_markdown] ? line.split(' ') : line, maxs, options)}" }
-      out += ["# #{options[:wrapper_close]}"] if options[:wrapper_close]
-
-      out
-    end
-
-    def content(line, maxs, options = {})
-      return line.rstrip unless options[:format_markdown]
-
-      line.each_with_index.map do |elem, index|
-        min_length = maxs.map { |arr| arr[index] }.max || 0
-
-        sprintf("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
-      end.join(' | ')
-    end
-
-    def magic_comment_matcher
-      Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/)
-    end
-
-    # @param [Array<String>] content
-    # @return [Array<String>] all found magic comments
-    # @return [Array<String>] content without magic comments
-    def extract_magic_comments_from_array(content_array)
-      magic_comments = []
-      new_content = []
-
-      content_array.map do |row|
-        if row =~ magic_comment_matcher
-          magic_comments << row.strip
-        else
-          new_content << row
-        end
-      end
-
-      [magic_comments, new_content]
-    end
-
-    def app_routes_map(options)
-      routes_map = `rake routes`.chomp("\n").split(/\n/, -1)
-
-      # In old versions of Rake, the first line of output was the cwd.  Not so
-      # much in newer ones.  We ditch that line if it exists, and if not, we
-      # keep the line around.
-      routes_map.shift if routes_map.first =~ /^\(in \//
-
-      # Skip routes which match given regex
-      # Note: it matches the complete line (route_name, path, controller/action)
-      if options[:ignore_routes]
-        routes_map.reject! { |line| line =~ /#{options[:ignore_routes]}/ }
-      end
-
-      routes_map
-    end
-
-    def routes_file
-      @routes_file ||= File.join('config', 'routes.rb')
-    end
-
     def routes_exists?
       routes_exists = File.exists?(routes_file)
       puts "Can't find routes.rb" unless routes_exists
@@ -162,19 +53,8 @@ module AnnotateRoutes
       routes_exists
     end
 
-    # @param [String, Array<String>]
-    def rewrite_contents(existing_text, new_content)
-      # Make sure we end on a trailing newline.
-      new_content << '' unless new_content.last == ''
-      new_text = new_content.join("\n")
-
-      if existing_text == new_text
-        puts "#{routes_file} unchanged."
-        false
-      else
-        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-        true
-      end
+    def routes_file
+      @routes_file ||= File.join('config', 'routes.rb')
     end
 
     def rewrite_contents_with_header(existing_text, header, options = {})
@@ -223,6 +103,124 @@ module AnnotateRoutes
       where_header_found(real_content, header_found_at)
     end
 
+    def where_header_found(real_content, header_found_at)
+      # By default assume the annotation was found in the middle of the file
+
+      # ... unless we have evidence it was at the beginning ...
+      return real_content, :before if header_found_at == 1
+
+      # ... or that it was at the end.
+      return real_content, :after if header_found_at >= real_content.count
+
+      # and the default
+      return real_content, header_found_at
+    end
+
+    def annotate_routes(header, content, header_position, options = {})
+      magic_comments_map, content = extract_magic_comments_from_array(content)
+      if %w(before top).include?(options[:position_in_routes])
+        header = header << '' if content.first != ''
+        magic_comments_map << '' if magic_comments_map.any?
+        new_content = magic_comments_map + header + content
+      else
+        # Ensure we have adequate trailing newlines at the end of the file to
+        # ensure a blank line separating the content from the annotation.
+        content << '' unless content.last == ''
+
+        # We're moving something from the top of the file to the bottom, so ditch
+        # the spacer we put in the first time around.
+        content.shift if header_position == :before && content.first == ''
+
+        new_content = magic_comments_map + content + header
+      end
+
+      new_content
+    end
+
+    # @param [Array<String>] content
+    # @return [Array<String>] all found magic comments
+    # @return [Array<String>] content without magic comments
+    def extract_magic_comments_from_array(content_array)
+      magic_comments = []
+      new_content = []
+
+      content_array.map do |row|
+        if row =~ magic_comment_matcher
+          magic_comments << row.strip
+        else
+          new_content << row
+        end
+      end
+
+      [magic_comments, new_content]
+    end
+
+    def magic_comment_matcher
+      Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/)
+    end
+
+    def header(options = {})
+      routes_map = app_routes_map(options)
+
+      magic_comments_map, routes_map = extract_magic_comments_from_array(routes_map)
+
+      out = []
+
+      magic_comments_map.each do |magic_comment|
+        out << magic_comment
+      end
+      out << '' if magic_comments_map.any?
+
+      out += ["# #{options[:wrapper_open]}"] if options[:wrapper_open]
+
+      out += ["# #{options[:format_markdown] ? PREFIX_MD : PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')]
+      out += ['#']
+      return out if routes_map.size.zero?
+
+      maxs = [HEADER_ROW.map(&:size)] + routes_map[1..-1].map { |line| line.split.map(&:size) }
+
+      if options[:format_markdown]
+        max = maxs.map(&:max).compact.max
+
+        out += ["# #{content(HEADER_ROW, maxs, options)}"]
+        out += ["# #{content(['-' * max, '-' * max, '-' * max, '-' * max], maxs, options)}"]
+      else
+        out += ["# #{content(routes_map[0], maxs, options)}"]
+      end
+
+      out += routes_map[1..-1].map { |line| "# #{content(options[:format_markdown] ? line.split(' ') : line, maxs, options)}" }
+      out += ["# #{options[:wrapper_close]}"] if options[:wrapper_close]
+
+      out
+    end
+
+    def app_routes_map(options)
+      routes_map = `rake routes`.chomp("\n").split(/\n/, -1)
+
+      # In old versions of Rake, the first line of output was the cwd.  Not so
+      # much in newer ones.  We ditch that line if it exists, and if not, we
+      # keep the line around.
+      routes_map.shift if routes_map.first =~ /^\(in \//
+
+      # Skip routes which match given regex
+      # Note: it matches the complete line (route_name, path, controller/action)
+      if options[:ignore_routes]
+        routes_map.reject! { |line| line =~ /#{options[:ignore_routes]}/ }
+      end
+
+      routes_map
+    end
+
+    def content(line, maxs, options = {})
+      return line.rstrip unless options[:format_markdown]
+
+      line.each_with_index.map do |elem, index|
+        min_length = maxs.map { |arr| arr[index] }.max || 0
+
+        sprintf("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
+      end.join(' | ')
+    end
+
     def strip_on_removal(content, header_position)
       if header_position == :before
         content.shift while content.first == ''
@@ -236,17 +234,19 @@ module AnnotateRoutes
       content
     end
 
-    def where_header_found(real_content, header_found_at)
-      # By default assume the annotation was found in the middle of the file
+    # @param [String, Array<String>]
+    def rewrite_contents(existing_text, new_content)
+      # Make sure we end on a trailing newline.
+      new_content << '' unless new_content.last == ''
+      new_text = new_content.join("\n")
 
-      # ... unless we have evidence it was at the beginning ...
-      return real_content, :before if header_found_at == 1
-
-      # ... or that it was at the end.
-      return real_content, :after if header_found_at >= real_content.count
-
-      # and the default
-      return real_content, header_found_at
+      if existing_text == new_text
+        puts "#{routes_file} unchanged."
+        false
+      else
+        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
+        true
+      end
     end
   end
 end
