@@ -133,13 +133,13 @@ module AnnotateRoutes
     def routes_file
       @routes_file ||= File.join('config', 'routes.rb')
     end
-  end
 
-  def self.routes_exists?
-    routes_exists = File.exists?(routes_file)
-    puts "Can't find routes.rb" unless routes_exists
+    def routes_exists?
+      routes_exists = File.exists?(routes_file)
+      puts "Can't find routes.rb" unless routes_exists
 
-    routes_exists
+      routes_exists
+    end
   end
 
   # @param [String, Array<String>]
