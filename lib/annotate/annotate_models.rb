@@ -116,10 +116,6 @@ module AnnotateModels
       end
     end
 
-    def schema_default(klass, column)
-      quote(klass.column_defaults[column.name])
-    end
-
     def retrieve_indexes_from_table(klass)
       table_name = klass.table_name
       return [] unless table_name
@@ -867,6 +863,10 @@ module AnnotateModels
         File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
         File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
       ]
+    end
+
+    def schema_default(klass, column)
+      quote(klass.column_defaults[column.name])
     end
 
     def resolve_filename(filename_template, model_name, table_name)
