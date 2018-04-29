@@ -101,24 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def files_by_pattern(root_directory, pattern_type)
-      case pattern_type
-      when 'test'       then test_files(root_directory)
-      when 'fixture'    then fixture_files(root_directory)
-      when 'scaffold'   then scaffold_files(root_directory)
-      when 'factory'    then factory_files(root_directory)
-      when 'serializer' then serialize_files(root_directory)
-      when 'controller'
-        [File.join(root_directory, CONTROLLER_DIR, "%PLURALIZED_MODEL_NAME%_controller.rb")]
-      when 'admin'
-        [File.join(root_directory, ACTIVEADMIN_DIR, "%MODEL_NAME%.rb")]
-      when 'helper'
-        [File.join(root_directory, HELPER_DIR, "%PLURALIZED_MODEL_NAME%_helper.rb")]
-      else
-        []
-      end
-    end
-
     def get_patterns(pattern_types = [])
       current_patterns = []
       root_dir.each do |root_directory|
@@ -816,6 +798,24 @@ module AnnotateModels
         return /(?:^(\n|\r\n)?# (?:#{options[:wrapper_open]}).*(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*)|^(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*/
       end
       /^(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*/
+    end
+
+    def files_by_pattern(root_directory, pattern_type)
+      case pattern_type
+      when 'test'       then test_files(root_directory)
+      when 'fixture'    then fixture_files(root_directory)
+      when 'scaffold'   then scaffold_files(root_directory)
+      when 'factory'    then factory_files(root_directory)
+      when 'serializer' then serialize_files(root_directory)
+      when 'controller'
+        [File.join(root_directory, CONTROLLER_DIR, "%PLURALIZED_MODEL_NAME%_controller.rb")]
+      when 'admin'
+        [File.join(root_directory, ACTIVEADMIN_DIR, "%MODEL_NAME%.rb")]
+      when 'helper'
+        [File.join(root_directory, HELPER_DIR, "%PLURALIZED_MODEL_NAME%_helper.rb")]
+      else
+        []
+      end
     end
 
     def test_files(root_directory)
