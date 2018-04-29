@@ -164,16 +164,6 @@ module AnnotateModels
       end
     end
 
-    def magic_comments_as_string(content)
-      magic_comments = content.scan(magic_comment_matcher).flatten.compact
-
-      if magic_comments.any?
-        magic_comments.join + "\n"
-      else
-        ''
-      end
-    end
-
     def remove_annotation_of_file(file_name, options = {})
       if File.exist?(file_name)
         content = File.read(file_name)
@@ -870,6 +860,16 @@ module AnnotateModels
         end
 
       excludes.include?(col_type)
+    end
+
+    def magic_comments_as_string(content)
+      magic_comments = content.scan(magic_comment_matcher).flatten.compact
+
+      if magic_comments.any?
+        magic_comments.join + "\n"
+      else
+        ''
+      end
     end
 
     def magic_comment_matcher
