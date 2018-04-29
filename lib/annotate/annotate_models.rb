@@ -101,14 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def get_col_type(col)
-      if col.respond_to?(:bigint?) && col.bigint?
-        'bigint'
-      else
-        (col.type || col.sql_type).to_s
-      end
-    end
-
     def index_columns_info(index)
       Array(index.columns).map do |col|
         if index.try(:orders) && index.orders[col.to_s]
@@ -822,6 +814,14 @@ module AnnotateModels
         info << "# Table name: #{klass.table_name}\n"
       end
       info << "#\n"
+    end
+
+    def get_col_type(col)
+      if col.respond_to?(:bigint?) && col.bigint?
+        'bigint'
+      else
+        (col.type || col.sql_type).to_s
+      end
     end
 
     def get_index_info(klass, options = {})
