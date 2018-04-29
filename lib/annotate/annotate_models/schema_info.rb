@@ -294,11 +294,8 @@ module AnnotateModels
 
       def index_where_info(index, format = :default)
         value = index.try(:where).try(:to_s)
-        if value.blank?
-          ''
-        else
-          " #{INDEX_CLAUSES[:where][format]} #{value}"
-        end
+        return '' if value.blank?
+        " #{INDEX_CLAUSES[:where][format]} #{value}"
       end
 
       def index_using_info(index, format = :default)
