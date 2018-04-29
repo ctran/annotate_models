@@ -111,15 +111,6 @@ module AnnotateModels
       end
     end
 
-    def index_where_info(index, format = :default)
-      value = index.try(:where).try(:to_s)
-      if value.blank?
-        ''
-      else
-        " #{INDEX_CLAUSES[:where][format]} #{value}"
-      end
-    end
-
     def index_using_info(index, format = :default)
       value = index.try(:using) && index.using.try(:to_sym)
       if !value.blank? && value != :btree
@@ -874,6 +865,15 @@ module AnnotateModels
 
     def index_unique_info(index, format = :default)
       index.unique ? " #{INDEX_CLAUSES[:unique][format]}" : ''
+    end
+
+    def index_where_info(index, format = :default)
+      value = index.try(:where).try(:to_s)
+      if value.blank?
+        ''
+      else
+        " #{INDEX_CLAUSES[:where][format]} #{value}"
+      end
     end
 
     def with_comments?(klass, options)
