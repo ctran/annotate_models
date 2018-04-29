@@ -110,7 +110,7 @@ describe AnnotateModels do
                          mock_column(:notes, :text, limit: 55)
                        ])
 
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info')).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -130,7 +130,7 @@ EOS
                          mock_column(:name, :string, limit: 50)
                        ])
 
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info')).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -150,7 +150,7 @@ EOS
                          mock_column(:name, :string, limit: 50)
                        ])
 
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info')).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -170,7 +170,7 @@ EOS
                          mock_column(:name, :enum, limit: [:enum1, :enum2])
                        ])
 
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info')).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -192,7 +192,7 @@ EOS
                          mock_column(:decimal, :decimal, unsigned?: true, precision: 10, scale: 2),
                        ])
 
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info')).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -214,7 +214,7 @@ EOS
                          mock_column(:size, :integer, default: 20),
                          mock_column(:flag, :boolean, default: false)
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info')).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -245,7 +245,7 @@ EOS
                                           'third_thing_id',
                                           'third_things')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_foreign_keys: true)).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -281,7 +281,7 @@ EOS
                                           'third_thing_id',
                                           'third_things')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true, show_complete_foreign_keys: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_foreign_keys: true, show_complete_foreign_keys: true)).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -314,7 +314,7 @@ EOS
                                           on_delete: 'on_delete_value',
                                           on_update: 'on_update_value')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_foreign_keys: true)).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -337,7 +337,7 @@ EOS
                          mock_column(:foreign_thing_id, :integer)
                        ], [mock_index('index_rails_02e851e3b7', columns: ['id']),
                        mock_index('index_rails_02e851e3b8', columns: ['foreign_thing_id'])])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -368,7 +368,7 @@ EOS
                                     columns: %w(firstname surname value),
                                     orders: { 'surname' => :asc, 'value' => :desc })
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -401,7 +401,7 @@ EOS
                                     columns: %w(firstname surname),
                                     where: 'value IS NOT NULL')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -434,7 +434,7 @@ EOS
                                     columns: %w(firstname surname),
                                     using: 'hash')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -465,7 +465,7 @@ EOS
                                     columns: ['foreign_thing_id'],
                                     orders: { 'foreign_thing_id' => :desc })
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', simple_indexes: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', simple_indexes: true)).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -484,7 +484,7 @@ EOS
                          mock_column("name", :string)
                        ], [mock_index('index_rails_02e851e3b7', columns: ['id']),
                        mock_index('index_rails_02e851e3b8', columns: 'LOWER(name)')])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', simple_indexes: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', simple_indexes: true)).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -502,7 +502,7 @@ EOS
                          mock_column(:id, :integer),
                          mock_column(:foreign_thing_id, :integer)
                        ], [])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
 # Schema Info
 #
 # Table name: users
@@ -520,7 +520,7 @@ EOS
                          mock_column(:id, :integer),
                          mock_column(:name, :string, limit: 50)
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_rdoc: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_rdoc: true)).to eql(<<-EOS)
 # #{AnnotateModels::PREFIX}
 #
 # Table name: users
@@ -540,7 +540,7 @@ EOS
                          mock_column(:id, :integer),
                          mock_column(:name, :string, limit: 50)
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true)).to eql(<<-EOS)
 # #{AnnotateModels::PREFIX}
 #
 # Table name: `users`
@@ -571,7 +571,7 @@ EOS
                                           on_delete: 'on_delete_value',
                                           on_update: 'on_update_value')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_foreign_keys: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, show_foreign_keys: true)).to eql(<<-EOS)
 # #{AnnotateModels::PREFIX}
 #
 # Table name: `users`
@@ -603,7 +603,7 @@ EOS
                          mock_index('index_rails_02e851e3b8',
                                     columns: ['foreign_thing_id'])
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
 # #{AnnotateModels::PREFIX}
 #
 # Table name: `users`
@@ -638,7 +638,7 @@ EOS
                                     columns: ['foreign_thing_id'],
                                     unique: true)
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
 # #{AnnotateModels::PREFIX}
 #
 # Table name: `users`
@@ -673,7 +673,7 @@ EOS
                                     columns: ['foreign_thing_id'],
                                     orders: { 'foreign_thing_id' => :desc })
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
 # #{AnnotateModels::PREFIX}
 #
 # Table name: `users`
@@ -709,7 +709,7 @@ EOS
                                     unique: true,
                                     where: 'name IS NOT NULL')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
 # #{AnnotateModels::PREFIX}
 #
 # Table name: `users`
@@ -744,7 +744,7 @@ EOS
                                     columns: ['foreign_thing_id'],
                                     using: 'hash')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
+    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
 # #{AnnotateModels::PREFIX}
 #
 # Table name: `users`
@@ -798,7 +798,7 @@ EOS
 
         klass = mock_class(:users, :id, with_columns)
 
-        schema_info = AnnotateModels.get_schema_info(klass, 'Schema Info', options)
+        schema_info = AnnotateModels.send(:get_schema_info, klass, 'Schema Info', options)
         expect(schema_info).to eql(expected)
       end
     end
@@ -946,7 +946,7 @@ EOS
                              mock_column(:id, :integer, comment: 'ID'),
                              mock_column(:name, :string, limit: 50, comment: 'Name')
                            ])
-        expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_rdoc: true, with_comment: true)).to eql(<<-EOS.strip_heredoc)
+        expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_rdoc: true, with_comment: true)).to eql(<<-EOS.strip_heredoc)
         # #{AnnotateModels::PREFIX}
         #
         # Table name: users
@@ -966,7 +966,7 @@ EOS
                              mock_column(:id, :integer, comment: 'ID'),
                              mock_column(:name, :string, limit: 50, comment: 'Name')
                            ])
-        expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, with_comment: true)).to eql(<<-EOS.strip_heredoc)
+        expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, with_comment: true)).to eql(<<-EOS.strip_heredoc)
         # #{AnnotateModels::PREFIX}
         #
         # Table name: `users`
@@ -1519,7 +1519,7 @@ end
                             mock_column(:id, :integer),
                             mock_column(:name, :string, limit: 50)
                           ])
-      @schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+      @schema_info = AnnotateModels.send(:get_schema_info, @klass, '== Schema Info')
       Annotate.reset_options
     end
 
@@ -1584,7 +1584,7 @@ end
     describe 'with existing annotation => :before' do
       before do
         annotate_one_file position: :before
-        another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer)]), '== Schema Info')
+        another_schema_info = AnnotateModels.send(:get_schema_info, mock_class(:users, :id, [mock_column(:id, :integer)]), '== Schema Info')
         @schema_info = another_schema_info
       end
 
@@ -1607,7 +1607,7 @@ end
     describe 'with existing annotation => :after' do
       before do
         annotate_one_file position: :after
-        another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer)]), '== Schema Info')
+        another_schema_info = AnnotateModels.send(:get_schema_info, mock_class(:users, :id, [mock_column(:id, :integer)]), '== Schema Info')
         @schema_info = another_schema_info
       end
 
@@ -1628,8 +1628,10 @@ end
     end
 
     it 'should skip columns with option[:ignore_columns] set' do
-      output = AnnotateModels.get_schema_info(@klass, '== Schema Info',
-                                              :ignore_columns => '(id|updated_at|created_at)')
+      output = AnnotateModels.send(:get_schema_info,
+                                   @klass,
+                                   '== Schema Info',
+                                   :ignore_columns => '(id|updated_at|created_at)')
       expect(output.match(/id/)).to be_nil
     end
 
@@ -1645,7 +1647,7 @@ end
                            mock_column(:id, :integer),
                            mock_column(:name, :string, limit: 50)
                          ])
-      schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info')
+      schema_info = AnnotateModels.send(:get_schema_info, klass, '== Schema Info')
       AnnotateModels.annotate_one_file(model_file_name, schema_info, position: :before)
       expect(File.read(model_file_name)).to eq("#{schema_info}\n#{file_content}")
     end
@@ -1675,7 +1677,7 @@ end
         model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
 
         annotate_one_file position: :before
-        schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+        schema_info = AnnotateModels.send(:get_schema_info, @klass, '== Schema Info')
 
         expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}\n#{content}")
       end
@@ -1687,7 +1689,7 @@ end
         model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
 
         annotate_one_file position: :after
-        schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+        schema_info = AnnotateModels.send(:get_schema_info, @klass, '== Schema Info')
 
         expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{content}\n#{schema_info}")
       end

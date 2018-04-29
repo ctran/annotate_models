@@ -101,104 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    # Use the column information in an ActiveRecord class
-    # to create a comment block containing a line for
-    # each column. The line contains the column name,
-    # the type (and length), and any optional attributes
-    def get_schema_info(klass, header, options = {})
-      info = "# #{header}\n"
-      info << get_schema_header_text(klass, options)
-
-      max_size = max_schema_info_width(klass, options)
-      md_names_overhead = 6
-      md_type_allowance = 18
-      bare_type_allowance = 16
-
-      if options[:format_markdown]
-        info << sprintf( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
-        info << "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
-      end
-
-      cols = if ignore_columns = options[:ignore_columns]
-               klass.columns.reject do |col|
-                 col.name.match(/#{ignore_columns}/)
-               end
-             else
-               klass.columns
-             end
-
-      cols = cols.sort_by(&:name) if options[:sort]
-      cols = classified_sort(cols) if options[:classified_sort]
-      cols.each do |col|
-        col_type = get_col_type(col)
-        attrs = []
-        attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || hide_default?(col_type, options)
-        attrs << 'unsigned' if col.respond_to?(:unsigned?) && col.unsigned?
-        attrs << 'not null' unless col.null
-        attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
-
-        if col_type == 'decimal'
-          col_type << "(#{col.precision}, #{col.scale})"
-        elsif col_type != 'spatial'
-          if col.limit
-            if col.limit.is_a? Array
-              attrs << "(#{col.limit.join(', ')})"
-            else
-              col_type << "(#{col.limit})" unless hide_limit?(col_type, options)
-            end
-          end
-        end
-
-        # Check out if we got an array column
-        attrs << 'is an Array' if col.respond_to?(:array) && col.array
-
-        # Check out if we got a geometric column
-        # and print the type and SRID
-        if col.respond_to?(:geometry_type)
-          attrs << "#{col.geometry_type}, #{col.srid}"
-        elsif col.respond_to?(:geometric_type) && col.geometric_type.present?
-          attrs << "#{col.geometric_type.to_s.downcase}, #{col.srid}"
-        end
-
-        # Check if the column has indices and print "indexed" if true
-        # If the index includes another column, print it too.
-        if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
-          indices = retrieve_indexes_from_table(klass)
-          if indices = indices.select { |ind| ind.columns.include? col.name }
-            indices.sort_by(&:name).each do |ind|
-              next if ind.columns.is_a?(String)
-              ind = ind.columns.reject! { |i| i == col.name }
-              attrs << (ind.empty? ? "indexed" : "indexed => [#{ind.join(", ")}]")
-            end
-          end
-        end
-        col_name = if with_comments?(klass, options) && col.comment
-                     "#{col.name}(#{col.comment})"
-                   else
-                     col.name
-                   end
-        if options[:format_rdoc]
-          info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
-        elsif options[:format_markdown]
-          name_remainder = max_size - col_name.length
-          type_remainder = (md_type_allowance - 2) - col_type.length
-          info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
-        else
-          info << sprintf("#  %-#{max_size}.#{max_size}s:%-#{bare_type_allowance}.#{bare_type_allowance}s %s", col_name, col_type, attrs.join(", ")).rstrip + "\n"
-        end
-      end
-
-      if options[:show_indexes] && klass.table_exists?
-        info << get_index_info(klass, options)
-      end
-
-      if options[:show_foreign_keys] && klass.table_exists?
-        info << get_foreign_key_info(klass, options)
-      end
-
-      info << get_schema_footer_text(klass, options)
-    end
-
     def get_schema_header_text(klass, options = {})
       info = "#\n"
       if options[:format_markdown]
@@ -855,6 +757,104 @@ module AnnotateModels
       else
         value.inspect
       end
+    end
+
+    # Use the column information in an ActiveRecord class
+    # to create a comment block containing a line for
+    # each column. The line contains the column name,
+    # the type (and length), and any optional attributes
+    def get_schema_info(klass, header, options = {})
+      info = "# #{header}\n"
+      info << get_schema_header_text(klass, options)
+
+      max_size = max_schema_info_width(klass, options)
+      md_names_overhead = 6
+      md_type_allowance = 18
+      bare_type_allowance = 16
+
+      if options[:format_markdown]
+        info << sprintf( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
+        info << "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
+      end
+
+      cols = if ignore_columns = options[:ignore_columns]
+               klass.columns.reject do |col|
+                 col.name.match(/#{ignore_columns}/)
+               end
+             else
+               klass.columns
+             end
+
+      cols = cols.sort_by(&:name) if options[:sort]
+      cols = classified_sort(cols) if options[:classified_sort]
+      cols.each do |col|
+        col_type = get_col_type(col)
+        attrs = []
+        attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || hide_default?(col_type, options)
+        attrs << 'unsigned' if col.respond_to?(:unsigned?) && col.unsigned?
+        attrs << 'not null' unless col.null
+        attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
+
+        if col_type == 'decimal'
+          col_type << "(#{col.precision}, #{col.scale})"
+        elsif col_type != 'spatial'
+          if col.limit
+            if col.limit.is_a? Array
+              attrs << "(#{col.limit.join(', ')})"
+            else
+              col_type << "(#{col.limit})" unless hide_limit?(col_type, options)
+            end
+          end
+        end
+
+        # Check out if we got an array column
+        attrs << 'is an Array' if col.respond_to?(:array) && col.array
+
+        # Check out if we got a geometric column
+        # and print the type and SRID
+        if col.respond_to?(:geometry_type)
+          attrs << "#{col.geometry_type}, #{col.srid}"
+        elsif col.respond_to?(:geometric_type) && col.geometric_type.present?
+          attrs << "#{col.geometric_type.to_s.downcase}, #{col.srid}"
+        end
+
+        # Check if the column has indices and print "indexed" if true
+        # If the index includes another column, print it too.
+        if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
+          indices = retrieve_indexes_from_table(klass)
+          if indices = indices.select { |ind| ind.columns.include? col.name }
+            indices.sort_by(&:name).each do |ind|
+              next if ind.columns.is_a?(String)
+              ind = ind.columns.reject! { |i| i == col.name }
+              attrs << (ind.empty? ? "indexed" : "indexed => [#{ind.join(", ")}]")
+            end
+          end
+        end
+        col_name = if with_comments?(klass, options) && col.comment
+                     "#{col.name}(#{col.comment})"
+                   else
+                     col.name
+                   end
+        if options[:format_rdoc]
+          info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+        elsif options[:format_markdown]
+          name_remainder = max_size - col_name.length
+          type_remainder = (md_type_allowance - 2) - col_type.length
+          info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
+        else
+          info << sprintf("#  %-#{max_size}.#{max_size}s:%-#{bare_type_allowance}.#{bare_type_allowance}s %s", col_name, col_type, attrs.join(", ")).rstrip + "\n"
+        end
+      end
+
+      if options[:show_indexes] && klass.table_exists?
+        info << get_index_info(klass, options)
+      end
+
+      if options[:show_foreign_keys] && klass.table_exists?
+        info << get_foreign_key_info(klass, options)
+      end
+
+      info << get_schema_footer_text(klass, options)
     end
 
     def retrieve_indexes_from_table(klass)
