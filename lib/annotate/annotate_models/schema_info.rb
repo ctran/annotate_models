@@ -5,6 +5,7 @@ module AnnotateModels
   module SchemaInfo
     MD_NAMES_OVERHEAD = 6
     MD_TYPE_ALLOWANCE = 18
+    BARE_TYPE_ALLOWANCE = 16
 
     class << self
       # Use the column information in an ActiveRecord class
@@ -16,7 +17,6 @@ module AnnotateModels
         info << get_schema_header_text(klass, options)
 
         max_size = max_schema_info_width(klass, options)
-        bare_type_allowance = 16
 
         if options[:format_markdown]
           info << markdown_table_header(max_size)
@@ -67,20 +67,8 @@ module AnnotateModels
               end
             end
           end
-          col_name = if with_comments?(klass, options) && col.comment
-                       "#{col.name}(#{col.comment})"
-                     else
-                       col.name
-                     end
-          if options[:format_rdoc]
-            info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
-          elsif options[:format_markdown]
-            name_remainder = max_size - col_name.length
-            type_remainder = (md_type_allowance - 2) - col_type.length
-            info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
-          else
-            info << sprintf("#  %-#{max_size}.#{max_size}s:%-#{bare_type_allowance}.#{bare_type_allowance}s %s", col_name, col_type, attrs.join(", ")).rstrip + "\n"
-          end
+
+          info << get_col_info(klass, options, col, col_type, attrs, max_size)
         end
 
         if options[:show_indexes] && klass.table_exists?
@@ -244,6 +232,37 @@ module AnnotateModels
         # Try to search the table without prefix
         table_name_without_prefix = table_name.to_s.sub(klass.table_name_prefix, '')
         klass.connection.indexes(table_name_without_prefix)
+      end
+
+      def get_col_info(klass, options, col, col_type, attrs, max_size)
+        col_name = get_col_name(klass, options, col)
+        base_text = if options[:format_rdoc]
+                      sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::",
+                              attrs.unshift(col_type).join(', '))
+                    elsif options[:format_markdown]
+                      name_remainder = max_size - col_name.length
+                      type_remainder = (MD_TYPE_ALLOWANCE - 2) - col_type.length
+                      sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`",
+                              col_name,
+                              " ",
+                              col_type,
+                              " ",
+                              attrs.join(", ").rstrip).gsub('``', '  ')
+                    else
+                      sprintf("#  %-#{max_size}.#{max_size}s:%-#{BARE_TYPE_ALLOWANCE}.#{BARE_TYPE_ALLOWANCE}s %s",
+                              col_name,
+                              col_type,
+                              attrs.join(", "))
+                    end
+        "#{base_text.rstrip}\n"
+      end
+
+      def get_col_name(klass, options, col)
+        if with_comments?(klass, options) && col.comment
+          "#{col.name}(#{col.comment})"
+        else
+          col.name
+        end
       end
 
       def with_comments?(klass, options)
