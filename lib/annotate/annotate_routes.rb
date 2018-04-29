@@ -94,24 +94,24 @@ module AnnotateRoutes
     def magic_comment_matcher
       Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/)
     end
-  end
 
-  # @param [Array<String>] content
-  # @return [Array<String>] all found magic comments
-  # @return [Array<String>] content without magic comments
-  def self.extract_magic_comments_from_array(content_array)
-    magic_comments = []
-    new_content = []
+    # @param [Array<String>] content
+    # @return [Array<String>] all found magic comments
+    # @return [Array<String>] content without magic comments
+    def extract_magic_comments_from_array(content_array)
+      magic_comments = []
+      new_content = []
 
-    content_array.map do |row|
-      if row =~ magic_comment_matcher
-        magic_comments << row.strip
-      else
-        new_content << row
+      content_array.map do |row|
+        if row =~ magic_comment_matcher
+          magic_comments << row.strip
+        else
+          new_content << row
+        end
       end
-    end
 
-    [magic_comments, new_content]
+      [magic_comments, new_content]
+    end
   end
 
   def self.app_routes_map(options)
