@@ -1,4 +1,7 @@
+# rubocop:disable  Metrics/ModuleLength
+
 module AnnotateModels
+  # This module provides module method to get schema info.
   module SchemaInfo
     class << self
       # Use the column information in an ActiveRecord class
@@ -16,10 +19,12 @@ module AnnotateModels
 
         if options[:format_markdown]
           info << sprintf( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
-          info << "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
+          info << "# #{'-' * (max_size + md_names_overhead)} | #{'-' * md_type_allowance} | #{'-' * 27}\n"
         end
 
-        cols = if ignore_columns = options[:ignore_columns]
+        ignore_columns = options[:ignore_columns]
+
+        cols = if ignore_columns
                  klass.columns.reject do |col|
                    col.name.match(/#{ignore_columns}/)
                  end
@@ -62,7 +67,7 @@ module AnnotateModels
 
           # Check if the column has indices and print "indexed" if true
           # If the index includes another column, print it too.
-          if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
+          if options[:simple_indexes] && klass.table_exists? # Check out if this column is indexed
             indices = retrieve_indexes_from_table(klass)
             if indices = indices.select { |ind| ind.columns.include? col.name }
               indices.sort_by(&:name).each do |ind|
@@ -226,7 +231,7 @@ module AnnotateModels
         indexes = retrieve_indexes_from_table(klass)
         return '' if indexes.empty?
 
-        max_size = indexes.collect{|index| index.name.size}.max + 1
+        max_size = indexes.collect { |index| index.name.size }.max + 1
         indexes.sort_by(&:name).each do |index|
           index_info << if options[:format_markdown]
                           final_index_string_in_markdown(index)
@@ -314,7 +319,7 @@ module AnnotateModels
         format_name = ->(fk) { options[:show_complete_foreign_keys] ? fk.name : fk.name.gsub(/(?<=^fk_rails_)[0-9a-f]{10}$/, '...') }
 
         max_size = foreign_keys.map(&format_name).map(&:size).max + 1
-        foreign_keys.sort_by {|fk| [format_name.call(fk), fk.column]}.each do |fk|
+        foreign_keys.sort_by { |fk| [format_name.call(fk), fk.column] }.each do |fk|
           ref_info = "#{fk.column} => #{fk.to_table}.#{fk.primary_key}"
           constraints_info = ''
           constraints_info += "ON DELETE => #{fk.on_delete} " if fk.on_delete
