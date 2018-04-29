@@ -101,17 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def hide_limit?(col_type, options)
-      excludes =
-        if options[:hide_limit_column_types].blank?
-          NO_LIMIT_COL_TYPES
-        else
-          options[:hide_limit_column_types].split(',')
-        end
-
-      excludes.include?(col_type)
-    end
-
     def hide_default?(col_type, options)
       excludes =
         if options[:hide_default_column_types].blank?
@@ -874,6 +863,17 @@ module AnnotateModels
           col.to_s.gsub("\r", '\r').gsub("\n", '\n')
         end
       end
+    end
+
+    def hide_limit?(col_type, options)
+      excludes =
+        if options[:hide_limit_column_types].blank?
+          NO_LIMIT_COL_TYPES
+        else
+          options[:hide_limit_column_types].split(',')
+        end
+
+      excludes.include?(col_type)
     end
 
     def with_comments?(klass, options)
