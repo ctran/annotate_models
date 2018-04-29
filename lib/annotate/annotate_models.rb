@@ -101,18 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def retrieve_indexes_from_table(klass)
-      table_name = klass.table_name
-      return [] unless table_name
-
-      indexes = klass.connection.indexes(table_name)
-      return indexes if indexes.any? || !klass.table_name_prefix
-
-      # Try to search the table without prefix
-      table_name_without_prefix = table_name.to_s.sub(klass.table_name_prefix, '')
-      klass.connection.indexes(table_name_without_prefix)
-    end
-
     # Use the column information in an ActiveRecord class
     # to create a comment block containing a line for
     # each column. The line contains the column name,
@@ -867,6 +855,18 @@ module AnnotateModels
       else
         value.inspect
       end
+    end
+
+    def retrieve_indexes_from_table(klass)
+      table_name = klass.table_name
+      return [] unless table_name
+
+      indexes = klass.connection.indexes(table_name)
+      return indexes if indexes.any? || !klass.table_name_prefix
+
+      # Try to search the table without prefix
+      table_name_without_prefix = table_name.to_s.sub(klass.table_name_prefix, '')
+      klass.connection.indexes(table_name_without_prefix)
     end
 
     def resolve_filename(filename_template, model_name, table_name)
