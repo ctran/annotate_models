@@ -101,14 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def serialize_files(root_directory)
-      [
-        File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
-        File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
-        File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
-      ]
-    end
-
     def files_by_pattern(root_directory, pattern_type)
       case pattern_type
       when 'test'       then test_files(root_directory)
@@ -866,6 +858,14 @@ module AnnotateModels
         File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%PLURALIZED_MODEL_NAME%.rb"), # (new style)
         File.join(root_directory, FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
         File.join(root_directory, FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb")
+      ]
+    end
+
+    def serialize_files(root_directory)
+      [
+        File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
+        File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
+        File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
       ]
     end
 
