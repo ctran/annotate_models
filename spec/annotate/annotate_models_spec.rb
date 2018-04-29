@@ -971,7 +971,7 @@ EOS
   end
 
   describe '#get_model_files' do
-    subject { described_class.get_model_files(options) }
+    subject { described_class.send(:get_model_files, options) }
 
     before do
       ARGV.clear

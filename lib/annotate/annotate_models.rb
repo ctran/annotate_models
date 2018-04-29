@@ -182,36 +182,6 @@ module AnnotateModels
       annotated
     end
 
-    # Return a list of the model files to annotate.
-    # If we have command line arguments, they're assumed to the path
-    # of model files from root dir. Otherwise we take all the model files
-    # in the model_dir directory.
-    def get_model_files(options)
-      model_files = []
-
-      model_files = list_model_files_from_argument unless options[:is_rake]
-
-      return model_files unless model_files.empty?
-
-      model_dir.each do |dir|
-        Dir.chdir(dir) do
-          list = if options[:ignore_model_sub_dir]
-                   Dir["*.rb"].map { |f| [dir, f] }
-                 else
-                   Dir["**/*.rb"].reject { |f| f["concerns/"] }.map { |f| [dir, f] }
-                 end
-          model_files.concat(list)
-        end
-      end
-
-      model_files
-    rescue SystemCallError
-      $stderr.puts "No models found in directory '#{model_dir.join("', '")}'."
-      $stderr.puts "Either specify models on the command line, or use the --model-dir option."
-      $stderr.puts "Call 'annotate --help' for more info."
-      exit 1
-    end
-
     # We're passed a name of things that might be
     # ActiveRecord models. If we can find the class, and
     # if its a subclass of ActiveRecord::Base,
@@ -449,6 +419,36 @@ module AnnotateModels
         $stderr.puts "Unable to annotate #{file}: #{e.message}"
         $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
       end
+    end
+
+    # Return a list of the model files to annotate.
+    # If we have command line arguments, they're assumed to the path
+    # of model files from root dir. Otherwise we take all the model files
+    # in the model_dir directory.
+    def get_model_files(options)
+      model_files = []
+
+      model_files = list_model_files_from_argument unless options[:is_rake]
+
+      return model_files unless model_files.empty?
+
+      model_dir.each do |dir|
+        Dir.chdir(dir) do
+          list = if options[:ignore_model_sub_dir]
+                   Dir["*.rb"].map { |f| [dir, f] }
+                 else
+                   Dir["**/*.rb"].reject { |f| f["concerns/"] }.map { |f| [dir, f] }
+                 end
+          model_files.concat(list)
+        end
+      end
+
+      model_files
+    rescue SystemCallError
+      $stderr.puts "No models found in directory '#{model_dir.join("', '")}'."
+      $stderr.puts "Either specify models on the command line, or use the --model-dir option."
+      $stderr.puts "Call 'annotate --help' for more info."
+      exit 1
     end
   end
 
