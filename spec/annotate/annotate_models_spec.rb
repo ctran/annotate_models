@@ -1309,7 +1309,7 @@ class Foo < ActiveRecord::Base
 end
       EOS
 
-      AnnotateModels.remove_annotation_of_file(path)
+      AnnotateModels.send(:remove_annotation_of_file, path)
 
       expect(content(path)).to eq <<-EOS
 class Foo < ActiveRecord::Base
@@ -1331,7 +1331,7 @@ class Foo < ActiveRecord::Base
 end
       EOS
 
-      AnnotateModels.remove_annotation_of_file(path)
+      AnnotateModels.send(:remove_annotation_of_file, path)
 
       expect(content(path)).to eq <<-EOS
 class Foo < ActiveRecord::Base
@@ -1355,7 +1355,7 @@ end
 
       EOS
 
-      AnnotateModels.remove_annotation_of_file(path)
+      AnnotateModels.send(:remove_annotation_of_file, path)
 
       expect(content(path)).to eq <<-EOS
 class Foo < ActiveRecord::Base
@@ -1379,7 +1379,7 @@ class Foo < ActiveRecord::Base
 end
       EOS
 
-      AnnotateModels.remove_annotation_of_file(path, wrapper_open: 'wrapper')
+      AnnotateModels.send(:remove_annotation_of_file, path, wrapper_open: 'wrapper')
 
       expect(content(path)).to eq <<-EOS
 class Foo < ActiveRecord::Base
@@ -1402,7 +1402,7 @@ class Foo < ActiveRecord::Base
 end
       EOS
 
-      AnnotateModels.remove_annotation_of_file(path, wrapper_open: 'wrapper')
+      AnnotateModels.send(:remove_annotation_of_file, path, wrapper_open: 'wrapper')
 
       expect(content(path)).to eq <<-EOS
 class Foo < ActiveRecord::Base
@@ -1427,7 +1427,7 @@ end
 
       EOS
 
-      AnnotateModels.remove_annotation_of_file(path, wrapper_close: 'wrapper')
+      AnnotateModels.send(:remove_annotation_of_file, path, wrapper_close: 'wrapper')
 
       expect(content(path)).to eq <<-EOS
 class Foo < ActiveRecord::Base
@@ -1453,7 +1453,7 @@ end
 
       path = create 'skip.rb', content
 
-      AnnotateModels.remove_annotation_of_file(path)
+      AnnotateModels.send(:remove_annotation_of_file, path)
       expect(content(path)).to eq(content)
     end
   end

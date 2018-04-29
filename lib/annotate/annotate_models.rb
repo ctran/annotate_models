@@ -119,19 +119,6 @@ module AnnotateModels
       true
     end
 
-    def remove_annotation_of_file(file_name, options = {})
-      return false unless File.exist?(file_name)
-
-      content = File.read(file_name)
-      return false if content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
-
-      wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ''
-      content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, '')
-
-      File.open(file_name, 'wb') { |f| f.puts content }
-      true
-    end
-
     # Given the name of an ActiveRecord class, create a schema
     # info block (basically a comment containing information
     # on the columns and their types) and put it at the front
@@ -449,6 +436,19 @@ module AnnotateModels
       model_paths
         .map { |path| get_loaded_model_by_path(path) }
         .find { |loaded_model| !loaded_model.nil? }
+    end
+
+    def remove_annotation_of_file(file_name, options = {})
+      return false unless File.exist?(file_name)
+
+      content = File.read(file_name)
+      return false if content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
+
+      wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ''
+      content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, '')
+
+      File.open(file_name, 'wb') { |f| f.puts content }
+      true
     end
   end
 
