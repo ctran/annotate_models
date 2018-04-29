@@ -115,53 +115,49 @@ module AnnotateModels
     #                           :before, :top, :after or :bottom. Default is :before.
     #
     def annotate_one_file(file_name, info_block, position, options = {})
-      if File.exist?(file_name)
-        old_content = File.read(file_name)
-        return false if old_content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
+      return false unless File.exist?(file_name)
 
-        # Ignore the Schema version line because it changes with each migration
-        header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?)/
-        old_header = old_content.match(header_pattern).to_s
-        new_header = info_block.match(header_pattern).to_s
+      old_content = File.read(file_name)
+      return false if old_content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
 
-        column_pattern = /^#[\t ]+[\w\*`]+[\t ]+.+$/
-        old_columns = old_header && old_header.scan(column_pattern).sort
-        new_columns = new_header && new_header.scan(column_pattern).sort
+      # Ignore the Schema version line because it changes with each migration
+      header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?)/
+      old_header = old_content.match(header_pattern).to_s
+      new_header = info_block.match(header_pattern).to_s
 
-        magic_comments_block = magic_comments_as_string(old_content)
+      column_pattern = /^#[\t ]+[\w\*`]+[\t ]+.+$/
+      old_columns = old_header && old_header.scan(column_pattern).sort
+      new_columns = new_header && new_header.scan(column_pattern).sort
 
-        if old_columns == new_columns && !options[:force]
-          return false
-        else
-          # Replace inline the old schema info with the new schema info
-          new_content = old_content.sub(annotate_pattern(options), info_block + "\n")
+      magic_comments_block = magic_comments_as_string(old_content)
 
-          if new_content.end_with?(info_block + "\n")
-            new_content = old_content.sub(annotate_pattern(options), "\n" + info_block)
-          end
+      return false if old_columns == new_columns && !options[:force]
 
-          wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
-          wrapper_close = options[:wrapper_close] ? "# #{options[:wrapper_close]}\n" : ""
-          wrapped_info_block = "#{wrapper_open}#{info_block}#{wrapper_close}"
-          # if there *was* no old schema info (no substitution happened) or :force was passed,
-          # we simply need to insert it in correct position
-          if new_content == old_content || options[:force]
-            old_content.gsub!(magic_comment_matcher, '')
-            old_content.sub!(annotate_pattern(options), '')
+      # Replace inline the old schema info with the new schema info
+      new_content = old_content.sub(annotate_pattern(options), info_block + "\n")
 
-            new_content = if %w(after bottom).include?(options[position].to_s)
-                            magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
-                          else
-                            magic_comments_block + wrapped_info_block + "\n" + old_content
-                          end
-          end
-
-          File.open(file_name, 'wb') { |f| f.puts new_content }
-          return true
-        end
-      else
-        false
+      if new_content.end_with?(info_block + "\n")
+        new_content = old_content.sub(annotate_pattern(options), "\n" + info_block)
       end
+
+      wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
+      wrapper_close = options[:wrapper_close] ? "# #{options[:wrapper_close]}\n" : ""
+      wrapped_info_block = "#{wrapper_open}#{info_block}#{wrapper_close}"
+      # if there *was* no old schema info (no substitution happened) or :force was passed,
+      # we simply need to insert it in correct position
+      if new_content == old_content || options[:force]
+        old_content.gsub!(magic_comment_matcher, '')
+        old_content.sub!(annotate_pattern(options), '')
+
+        new_content = if %w(after bottom).include?(options[position].to_s)
+                        magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
+                      else
+                        magic_comments_block + wrapped_info_block + "\n" + old_content
+                      end
+      end
+
+      File.open(file_name, 'wb') { |f| f.puts new_content }
+      true
     end
 
     def remove_annotation_of_file(file_name, options = {})
