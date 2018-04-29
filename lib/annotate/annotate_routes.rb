@@ -82,14 +82,14 @@ module AnnotateRoutes
     def remove_annotations(_options={})
       return unless routes_exists?
       existing_text = File.read(routes_file)
-      content, where_header_found = strip_annotations(existing_text)
-      new_content = strip_on_removal(content, where_header_found)
+      content, header_position = strip_annotations(existing_text)
+      new_content = strip_on_removal(content, header_position)
       if rewrite_contents(existing_text, new_content)
         puts "Removed annotations from #{routes_file}."
       end
     end
 
-    def annotate_routes(header, content, where_header_found, options = {})
+    def annotate_routes(header, content, header_position, options = {})
       magic_comments_map, content = extract_magic_comments_from_array(content)
       if %w(before top).include?(options[:position_in_routes])
         header = header << '' if content.first != ''
@@ -102,7 +102,7 @@ module AnnotateRoutes
 
         # We're moving something from the top of the file to the bottom, so ditch
         # the spacer we put in the first time around.
-        content.shift if where_header_found == :before && content.first == ''
+        content.shift if header_position == :before && content.first == ''
 
         new_content = magic_comments_map + content + header
       end
@@ -178,8 +178,8 @@ module AnnotateRoutes
     end
 
     def rewrite_contents_with_header(existing_text, header, options = {})
-      content, where_header_found = strip_annotations(existing_text)
-      new_content = annotate_routes(header, content, where_header_found, options)
+      content, header_position = strip_annotations(existing_text)
+      new_content = annotate_routes(header, content, header_position, options)
 
       # Make sure we end on a trailing newline.
       new_content << '' unless new_content.last == ''
@@ -222,10 +222,10 @@ module AnnotateRoutes
       where_header_found(real_content, header_found_at)
     end
 
-    def strip_on_removal(content, where_header_found)
-      if where_header_found == :before
+    def strip_on_removal(content, header_position)
+      if header_position == :before
         content.shift while content.first == ''
-      elsif where_header_found == :after
+      elsif header_position == :after
         content.pop while content.last == ''
       end
 
