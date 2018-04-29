@@ -404,28 +404,6 @@ module AnnotateModels
       puts "Removed annotations from: #{deannotated.join(', ')}"
     end
 
-    def classified_sort(cols)
-      rest_cols = []
-      timestamps = []
-      associations = []
-      id = nil
-
-      cols.each do |c|
-        if c.name.eql?('id')
-          id = c
-        elsif c.name.eql?('created_at') || c.name.eql?('updated_at')
-          timestamps << c
-        elsif c.name[-3, 3].eql?('_id')
-          associations << c
-        else
-          rest_cols << c
-        end
-      end
-      [rest_cols, timestamps, associations].each { |a| a.sort_by!(&:name) }
-
-      ([id] << rest_cols << timestamps << associations).flatten.compact
-    end
-
     private
 
     def annotate_pattern(options = {})
@@ -873,6 +851,28 @@ module AnnotateModels
     def split_model_dir(option_value)
       option_value = option_value.is_a?(Array) ? option_value : option_value.split(',')
       option_value.map(&:strip).reject(&:empty?)
+    end
+
+    def classified_sort(cols)
+      rest_cols = []
+      timestamps = []
+      associations = []
+      id = nil
+
+      cols.each do |c|
+        if c.name.eql?('id')
+          id = c
+        elsif c.name.eql?('created_at') || c.name.eql?('updated_at')
+          timestamps << c
+        elsif c.name[-3, 3].eql?('_id')
+          associations << c
+        else
+          rest_cols << c
+        end
+      end
+      [rest_cols, timestamps, associations].each { |a| a.sort_by!(&:name) }
+
+      ([id] << rest_cols << timestamps << associations).flatten.compact
     end
 
     def with_comments?(klass, options)
