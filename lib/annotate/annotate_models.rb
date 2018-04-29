@@ -243,11 +243,6 @@ module AnnotateModels
       annotated
     end
 
-    # position = :position_in_fixture or :position_in_class
-    def options_with_position(options, position_in)
-      options.merge(position: (options[position_in] || options[:position]))
-    end
-
     # Return a list of the model files to annotate.
     # If we have command line arguments, they're assumed to the path
     # of model files from root dir. Otherwise we take all the model files
@@ -874,6 +869,11 @@ module AnnotateModels
       types << 'admin' if options[:active_admin] =~ TRUE_RE && !types.include?('admin')
 
       types
+    end
+
+    # position = :position_in_fixture or :position_in_class
+    def options_with_position(options, position_in)
+      options.merge(position: (options[position_in] || options[:position]))
     end
 
     def with_comments?(klass, options)
