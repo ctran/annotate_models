@@ -1521,7 +1521,7 @@ end
     def annotate_one_file(options = {})
       Annotate.set_defaults(options)
       options = Annotate.setup_options(options)
-      AnnotateModels.annotate_one_file(@model_file_name, @schema_info, :position_in_class, options)
+      AnnotateModels.send(:annotate_one_file, @model_file_name, @schema_info, :position_in_class, options)
 
       # Wipe settings so the next call will pick up new values...
       Annotate.instance_variable_set('@has_set_defaults', false)
@@ -1635,7 +1635,7 @@ end
                            mock_column(:name, :string, limit: 50)
                          ])
       schema_info = AnnotateModels.send(:get_schema_info, klass, '== Schema Info')
-      AnnotateModels.annotate_one_file(model_file_name, schema_info, position: :before)
+      AnnotateModels.send(:annotate_one_file, model_file_name, schema_info, position: :before)
       expect(File.read(model_file_name)).to eq("#{schema_info}\n#{file_content}")
     end
 
