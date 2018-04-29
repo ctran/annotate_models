@@ -129,10 +129,10 @@ module AnnotateRoutes
 
       routes_map
     end
-  end
 
-  def self.routes_file
-    @routes_rb ||= File.join('config', 'routes.rb')
+    def routes_file
+      @routes_file ||= File.join('config', 'routes.rb')
+    end
   end
 
   def self.routes_exists?
