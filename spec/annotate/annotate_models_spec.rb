@@ -71,13 +71,15 @@ describe AnnotateModels do
       }
     end
 
-    it 'sets @root_dir' do
+    before :each do
       AnnotateModels.send(:parse_options, options)
+    end
+
+    it 'sets @root_dir' do
       expect(AnnotateModels.instance_variable_get(:@root_dir)).to eq('/root')
     end
 
     it 'sets @model_dir separated with a comma' do
-      AnnotateModels.send(:parse_options, options)
       expected = [
         'app/models',
         'app/one',
