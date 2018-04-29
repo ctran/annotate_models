@@ -19,21 +19,6 @@ module AnnotateModels
 
   MATCHED_TYPES = %w(test fixture factory serializer scaffold controller helper).freeze
 
-  INDEX_CLAUSES = {
-    unique: {
-      default: 'UNIQUE',
-      markdown: '_unique_'
-    },
-    where: {
-      default: 'WHERE',
-      markdown: '_where_'
-    },
-    using: {
-      default: 'USING',
-      markdown: '_using_'
-    }
-  }.freeze
-
   class << self
     def model_dir
       @model_dir.is_a?(Array) ? @model_dir : [@model_dir || 'app/models']
