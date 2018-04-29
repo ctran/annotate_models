@@ -30,7 +30,7 @@ module AnnotateModels
           attrs << "default(#{schema_default(klass, col)})" if mark_as_default?(col, col_type, options)
           attrs << 'unsigned' if col.respond_to?(:unsigned?) && col.unsigned?
           attrs << 'not null' unless col.null
-          attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
+          attrs << 'primary key' if primary_key?(klass, col)
 
           if col_type == 'decimal'
             col_type << "(#{col.precision}, #{col.scale})"
@@ -199,6 +199,16 @@ module AnnotateModels
         when Array                    then value.map { |v| quote(v) }
         else
           value.inspect
+        end
+      end
+
+      def primary_key?(klass, col)
+        return false unless klass.primary_key
+
+        if klass.primary_key.is_a?(Array)
+          klass.primary_key.collect(&:to_sym).include?(col.name.to_sym)
+        else
+          col.name.to_sym == klass.primary_key.to_sym
         end
       end
 
