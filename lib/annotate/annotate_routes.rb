@@ -88,10 +88,12 @@ module AnnotateRoutes
         puts "Removed annotations from #{routes_file}."
       end
     end
-  end
 
-  def self.magic_comment_matcher
-    Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/)
+    private
+
+    def magic_comment_matcher
+      Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/)
+    end
   end
 
   # @param [Array<String>] content
