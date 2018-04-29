@@ -183,6 +183,17 @@ module AnnotateModels
         !col.default.nil? && !hide_default?(col_type, options)
       end
 
+      def hide_default?(col_type, options)
+        excludes =
+          if options[:hide_default_column_types].blank?
+            NO_DEFAULT_COL_TYPES
+          else
+            options[:hide_default_column_types].split(',')
+          end
+
+        excludes.include?(col_type)
+      end
+
       def schema_default(klass, column)
         quote(klass.column_defaults[column.name])
       end
@@ -210,17 +221,6 @@ module AnnotateModels
         else
           col.name.to_sym == klass.primary_key.to_sym
         end
-      end
-
-      def hide_default?(col_type, options)
-        excludes =
-          if options[:hide_default_column_types].blank?
-            NO_DEFAULT_COL_TYPES
-          else
-            options[:hide_default_column_types].split(',')
-          end
-
-        excludes.include?(col_type)
       end
 
       def hide_limit?(col_type, options)
