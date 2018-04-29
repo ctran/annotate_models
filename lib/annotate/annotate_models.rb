@@ -111,15 +111,6 @@ module AnnotateModels
       end
     end
 
-    def index_using_info(index, format = :default)
-      value = index.try(:using) && index.using.try(:to_sym)
-      if !value.blank? && value != :btree
-        " #{INDEX_CLAUSES[:using][format]} #{value}"
-      else
-        ''
-      end
-    end
-
     def hide_limit?(col_type, options)
       excludes =
         if options[:hide_limit_column_types].blank?
@@ -873,6 +864,15 @@ module AnnotateModels
         ''
       else
         " #{INDEX_CLAUSES[:where][format]} #{value}"
+      end
+    end
+
+    def index_using_info(index, format = :default)
+      value = index.try(:using) && index.using.try(:to_sym)
+      if !value.blank? && value != :btree
+        " #{INDEX_CLAUSES[:using][format]} #{value}"
+      else
+        ''
       end
     end
 
