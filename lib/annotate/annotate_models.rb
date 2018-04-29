@@ -101,28 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def get_index_info(klass, options = {})
-      index_info = if options[:format_markdown]
-                     "#\n# ### Indexes\n#\n"
-                   else
-                     "#\n# Indexes\n#\n"
-                   end
-
-      indexes = retrieve_indexes_from_table(klass)
-      return '' if indexes.empty?
-
-      max_size = indexes.collect{|index| index.name.size}.max + 1
-      indexes.sort_by(&:name).each do |index|
-        index_info << if options[:format_markdown]
-                        final_index_string_in_markdown(index)
-                      else
-                        final_index_string(index, max_size)
-                      end
-      end
-
-      index_info
-    end
-
     def get_col_type(col)
       if col.respond_to?(:bigint?) && col.bigint?
         'bigint'
@@ -844,6 +822,28 @@ module AnnotateModels
         info << "# Table name: #{klass.table_name}\n"
       end
       info << "#\n"
+    end
+
+    def get_index_info(klass, options = {})
+      index_info = if options[:format_markdown]
+                     "#\n# ### Indexes\n#\n"
+                   else
+                     "#\n# Indexes\n#\n"
+                   end
+
+      indexes = retrieve_indexes_from_table(klass)
+      return '' if indexes.empty?
+
+      max_size = indexes.collect{|index| index.name.size}.max + 1
+      indexes.sort_by(&:name).each do |index|
+        index_info << if options[:format_markdown]
+                        final_index_string_in_markdown(index)
+                      else
+                        final_index_string(index, max_size)
+                      end
+      end
+
+      index_info
     end
 
     def get_schema_footer_text(_klass, options = {})
