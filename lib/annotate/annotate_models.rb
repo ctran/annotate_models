@@ -101,15 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def fixture_files(root_directory)
-      [
-        File.join(root_directory, FIXTURE_TEST_DIR, "%TABLE_NAME%.yml"),
-        File.join(root_directory, FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
-        File.join(root_directory, FIXTURE_TEST_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
-        File.join(root_directory, FIXTURE_SPEC_DIR, "%PLURALIZED_MODEL_NAME%.yml")
-      ]
-    end
-
     def scaffold_files(root_directory)
       [
         File.join(root_directory, CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
@@ -866,6 +857,15 @@ module AnnotateModels
         File.join(root_directory, UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
         File.join(root_directory, MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
         File.join(root_directory, SPEC_MODEL_DIR, "%MODEL_NAME%_spec.rb")
+      ]
+    end
+
+    def fixture_files(root_directory)
+      [
+        File.join(root_directory, FIXTURE_TEST_DIR, "%TABLE_NAME%.yml"),
+        File.join(root_directory, FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
+        File.join(root_directory, FIXTURE_TEST_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
+        File.join(root_directory, FIXTURE_SPEC_DIR, "%PLURALIZED_MODEL_NAME%.yml")
       ]
     end
 
