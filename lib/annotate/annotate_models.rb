@@ -101,17 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def get_schema_footer_text(_klass, options = {})
-      info = ''
-      if options[:format_rdoc]
-        info << "#--\n"
-        info << "# #{END_MARK}\n"
-        info << "#++\n"
-      else
-        info << "#\n"
-      end
-    end
-
     def get_index_info(klass, options = {})
       index_info = if options[:format_markdown]
                      "#\n# ### Indexes\n#\n"
@@ -855,6 +844,17 @@ module AnnotateModels
         info << "# Table name: #{klass.table_name}\n"
       end
       info << "#\n"
+    end
+
+    def get_schema_footer_text(_klass, options = {})
+      info = ''
+      if options[:format_rdoc]
+        info << "#--\n"
+        info << "# #{END_MARK}\n"
+        info << "#++\n"
+      else
+        info << "#\n"
+      end
     end
 
     def retrieve_indexes_from_table(klass)
