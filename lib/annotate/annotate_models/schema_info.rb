@@ -321,20 +321,17 @@ module AnnotateModels
       end
 
       def get_foreign_key_info(klass, options = {})
+        return '' unless has_foreign_keys?(klass)
+
         fk_info = if options[:format_markdown]
                     "#\n# ### Foreign Keys\n#\n"
                   else
                     "#\n# Foreign Keys\n#\n"
                   end
 
-        return '' unless klass.connection.respond_to?(:supports_foreign_keys?) &&
-          klass.connection.supports_foreign_keys? && klass.connection.respond_to?(:foreign_keys)
-
-        foreign_keys = klass.connection.foreign_keys(klass.table_name)
-        return '' if foreign_keys.empty?
-
         format_name = ->(fk) { options[:show_complete_foreign_keys] ? fk.name : fk.name.gsub(/(?<=^fk_rails_)[0-9a-f]{10}$/, '...') }
 
+        foreign_keys = klass.connection.foreign_keys(klass.table_name)
         max_size = foreign_keys.map(&format_name).map(&:size).max + 1
         foreign_keys.sort_by { |fk| [format_name.call(fk), fk.column] }.each do |fk|
           ref_info = "#{fk.column} => #{fk.to_table}.#{fk.primary_key}"
@@ -351,6 +348,16 @@ module AnnotateModels
         end
 
         fk_info
+      end
+
+      def has_foreign_keys?(klass)
+        return false unless klass.connection.respond_to?(:supports_foreign_keys?)
+        return false unless klass.connection.supports_foreign_keys?
+        return false unless klass.connection.respond_to?(:foreign_keys)
+
+        foreign_keys = klass.connection.foreign_keys(klass.table_name)
+        return false if foreign_keys.empty?
+        return true
       end
 
       def get_schema_footer_text(_klass, options = {})
