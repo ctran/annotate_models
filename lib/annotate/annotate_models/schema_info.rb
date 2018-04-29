@@ -27,7 +27,7 @@ module AnnotateModels
         cols.each do |col|
           col_type = get_col_type(col)
           attrs = []
-          attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || hide_default?(col_type, options)
+          attrs << "default(#{schema_default(klass, col)})" if mark_as_default?(col, col_type, options)
           attrs << 'unsigned' if col.respond_to?(:unsigned?) && col.unsigned?
           attrs << 'not null' unless col.null
           attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
@@ -177,6 +177,10 @@ module AnnotateModels
         else
           (col.type || col.sql_type).to_s
         end
+      end
+
+      def mark_as_default?(col, col_type, options)
+        !col.default.nil? && !hide_default?(col_type, options)
       end
 
       def schema_default(klass, column)
