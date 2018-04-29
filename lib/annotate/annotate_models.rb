@@ -111,10 +111,6 @@ module AnnotateModels
       end
     end
 
-    def index_unique_info(index, format = :default)
-      index.unique ? " #{INDEX_CLAUSES[:unique][format]}" : ''
-    end
-
     def index_where_info(index, format = :default)
       value = index.try(:where).try(:to_s)
       if value.blank?
@@ -874,6 +870,10 @@ module AnnotateModels
         index_where_info(index),
         index_using_info(index)
       ).rstrip + "\n"
+    end
+
+    def index_unique_info(index, format = :default)
+      index.unique ? " #{INDEX_CLAUSES[:unique][format]}" : ''
     end
 
     def with_comments?(klass, options)
