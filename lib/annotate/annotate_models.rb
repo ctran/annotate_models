@@ -212,19 +212,6 @@ module AnnotateModels
       exit 1
     end
 
-    # Retrieve loaded model class by path to the file where it's supposed to be defined.
-    def get_loaded_model_by_path(model_path)
-      ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
-    rescue StandardError, LoadError
-      # Revert to the old way but it is not really robust
-      ObjectSpace.each_object(::Class)
-                 .select do |c|
-                    Class === c && # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
-                      c.ancestors.respond_to?(:include?) && # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
-                      c.ancestors.include?(ActiveRecord::Base)
-                  end.detect { |c| ActiveSupport::Inflector.underscore(c.to_s) == model_path }
-    end
-
     # We're passed a name of things that might be
     # ActiveRecord models. If we can find the class, and
     # if its a subclass of ActiveRecord::Base,
@@ -449,6 +436,19 @@ module AnnotateModels
           raise
         end
       end
+    end
+
+    # Retrieve loaded model class by path to the file where it's supposed to be defined.
+    def get_loaded_model_by_path(model_path)
+      ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
+    rescue StandardError, LoadError
+      # Revert to the old way but it is not really robust
+      ObjectSpace.each_object(::Class)
+                 .select do |c|
+                    Class === c && # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
+                      c.ancestors.respond_to?(:include?) && # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
+                      c.ancestors.include?(ActiveRecord::Base)
+                  end.detect { |c| ActiveSupport::Inflector.underscore(c.to_s) == model_path }
     end
   end
 
