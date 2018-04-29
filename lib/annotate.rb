@@ -45,7 +45,7 @@ module Annotate
   ].freeze
 
   def self.all_options
-    [POSITION_OPTIONS, FLAG_OPTIONS, PATH_OPTIONS, OTHER_OPTIONS]
+    [POSITION_OPTIONS, FLAG_OPTIONS, PATH_OPTIONS, OTHER_OPTIONS].flatten
   end
 
   ##
@@ -57,7 +57,7 @@ module Annotate
 
     options = HashWithIndifferentAccess.new(options)
 
-    all_options.flatten.each do |key|
+    all_options.each do |key|
       if options.key?(key)
         default_value = if options[key].is_a?(Array)
                           options[key].join(',')
@@ -102,7 +102,7 @@ module Annotate
   end
 
   def self.reset_options
-    all_options.flatten.each { |key| ENV[key.to_s] = nil }
+    all_options.each { |key| ENV[key.to_s] = nil }
   end
 
   def self.skip_on_migration?
