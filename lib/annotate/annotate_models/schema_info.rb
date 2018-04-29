@@ -300,11 +300,9 @@ module AnnotateModels
 
       def index_using_info(index, format = :default)
         value = index.try(:using) && index.using.try(:to_sym)
-        if !value.blank? && value != :btree
-          " #{INDEX_CLAUSES[:using][format]} #{value}"
-        else
-          ''
-        end
+        return '' if value.blank?
+        return '' if value == :btree
+        " #{INDEX_CLAUSES[:using][format]} #{value}"
       end
 
       def index_columns_info(index)
