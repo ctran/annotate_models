@@ -101,23 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def factory_files(root_directory)
-      [
-        File.join(root_directory, EXEMPLARS_TEST_DIR,     "%MODEL_NAME%_exemplar.rb"),
-        File.join(root_directory, EXEMPLARS_SPEC_DIR,     "%MODEL_NAME%_exemplar.rb"),
-        File.join(root_directory, BLUEPRINTS_TEST_DIR,    "%MODEL_NAME%_blueprint.rb"),
-        File.join(root_directory, BLUEPRINTS_SPEC_DIR,    "%MODEL_NAME%_blueprint.rb"),
-        File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
-        File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
-        File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%TABLE_NAME%.rb"),            # (new style)
-        File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%TABLE_NAME%.rb"),            # (new style)
-        File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%PLURALIZED_MODEL_NAME%.rb"), # (new style)
-        File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%PLURALIZED_MODEL_NAME%.rb"), # (new style)
-        File.join(root_directory, FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
-        File.join(root_directory, FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb")
-      ]
-    end
-
     def serialize_files(root_directory)
       [
         File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
@@ -866,6 +849,23 @@ module AnnotateModels
         File.join(root_directory, CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
         File.join(root_directory, REQUEST_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_spec.rb"),
         File.join(root_directory, ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb")
+      ]
+    end
+
+    def factory_files(root_directory)
+      [
+        File.join(root_directory, EXEMPLARS_TEST_DIR,     "%MODEL_NAME%_exemplar.rb"),
+        File.join(root_directory, EXEMPLARS_SPEC_DIR,     "%MODEL_NAME%_exemplar.rb"),
+        File.join(root_directory, BLUEPRINTS_TEST_DIR,    "%MODEL_NAME%_blueprint.rb"),
+        File.join(root_directory, BLUEPRINTS_SPEC_DIR,    "%MODEL_NAME%_blueprint.rb"),
+        File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
+        File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
+        File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%TABLE_NAME%.rb"),            # (new style)
+        File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%TABLE_NAME%.rb"),            # (new style)
+        File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%PLURALIZED_MODEL_NAME%.rb"), # (new style)
+        File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%PLURALIZED_MODEL_NAME%.rb"), # (new style)
+        File.join(root_directory, FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
+        File.join(root_directory, FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb")
       ]
     end
 
