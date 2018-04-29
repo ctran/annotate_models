@@ -324,11 +324,6 @@ module AnnotateModels
                   end.detect { |c| ActiveSupport::Inflector.underscore(c.to_s) == model_path }
     end
 
-    def parse_options(options = {})
-      self.model_dir = split_model_dir(options[:model_dir]) if options[:model_dir]
-      self.root_dir = options[:root_dir] if options[:root_dir]
-    end
-
     def split_model_dir(option_value)
       option_value = option_value.is_a?(Array) ? option_value : option_value.split(',')
       option_value.map(&:strip).reject(&:empty?)
@@ -873,6 +868,11 @@ module AnnotateModels
       end
 
       model_files
+    end
+
+    def parse_options(options = {})
+      self.model_dir = split_model_dir(options[:model_dir]) if options[:model_dir]
+      self.root_dir = options[:root_dir] if options[:root_dir]
     end
 
     def with_comments?(klass, options)
