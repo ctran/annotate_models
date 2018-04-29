@@ -247,22 +247,6 @@ module AnnotateModels
       end
     end
 
-    # Retrieve loaded model class
-    def get_loaded_model(model_path, file)
-      loaded_model_class = get_loaded_model_by_path(model_path)
-      return loaded_model_class if loaded_model_class
-
-      # We cannot get loaded model when `model_path` is loaded by Rails
-      # auto_load/eager_load paths. Try all possible model paths one by one.
-      absolute_file = File.expand_path(file)
-      model_paths =
-        $LOAD_PATH.select { |path| absolute_file.include?(path) }
-                  .map { |path| absolute_file.sub(path, '').sub(/\.rb$/, '').sub(/^\//, '') }
-      model_paths
-        .map { |path| get_loaded_model_by_path(path) }
-        .find { |loaded_model| !loaded_model.nil? }
-    end
-
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
     def get_loaded_model_by_path(model_path)
       ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
@@ -449,6 +433,22 @@ module AnnotateModels
     def split_model_dir(option_value)
       option_value = option_value.is_a?(Array) ? option_value : option_value.split(',')
       option_value.map(&:strip).reject(&:empty?)
+    end
+
+    # Retrieve loaded model class
+    def get_loaded_model(model_path, file)
+      loaded_model_class = get_loaded_model_by_path(model_path)
+      return loaded_model_class if loaded_model_class
+
+      # We cannot get loaded model when `model_path` is loaded by Rails
+      # auto_load/eager_load paths. Try all possible model paths one by one.
+      absolute_file = File.expand_path(file)
+      model_paths =
+        $LOAD_PATH.select { |path| absolute_file.include?(path) }
+                  .map { |path| absolute_file.sub(path, '').sub(/\.rb$/, '').sub(/^\//, '') }
+      model_paths
+        .map { |path| get_loaded_model_by_path(path) }
+        .find { |loaded_model| !loaded_model.nil? }
     end
   end
 
