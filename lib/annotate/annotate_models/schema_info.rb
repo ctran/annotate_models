@@ -23,18 +23,7 @@ module AnnotateModels
           info << markdown_table_header_end_line(max_size)
         end
 
-        ignore_columns = options[:ignore_columns]
-
-        cols = if ignore_columns
-                 klass.columns.reject do |col|
-                   col.name.match(/#{ignore_columns}/)
-                 end
-               else
-                 klass.columns
-               end
-
-        cols = cols.sort_by(&:name) if options[:sort]
-        cols = classified_sort(cols) if options[:classified_sort]
+        cols = get_cols(klass, options)
         cols.each do |col|
           col_type = get_col_type(col)
           attrs = []
@@ -142,6 +131,22 @@ module AnnotateModels
 
       def markdown_table_header_end_line(max_size)
         "# #{'-' * (max_size + MD_NAMES_OVERHEAD)} | #{'-' * MD_TYPE_ALLOWANCE} | #{'-' * 27}\n"
+      end
+
+      def get_cols(klass, options)
+        ignore_columns = options[:ignore_columns]
+
+        cols = if ignore_columns
+                 klass.columns.reject do |col|
+                   col.name.match(/#{ignore_columns}/)
+                 end
+               else
+                 klass.columns
+               end
+
+        cols = cols.sort_by(&:name) if options[:sort]
+        cols = classified_sort(cols) if options[:classified_sort]
+        cols
       end
 
       def classified_sort(cols)
