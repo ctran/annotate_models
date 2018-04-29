@@ -101,21 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    # Simple quoting for the default column value
-    def quote(value)
-      case value
-      when NilClass                 then 'NULL'
-      when TrueClass                then 'TRUE'
-      when FalseClass               then 'FALSE'
-      when Float, Integer           then value.to_s
-        # BigDecimals need to be output in a non-normalized form and quoted.
-      when BigDecimal               then value.to_s('F')
-      when Array                    then value.map { |v| quote(v) }
-      else
-        value.inspect
-      end
-    end
-
     def retrieve_indexes_from_table(klass)
       table_name = klass.table_name
       return [] unless table_name
@@ -867,6 +852,21 @@ module AnnotateModels
 
     def schema_default(klass, column)
       quote(klass.column_defaults[column.name])
+    end
+
+    # Simple quoting for the default column value
+    def quote(value)
+      case value
+      when NilClass                 then 'NULL'
+      when TrueClass                then 'TRUE'
+      when FalseClass               then 'FALSE'
+      when Float, Integer           then value.to_s
+        # BigDecimals need to be output in a non-normalized form and quoted.
+      when BigDecimal               then value.to_s('F')
+      when Array                    then value.map { |v| quote(v) }
+      else
+        value.inspect
+      end
     end
 
     def resolve_filename(filename_template, model_name, table_name)

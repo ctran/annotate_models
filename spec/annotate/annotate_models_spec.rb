@@ -63,14 +63,18 @@ describe AnnotateModels do
     double('Column', stubs)
   end
 
-  it { expect(AnnotateModels.quote(nil)).to eql('NULL') }
-  it { expect(AnnotateModels.quote(true)).to eql('TRUE') }
-  it { expect(AnnotateModels.quote(false)).to eql('FALSE') }
-  it { expect(AnnotateModels.quote(25)).to eql('25') }
-  it { expect(AnnotateModels.quote(25.6)).to eql('25.6') }
-  it { expect(AnnotateModels.quote(1e-20)).to eql('1.0e-20') }
-  it { expect(AnnotateModels.quote(BigDecimal.new('1.2'))).to eql('1.2') }
-  it { expect(AnnotateModels.quote([BigDecimal.new('1.2')])).to eql(['1.2']) }
+  describe '#quote' do
+    it 'converts values to the default column value as a string' do
+      expect(AnnotateModels.send(:quote, nil)).to eql('NULL')
+      expect(AnnotateModels.send(:quote, true)).to eql('TRUE')
+      expect(AnnotateModels.send(:quote, false)).to eql('FALSE')
+      expect(AnnotateModels.send(:quote, 25)).to eql('25')
+      expect(AnnotateModels.send(:quote, 25.6)).to eql('25.6')
+      expect(AnnotateModels.send(:quote, 1e-20)).to eql('1.0e-20')
+      expect(AnnotateModels.send(:quote, BigDecimal.new('1.2'))).to eql('1.2')
+      expect(AnnotateModels.send(:quote, [BigDecimal.new('1.2')])).to eql(['1.2'])
+    end
+  end
 
   describe '#parse_options' do
     let(:options) do
