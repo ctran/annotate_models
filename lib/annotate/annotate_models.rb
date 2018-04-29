@@ -101,16 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def get_patterns(pattern_types = [])
-      current_patterns = []
-      root_dir.each do |root_directory|
-        Array(pattern_types).each do |pattern_type|
-          current_patterns += files_by_pattern(root_directory, pattern_type)
-        end
-      end
-      current_patterns.map { |p| p.sub(/^[\/]*/, '') }
-    end
-
     # Simple quoting for the default column value
     def quote(value)
       case value
@@ -798,6 +788,16 @@ module AnnotateModels
         return /(?:^(\n|\r\n)?# (?:#{options[:wrapper_open]}).*(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*)|^(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*/
       end
       /^(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*/
+    end
+
+    def get_patterns(pattern_types = [])
+      current_patterns = []
+      root_dir.each do |root_directory|
+        Array(pattern_types).each do |pattern_type|
+          current_patterns += files_by_pattern(root_directory, pattern_type)
+        end
+      end
+      current_patterns.map { |p| p.sub(/^[\/]*/, '') }
     end
 
     def files_by_pattern(root_directory, pattern_type)
