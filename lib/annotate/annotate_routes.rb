@@ -19,12 +19,13 @@
 #
 # Released under the same license as Ruby. No Support. No Warranty.
 #
+
+require_relative './annotate_routes/helpers'
+
 module AnnotateRoutes
   PREFIX = '== Route Map'.freeze
   PREFIX_MD = '## Route Map'.freeze
   HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action'].freeze
-
-  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/).freeze
 
   class << self
     def do_annotations(options = {})
@@ -73,7 +74,7 @@ module AnnotateRoutes
     def header(options = {})
       routes_map = app_routes_map(options)
 
-      magic_comments_map, routes_map = extract_magic_comments_from_array(routes_map)
+      magic_comments_map, routes_map = Helpers.extract_magic_comments_from_array(routes_map)
 
       out = []
 
@@ -168,7 +169,7 @@ module AnnotateRoutes
     end
 
     def annotate_routes(header, content, header_position, options = {})
-      magic_comments_map, content = extract_magic_comments_from_array(content)
+      magic_comments_map, content = Helpers.extract_magic_comments_from_array(content)
       if %w(before top).include?(options[:position_in_routes])
         header = header << '' if content.first != ''
         magic_comments_map << '' if magic_comments_map.any?
@@ -206,24 +207,6 @@ module AnnotateRoutes
       end
 
       routes_map
-    end
-
-    # @param [Array<String>] content
-    # @return [Array<String>] all found magic comments
-    # @return [Array<String>] content without magic comments
-    def extract_magic_comments_from_array(content_array)
-      magic_comments = []
-      new_content = []
-
-      content_array.each do |row|
-        if row =~ MAGIC_COMMENT_MATCHER
-          magic_comments << row.strip
-        else
-          new_content << row
-        end
-      end
-
-      [magic_comments, new_content]
     end
 
     def content(line, maxs, options = {})
