@@ -25,51 +25,6 @@ module AnnotateRoutes
   HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action']
 
   class << self
-    def content(line, maxs, options = {})
-      return line.rstrip unless options[:format_markdown]
-
-      line.each_with_index.map do |elem, index|
-        min_length = maxs.map { |arr| arr[index] }.max || 0
-
-        sprintf("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
-      end.join(' | ')
-    end
-
-    def header(options = {})
-      routes_map = app_routes_map(options)
-
-      magic_comments_map, routes_map = extract_magic_comments_from_array(routes_map)
-
-      out = []
-
-      magic_comments_map.each do |magic_comment|
-        out << magic_comment
-      end
-      out << '' if magic_comments_map.any?
-
-      out += ["# #{options[:wrapper_open]}"] if options[:wrapper_open]
-
-      out += ["# #{options[:format_markdown] ? PREFIX_MD : PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')]
-      out += ['#']
-      return out if routes_map.size.zero?
-
-      maxs = [HEADER_ROW.map(&:size)] + routes_map[1..-1].map { |line| line.split.map(&:size) }
-
-      if options[:format_markdown]
-        max = maxs.map(&:max).compact.max
-
-        out += ["# #{content(HEADER_ROW, maxs, options)}"]
-        out += ["# #{content(['-' * max, '-' * max, '-' * max, '-' * max], maxs, options)}"]
-      else
-        out += ["# #{content(routes_map[0], maxs, options)}"]
-      end
-
-      out += routes_map[1..-1].map { |line| "# #{content(options[:format_markdown] ? line.split(' ') : line, maxs, options)}" }
-      out += ["# #{options[:wrapper_close]}"] if options[:wrapper_close]
-
-      out
-    end
-
     def do_annotations(options = {})
       return unless routes_exists?
       existing_text = File.read(routes_file)
@@ -111,6 +66,51 @@ module AnnotateRoutes
     end
 
     private
+
+    def header(options = {})
+      routes_map = app_routes_map(options)
+
+      magic_comments_map, routes_map = extract_magic_comments_from_array(routes_map)
+
+      out = []
+
+      magic_comments_map.each do |magic_comment|
+        out << magic_comment
+      end
+      out << '' if magic_comments_map.any?
+
+      out += ["# #{options[:wrapper_open]}"] if options[:wrapper_open]
+
+      out += ["# #{options[:format_markdown] ? PREFIX_MD : PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')]
+      out += ['#']
+      return out if routes_map.size.zero?
+
+      maxs = [HEADER_ROW.map(&:size)] + routes_map[1..-1].map { |line| line.split.map(&:size) }
+
+      if options[:format_markdown]
+        max = maxs.map(&:max).compact.max
+
+        out += ["# #{content(HEADER_ROW, maxs, options)}"]
+        out += ["# #{content(['-' * max, '-' * max, '-' * max, '-' * max], maxs, options)}"]
+      else
+        out += ["# #{content(routes_map[0], maxs, options)}"]
+      end
+
+      out += routes_map[1..-1].map { |line| "# #{content(options[:format_markdown] ? line.split(' ') : line, maxs, options)}" }
+      out += ["# #{options[:wrapper_close]}"] if options[:wrapper_close]
+
+      out
+    end
+
+    def content(line, maxs, options = {})
+      return line.rstrip unless options[:format_markdown]
+
+      line.each_with_index.map do |elem, index|
+        min_length = maxs.map { |arr| arr[index] }.max || 0
+
+        sprintf("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
+      end.join(' | ')
+    end
 
     def magic_comment_matcher
       Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/)
