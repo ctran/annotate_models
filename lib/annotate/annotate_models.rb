@@ -7,7 +7,6 @@ require_relative './annotate_models/schema_info'
 require_relative './annotate_models/bad_model_file_error'
 
 module AnnotateModels
-  TRUE_RE = /^(true|t|yes|y|1)$/i
 
   # Annotate Models plugin use this header
   COMPAT_PREFIX    = '== Schema Info'.freeze
@@ -404,7 +403,7 @@ module AnnotateModels
 
     def matched_types(options)
       types = MATCHED_TYPES
-      types << 'admin' if options[:active_admin] =~ TRUE_RE && !types.include?('admin')
+      types << 'admin' if options[:active_admin] =~ Annotate::TRUE_RE && !types.include?('admin')
 
       types
     end
