@@ -90,671 +90,6 @@ describe AnnotateModels do
     end
   end
 
-  it 'should get schema info with default options' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer, limit: 8),
-                         mock_column(:name, :string, limit: 50),
-                         mock_column(:notes, :text, limit: 55)
-                       ])
-
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id    :integer          not null, primary key
-#  name  :string(50)       not null
-#  notes :text(55)         not null
-#
-EOS
-  end
-
-  it 'should get schema info even if the primary key is not set' do
-    klass = mock_class(:users,
-                       nil,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:name, :string, limit: 50)
-                       ])
-
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id   :integer          not null
-#  name :string(50)       not null
-#
-EOS
-  end
-
-  it 'should get schema info even if the primary key is array, if using composite_primary_keys' do
-    klass = mock_class(:users,
-                       [:a_id, :b_id],
-                       [
-                         mock_column(:a_id, :integer),
-                         mock_column(:b_id, :integer),
-                         mock_column(:name, :string, limit: 50)
-                       ])
-
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  a_id :integer          not null, primary key
-#  b_id :integer          not null, primary key
-#  name :string(50)       not null
-#
-EOS
-  end
-
-  it 'should get schema info with enum type' do
-    klass = mock_class(:users,
-                       nil,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:name, :enum, limit: [:enum1, :enum2])
-                       ])
-
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id   :integer          not null
-#  name :enum             not null, (enum1, enum2)
-#
-EOS
-  end
-
-  it 'should get schema info with unsigned' do
-    klass = mock_class(:users,
-                       nil,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:integer, :integer, unsigned?: true),
-                         mock_column(:bigint,  :integer, unsigned?: true, bigint?: true),
-                         mock_column(:float,   :float,   unsigned?: true),
-                         mock_column(:decimal, :decimal, unsigned?: true, precision: 10, scale: 2),
-                       ])
-
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id      :integer          not null
-#  integer :integer          unsigned, not null
-#  bigint  :bigint           unsigned, not null
-#  float   :float            unsigned, not null
-#  decimal :decimal(10, 2)   unsigned, not null
-#
-EOS
-  end
-
-  it 'should get schema info for integer and boolean with default' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:size, :integer, default: 20),
-                         mock_column(:flag, :boolean, default: false)
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id   :integer          not null, primary key
-#  size :integer          default(20), not null
-#  flag :boolean          default(FALSE), not null
-#
-EOS
-  end
-
-  it 'should get foreign key info' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:foreign_thing_id, :integer)
-                       ],
-                       [],
-                       [
-                         mock_foreign_key('fk_rails_cf2568e89e',
-                                          'foreign_thing_id',
-                                          'foreign_things'),
-                         mock_foreign_key('custom_fk_name',
-                                          'other_thing_id',
-                                          'other_things'),
-                         mock_foreign_key('fk_rails_a70234b26c',
-                                          'third_thing_id',
-                                          'third_things')
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_foreign_keys: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id               :integer          not null, primary key
-#  foreign_thing_id :integer          not null
-#
-# Foreign Keys
-#
-#  custom_fk_name  (other_thing_id => other_things.id)
-#  fk_rails_...    (foreign_thing_id => foreign_things.id)
-#  fk_rails_...    (third_thing_id => third_things.id)
-#
-EOS
-  end
-
-  it 'should get complete foreign key info' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:foreign_thing_id, :integer)
-                       ],
-                       [],
-                       [
-                         mock_foreign_key('fk_rails_cf2568e89e',
-                                          'foreign_thing_id',
-                                          'foreign_things'),
-                         mock_foreign_key('custom_fk_name',
-                                          'other_thing_id',
-                                          'other_things'),
-                         mock_foreign_key('fk_rails_a70234b26c',
-                                          'third_thing_id',
-                                          'third_things')
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_foreign_keys: true, show_complete_foreign_keys: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id               :integer          not null, primary key
-#  foreign_thing_id :integer          not null
-#
-# Foreign Keys
-#
-#  custom_fk_name       (other_thing_id => other_things.id)
-#  fk_rails_a70234b26c  (third_thing_id => third_things.id)
-#  fk_rails_cf2568e89e  (foreign_thing_id => foreign_things.id)
-#
-    EOS
-  end
-
-  it 'should get foreign key info if on_delete/on_update options present' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:foreign_thing_id, :integer)
-                       ],
-                       [],
-                       [
-                         mock_foreign_key('fk_rails_02e851e3b7',
-                                          'foreign_thing_id',
-                                          'foreign_things',
-                                          'id',
-                                          on_delete: 'on_delete_value',
-                                          on_update: 'on_update_value')
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_foreign_keys: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id               :integer          not null, primary key
-#  foreign_thing_id :integer          not null
-#
-# Foreign Keys
-#
-#  fk_rails_...  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
-#
-EOS
-  end
-
-  it 'should get indexes keys' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:foreign_thing_id, :integer)
-                       ], [mock_index('index_rails_02e851e3b7', columns: ['id']),
-                       mock_index('index_rails_02e851e3b8', columns: ['foreign_thing_id'])])
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id               :integer          not null, primary key
-#  foreign_thing_id :integer          not null
-#
-# Indexes
-#
-#  index_rails_02e851e3b7  (id)
-#  index_rails_02e851e3b8  (foreign_thing_id)
-#
-EOS
-  end
-
-  it 'should get ordered indexes keys' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column("id", :integer),
-                         mock_column("firstname", :string),
-                         mock_column("surname", :string),
-                         mock_column("value", :string)
-                       ],
-                       [
-                         mock_index('index_rails_02e851e3b7', columns: ['id']),
-                         mock_index('index_rails_02e851e3b8',
-                                    columns: %w(firstname surname value),
-                                    orders: { 'surname' => :asc, 'value' => :desc })
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id        :integer          not null, primary key
-#  firstname :string           not null
-#  surname   :string           not null
-#  value     :string           not null
-#
-# Indexes
-#
-#  index_rails_02e851e3b7  (id)
-#  index_rails_02e851e3b8  (firstname,surname ASC,value DESC)
-#
-EOS
-  end
-
-  it 'should get indexes keys with where clause' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column("id", :integer),
-                         mock_column("firstname", :string),
-                         mock_column("surname", :string),
-                         mock_column("value", :string)
-                       ],
-                       [
-                         mock_index('index_rails_02e851e3b7', columns: ['id']),
-                         mock_index('index_rails_02e851e3b8',
-                                    columns: %w(firstname surname),
-                                    where: 'value IS NOT NULL')
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id        :integer          not null, primary key
-#  firstname :string           not null
-#  surname   :string           not null
-#  value     :string           not null
-#
-# Indexes
-#
-#  index_rails_02e851e3b7  (id)
-#  index_rails_02e851e3b8  (firstname,surname) WHERE value IS NOT NULL
-#
-EOS
-  end
-
-  it 'should get indexes keys with using clause other than btree' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column("id", :integer),
-                         mock_column("firstname", :string),
-                         mock_column("surname", :string),
-                         mock_column("value", :string)
-                       ],
-                       [
-                         mock_index('index_rails_02e851e3b7', columns: ['id']),
-                         mock_index('index_rails_02e851e3b8',
-                                    columns: %w(firstname surname),
-                                    using: 'hash')
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id        :integer          not null, primary key
-#  firstname :string           not null
-#  surname   :string           not null
-#  value     :string           not null
-#
-# Indexes
-#
-#  index_rails_02e851e3b7  (id)
-#  index_rails_02e851e3b8  (firstname,surname) USING hash
-#
-EOS
-  end
-
-  it 'should get simple indexes keys' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:foreign_thing_id, :integer)
-                       ],
-                       [
-                         mock_index('index_rails_02e851e3b7', columns: ['id']),
-                         mock_index('index_rails_02e851e3b8',
-                                    columns: ['foreign_thing_id'],
-                                    orders: { 'foreign_thing_id' => :desc })
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', simple_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id               :integer          not null, primary key
-#  foreign_thing_id :integer          not null
-#
-EOS
-  end
-
-  it 'should get simple indexes keys if one is in string form' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column("id", :integer),
-                         mock_column("name", :string)
-                       ], [mock_index('index_rails_02e851e3b7', columns: ['id']),
-                       mock_index('index_rails_02e851e3b8', columns: 'LOWER(name)')])
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', simple_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id   :integer          not null, primary key, indexed
-#  name :string           not null
-#
-EOS
-  end
-
-  it 'should not crash getting indexes keys' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:foreign_thing_id, :integer)
-                       ], [])
-    expect(AnnotateModels.send(:get_schema_info, klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id               :integer          not null, primary key
-#  foreign_thing_id :integer          not null
-#
-EOS
-  end
-
-  it 'should get schema info as RDoc' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:name, :string, limit: 50)
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_rdoc: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: users
-#
-# *id*::   <tt>integer, not null, primary key</tt>
-# *name*:: <tt>string(50), not null</tt>
-#--
-# #{AnnotateModels::END_MARK}
-#++
-EOS
-  end
-
-  it 'should get schema info as Markdown' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:name, :string, limit: 50)
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name        | Type               | Attributes
-# ----------- | ------------------ | ---------------------------
-# **`id`**    | `integer`          | `not null, primary key`
-# **`name`**  | `string(50)`       | `not null`
-#
-EOS
-  end
-
-  it 'should get schema info as Markdown with foreign keys' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:foreign_thing_id, :integer)
-                       ],
-                       [],
-                       [
-                         mock_foreign_key('fk_rails_02e851e3b7',
-                                          'foreign_thing_id',
-                                          'foreign_things',
-                                          'id',
-                                          on_delete: 'on_delete_value',
-                                          on_update: 'on_update_value')
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, show_foreign_keys: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name                    | Type               | Attributes
-# ----------------------- | ------------------ | ---------------------------
-# **`id`**                | `integer`          | `not null, primary key`
-# **`foreign_thing_id`**  | `integer`          | `not null`
-#
-# ### Foreign Keys
-#
-# * `fk_rails_...` (_ON DELETE => on_delete_value ON UPDATE => on_update_value_):
-#     * **`foreign_thing_id => foreign_things.id`**
-#
-EOS
-  end
-
-  it 'should get schema info as Markdown with indexes' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:name, :string, limit: 50)
-                       ],
-                       [
-                         mock_index('index_rails_02e851e3b7', columns: ['id']),
-                         mock_index('index_rails_02e851e3b8',
-                                    columns: ['foreign_thing_id'])
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name        | Type               | Attributes
-# ----------- | ------------------ | ---------------------------
-# **`id`**    | `integer`          | `not null, primary key`
-# **`name`**  | `string(50)`       | `not null`
-#
-# ### Indexes
-#
-# * `index_rails_02e851e3b7`:
-#     * **`id`**
-# * `index_rails_02e851e3b8`:
-#     * **`foreign_thing_id`**
-#
-EOS
-  end
-
-  it 'should get schema info as Markdown with unique indexes' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:name, :string, limit: 50)
-                       ],
-                       [
-                         mock_index('index_rails_02e851e3b7', columns: ['id']),
-                         mock_index('index_rails_02e851e3b8',
-                                    columns: ['foreign_thing_id'],
-                                    unique: true)
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name        | Type               | Attributes
-# ----------- | ------------------ | ---------------------------
-# **`id`**    | `integer`          | `not null, primary key`
-# **`name`**  | `string(50)`       | `not null`
-#
-# ### Indexes
-#
-# * `index_rails_02e851e3b7`:
-#     * **`id`**
-# * `index_rails_02e851e3b8` (_unique_):
-#     * **`foreign_thing_id`**
-#
-EOS
-  end
-
-  it 'should get schema info as Markdown with ordered indexes' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:name, :string, limit: 50)
-                       ],
-                       [
-                         mock_index('index_rails_02e851e3b7', columns: ['id']),
-                         mock_index('index_rails_02e851e3b8',
-                                    columns: ['foreign_thing_id'],
-                                    orders: { 'foreign_thing_id' => :desc })
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name        | Type               | Attributes
-# ----------- | ------------------ | ---------------------------
-# **`id`**    | `integer`          | `not null, primary key`
-# **`name`**  | `string(50)`       | `not null`
-#
-# ### Indexes
-#
-# * `index_rails_02e851e3b7`:
-#     * **`id`**
-# * `index_rails_02e851e3b8`:
-#     * **`foreign_thing_id DESC`**
-#
-EOS
-  end
-
-  it 'should get schema info as Markdown with indexes with WHERE clause' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:name, :string, limit: 50)
-                       ],
-                       [
-                         mock_index('index_rails_02e851e3b7', columns: ['id']),
-                         mock_index('index_rails_02e851e3b8',
-                                    columns: ['foreign_thing_id'],
-                                    unique: true,
-                                    where: 'name IS NOT NULL')
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name        | Type               | Attributes
-# ----------- | ------------------ | ---------------------------
-# **`id`**    | `integer`          | `not null, primary key`
-# **`name`**  | `string(50)`       | `not null`
-#
-# ### Indexes
-#
-# * `index_rails_02e851e3b7`:
-#     * **`id`**
-# * `index_rails_02e851e3b8` (_unique_ _where_ name IS NOT NULL):
-#     * **`foreign_thing_id`**
-#
-EOS
-  end
-
-  it 'should get schema info as Markdown with indexes with using clause other than btree' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:name, :string, limit: 50)
-                       ],
-                       [
-                         mock_index('index_rails_02e851e3b7', columns: ['id']),
-                         mock_index('index_rails_02e851e3b8',
-                                    columns: ['foreign_thing_id'],
-                                    using: 'hash')
-                       ])
-    expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name        | Type               | Attributes
-# ----------- | ------------------ | ---------------------------
-# **`id`**    | `integer`          | `not null, primary key`
-# **`name`**  | `string(50)`       | `not null`
-#
-# ### Indexes
-#
-# * `index_rails_02e851e3b7`:
-#     * **`id`**
-# * `index_rails_02e851e3b8` (_using_ hash):
-#     * **`foreign_thing_id`**
-#
-EOS
-  end
-
   describe '#set_defaults' do
     it 'should default show_complete_foreign_keys to false' do
       expect(Annotate.true?(ENV['show_complete_foreign_keys'])).to be(false)
@@ -767,208 +102,6 @@ EOS
 
     after :each do
       ENV.delete('show_complete_foreign_keys')
-    end
-  end
-
-  describe '#get_schema_info with custom options' do
-    def self.when_called_with(options = {})
-      expected = options.delete(:returns)
-      default_columns = [
-        [:id, :integer, { limit: 8 }],
-        [:active, :boolean, { limit: 1 }],
-        [:name, :string, { limit: 50 }],
-        [:notes, :text, { limit: 55 }]
-      ]
-
-      it "should work with options = #{options}" do
-        with_columns = (options.delete(:with_columns) || default_columns).map do |column|
-          mock_column(column[0], column[1], column[2])
-        end
-
-        klass = mock_class(:users, :id, with_columns)
-
-        schema_info = AnnotateModels.send(:get_schema_info, klass, 'Schema Info', options)
-        expect(schema_info).to eql(expected)
-      end
-    end
-
-    describe 'hide_limit_column_types option' do
-      when_called_with hide_limit_column_types: '', returns: <<-EOS.strip_heredoc
-        # Schema Info
-        #
-        # Table name: users
-        #
-        #  id     :integer          not null, primary key
-        #  active :boolean          not null
-        #  name   :string(50)       not null
-        #  notes  :text(55)         not null
-        #
-      EOS
-
-      when_called_with hide_limit_column_types: 'integer,boolean', returns:
-        <<-EOS.strip_heredoc
-        # Schema Info
-        #
-        # Table name: users
-        #
-        #  id     :integer          not null, primary key
-        #  active :boolean          not null
-        #  name   :string(50)       not null
-        #  notes  :text(55)         not null
-        #
-      EOS
-
-      when_called_with hide_limit_column_types: 'integer,boolean,string,text',
-                       returns:
-        <<-EOS.strip_heredoc
-        # Schema Info
-        #
-        # Table name: users
-        #
-        #  id     :integer          not null, primary key
-        #  active :boolean          not null
-        #  name   :string           not null
-        #  notes  :text             not null
-        #
-      EOS
-    end
-
-    describe 'hide_default_column_types option' do
-      mocked_columns_without_id = [
-        [:profile, :json, default: {}],
-        [:settings, :jsonb, default: {}],
-        [:parameters, :hstore, default: {}]
-      ]
-
-      when_called_with hide_default_column_types: '',
-                       with_columns: mocked_columns_without_id,
-                       returns:
-        <<-EOS.strip_heredoc
-        # Schema Info
-        #
-        # Table name: users
-        #
-        #  profile    :json             not null
-        #  settings   :jsonb            not null
-        #  parameters :hstore           not null
-        #
-      EOS
-
-      when_called_with hide_default_column_types: 'skip',
-                       with_columns: mocked_columns_without_id,
-                       returns:
-        <<-EOS.strip_heredoc
-        # Schema Info
-        #
-        # Table name: users
-        #
-        #  profile    :json             default({}), not null
-        #  settings   :jsonb            default({}), not null
-        #  parameters :hstore           default({}), not null
-        #
-      EOS
-
-      when_called_with hide_default_column_types: 'json',
-                       with_columns: mocked_columns_without_id,
-                       returns:
-        <<-EOS.strip_heredoc
-        # Schema Info
-        #
-        # Table name: users
-        #
-        #  profile    :json             not null
-        #  settings   :jsonb            default({}), not null
-        #  parameters :hstore           default({}), not null
-        #
-      EOS
-    end
-
-    describe 'classified_sort option' do
-      mocked_columns_without_id = [
-        [:active, :boolean, { limit: 1 }],
-        [:name, :string, { limit: 50 }],
-        [:notes, :text, { limit: 55 }]
-      ]
-
-      when_called_with classified_sort: 'yes',
-                       with_columns: mocked_columns_without_id, returns:
-        <<-EOS.strip_heredoc
-        # Schema Info
-        #
-        # Table name: users
-        #
-        #  active :boolean          not null
-        #  name   :string(50)       not null
-        #  notes  :text(55)         not null
-        #
-      EOS
-    end
-
-    describe 'with_comment option' do
-      mocked_columns_with_comment = [
-        [:id,         :integer, { limit: 8,  comment: 'ID' }],
-        [:active,     :boolean, { limit: 1,  comment: 'Active' }],
-        [:name,       :string,  { limit: 50, comment: 'Name' }],
-        [:notes,      :text,    { limit: 55, comment: 'Notes' }],
-        [:no_comment, :text,    { limit: 20, comment: nil }]
-      ]
-
-      when_called_with with_comment: 'yes',
-                       with_columns: mocked_columns_with_comment, returns:
-        <<-EOS.strip_heredoc
-        # Schema Info
-        #
-        # Table name: users
-        #
-        #  id(ID)         :integer          not null, primary key
-        #  active(Active) :boolean          not null
-        #  name(Name)     :string(50)       not null
-        #  notes(Notes)   :text(55)         not null
-        #  no_comment     :text(20)         not null
-        #
-      EOS
-
-      it 'should get schema info as RDoc' do
-        klass = mock_class(:users,
-                           :id,
-                           [
-                             mock_column(:id, :integer, comment: 'ID'),
-                             mock_column(:name, :string, limit: 50, comment: 'Name')
-                           ])
-        expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_rdoc: true, with_comment: true)).to eql(<<-EOS.strip_heredoc)
-        # #{AnnotateModels::PREFIX}
-        #
-        # Table name: users
-        #
-        # *id(ID)*::     <tt>integer, not null, primary key</tt>
-        # *name(Name)*:: <tt>string(50), not null</tt>
-        #--
-        # #{AnnotateModels::END_MARK}
-        #++
-        EOS
-      end
-
-      it 'should get schema info as Markdown' do
-        klass = mock_class(:users,
-                           :id,
-                           [
-                             mock_column(:id, :integer, comment: 'ID'),
-                             mock_column(:name, :string, limit: 50, comment: 'Name')
-                           ])
-        expect(AnnotateModels.send(:get_schema_info, klass, AnnotateModels::PREFIX, format_markdown: true, with_comment: true)).to eql(<<-EOS.strip_heredoc)
-        # #{AnnotateModels::PREFIX}
-        #
-        # Table name: `users`
-        #
-        # ### Columns
-        #
-        # Name              | Type               | Attributes
-        # ----------------- | ------------------ | ---------------------------
-        # **`id(ID)`**      | `integer`          | `not null, primary key`
-        # **`name(Name)`**  | `string(50)`       | `not null`
-        #
-        EOS
-      end
     end
   end
 
@@ -1508,7 +641,7 @@ end
                             mock_column(:id, :integer),
                             mock_column(:name, :string, limit: 50)
                           ])
-      @schema_info = AnnotateModels.send(:get_schema_info, @klass, '== Schema Info')
+      @schema_info = AnnotateModels::ModelClass.new(@klass).to_s('== Schema Info')
       Annotate.reset_options
     end
 
@@ -1573,7 +706,8 @@ end
     describe 'with existing annotation => :before' do
       before do
         annotate_one_file position: :before
-        another_schema_info = AnnotateModels.send(:get_schema_info, mock_class(:users, :id, [mock_column(:id, :integer)]), '== Schema Info')
+        klass = mock_class(:users, :id, [mock_column(:id, :integer)])
+        another_schema_info = AnnotateModels::ModelClass.new(klass).to_s('== Schema Info')
         @schema_info = another_schema_info
       end
 
@@ -1596,7 +730,8 @@ end
     describe 'with existing annotation => :after' do
       before do
         annotate_one_file position: :after
-        another_schema_info = AnnotateModels.send(:get_schema_info, mock_class(:users, :id, [mock_column(:id, :integer)]), '== Schema Info')
+        klass = mock_class(:users, :id, [mock_column(:id, :integer)])
+        another_schema_info = AnnotateModels::ModelClass.new(klass).to_s('== Schema Info')
         @schema_info = another_schema_info
       end
 
@@ -1617,10 +752,8 @@ end
     end
 
     it 'should skip columns with option[:ignore_columns] set' do
-      output = AnnotateModels.send(:get_schema_info,
-                                   @klass,
-                                   '== Schema Info',
-                                   :ignore_columns => '(id|updated_at|created_at)')
+      output = AnnotateModels::ModelClass.new(@klass)
+                                         .to_s('== Schema Info', ignore_columns: '(id|updated_at|created_at)')
       expect(output.match(/id/)).to be_nil
     end
 
@@ -1636,7 +769,7 @@ end
                            mock_column(:id, :integer),
                            mock_column(:name, :string, limit: 50)
                          ])
-      schema_info = AnnotateModels.send(:get_schema_info, klass, '== Schema Info')
+      schema_info = AnnotateModels::ModelClass.new(klass).to_s('== Schema Info')
       AnnotateModels.send(:annotate_one_file, model_file_name, schema_info, position: :before)
       expect(File.read(model_file_name)).to eq("#{schema_info}\n#{file_content}")
     end
@@ -1666,7 +799,7 @@ end
         model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
 
         annotate_one_file position: :before
-        schema_info = AnnotateModels.send(:get_schema_info, @klass, '== Schema Info')
+        schema_info = AnnotateModels::ModelClass.new(@klass).to_s('== Schema Info')
 
         expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}\n#{content}")
       end
@@ -1678,7 +811,7 @@ end
         model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
 
         annotate_one_file position: :after
-        schema_info = AnnotateModels.send(:get_schema_info, @klass, '== Schema Info')
+        schema_info = AnnotateModels::ModelClass.new(@klass).to_s('== Schema Info')
 
         expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{content}\n#{schema_info}")
       end
@@ -1761,17 +894,907 @@ end
     end
   end
 
-  describe 'SchemaInfo::ColInfo' do
+  describe 'ModelClass' do
+    describe '#to_s' do
+      it 'should get schema info with default options' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer, limit: 8),
+                             mock_column(:name, :string, limit: 50),
+                             mock_column(:notes, :text, limit: 55)
+                           ])
+
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info')).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id    :integer          not null, primary key
+          #  name  :string(50)       not null
+          #  notes :text(55)         not null
+          #
+        EOS
+      end
+
+      it 'should get schema info even if the primary key is not set' do
+        klass = mock_class(:users,
+                           nil,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:name, :string, limit: 50)
+                           ])
+
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info')).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id   :integer          not null
+          #  name :string(50)       not null
+          #
+        EOS
+      end
+
+      it 'should get schema info even if the primary key is array, if using composite_primary_keys' do
+        klass = mock_class(:users,
+                           [:a_id, :b_id],
+                           [
+                             mock_column(:a_id, :integer),
+                             mock_column(:b_id, :integer),
+                             mock_column(:name, :string, limit: 50)
+                           ])
+
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info')).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  a_id :integer          not null, primary key
+          #  b_id :integer          not null, primary key
+          #  name :string(50)       not null
+          #
+        EOS
+      end
+
+      it 'should get schema info with enum type' do
+        klass = mock_class(:users,
+                           nil,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:name, :enum, limit: [:enum1, :enum2])
+                           ])
+
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info')).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id   :integer          not null
+          #  name :enum             not null, (enum1, enum2)
+          #
+        EOS
+      end
+
+      it 'should get schema info with unsigned' do
+        klass = mock_class(:users,
+                           nil,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:integer, :integer, unsigned?: true),
+                             mock_column(:bigint,  :integer, unsigned?: true, bigint?: true),
+                             mock_column(:float,   :float,   unsigned?: true),
+                             mock_column(:decimal, :decimal, unsigned?: true, precision: 10, scale: 2),
+                           ])
+
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info')).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id      :integer          not null
+          #  integer :integer          unsigned, not null
+          #  bigint  :bigint           unsigned, not null
+          #  float   :float            unsigned, not null
+          #  decimal :decimal(10, 2)   unsigned, not null
+          #
+        EOS
+      end
+
+      it 'should get schema info for integer and boolean with default' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:size, :integer, default: 20),
+                             mock_column(:flag, :boolean, default: false)
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info')).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id   :integer          not null, primary key
+          #  size :integer          default(20), not null
+          #  flag :boolean          default(FALSE), not null
+          #
+        EOS
+      end
+
+      it 'should get foreign key info' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:foreign_thing_id, :integer)
+                           ],
+                           [],
+                           [
+                             mock_foreign_key('fk_rails_cf2568e89e',
+                                              'foreign_thing_id',
+                                              'foreign_things'),
+                             mock_foreign_key('custom_fk_name',
+                                              'other_thing_id',
+                                              'other_things'),
+                             mock_foreign_key('fk_rails_a70234b26c',
+                                              'third_thing_id',
+                                              'third_things')
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info', show_foreign_keys: true)).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id               :integer          not null, primary key
+          #  foreign_thing_id :integer          not null
+          #
+          # Foreign Keys
+          #
+          #  custom_fk_name  (other_thing_id => other_things.id)
+          #  fk_rails_...    (foreign_thing_id => foreign_things.id)
+          #  fk_rails_...    (third_thing_id => third_things.id)
+          #
+        EOS
+      end
+
+      it 'should get complete foreign key info' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:foreign_thing_id, :integer)
+                           ],
+                           [],
+                           [
+                             mock_foreign_key('fk_rails_cf2568e89e',
+                                              'foreign_thing_id',
+                                              'foreign_things'),
+                             mock_foreign_key('custom_fk_name',
+                                              'other_thing_id',
+                                              'other_things'),
+                             mock_foreign_key('fk_rails_a70234b26c',
+                                              'third_thing_id',
+                                              'third_things')
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info', show_foreign_keys: true, show_complete_foreign_keys: true)).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id               :integer          not null, primary key
+          #  foreign_thing_id :integer          not null
+          #
+          # Foreign Keys
+          #
+          #  custom_fk_name       (other_thing_id => other_things.id)
+          #  fk_rails_a70234b26c  (third_thing_id => third_things.id)
+          #  fk_rails_cf2568e89e  (foreign_thing_id => foreign_things.id)
+          #
+        EOS
+      end
+
+      it 'should get foreign key info if on_delete/on_update options present' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:foreign_thing_id, :integer)
+                           ],
+                           [],
+                           [
+                             mock_foreign_key('fk_rails_02e851e3b7',
+                                              'foreign_thing_id',
+                                              'foreign_things',
+                                              'id',
+                                              on_delete: 'on_delete_value',
+                                              on_update: 'on_update_value')
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info', show_foreign_keys: true)).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id               :integer          not null, primary key
+          #  foreign_thing_id :integer          not null
+          #
+          # Foreign Keys
+          #
+          #  fk_rails_...  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
+          #
+        EOS
+      end
+
+      it 'should get indexes keys' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:foreign_thing_id, :integer)
+                           ], [mock_index('index_rails_02e851e3b7', columns: ['id']),
+                           mock_index('index_rails_02e851e3b8', columns: ['foreign_thing_id'])])
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info', show_indexes: true)).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id               :integer          not null, primary key
+          #  foreign_thing_id :integer          not null
+          #
+          # Indexes
+          #
+          #  index_rails_02e851e3b7  (id)
+          #  index_rails_02e851e3b8  (foreign_thing_id)
+          #
+        EOS
+      end
+
+      it 'should get ordered indexes keys' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column("id", :integer),
+                             mock_column("firstname", :string),
+                             mock_column("surname", :string),
+                             mock_column("value", :string)
+                           ],
+                           [
+                             mock_index('index_rails_02e851e3b7', columns: ['id']),
+                             mock_index('index_rails_02e851e3b8',
+                                        columns: %w(firstname surname value),
+                                        orders: { 'surname' => :asc, 'value' => :desc })
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info', show_indexes: true)).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id        :integer          not null, primary key
+          #  firstname :string           not null
+          #  surname   :string           not null
+          #  value     :string           not null
+          #
+          # Indexes
+          #
+          #  index_rails_02e851e3b7  (id)
+          #  index_rails_02e851e3b8  (firstname,surname ASC,value DESC)
+          #
+        EOS
+      end
+
+      it 'should get indexes keys with where clause' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column("id", :integer),
+                             mock_column("firstname", :string),
+                             mock_column("surname", :string),
+                             mock_column("value", :string)
+                           ],
+                           [
+                             mock_index('index_rails_02e851e3b7', columns: ['id']),
+                             mock_index('index_rails_02e851e3b8',
+                                        columns: %w(firstname surname),
+                                        where: 'value IS NOT NULL')
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info', show_indexes: true)).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id        :integer          not null, primary key
+          #  firstname :string           not null
+          #  surname   :string           not null
+          #  value     :string           not null
+          #
+          # Indexes
+          #
+          #  index_rails_02e851e3b7  (id)
+          #  index_rails_02e851e3b8  (firstname,surname) WHERE value IS NOT NULL
+          #
+        EOS
+      end
+
+      it 'should get indexes keys with using clause other than btree' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column("id", :integer),
+                             mock_column("firstname", :string),
+                             mock_column("surname", :string),
+                             mock_column("value", :string)
+                           ],
+                           [
+                             mock_index('index_rails_02e851e3b7', columns: ['id']),
+                             mock_index('index_rails_02e851e3b8',
+                                        columns: %w(firstname surname),
+                                        using: 'hash')
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info', show_indexes: true)).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id        :integer          not null, primary key
+          #  firstname :string           not null
+          #  surname   :string           not null
+          #  value     :string           not null
+          #
+          # Indexes
+          #
+          #  index_rails_02e851e3b7  (id)
+          #  index_rails_02e851e3b8  (firstname,surname) USING hash
+          #
+        EOS
+      end
+
+      it 'should get simple indexes keys' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:foreign_thing_id, :integer)
+                           ],
+                           [
+                             mock_index('index_rails_02e851e3b7', columns: ['id']),
+                             mock_index('index_rails_02e851e3b8',
+                                        columns: ['foreign_thing_id'],
+                                        orders: { 'foreign_thing_id' => :desc })
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info', simple_indexes: true)).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id               :integer          not null, primary key
+          #  foreign_thing_id :integer          not null
+          #
+        EOS
+      end
+
+      it 'should get simple indexes keys if one is in string form' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column("id", :integer),
+                             mock_column("name", :string)
+                           ], [mock_index('index_rails_02e851e3b7', columns: ['id']),
+                           mock_index('index_rails_02e851e3b8', columns: 'LOWER(name)')])
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info', simple_indexes: true)).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id   :integer          not null, primary key, indexed
+          #  name :string           not null
+          #
+        EOS
+      end
+
+      it 'should not crash getting indexes keys' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:foreign_thing_id, :integer)
+                           ], [])
+        expect(AnnotateModels::ModelClass.new(klass).to_s('Schema Info', show_indexes: true)).to eql(<<-EOS.strip_heredoc)
+          # Schema Info
+          #
+          # Table name: users
+          #
+          #  id               :integer          not null, primary key
+          #  foreign_thing_id :integer          not null
+          #
+        EOS
+      end
+
+      it 'should get schema info as RDoc' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:name, :string, limit: 50)
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s(AnnotateModels::PREFIX, format_rdoc: true)).to eql(<<-EOS.strip_heredoc)
+          # #{AnnotateModels::PREFIX}
+          #
+          # Table name: users
+          #
+          # *id*::   <tt>integer, not null, primary key</tt>
+          # *name*:: <tt>string(50), not null</tt>
+          #--
+          # #{AnnotateModels::END_MARK}
+          #++
+        EOS
+      end
+
+      it 'should get schema info as Markdown' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:name, :string, limit: 50)
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s(AnnotateModels::PREFIX, format_markdown: true)).to eql(<<-EOS.strip_heredoc)
+          # #{AnnotateModels::PREFIX}
+          #
+          # Table name: `users`
+          #
+          # ### Columns
+          #
+          # Name        | Type               | Attributes
+          # ----------- | ------------------ | ---------------------------
+          # **`id`**    | `integer`          | `not null, primary key`
+          # **`name`**  | `string(50)`       | `not null`
+          #
+        EOS
+      end
+
+      it 'should get schema info as Markdown with foreign keys' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:foreign_thing_id, :integer)
+                           ],
+                           [],
+                           [
+                             mock_foreign_key('fk_rails_02e851e3b7',
+                                              'foreign_thing_id',
+                                              'foreign_things',
+                                              'id',
+                                              on_delete: 'on_delete_value',
+                                              on_update: 'on_update_value')
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s(AnnotateModels::PREFIX, format_markdown: true, show_foreign_keys: true)).to eql(<<-EOS.strip_heredoc)
+          # #{AnnotateModels::PREFIX}
+          #
+          # Table name: `users`
+          #
+          # ### Columns
+          #
+          # Name                    | Type               | Attributes
+          # ----------------------- | ------------------ | ---------------------------
+          # **`id`**                | `integer`          | `not null, primary key`
+          # **`foreign_thing_id`**  | `integer`          | `not null`
+          #
+          # ### Foreign Keys
+          #
+          # * `fk_rails_...` (_ON DELETE => on_delete_value ON UPDATE => on_update_value_):
+          #     * **`foreign_thing_id => foreign_things.id`**
+          #
+        EOS
+      end
+
+      it 'should get schema info as Markdown with indexes' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:name, :string, limit: 50)
+                           ],
+                           [
+                             mock_index('index_rails_02e851e3b7', columns: ['id']),
+                             mock_index('index_rails_02e851e3b8',
+                                        columns: ['foreign_thing_id'])
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s(AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS.strip_heredoc)
+          # #{AnnotateModels::PREFIX}
+          #
+          # Table name: `users`
+          #
+          # ### Columns
+          #
+          # Name        | Type               | Attributes
+          # ----------- | ------------------ | ---------------------------
+          # **`id`**    | `integer`          | `not null, primary key`
+          # **`name`**  | `string(50)`       | `not null`
+          #
+          # ### Indexes
+          #
+          # * `index_rails_02e851e3b7`:
+          #     * **`id`**
+          # * `index_rails_02e851e3b8`:
+          #     * **`foreign_thing_id`**
+          #
+        EOS
+      end
+
+      it 'should get schema info as Markdown with unique indexes' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:name, :string, limit: 50)
+                           ],
+                           [
+                             mock_index('index_rails_02e851e3b7', columns: ['id']),
+                             mock_index('index_rails_02e851e3b8',
+                                        columns: ['foreign_thing_id'],
+                                        unique: true)
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s(AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS.strip_heredoc)
+          # #{AnnotateModels::PREFIX}
+          #
+          # Table name: `users`
+          #
+          # ### Columns
+          #
+          # Name        | Type               | Attributes
+          # ----------- | ------------------ | ---------------------------
+          # **`id`**    | `integer`          | `not null, primary key`
+          # **`name`**  | `string(50)`       | `not null`
+          #
+          # ### Indexes
+          #
+          # * `index_rails_02e851e3b7`:
+          #     * **`id`**
+          # * `index_rails_02e851e3b8` (_unique_):
+          #     * **`foreign_thing_id`**
+          #
+        EOS
+      end
+
+      it 'should get schema info as Markdown with ordered indexes' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:name, :string, limit: 50)
+                           ],
+                           [
+                             mock_index('index_rails_02e851e3b7', columns: ['id']),
+                             mock_index('index_rails_02e851e3b8',
+                                        columns: ['foreign_thing_id'],
+                                        orders: { 'foreign_thing_id' => :desc })
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s(AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS.strip_heredoc)
+          # #{AnnotateModels::PREFIX}
+          #
+          # Table name: `users`
+          #
+          # ### Columns
+          #
+          # Name        | Type               | Attributes
+          # ----------- | ------------------ | ---------------------------
+          # **`id`**    | `integer`          | `not null, primary key`
+          # **`name`**  | `string(50)`       | `not null`
+          #
+          # ### Indexes
+          #
+          # * `index_rails_02e851e3b7`:
+          #     * **`id`**
+          # * `index_rails_02e851e3b8`:
+          #     * **`foreign_thing_id DESC`**
+          #
+        EOS
+      end
+
+      it 'should get schema info as Markdown with indexes with WHERE clause' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:name, :string, limit: 50)
+                           ],
+                           [
+                             mock_index('index_rails_02e851e3b7', columns: ['id']),
+                             mock_index('index_rails_02e851e3b8',
+                                        columns: ['foreign_thing_id'],
+                                        unique: true,
+                                        where: 'name IS NOT NULL')
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s(AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS.strip_heredoc)
+          # #{AnnotateModels::PREFIX}
+          #
+          # Table name: `users`
+          #
+          # ### Columns
+          #
+          # Name        | Type               | Attributes
+          # ----------- | ------------------ | ---------------------------
+          # **`id`**    | `integer`          | `not null, primary key`
+          # **`name`**  | `string(50)`       | `not null`
+          #
+          # ### Indexes
+          #
+          # * `index_rails_02e851e3b7`:
+          #     * **`id`**
+          # * `index_rails_02e851e3b8` (_unique_ _where_ name IS NOT NULL):
+          #     * **`foreign_thing_id`**
+          #
+        EOS
+      end
+
+      it 'should get schema info as Markdown with indexes with using clause other than btree' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:name, :string, limit: 50)
+                           ],
+                           [
+                             mock_index('index_rails_02e851e3b7', columns: ['id']),
+                             mock_index('index_rails_02e851e3b8',
+                                        columns: ['foreign_thing_id'],
+                                        using: 'hash')
+                           ])
+        expect(AnnotateModels::ModelClass.new(klass).to_s(AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS.strip_heredoc)
+          # #{AnnotateModels::PREFIX}
+          #
+          # Table name: `users`
+          #
+          # ### Columns
+          #
+          # Name        | Type               | Attributes
+          # ----------- | ------------------ | ---------------------------
+          # **`id`**    | `integer`          | `not null, primary key`
+          # **`name`**  | `string(50)`       | `not null`
+          #
+          # ### Indexes
+          #
+          # * `index_rails_02e851e3b7`:
+          #     * **`id`**
+          # * `index_rails_02e851e3b8` (_using_ hash):
+          #     * **`foreign_thing_id`**
+          #
+        EOS
+      end
+
+      context 'with custom options' do
+        def self.when_called_with(options = {})
+          expected = options.delete(:returns)
+          default_columns = [
+            [:id, :integer, { limit: 8 }],
+            [:active, :boolean, { limit: 1 }],
+            [:name, :string, { limit: 50 }],
+            [:notes, :text, { limit: 55 }]
+          ]
+
+          it "should work with options = #{options}" do
+            with_columns = (options.delete(:with_columns) || default_columns).map do |column|
+              mock_column(column[0], column[1], column[2])
+            end
+
+            klass = mock_class(:users, :id, with_columns)
+
+            schema_info = AnnotateModels::ModelClass.new(klass).to_s('Schema Info', options)
+            expect(schema_info).to eql(expected)
+          end
+        end
+
+        describe 'hide_limit_column_types option' do
+          when_called_with hide_limit_column_types: '',
+                           returns:
+            <<-EOS.strip_heredoc
+              # Schema Info
+              #
+              # Table name: users
+              #
+              #  id     :integer          not null, primary key
+              #  active :boolean          not null
+              #  name   :string(50)       not null
+              #  notes  :text(55)         not null
+              #
+            EOS
+
+          when_called_with hide_limit_column_types: 'integer,boolean',
+                           returns:
+            <<-EOS.strip_heredoc
+              # Schema Info
+              #
+              # Table name: users
+              #
+              #  id     :integer          not null, primary key
+              #  active :boolean          not null
+              #  name   :string(50)       not null
+              #  notes  :text(55)         not null
+              #
+            EOS
+
+          when_called_with hide_limit_column_types: 'integer,boolean,string,text',
+                           returns:
+            <<-EOS.strip_heredoc
+              # Schema Info
+              #
+              # Table name: users
+              #
+              #  id     :integer          not null, primary key
+              #  active :boolean          not null
+              #  name   :string           not null
+              #  notes  :text             not null
+              #
+            EOS
+        end
+
+        describe 'hide_default_column_types option' do
+          mocked_columns_without_id = [
+            [:profile, :json, default: {}],
+            [:settings, :jsonb, default: {}],
+            [:parameters, :hstore, default: {}]
+          ]
+
+          when_called_with hide_default_column_types: '',
+                           with_columns: mocked_columns_without_id,
+                           returns:
+            <<-EOS.strip_heredoc
+              # Schema Info
+              #
+              # Table name: users
+              #
+              #  profile    :json             not null
+              #  settings   :jsonb            not null
+              #  parameters :hstore           not null
+              #
+            EOS
+
+          when_called_with hide_default_column_types: 'skip',
+                           with_columns: mocked_columns_without_id,
+                           returns:
+            <<-EOS.strip_heredoc
+              # Schema Info
+              #
+              # Table name: users
+              #
+              #  profile    :json             default({}), not null
+              #  settings   :jsonb            default({}), not null
+              #  parameters :hstore           default({}), not null
+              #
+            EOS
+
+          when_called_with hide_default_column_types: 'json',
+                           with_columns: mocked_columns_without_id,
+                           returns:
+            <<-EOS.strip_heredoc
+              # Schema Info
+              #
+              # Table name: users
+              #
+              #  profile    :json             not null
+              #  settings   :jsonb            default({}), not null
+              #  parameters :hstore           default({}), not null
+              #
+            EOS
+        end
+
+        describe 'classified_sort option' do
+          mocked_columns_without_id = [
+            [:active, :boolean, { limit: 1 }],
+            [:name, :string, { limit: 50 }],
+            [:notes, :text, { limit: 55 }]
+          ]
+
+          when_called_with classified_sort: 'yes',
+                           with_columns: mocked_columns_without_id,
+                           returns:
+            <<-EOS.strip_heredoc
+              # Schema Info
+              #
+              # Table name: users
+              #
+              #  active :boolean          not null
+              #  name   :string(50)       not null
+              #  notes  :text(55)         not null
+              #
+            EOS
+        end
+
+        describe 'with_comment option' do
+          mocked_columns_with_comment = [
+            [:id,         :integer, { limit: 8,  comment: 'ID' }],
+            [:active,     :boolean, { limit: 1,  comment: 'Active' }],
+            [:name,       :string,  { limit: 50, comment: 'Name' }],
+            [:notes,      :text,    { limit: 55, comment: 'Notes' }],
+            [:no_comment, :text,    { limit: 20, comment: nil }]
+          ]
+
+          when_called_with with_comment: 'yes',
+                           with_columns: mocked_columns_with_comment,
+                           returns:
+            <<-EOS.strip_heredoc
+              # Schema Info
+              #
+              # Table name: users
+              #
+              #  id(ID)         :integer          not null, primary key
+              #  active(Active) :boolean          not null
+              #  name(Name)     :string(50)       not null
+              #  notes(Notes)   :text(55)         not null
+              #  no_comment     :text(20)         not null
+              #
+            EOS
+
+          it 'should get schema info as RDoc' do
+            klass = mock_class(:users,
+                               :id,
+                               [
+                                 mock_column(:id, :integer, comment: 'ID'),
+                                 mock_column(:name, :string, limit: 50, comment: 'Name')
+                               ])
+            expect(AnnotateModels::ModelClass.new(klass).to_s(AnnotateModels::PREFIX, format_rdoc: true, with_comment: true)).to eql(<<-EOS.strip_heredoc)
+              # #{AnnotateModels::PREFIX}
+              #
+              # Table name: users
+              #
+              # *id(ID)*::     <tt>integer, not null, primary key</tt>
+              # *name(Name)*:: <tt>string(50), not null</tt>
+              #--
+              # #{AnnotateModels::END_MARK}
+              #++
+            EOS
+          end
+
+          it 'should get schema info as Markdown' do
+            klass = mock_class(:users,
+                               :id,
+                               [
+                                 mock_column(:id, :integer, comment: 'ID'),
+                                 mock_column(:name, :string, limit: 50, comment: 'Name')
+                               ])
+            expect(AnnotateModels::ModelClass.new(klass).to_s(AnnotateModels::PREFIX, format_markdown: true, with_comment: true)).to eql(<<-EOS.strip_heredoc)
+              # #{AnnotateModels::PREFIX}
+              #
+              # Table name: `users`
+              #
+              # ### Columns
+              #
+              # Name              | Type               | Attributes
+              # ----------------- | ------------------ | ---------------------------
+              # **`id(ID)`**      | `integer`          | `not null, primary key`
+              # **`name(Name)`**  | `string(50)`       | `not null`
+              #
+            EOS
+          end
+        end
+      end
+    end
+  end
+
+  describe 'ModelClass::Col' do
     describe '.#quote' do
+      let :col { mock_column(:id, :integer, limit: 8) }
+      let :model_class do
+        AnnotateModels::ModelClass.new(
+          mock_class(
+            :users,
+            :id,
+            [
+              col,
+              mock_column(:name, :string, limit: 50, comment: 'Name')
+            ]
+          )
+        )
+      end
+
       it 'converts values to the default column value as a string' do
-        expect(AnnotateModels::SchemaInfo::ColInfo.send(:quote, nil)).to eql('NULL')
-        expect(AnnotateModels::SchemaInfo::ColInfo.send(:quote, true)).to eql('TRUE')
-        expect(AnnotateModels::SchemaInfo::ColInfo.send(:quote, false)).to eql('FALSE')
-        expect(AnnotateModels::SchemaInfo::ColInfo.send(:quote, 25)).to eql('25')
-        expect(AnnotateModels::SchemaInfo::ColInfo.send(:quote, 25.6)).to eql('25.6')
-        expect(AnnotateModels::SchemaInfo::ColInfo.send(:quote, 1e-20)).to eql('1.0e-20')
-        expect(AnnotateModels::SchemaInfo::ColInfo.send(:quote, BigDecimal.new('1.2'))).to eql('1.2')
-        expect(AnnotateModels::SchemaInfo::ColInfo.send(:quote, [BigDecimal.new('1.2')])).to eql(['1.2'])
+        expect(AnnotateModels::ModelClass::Col.new(col, model_class).send(:quote, nil)).to eql('NULL')
+        expect(AnnotateModels::ModelClass::Col.new(col, model_class).send(:quote, true)).to eql('TRUE')
+        expect(AnnotateModels::ModelClass::Col.new(col, model_class).send(:quote, false)).to eql('FALSE')
+        expect(AnnotateModels::ModelClass::Col.new(col, model_class).send(:quote, 25)).to eql('25')
+        expect(AnnotateModels::ModelClass::Col.new(col, model_class).send(:quote, 25.6)).to eql('25.6')
+        expect(AnnotateModels::ModelClass::Col.new(col, model_class).send(:quote, 1e-20)).to eql('1.0e-20')
+        expect(AnnotateModels::ModelClass::Col.new(col, model_class).send(:quote, BigDecimal.new('1.2'))).to eql('1.2')
+        expect(AnnotateModels::ModelClass::Col.new(col, model_class).send(:quote, [BigDecimal.new('1.2')])).to eql(['1.2'])
       end
     end
   end

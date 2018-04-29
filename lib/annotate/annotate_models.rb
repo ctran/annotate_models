@@ -2,8 +2,8 @@
 
 require 'bigdecimal'
 
+require_relative './annotate_models/model_class'
 require_relative './annotate_models/files'
-require_relative './annotate_models/schema_info'
 require_relative './annotate_models/bad_model_file_error'
 
 module AnnotateModels
@@ -260,9 +260,10 @@ module AnnotateModels
     def annotate(klass, file, header, options = {})
       begin
         klass.reset_column_information
-        info = get_schema_info(klass, header, options)
-        model_name = klass.name.underscore
-        table_name = klass.table_name
+        wrapped_klass = ModelClass.new(klass)
+        info = wrapped_klass.to_s(header, options)
+        model_name = wrapped_klass.model_name
+        table_name = wrapped_klass.table_name
         model_file_name = File.join(file)
         annotated = []
 
@@ -295,14 +296,6 @@ module AnnotateModels
       end
 
       annotated
-    end
-
-    # Use the column information in an ActiveRecord class
-    # to create a comment block containing a line for
-    # each column. The line contains the column name,
-    # the type (and length), and any optional attributes
-    def get_schema_info(klass, header, options = {})
-      SchemaInfo.generate(klass, header, options)
     end
 
     # Add a schema block to a file. If the file already contains
