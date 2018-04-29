@@ -133,23 +133,6 @@ module AnnotateModels
       end
     end
 
-    def final_index_string_in_markdown(index)
-      details = sprintf(
-        "%s%s%s",
-        index_unique_info(index, :markdown),
-        index_where_info(index, :markdown),
-        index_using_info(index, :markdown)
-      ).strip
-      details = " (#{details})" unless details.blank?
-
-      sprintf(
-        "# * `%s`%s:\n#     * **`%s`**\n",
-        index.name,
-        details,
-        index_columns_info(index).join("`**\n#     * **`")
-      )
-    end
-
     def final_index_string(index, max_size)
       sprintf(
         "#  %-#{max_size}.#{max_size}s %s%s%s%s",
@@ -874,6 +857,23 @@ module AnnotateModels
         .gsub('%MODEL_NAME%', model_name)
         .gsub('%PLURALIZED_MODEL_NAME%', model_name.pluralize)
         .gsub('%TABLE_NAME%', table_name || model_name.pluralize)
+    end
+
+    def final_index_string_in_markdown(index)
+      details = sprintf(
+        "%s%s%s",
+        index_unique_info(index, :markdown),
+        index_where_info(index, :markdown),
+        index_using_info(index, :markdown)
+      ).strip
+      details = " (#{details})" unless details.blank?
+
+      sprintf(
+        "# * `%s`%s:\n#     * **`%s`**\n",
+        index.name,
+        details,
+        index_columns_info(index).join("`**\n#     * **`")
+      )
     end
 
     def with_comments?(klass, options)
