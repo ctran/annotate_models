@@ -44,6 +44,8 @@ module AnnotateRoutes
       end
     end
 
+    private
+
     def annotate_routes(header, content, header_position, options = {})
       magic_comments_map, content = extract_magic_comments_from_array(content)
       if %w(before top).include?(options[:position_in_routes])
@@ -64,8 +66,6 @@ module AnnotateRoutes
 
       new_content
     end
-
-    private
 
     def header(options = {})
       routes_map = app_routes_map(options)
