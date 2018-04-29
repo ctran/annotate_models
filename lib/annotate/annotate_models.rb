@@ -119,69 +119,6 @@ module AnnotateModels
       true
     end
 
-    # Given the name of an ActiveRecord class, create a schema
-    # info block (basically a comment containing information
-    # on the columns and their types) and put it at the front
-    # of the model and fixture source files.
-    #
-    # === Options (opts)
-    #  :position_in_class<Symbol>:: where to place the annotated section in model file
-    #  :position_in_test<Symbol>:: where to place the annotated section in test/spec file(s)
-    #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
-    #  :position_in_factory<Symbol>:: where to place the annotated section in factory file
-    #  :position_in_serializer<Symbol>:: where to place the annotated section in serializer file
-    #  :exclude_tests<Symbol>:: whether to skip modification of test/spec files
-    #  :exclude_fixtures<Symbol>:: whether to skip modification of fixture files
-    #  :exclude_factories<Symbol>:: whether to skip modification of factory files
-    #  :exclude_serializers<Symbol>:: whether to skip modification of serializer files
-    #  :exclude_scaffolds<Symbol>:: whether to skip modification of scaffold files
-    #  :exclude_controllers<Symbol>:: whether to skip modification of controller files
-    #  :exclude_helpers<Symbol>:: whether to skip modification of helper files
-    #  :exclude_sti_subclasses<Symbol>:: whether to skip modification of files for STI subclasses
-    #
-    # == Returns:
-    # an array of file names that were annotated.
-    #
-    def annotate(klass, file, header, options = {})
-      begin
-        klass.reset_column_information
-        info = get_schema_info(klass, header, options)
-        model_name = klass.name.underscore
-        table_name = klass.table_name
-        model_file_name = File.join(file)
-        annotated = []
-
-        if annotate_one_file(model_file_name, info, :position_in_class, options_with_position(options, :position_in_class))
-          annotated << model_file_name
-        end
-
-        matched_types(options).each do |key|
-          exclusion_key = "exclude_#{key.pluralize}".to_sym
-          position_key = "position_in_#{key}".to_sym
-
-          # Same options for active_admin models
-          if key == 'admin'
-            exclusion_key = 'exclude_class'.to_sym
-            position_key = 'position_in_class'.to_sym
-          end
-
-          next if options[exclusion_key]
-          get_patterns(key)
-            .map { |f| resolve_filename(f, model_name, table_name) }
-            .each do |f|
-              if annotate_one_file(f, info, position_key, options_with_position(options, position_key))
-                annotated << f
-              end
-            end
-        end
-      rescue StandardError => e
-        $stderr.puts "Unable to annotate #{file}: #{e.message}"
-        $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
-      end
-
-      annotated
-    end
-
     # We're passed a name of things that might be
     # ActiveRecord models. If we can find the class, and
     # if its a subclass of ActiveRecord::Base,
@@ -449,6 +386,69 @@ module AnnotateModels
       $stderr.puts "Either specify models on the command line, or use the --model-dir option."
       $stderr.puts "Call 'annotate --help' for more info."
       exit 1
+    end
+
+    # Given the name of an ActiveRecord class, create a schema
+    # info block (basically a comment containing information
+    # on the columns and their types) and put it at the front
+    # of the model and fixture source files.
+    #
+    # === Options (opts)
+    #  :position_in_class<Symbol>:: where to place the annotated section in model file
+    #  :position_in_test<Symbol>:: where to place the annotated section in test/spec file(s)
+    #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
+    #  :position_in_factory<Symbol>:: where to place the annotated section in factory file
+    #  :position_in_serializer<Symbol>:: where to place the annotated section in serializer file
+    #  :exclude_tests<Symbol>:: whether to skip modification of test/spec files
+    #  :exclude_fixtures<Symbol>:: whether to skip modification of fixture files
+    #  :exclude_factories<Symbol>:: whether to skip modification of factory files
+    #  :exclude_serializers<Symbol>:: whether to skip modification of serializer files
+    #  :exclude_scaffolds<Symbol>:: whether to skip modification of scaffold files
+    #  :exclude_controllers<Symbol>:: whether to skip modification of controller files
+    #  :exclude_helpers<Symbol>:: whether to skip modification of helper files
+    #  :exclude_sti_subclasses<Symbol>:: whether to skip modification of files for STI subclasses
+    #
+    # == Returns:
+    # an array of file names that were annotated.
+    #
+    def annotate(klass, file, header, options = {})
+      begin
+        klass.reset_column_information
+        info = get_schema_info(klass, header, options)
+        model_name = klass.name.underscore
+        table_name = klass.table_name
+        model_file_name = File.join(file)
+        annotated = []
+
+        if annotate_one_file(model_file_name, info, :position_in_class, options_with_position(options, :position_in_class))
+          annotated << model_file_name
+        end
+
+        matched_types(options).each do |key|
+          exclusion_key = "exclude_#{key.pluralize}".to_sym
+          position_key = "position_in_#{key}".to_sym
+
+          # Same options for active_admin models
+          if key == 'admin'
+            exclusion_key = 'exclude_class'.to_sym
+            position_key = 'position_in_class'.to_sym
+          end
+
+          next if options[exclusion_key]
+          get_patterns(key)
+            .map { |f| resolve_filename(f, model_name, table_name) }
+            .each do |f|
+              if annotate_one_file(f, info, position_key, options_with_position(options, position_key))
+                annotated << f
+              end
+            end
+        end
+      rescue StandardError => e
+        $stderr.puts "Unable to annotate #{file}: #{e.message}"
+        $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+      end
+
+      annotated
     end
   end
 
