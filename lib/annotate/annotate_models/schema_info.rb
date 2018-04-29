@@ -127,12 +127,6 @@ module AnnotateModels
         max_size
       end
 
-      def with_comments?(klass, options)
-        options[:with_comment] &&
-          klass.columns.first.respond_to?(:comment) &&
-          klass.columns.any? { |col| !col.comment.nil? }
-      end
-
       def classified_sort(cols)
         rest_cols = []
         timestamps = []
@@ -214,6 +208,12 @@ module AnnotateModels
         # Try to search the table without prefix
         table_name_without_prefix = table_name.to_s.sub(klass.table_name_prefix, '')
         klass.connection.indexes(table_name_without_prefix)
+      end
+
+      def with_comments?(klass, options)
+        options[:with_comment] &&
+          klass.columns.first.respond_to?(:comment) &&
+          klass.columns.any? { |col| !col.comment.nil? }
       end
 
       def get_index_info(klass, options = {})

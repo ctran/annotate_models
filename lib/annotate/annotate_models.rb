@@ -120,89 +120,6 @@ module AnnotateModels
 
     private
 
-    def annotate_pattern(options = {})
-      if options[:wrapper_open]
-        return /(?:^(\n|\r\n)?# (?:#{options[:wrapper_open]}).*(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*)|^(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*/
-      end
-      /^(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*/
-    end
-
-    def get_patterns(pattern_types = [])
-      current_patterns = []
-      root_dir.each do |root_directory|
-        Array(pattern_types).each do |pattern_type|
-          current_patterns += files_by_pattern(root_directory, pattern_type)
-        end
-      end
-      current_patterns.map { |p| p.sub(/^[\/]*/, '') }
-    end
-
-    def files_by_pattern(root_directory, pattern_type)
-      Files.by_pattern(root_directory, pattern_type)
-    end
-
-    # Use the column information in an ActiveRecord class
-    # to create a comment block containing a line for
-    # each column. The line contains the column name,
-    # the type (and length), and any optional attributes
-    def get_schema_info(klass, header, options = {})
-      SchemaInfo.generate(klass, header, options)
-    end
-
-    def resolve_filename(filename_template, model_name, table_name)
-      filename_template
-        .gsub('%MODEL_NAME%', model_name)
-        .gsub('%PLURALIZED_MODEL_NAME%', model_name.pluralize)
-        .gsub('%TABLE_NAME%', table_name || model_name.pluralize)
-    end
-
-    def magic_comments_as_string(content)
-      magic_comments = content.scan(magic_comment_matcher).flatten.compact
-
-      if magic_comments.any?
-        magic_comments.join + "\n"
-      else
-        ''
-      end
-    end
-
-    def magic_comment_matcher
-      Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/)
-    end
-
-    def matched_types(options)
-      types = MATCHED_TYPES
-      types << 'admin' if options[:active_admin] =~ TRUE_RE && !types.include?('admin')
-
-      types
-    end
-
-    # position = :position_in_fixture or :position_in_class
-    def options_with_position(options, position_in)
-      options.merge(position: (options[position_in] || options[:position]))
-    end
-
-    def list_model_files_from_argument
-      return [] if ARGV.empty?
-
-      specified_files = ARGV.map { |file| File.expand_path(file) }
-
-      model_files = model_dir.flat_map do |dir|
-        absolute_dir_path = File.expand_path(dir)
-        specified_files
-          .find_all { |file| file.start_with?(absolute_dir_path) }
-          .map { |file| [dir, file.sub("#{absolute_dir_path}/", '')] }
-      end
-
-      if model_files.size != specified_files.size
-        puts "The specified file could not be found in directory '#{model_dir.join("', '")}'."
-        puts "Call 'annotate --help' for more info."
-        exit 1
-      end
-
-      model_files
-    end
-
     def parse_options(options = {})
       self.model_dir = split_model_dir(options[:model_dir]) if options[:model_dir]
       self.root_dir = options[:root_dir] if options[:root_dir]
@@ -211,92 +128,6 @@ module AnnotateModels
     def split_model_dir(option_value)
       option_value = option_value.is_a?(Array) ? option_value : option_value.split(',')
       option_value.map(&:strip).reject(&:empty?)
-    end
-
-    # Retrieve loaded model class
-    def get_loaded_model(model_path, file)
-      loaded_model_class = get_loaded_model_by_path(model_path)
-      return loaded_model_class if loaded_model_class
-
-      # We cannot get loaded model when `model_path` is loaded by Rails
-      # auto_load/eager_load paths. Try all possible model paths one by one.
-      absolute_file = File.expand_path(file)
-      model_paths =
-        $LOAD_PATH.select { |path| absolute_file.include?(path) }
-                  .map { |path| absolute_file.sub(path, '').sub(/\.rb$/, '').sub(/^\//, '') }
-      model_paths
-        .map { |path| get_loaded_model_by_path(path) }
-        .find { |loaded_model| !loaded_model.nil? }
-    end
-
-    def remove_annotation_of_file(file_name, options = {})
-      return false unless File.exist?(file_name)
-
-      content = File.read(file_name)
-      return false if content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
-
-      wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ''
-      content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, '')
-
-      File.open(file_name, 'wb') { |f| f.puts content }
-      true
-    end
-
-    # Retrieve the classes belonging to the model names we're asked to process
-    # Check for namespaced models in subdirectories as well as models
-    # in subdirectories without namespacing.
-    def get_model_class(file)
-      model_path = file.gsub(/\.rb$/, '')
-      model_dir.each { |dir| model_path = model_path.gsub(/^#{dir}/, '').gsub(/^\//, '') }
-      begin
-        get_loaded_model(model_path, file) || raise(BadModelFileError.new)
-      rescue LoadError
-        # this is for non-rails projects, which don't get Rails auto-require magic
-        file_path = File.expand_path(file)
-        if File.file?(file_path) && Kernel.require(file_path)
-          retry
-        elsif model_path =~ /\//
-          model_path = model_path.split('/')[1..-1].join('/').to_s
-          retry
-        else
-          raise
-        end
-      end
-    end
-
-    # Retrieve loaded model class by path to the file where it's supposed to be defined.
-    def get_loaded_model_by_path(model_path)
-      ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
-    rescue StandardError, LoadError
-      # Revert to the old way but it is not really robust
-      ObjectSpace.each_object(::Class)
-                 .select do |c|
-                    Class === c && # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
-                      c.ancestors.respond_to?(:include?) && # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
-                      c.ancestors.include?(ActiveRecord::Base)
-                  end.detect { |c| ActiveSupport::Inflector.underscore(c.to_s) == model_path }
-    end
-
-    def annotate_model_file(annotated, file, header, options)
-      begin
-        return false if /#{SKIP_ANNOTATION_PREFIX}.*/ =~ (File.exist?(file) ? File.read(file) : '')
-        klass = get_model_class(file)
-        do_annotate = klass &&
-          klass < ActiveRecord::Base &&
-          (!options[:exclude_sti_subclasses] || !(klass.superclass < ActiveRecord::Base && klass.table_name == klass.superclass.table_name)) &&
-          !klass.abstract_class? &&
-          klass.table_exists?
-
-        annotated.concat(annotate(klass, file, header, options)) if do_annotate
-      rescue BadModelFileError => e
-        unless options[:ignore_unknown_models]
-          $stderr.puts "Unable to annotate #{file}: #{e.message}"
-          $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
-        end
-      rescue StandardError => e
-        $stderr.puts "Unable to annotate #{file}: #{e.message}"
-        $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
-      end
     end
 
     # Return a list of the model files to annotate.
@@ -327,6 +158,100 @@ module AnnotateModels
       $stderr.puts "Either specify models on the command line, or use the --model-dir option."
       $stderr.puts "Call 'annotate --help' for more info."
       exit 1
+    end
+
+    def list_model_files_from_argument
+      return [] if ARGV.empty?
+
+      specified_files = ARGV.map { |file| File.expand_path(file) }
+
+      model_files = model_dir.flat_map do |dir|
+        absolute_dir_path = File.expand_path(dir)
+        specified_files
+          .find_all { |file| file.start_with?(absolute_dir_path) }
+          .map { |file| [dir, file.sub("#{absolute_dir_path}/", '')] }
+      end
+
+      if model_files.size != specified_files.size
+        puts "The specified file could not be found in directory '#{model_dir.join("', '")}'."
+        puts "Call 'annotate --help' for more info."
+        exit 1
+      end
+
+      model_files
+    end
+
+    def annotate_model_file(annotated, file, header, options)
+      begin
+        return false if /#{SKIP_ANNOTATION_PREFIX}.*/ =~ (File.exist?(file) ? File.read(file) : '')
+        klass = get_model_class(file)
+        do_annotate = klass &&
+          klass < ActiveRecord::Base &&
+          (!options[:exclude_sti_subclasses] || !(klass.superclass < ActiveRecord::Base && klass.table_name == klass.superclass.table_name)) &&
+          !klass.abstract_class? &&
+          klass.table_exists?
+
+        annotated.concat(annotate(klass, file, header, options)) if do_annotate
+      rescue BadModelFileError => e
+        unless options[:ignore_unknown_models]
+          $stderr.puts "Unable to annotate #{file}: #{e.message}"
+          $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+        end
+      rescue StandardError => e
+        $stderr.puts "Unable to annotate #{file}: #{e.message}"
+        $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+      end
+    end
+
+    # Retrieve the classes belonging to the model names we're asked to process
+    # Check for namespaced models in subdirectories as well as models
+    # in subdirectories without namespacing.
+    def get_model_class(file)
+      model_path = file.gsub(/\.rb$/, '')
+      model_dir.each { |dir| model_path = model_path.gsub(/^#{dir}/, '').gsub(/^\//, '') }
+      begin
+        get_loaded_model(model_path, file) || raise(BadModelFileError.new)
+      rescue LoadError
+        # this is for non-rails projects, which don't get Rails auto-require magic
+        file_path = File.expand_path(file)
+        if File.file?(file_path) && Kernel.require(file_path)
+          retry
+        elsif model_path =~ /\//
+          model_path = model_path.split('/')[1..-1].join('/').to_s
+          retry
+        else
+          raise
+        end
+      end
+    end
+
+    # Retrieve loaded model class
+    def get_loaded_model(model_path, file)
+      loaded_model_class = get_loaded_model_by_path(model_path)
+      return loaded_model_class if loaded_model_class
+
+      # We cannot get loaded model when `model_path` is loaded by Rails
+      # auto_load/eager_load paths. Try all possible model paths one by one.
+      absolute_file = File.expand_path(file)
+      model_paths =
+        $LOAD_PATH.select { |path| absolute_file.include?(path) }
+                  .map { |path| absolute_file.sub(path, '').sub(/\.rb$/, '').sub(/^\//, '') }
+      model_paths
+        .map { |path| get_loaded_model_by_path(path) }
+        .find { |loaded_model| !loaded_model.nil? }
+    end
+
+    # Retrieve loaded model class by path to the file where it's supposed to be defined.
+    def get_loaded_model_by_path(model_path)
+      ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
+    rescue StandardError, LoadError
+      # Revert to the old way but it is not really robust
+      ObjectSpace.each_object(::Class)
+                 .select do |c|
+                    Class === c && # note: we use === to avoid a bug in activesupport 2.3.14 OptionMerger vs. is_a?
+                      c.ancestors.respond_to?(:include?) && # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
+                      c.ancestors.include?(ActiveRecord::Base)
+                  end.detect { |c| ActiveSupport::Inflector.underscore(c.to_s) == model_path }
     end
 
     # Given the name of an ActiveRecord class, create a schema
@@ -392,6 +317,14 @@ module AnnotateModels
       annotated
     end
 
+    # Use the column information in an ActiveRecord class
+    # to create a comment block containing a line for
+    # each column. The line contains the column name,
+    # the type (and length), and any optional attributes
+    def get_schema_info(klass, header, options = {})
+      SchemaInfo.generate(klass, header, options)
+    end
+
     # Add a schema block to a file. If the file already contains
     # a schema info block (a comment starting with "== Schema Information"),
     # check if it matches the block that is already there. If so, leave it be.
@@ -449,6 +382,73 @@ module AnnotateModels
 
       File.open(file_name, 'wb') { |f| f.puts new_content }
       true
+    end
+
+    def magic_comments_as_string(content)
+      magic_comments = content.scan(magic_comment_matcher).flatten.compact
+
+      if magic_comments.any?
+        magic_comments.join + "\n"
+      else
+        ''
+      end
+    end
+
+    def magic_comment_matcher
+      Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/)
+    end
+
+    # position = :position_in_fixture or :position_in_class
+    def options_with_position(options, position_in)
+      options.merge(position: (options[position_in] || options[:position]))
+    end
+
+    def remove_annotation_of_file(file_name, options = {})
+      return false unless File.exist?(file_name)
+
+      content = File.read(file_name)
+      return false if content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
+
+      wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ''
+      content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, '')
+
+      File.open(file_name, 'wb') { |f| f.puts content }
+      true
+    end
+
+    def annotate_pattern(options = {})
+      if options[:wrapper_open]
+        return /(?:^(\n|\r\n)?# (?:#{options[:wrapper_open]}).*(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*)|^(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*/
+      end
+      /^(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*/
+    end
+
+    def matched_types(options)
+      types = MATCHED_TYPES
+      types << 'admin' if options[:active_admin] =~ TRUE_RE && !types.include?('admin')
+
+      types
+    end
+
+    def get_patterns(pattern_types = [])
+      current_patterns = []
+      root_dir.each do |root_directory|
+        Array(pattern_types).each do |pattern_type|
+          current_patterns += files_by_pattern(root_directory, pattern_type)
+        end
+      end
+      current_patterns.map { |p| p.sub(/^[\/]*/, '') }
+    end
+
+    def files_by_pattern(root_directory, pattern_type)
+      Files.by_pattern(root_directory, pattern_type)
+    end
+
+    def resolve_filename(filename_template, model_name, table_name)
+      filename_template
+        .gsub('%MODEL_NAME%', model_name)
+        .gsub('%PLURALIZED_MODEL_NAME%', model_name.pluralize)
+        .gsub('%TABLE_NAME%', table_name || model_name.pluralize)
     end
   end
 
