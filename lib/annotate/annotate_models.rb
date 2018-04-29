@@ -161,19 +161,16 @@ module AnnotateModels
     end
 
     def remove_annotation_of_file(file_name, options = {})
-      if File.exist?(file_name)
-        content = File.read(file_name)
-        return false if content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
+      return false unless File.exist?(file_name)
 
-        wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ''
-        content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, '')
+      content = File.read(file_name)
+      return false if content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
 
-        File.open(file_name, 'wb') { |f| f.puts content }
+      wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ''
+      content.sub!(/(#{wrapper_open})?#{annotate_pattern(options)}/, '')
 
-        true
-      else
-        false
-      end
+      File.open(file_name, 'wb') { |f| f.puts content }
+      true
     end
 
     # Given the name of an ActiveRecord class, create a schema
