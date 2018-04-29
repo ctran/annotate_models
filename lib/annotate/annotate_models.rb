@@ -4,6 +4,7 @@ require 'bigdecimal'
 
 require_relative './annotate_models/files'
 require_relative './annotate_models/schema_info'
+require_relative './annotate_models/bad_model_file_error'
 
 module AnnotateModels
   TRUE_RE = /^(true|t|yes|y|1)$/i
@@ -427,12 +428,6 @@ module AnnotateModels
         .gsub('%MODEL_NAME%', model_name)
         .gsub('%PLURALIZED_MODEL_NAME%', model_name.pluralize)
         .gsub('%TABLE_NAME%', table_name || model_name.pluralize)
-    end
-  end
-
-  class BadModelFileError < LoadError
-    def to_s
-      "file doesn't contain a valid model class"
     end
   end
 end
