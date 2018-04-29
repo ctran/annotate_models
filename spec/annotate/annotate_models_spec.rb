@@ -1099,7 +1099,7 @@ EOS
     end
 
     def check_class_name(file, class_name)
-      klass = AnnotateModels.get_model_class(File.join(AnnotateModels.model_dir[0], file))
+      klass = AnnotateModels.send(:get_model_class, File.join(AnnotateModels.model_dir[0], file))
 
       expect(klass).not_to eq(nil)
       expect(klass.name).to eq(class_name)

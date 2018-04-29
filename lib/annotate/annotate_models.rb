@@ -212,28 +212,6 @@ module AnnotateModels
       exit 1
     end
 
-    # Retrieve the classes belonging to the model names we're asked to process
-    # Check for namespaced models in subdirectories as well as models
-    # in subdirectories without namespacing.
-    def get_model_class(file)
-      model_path = file.gsub(/\.rb$/, '')
-      model_dir.each { |dir| model_path = model_path.gsub(/^#{dir}/, '').gsub(/^\//, '') }
-      begin
-        get_loaded_model(model_path, file) || raise(BadModelFileError.new)
-      rescue LoadError
-        # this is for non-rails projects, which don't get Rails auto-require magic
-        file_path = File.expand_path(file)
-        if File.file?(file_path) && Kernel.require(file_path)
-          retry
-        elsif model_path =~ /\//
-          model_path = model_path.split('/')[1..-1].join('/').to_s
-          retry
-        else
-          raise
-        end
-      end
-    end
-
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
     def get_loaded_model_by_path(model_path)
       ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
@@ -449,6 +427,28 @@ module AnnotateModels
 
       File.open(file_name, 'wb') { |f| f.puts content }
       true
+    end
+
+    # Retrieve the classes belonging to the model names we're asked to process
+    # Check for namespaced models in subdirectories as well as models
+    # in subdirectories without namespacing.
+    def get_model_class(file)
+      model_path = file.gsub(/\.rb$/, '')
+      model_dir.each { |dir| model_path = model_path.gsub(/^#{dir}/, '').gsub(/^\//, '') }
+      begin
+        get_loaded_model(model_path, file) || raise(BadModelFileError.new)
+      rescue LoadError
+        # this is for non-rails projects, which don't get Rails auto-require magic
+        file_path = File.expand_path(file)
+        if File.file?(file_path) && Kernel.require(file_path)
+          retry
+        elsif model_path =~ /\//
+          model_path = model_path.split('/')[1..-1].join('/').to_s
+          retry
+        else
+          raise
+        end
+      end
     end
   end
 
