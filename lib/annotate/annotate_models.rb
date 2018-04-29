@@ -180,13 +180,6 @@ module AnnotateModels
       end
     end
 
-    def matched_types(options)
-      types = MATCHED_TYPES
-      types << 'admin' if options[:active_admin] =~ TRUE_RE && !types.include?('admin')
-
-      types
-    end
-
     # Given the name of an ActiveRecord class, create a schema
     # info block (basically a comment containing information
     # on the columns and their types) and put it at the front
@@ -874,6 +867,13 @@ module AnnotateModels
 
     def magic_comment_matcher
       Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/)
+    end
+
+    def matched_types(options)
+      types = MATCHED_TYPES
+      types << 'admin' if options[:active_admin] =~ TRUE_RE && !types.include?('admin')
+
+      types
     end
 
     def with_comments?(klass, options)
