@@ -155,22 +155,22 @@ module AnnotateRoutes
         true
       end
     end
-  end
 
-  def self.rewrite_contents_with_header(existing_text, header, options = {})
-    content, where_header_found = strip_annotations(existing_text)
-    new_content = annotate_routes(header, content, where_header_found, options)
+    def rewrite_contents_with_header(existing_text, header, options = {})
+      content, where_header_found = strip_annotations(existing_text)
+      new_content = annotate_routes(header, content, where_header_found, options)
 
-    # Make sure we end on a trailing newline.
-    new_content << '' unless new_content.last == ''
-    new_text = new_content.join("\n")
+      # Make sure we end on a trailing newline.
+      new_content << '' unless new_content.last == ''
+      new_text = new_content.join("\n")
 
-    if existing_text == new_text
-      puts "#{routes_file} unchanged."
-      false
-    else
-      File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-      true
+      if existing_text == new_text
+        puts "#{routes_file} unchanged."
+        false
+      else
+        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
+        true
+      end
     end
   end
 
