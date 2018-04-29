@@ -3,6 +3,9 @@
 module AnnotateModels
   # This module provides module method to get schema info.
   module SchemaInfo
+    MD_NAMES_OVERHEAD = 6
+    MD_TYPE_ALLOWANCE = 18
+
     class << self
       # Use the column information in an ActiveRecord class
       # to create a comment block containing a line for
@@ -13,13 +16,11 @@ module AnnotateModels
         info << get_schema_header_text(klass, options)
 
         max_size = max_schema_info_width(klass, options)
-        md_names_overhead = 6
-        md_type_allowance = 18
         bare_type_allowance = 16
 
         if options[:format_markdown]
-          info << sprintf( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
-          info << "# #{'-' * (max_size + md_names_overhead)} | #{'-' * md_type_allowance} | #{'-' * 27}\n"
+          info << markdown_table_header(max_size)
+          info << markdown_table_header_end_line(max_size)
         end
 
         ignore_columns = options[:ignore_columns]
@@ -130,6 +131,17 @@ module AnnotateModels
         max_size += options[:format_rdoc] ? 5 : 1
 
         max_size
+      end
+
+      def markdown_table_header(max_size)
+        sprintf("# %-#{max_size + MD_NAMES_OVERHEAD}.#{max_size + MD_NAMES_OVERHEAD}s | %-#{MD_TYPE_ALLOWANCE}.#{MD_TYPE_ALLOWANCE}s | %s\n",
+                'Name',
+                'Type',
+                'Attributes')
+      end
+
+      def markdown_table_header_end_line(max_size)
+        "# #{'-' * (max_size + MD_NAMES_OVERHEAD)} | #{'-' * MD_TYPE_ALLOWANCE} | #{'-' * 27}\n"
       end
 
       def classified_sort(cols)
