@@ -101,16 +101,6 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def index_columns_info(index)
-      Array(index.columns).map do |col|
-        if index.try(:orders) && index.orders[col.to_s]
-          "#{col} #{index.orders[col.to_s].upcase}"
-        else
-          col.to_s.gsub("\r", '\r').gsub("\n", '\n')
-        end
-      end
-    end
-
     def hide_limit?(col_type, options)
       excludes =
         if options[:hide_limit_column_types].blank?
@@ -873,6 +863,16 @@ module AnnotateModels
         " #{INDEX_CLAUSES[:using][format]} #{value}"
       else
         ''
+      end
+    end
+
+    def index_columns_info(index)
+      Array(index.columns).map do |col|
+        if index.try(:orders) && index.orders[col.to_s]
+          "#{col} #{index.orders[col.to_s].upcase}"
+        else
+          col.to_s.gsub("\r", '\r').gsub("\n", '\n')
+        end
       end
     end
 
