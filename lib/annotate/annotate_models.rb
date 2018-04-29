@@ -133,17 +133,6 @@ module AnnotateModels
       end
     end
 
-    def final_index_string(index, max_size)
-      sprintf(
-        "#  %-#{max_size}.#{max_size}s %s%s%s%s",
-        index.name,
-        "(#{index_columns_info(index).join(',')})",
-        index_unique_info(index),
-        index_where_info(index),
-        index_using_info(index)
-      ).rstrip + "\n"
-    end
-
     def hide_limit?(col_type, options)
       excludes =
         if options[:hide_limit_column_types].blank?
@@ -874,6 +863,17 @@ module AnnotateModels
         details,
         index_columns_info(index).join("`**\n#     * **`")
       )
+    end
+
+    def final_index_string(index, max_size)
+      sprintf(
+        "#  %-#{max_size}.#{max_size}s %s%s%s%s",
+        index.name,
+        "(#{index_columns_info(index).join(',')})",
+        index_unique_info(index),
+        index_where_info(index),
+        index_using_info(index)
+      ).rstrip + "\n"
     end
 
     def with_comments?(klass, options)
