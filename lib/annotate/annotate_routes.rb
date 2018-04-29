@@ -140,20 +140,20 @@ module AnnotateRoutes
 
       routes_exists
     end
-  end
 
-  # @param [String, Array<String>]
-  def self.rewrite_contents(existing_text, new_content)
-    # Make sure we end on a trailing newline.
-    new_content << '' unless new_content.last == ''
-    new_text = new_content.join("\n")
+    # @param [String, Array<String>]
+    def rewrite_contents(existing_text, new_content)
+      # Make sure we end on a trailing newline.
+      new_content << '' unless new_content.last == ''
+      new_text = new_content.join("\n")
 
-    if existing_text == new_text
-      puts "#{routes_file} unchanged."
-      false
-    else
-      File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-      true
+      if existing_text == new_text
+        puts "#{routes_file} unchanged."
+        false
+      else
+        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
+        true
+      end
     end
   end
 
