@@ -237,28 +237,6 @@ module AnnotateModels
       end
     end
 
-    def annotate_model_file(annotated, file, header, options)
-      begin
-        return false if /#{SKIP_ANNOTATION_PREFIX}.*/ =~ (File.exist?(file) ? File.read(file) : '')
-        klass = get_model_class(file)
-        do_annotate = klass &&
-          klass < ActiveRecord::Base &&
-          (!options[:exclude_sti_subclasses] || !(klass.superclass < ActiveRecord::Base && klass.table_name == klass.superclass.table_name)) &&
-          !klass.abstract_class? &&
-          klass.table_exists?
-
-        annotated.concat(annotate(klass, file, header, options)) if do_annotate
-      rescue BadModelFileError => e
-        unless options[:ignore_unknown_models]
-          $stderr.puts "Unable to annotate #{file}: #{e.message}"
-          $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
-        end
-      rescue StandardError => e
-        $stderr.puts "Unable to annotate #{file}: #{e.message}"
-        $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
-      end
-    end
-
     def remove_annotations(options = {})
       parse_options(options)
 
@@ -449,6 +427,28 @@ module AnnotateModels
                       c.ancestors.respond_to?(:include?) && # to fix FactoryGirl bug, see https://github.com/ctran/annotate_models/pull/82
                       c.ancestors.include?(ActiveRecord::Base)
                   end.detect { |c| ActiveSupport::Inflector.underscore(c.to_s) == model_path }
+    end
+
+    def annotate_model_file(annotated, file, header, options)
+      begin
+        return false if /#{SKIP_ANNOTATION_PREFIX}.*/ =~ (File.exist?(file) ? File.read(file) : '')
+        klass = get_model_class(file)
+        do_annotate = klass &&
+          klass < ActiveRecord::Base &&
+          (!options[:exclude_sti_subclasses] || !(klass.superclass < ActiveRecord::Base && klass.table_name == klass.superclass.table_name)) &&
+          !klass.abstract_class? &&
+          klass.table_exists?
+
+        annotated.concat(annotate(klass, file, header, options)) if do_annotate
+      rescue BadModelFileError => e
+        unless options[:ignore_unknown_models]
+          $stderr.puts "Unable to annotate #{file}: #{e.message}"
+          $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+        end
+      rescue StandardError => e
+        $stderr.puts "Unable to annotate #{file}: #{e.message}"
+        $stderr.puts "\t" + e.backtrace.join("\n\t") if options[:trace]
+      end
     end
   end
 
