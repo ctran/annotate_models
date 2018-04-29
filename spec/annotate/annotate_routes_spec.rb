@@ -51,7 +51,7 @@ describe AnnotateRoutes do
 
     context 'without magic comments' do
       before(:each) do
-        expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return(rake_routes_content)
+        expect(AnnotateRoutes::AnnotationProcessor).to receive(:`).with('rake routes').and_return(rake_routes_content)
       end
 
       it 'annotate normal' do
@@ -100,7 +100,7 @@ describe AnnotateRoutes do
     context 'file with magic comments' do
       it 'should not remove magic comments' do
         magic_comments_list_each do |magic_comment|
-          expect(AnnotateRoutes).to receive(:`).with('rake routes')
+          expect(AnnotateRoutes::AnnotationProcessor).to receive(:`).with('rake routes')
             .and_return("#{magic_comment}\n#{rake_routes_content}")
 
           expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
@@ -120,7 +120,7 @@ describe AnnotateRoutes do
 
       it 'annotate markdown' do
         magic_comments_list_each do |magic_comment|
-          expect(AnnotateRoutes).to receive(:`).with('rake routes')
+          expect(AnnotateRoutes::AnnotationProcessor).to receive(:`).with('rake routes')
             .and_return("#{magic_comment}\n#{rake_routes_content}")
 
           expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
@@ -141,7 +141,7 @@ describe AnnotateRoutes do
 
       it 'wraps annotation if wrapper is specified' do
         magic_comments_list_each do |magic_comment|
-          expect(AnnotateRoutes).to receive(:`).with('rake routes')
+          expect(AnnotateRoutes::AnnotationProcessor).to receive(:`).with('rake routes')
             .and_return("#{magic_comment}\n#{rake_routes_content}")
           expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
           expect(@mock_file).to receive(:puts).with("
@@ -166,7 +166,7 @@ describe AnnotateRoutes do
     before(:each) do
       expect(File).to receive(:exists?).with(ROUTE_FILE)
         .and_return(true).at_least(:once)
-      expect(AnnotateRoutes).to receive(:`).with('rake routes')
+      expect(AnnotateRoutes::AnnotationProcessor).to receive(:`).with('rake routes')
         .and_return('').at_least(:once)
     end
 
@@ -244,7 +244,7 @@ describe AnnotateRoutes do
   describe 'When adding with older Rake versions' do
     before(:each) do
       expect(File).to receive(:exists?).with(ROUTE_FILE).and_return(true)
-      expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return("(in /bad/line)\ngood line")
+      expect(AnnotateRoutes::AnnotationProcessor).to receive(:`).with('rake routes').and_return("(in /bad/line)\ngood line")
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
       expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
     end
@@ -265,7 +265,7 @@ describe AnnotateRoutes do
   describe 'When adding with newer Rake versions' do
     before(:each) do
       expect(File).to receive(:exists?).with(ROUTE_FILE).and_return(true)
-      expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return("another good line\ngood line")
+      expect(AnnotateRoutes::AnnotationProcessor).to receive(:`).with('rake routes').and_return("another good line\ngood line")
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
       expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
     end

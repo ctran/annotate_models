@@ -1,5 +1,3 @@
-# rubocop:disable  Metrics/ModuleLength
-
 # == Annotate Routes
 #
 # Based on:
@@ -21,30 +19,47 @@
 #
 
 require_relative './annotate_routes/header_rows'
+require_relative './annotate_routes/annotation_processor'
+require_relative './annotate_routes/remove_processor'
 
+# AnnotateRoutes provides methods to annotate 'config/routes.rb'
 module AnnotateRoutes
   MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/).freeze
 
   class << self
+    # @param options [Hash] options
+    # @return [Boolean]
     def do_annotations(options = {})
       return unless routes_exists?
-      existing_text = File.read(routes_file)
-      routes_map = app_routes_map(options)
-      header_rows = HeaderRows.generate(routes_map, options)
+      result = AnnotationProcessor.process(routes_file, options)
 
-      if rewrite_contents_with_header(existing_text, header_rows, options)
+      if result
         puts "#{routes_file} annotated."
+      else
+        puts "#{routes_file} unchanged."
       end
+
+      result
     end
 
-    def remove_annotations(_options={})
+    # @param _options [Hash] options (not used)
+    # @return [Boolean]
+    def remove_annotations(_options = {})
       return unless routes_exists?
-      existing_text = File.read(routes_file)
-      content, header_position = strip_annotations(existing_text)
-      new_content = strip_on_removal(content, header_position)
-      if rewrite_contents(existing_text, new_content)
+      result = RemoveProcessor.process(routes_file)
+
+      if result
         puts "Removed annotations from #{routes_file}."
+      else
+        puts "#{routes_file} unchanged."
       end
+
+      result
+    end
+
+    # @return [String] path for routes_file
+    def routes_file
+      @routes_file ||= File.join('config', 'routes.rb')
     end
 
     # @param [Array<String>] array
@@ -55,7 +70,7 @@ module AnnotateRoutes
       new_content = []
 
       array.map do |row|
-        if row =~ AnnotateRoutes::MAGIC_COMMENT_MATCHER
+        if row =~ MAGIC_COMMENT_MATCHER
           magic_comments << row.strip
         else
           new_content << row
@@ -67,140 +82,12 @@ module AnnotateRoutes
 
     private
 
+    # @return [Boolean] whether 'routes_file' exists or not
     def routes_exists?
       routes_exists = File.exists?(routes_file)
       puts "Can't find routes.rb" unless routes_exists
 
       routes_exists
-    end
-
-    def routes_file
-      @routes_file ||= File.join('config', 'routes.rb')
-    end
-
-    def rewrite_contents_with_header(existing_text, header, options = {})
-      content, header_position = strip_annotations(existing_text)
-      new_content = annotate_routes(header, content, header_position, options)
-
-      # Make sure we end on a trailing newline.
-      new_content << '' unless new_content.last == ''
-      new_text = new_content.join("\n")
-
-      if existing_text == new_text
-        puts "#{routes_file} unchanged."
-        false
-      else
-        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-        true
-      end
-    end
-
-    # TODO: write the method doc using ruby rdoc formats
-    # where_header_found => This is an array of 'real_content' and 'header_found_at'.
-    # 'header_found_at' will either be :before, :after, or
-    # a number.  If the number is > 0, the
-    # annotation was found somewhere in the
-    # middle of the file.  If the number is
-    # zero, no annotation was found.
-    def strip_annotations(content)
-      real_content = []
-      mode = :content
-      header_found_at = 0
-
-      content.split(/\n/, -1).each_with_index do |line, line_number|
-        if mode == :header && line !~ /\s*#/
-          mode = :content
-          real_content << line unless line.blank?
-        elsif mode == :content
-          if line =~ /^\s*#\s*== Route.*$/
-            header_found_at = line_number + 1 # index start's at 0
-            mode = :header
-          else
-            real_content << line
-          end
-        end
-      end
-
-      where_header_found(real_content, header_found_at)
-    end
-
-    def where_header_found(real_content, header_found_at)
-      # By default assume the annotation was found in the middle of the file
-
-      # ... unless we have evidence it was at the beginning ...
-      return real_content, :before if header_found_at == 1
-
-      # ... or that it was at the end.
-      return real_content, :after if header_found_at >= real_content.count
-
-      # and the default
-      return real_content, header_found_at
-    end
-
-    def annotate_routes(header, content, header_position, options = {})
-      magic_comments_map, content = extract_magic_comments(content)
-      if %w(before top).include?(options[:position_in_routes])
-        header = header << '' if content.first != ''
-        magic_comments_map << '' if magic_comments_map.any?
-        new_content = magic_comments_map + header + content
-      else
-        # Ensure we have adequate trailing newlines at the end of the file to
-        # ensure a blank line separating the content from the annotation.
-        content << '' unless content.last == ''
-
-        # We're moving something from the top of the file to the bottom, so ditch
-        # the spacer we put in the first time around.
-        content.shift if header_position == :before && content.first == ''
-
-        new_content = magic_comments_map + content + header
-      end
-
-      new_content
-    end
-
-    def app_routes_map(options)
-      routes_map = `rake routes`.chomp("\n").split(/\n/, -1)
-
-      # In old versions of Rake, the first line of output was the cwd.  Not so
-      # much in newer ones.  We ditch that line if it exists, and if not, we
-      # keep the line around.
-      routes_map.shift if routes_map.first =~ /^\(in \//
-
-      # Skip routes which match given regex
-      # Note: it matches the complete line (route_name, path, controller/action)
-      if options[:ignore_routes]
-        routes_map.reject! { |line| line =~ /#{options[:ignore_routes]}/ }
-      end
-
-      routes_map
-    end
-
-    def strip_on_removal(content, header_position)
-      if header_position == :before
-        content.shift while content.first == ''
-      elsif header_position == :after
-        content.pop while content.last == ''
-      end
-
-      # TODO: If the user buried it in the middle, we should probably see about
-      # TODO: preserving a single line of space between the content above and
-      # TODO: below...
-      content
-    end
-
-    # @param [String, Array<String>]
-    def rewrite_contents(existing_text, new_content)
-      # Make sure we end on a trailing newline.
-      new_content << '' unless new_content.last == ''
-      new_text = new_content.join("\n")
-
-      if existing_text == new_text
-        puts "#{routes_file} unchanged."
-        false
-      else
-        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-        true
-      end
     end
   end
 end
