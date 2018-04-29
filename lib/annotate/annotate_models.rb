@@ -19,13 +19,6 @@ module AnnotateModels
 
   MATCHED_TYPES = %w(test fixture factory serializer scaffold controller helper).freeze
 
-  # Don't show limit (#) on these column types
-  # Example: show "integer" instead of "integer(4)"
-  NO_LIMIT_COL_TYPES = %w(integer boolean).freeze
-
-  # Don't show default value for these column types
-  NO_DEFAULT_COL_TYPES = %w(json jsonb hstore).freeze
-
   INDEX_CLAUSES = {
     unique: {
       default: 'UNIQUE',
