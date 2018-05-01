@@ -55,7 +55,8 @@ module AnnotateModels
             end
           end
 
-          get_col_info(klass, options, col, col_type, attrs, max_size)
+          col_name = get_col_name(klass, options, col)
+          get_col_info(col_name, col_type, attrs, max_size, options)
         end
 
         private
@@ -123,8 +124,15 @@ module AnnotateModels
           excludes.include?(col_type)
         end
 
-        def get_col_info(klass, options, col, col_type, attrs, max_size)
-          col_name = get_col_name(klass, options, col)
+        def get_col_name(klass, options, col)
+          if with_comments?(klass, options, col)
+            "#{col.name}(#{col.comment})"
+          else
+            col.name
+          end
+        end
+
+        def get_col_info(col_name, col_type, attrs, max_size, options)
           base_text = if options[:format_rdoc]
                         format("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::",
                                attrs.unshift(col_type).join(', '))
@@ -144,14 +152,6 @@ module AnnotateModels
                                attrs.join(", "))
                       end
           "#{base_text.rstrip}\n"
-        end
-
-        def get_col_name(klass, options, col)
-          if with_comments?(klass, options, col)
-            "#{col.name}(#{col.comment})"
-          else
-            col.name
-          end
         end
 
         def with_comments?(klass, options, col)
