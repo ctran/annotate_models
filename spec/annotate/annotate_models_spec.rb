@@ -1464,9 +1464,9 @@ end
     subject { AnnotateModels.send(:resolve_filename, filename_template, model_name, table_name) }
 
     context "when filename_template is 'test/unit/%MODEL_NAME%_test.rb'" do
-      let :filename_template { 'test/unit/%MODEL_NAME%_test.rb' }
-      let :model_name { 'example_model' }
-      let :table_name { 'example_models' }
+      let(:filename_template) { 'test/unit/%MODEL_NAME%_test.rb' }
+      let(:model_name) { 'example_model' }
+      let(:table_name) { 'example_models' }
 
       it 'returns the test path for a model' do
         expect(subject). to eq 'test/unit/example_model_test.rb'
@@ -1474,9 +1474,9 @@ end
     end
 
     context "when filename_template is 'test/fixtures/%TABLE_NAME%.yml'" do
-      let :filename_template { 'test/fixtures/%TABLE_NAME%.yml' }
-      let :model_name { 'example_model' }
-      let :table_name { 'example_models' }
+      let(:filename_template) { 'test/fixtures/%TABLE_NAME%.yml' }
+      let(:model_name) { 'example_model' }
+      let(:table_name) { 'example_models' }
 
       it 'returns the test fixture path for a model' do
         expect(subject). to eq 'test/fixtures/example_models.yml'
@@ -1484,9 +1484,9 @@ end
     end
 
     context "when filename_template is 'test/fixtures/%PLURALIZED_MODEL_NAME%.yml'" do
-      let :filename_template { 'test/fixtures/%PLURALIZED_MODEL_NAME%.yml' }
-      let :model_name { 'parent/child' }
-      let :table_name { 'parent_children' }
+      let(:filename_template) { 'test/fixtures/%PLURALIZED_MODEL_NAME%.yml' }
+      let(:model_name) { 'parent/child' }
+      let(:table_name) { 'parent_children' }
 
       it 'returns the fixture path for a nested model' do
         expect(subject). to eq 'test/fixtures/parent/children.yml'

@@ -7,7 +7,6 @@ require_relative './annotate_models/schema_info'
 require_relative './annotate_models/bad_model_file_error'
 
 module AnnotateModels
-
   # Annotate Models plugin use this header
   COMPAT_PREFIX    = '== Schema Info'.freeze
   COMPAT_PREFIX_MD = '## Schema Info'.freeze
@@ -191,7 +190,7 @@ module AnnotateModels
       model_dir.each { |dir| model_path = model_path.gsub(/^#{dir}/, '').gsub(/^\//, '') }
       begin
         get_loaded_model(model_path, file) || raise(BadModelFileError.new)
-      rescue LoadError
+      rescue LoadError, BadModelFileError
         # this is for non-rails projects, which don't get Rails auto-require magic
         file_path = File.expand_path(file)
         if File.file?(file_path) && Kernel.require(file_path)

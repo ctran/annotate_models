@@ -1,5 +1,8 @@
+# rubocop:disable  Metrics/ModuleLength
+
 module AnnotateModels
   module SchemaInfo
+    # This module provides module method to get column info.
     module ColInfo
       # Don't show limit (#) on these column types
       # Example: show "integer" instead of "integer(4)"
@@ -47,7 +50,7 @@ module AnnotateModels
               indices.select { |ind| ind.columns.include? col.name }.sort_by(&:name).each do |ind|
                 next if ind.columns.is_a?(String)
                 ind = ind.columns.reject! { |i| i == col.name }
-                attrs << (ind.empty? ? "indexed" : "indexed => [#{ind.join(", ")}]")
+                attrs << (ind.empty? ? 'indexed' : "indexed => [#{ind.join(', ')}]")
               end
             end
           end
@@ -123,22 +126,22 @@ module AnnotateModels
         def get_col_info(klass, options, col, col_type, attrs, max_size)
           col_name = get_col_name(klass, options, col)
           base_text = if options[:format_rdoc]
-                        sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::",
-                                attrs.unshift(col_type).join(', '))
+                        format("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::",
+                               attrs.unshift(col_type).join(', '))
                       elsif options[:format_markdown]
                         name_remainder = max_size - col_name.length
                         type_remainder = (MD_TYPE_ALLOWANCE - 2) - col_type.length
-                        sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`",
-                                col_name,
-                                " ",
-                                col_type,
-                                " ",
-                                attrs.join(", ").rstrip).gsub('``', '  ')
+                        format("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`",
+                               col_name,
+                               ' ',
+                               col_type,
+                               ' ',
+                               attrs.join(", ").rstrip).gsub('``', '  ')
                       else
-                        sprintf("#  %-#{max_size}.#{max_size}s:%-#{BARE_TYPE_ALLOWANCE}.#{BARE_TYPE_ALLOWANCE}s %s",
-                                col_name,
-                                col_type,
-                                attrs.join(", "))
+                        format("#  %-#{max_size}.#{max_size}s:%-#{BARE_TYPE_ALLOWANCE}.#{BARE_TYPE_ALLOWANCE}s %s",
+                               col_name,
+                               col_type,
+                               attrs.join(", "))
                       end
           "#{base_text.rstrip}\n"
         end
@@ -154,7 +157,7 @@ module AnnotateModels
         def with_comments?(klass, options, col)
           options[:with_comment] &&
             klass.columns.first.respond_to?(:comment) &&
-            klass.columns.any? { |col| !col.comment.nil? } &&
+            klass.columns.any? { |c| !c.comment.nil? } &&
             col.comment
         end
       end

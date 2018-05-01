@@ -72,10 +72,10 @@ module AnnotateModels
       end
 
       def markdown_table_header(max_size)
-        sprintf("# %-#{max_size + MD_NAMES_OVERHEAD}.#{max_size + MD_NAMES_OVERHEAD}s | %-#{MD_TYPE_ALLOWANCE}.#{MD_TYPE_ALLOWANCE}s | %s\n",
-                'Name',
-                'Type',
-                'Attributes')
+        format("# %-#{max_size + MD_NAMES_OVERHEAD}.#{max_size + MD_NAMES_OVERHEAD}s | %-#{MD_TYPE_ALLOWANCE}.#{MD_TYPE_ALLOWANCE}s | %s\n",
+               'Name',
+               'Type',
+               'Attributes')
       end
 
       def markdown_table_header_end_line(max_size)
@@ -157,7 +157,7 @@ module AnnotateModels
       end
 
       def get_foreign_key_info(klass, options = {})
-        return '' unless has_foreign_keys?(klass)
+        return '' unless foreign_keys?(klass)
 
         fk_info = if options[:format_markdown]
                     "#\n# ### Foreign Keys\n#\n"
@@ -177,23 +177,23 @@ module AnnotateModels
           constraints_info.strip!
 
           fk_info << if options[:format_markdown]
-                       sprintf("# * `%s`%s:\n#     * **`%s`**\n", format_name.call(fk), constraints_info.blank? ? '' : " (_#{constraints_info}_)", ref_info)
+                       format("# * `%s`%s:\n#     * **`%s`**\n", format_name.call(fk), constraints_info.blank? ? '' : " (_#{constraints_info}_)", ref_info)
                      else
-                       sprintf("#  %-#{max_size}.#{max_size}s %s %s", format_name.call(fk), "(#{ref_info})", constraints_info).rstrip + "\n"
+                       format("#  %-#{max_size}.#{max_size}s %s %s", format_name.call(fk), "(#{ref_info})", constraints_info).rstrip + "\n"
                      end
         end
 
         fk_info
       end
 
-      def has_foreign_keys?(klass)
+      def foreign_keys?(klass)
         return false unless klass.connection.respond_to?(:supports_foreign_keys?)
         return false unless klass.connection.supports_foreign_keys?
         return false unless klass.connection.respond_to?(:foreign_keys)
 
         foreign_keys = klass.connection.foreign_keys(klass.table_name)
         return false if foreign_keys.empty?
-        return true
+        true
       end
 
       def get_schema_footer_text(_klass, options = {})

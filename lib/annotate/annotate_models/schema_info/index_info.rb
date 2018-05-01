@@ -1,5 +1,6 @@
 module AnnotateModels
   module SchemaInfo
+    # This module provides module method to get index info.
     module IndexInfo
       INDEX_CLAUSES = {
         unique: {
@@ -28,7 +29,7 @@ module AnnotateModels
         private
 
         def final_index_string_in_markdown(index)
-          details = sprintf(
+          details = format(
             "%s%s%s",
             index_unique_info(index, :markdown),
             index_where_info(index, :markdown),
@@ -36,7 +37,7 @@ module AnnotateModels
           ).strip
           details = " (#{details})" unless details.blank?
 
-          sprintf(
+          format(
             "# * `%s`%s:\n#     * **`%s`**\n",
             index.name,
             details,
@@ -45,7 +46,7 @@ module AnnotateModels
         end
 
         def final_index_string(index, max_size)
-          sprintf(
+          format(
             "#  %-#{max_size}.#{max_size}s %s%s%s%s",
             index.name,
             "(#{index_columns_info(index).join(',')})",
