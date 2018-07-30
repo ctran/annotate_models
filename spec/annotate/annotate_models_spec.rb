@@ -52,7 +52,8 @@ describe AnnotateModels do
     default_options = {
       limit: nil,
       null: false,
-      default: nil
+      default: nil,
+      sql_type: type
     }
 
     stubs = default_options.dup
@@ -183,7 +184,7 @@ EOS
                        [
                          mock_column(:id, :integer),
                          mock_column(:integer, :integer, unsigned?: true),
-                         mock_column(:bigint,  :integer, unsigned?: true, bigint?: true),
+                         mock_column(:bigint,  :integer, unsigned?: true, sql_type: 'bigint'),
                          mock_column(:float,   :float,   unsigned?: true),
                          mock_column(:decimal, :decimal, unsigned?: true, precision: 10, scale: 2),
                        ])
