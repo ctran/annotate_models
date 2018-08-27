@@ -184,7 +184,8 @@ EOS
                        [
                          mock_column(:id, :integer),
                          mock_column(:integer, :integer, unsigned?: true),
-                         mock_column(:bigint,  :integer, unsigned?: true, sql_type: 'bigint'),
+                         mock_column(:bigint,  :integer, unsigned?: true, bigint?: true),
+                         mock_column(:bigint,  :bigint,  unsigned?: true),
                          mock_column(:float,   :float,   unsigned?: true),
                          mock_column(:decimal, :decimal, unsigned?: true, precision: 10, scale: 2),
                        ])
@@ -196,6 +197,7 @@ EOS
 #
 #  id      :integer          not null
 #  integer :integer          unsigned, not null
+#  bigint  :bigint           unsigned, not null
 #  bigint  :bigint           unsigned, not null
 #  float   :float            unsigned, not null
 #  decimal :decimal(10, 2)   unsigned, not null

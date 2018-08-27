@@ -362,7 +362,7 @@ module AnnotateModels
     end
 
     def get_col_type(col)
-      if col.sql_type == 'bigint'
+      if (col.respond_to?(:bigint?) && col.bigint?) || /\Abigint\b/.match?(col.sql_type)
         'bigint'
       else
         (col.type || col.sql_type).to_s
