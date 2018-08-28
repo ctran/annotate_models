@@ -62,7 +62,7 @@ module AnnotateModels
 
   # Don't show limit (#) on these column types
   # Example: show "integer" instead of "integer(4)"
-  NO_LIMIT_COL_TYPES = %w(integer boolean).freeze
+  NO_LIMIT_COL_TYPES = %w(integer bigint boolean).freeze
 
   # Don't show default value for these column types
   NO_DEFAULT_COL_TYPES = %w(json jsonb hstore).freeze
@@ -362,7 +362,7 @@ module AnnotateModels
     end
 
     def get_col_type(col)
-      if col.respond_to?(:bigint?) && col.bigint?
+      if (col.respond_to?(:bigint?) && col.bigint?) || /\Abigint\b/.match?(col.sql_type)
         'bigint'
       else
         (col.type || col.sql_type).to_s
