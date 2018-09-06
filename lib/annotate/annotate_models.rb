@@ -511,8 +511,6 @@ module AnnotateModels
         old_columns = old_header && old_header.scan(column_pattern).sort
         new_columns = new_header && new_header.scan(column_pattern).sort
 
-        magic_comments_block = magic_comments_as_string(old_content)
-
         if old_columns == new_columns && !options[:force]
           return false
         else
@@ -521,15 +519,12 @@ module AnnotateModels
           wrapper_close = options[:wrapper_close] ? "# #{options[:wrapper_close]}\n" : ""
           wrapped_info_block = "#{wrapper_open}#{info_block}#{wrapper_close}"
 
-          new_content = old_content.sub(annotate_pattern(options), wrapped_info_block + "\n")
+          old_annotation = old_content.match(annotate_pattern(options)).to_s
 
-          if new_content.end_with?(wrapped_info_block + "\n")
-            new_content = old_content.sub(annotate_pattern(options), "\n" + wrapped_info_block)
-          end
-
-          # if there *was* no old schema info (no substitution happened) or :force was passed,
-          # we simply need to insert it in correct position
-          if new_content == old_content || options[:force]
+          # if there *was* no old schema info or :force was passed, we simply
+          # need to insert it in correct position
+          if old_annotation.empty? || options[:force]
+            magic_comments_block = magic_comments_as_string(old_content)
             old_content.gsub!(magic_comment_matcher, '')
             old_content.sub!(annotate_pattern(options), '')
 
@@ -538,6 +533,14 @@ module AnnotateModels
                           else
                             magic_comments_block + wrapped_info_block + "\n" + old_content
                           end
+          else
+            # replace the old annotation with the new one
+
+            # keep the surrounding whitespace the same
+            space_match = old_annotation.match(/\A(?<start>\s*).*?\n(?<end>\s*)\z/m)
+            new_annotation = space_match[:start] + wrapped_info_block + space_match[:end]
+
+            new_content = old_content.sub(annotate_pattern(options), new_annotation)
           end
 
           File.open(file_name, 'wb') { |f| f.puts new_content }
