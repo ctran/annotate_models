@@ -517,15 +517,16 @@ module AnnotateModels
           return false
         else
           # Replace inline the old schema info with the new schema info
-          new_content = old_content.sub(annotate_pattern(options), info_block + "\n")
-
-          if new_content.end_with?(info_block + "\n")
-            new_content = old_content.sub(annotate_pattern(options), "\n" + info_block)
-          end
-
           wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
           wrapper_close = options[:wrapper_close] ? "# #{options[:wrapper_close]}\n" : ""
           wrapped_info_block = "#{wrapper_open}#{info_block}#{wrapper_close}"
+
+          new_content = old_content.sub(annotate_pattern(options), wrapped_info_block + "\n")
+
+          if new_content.end_with?(wrapped_info_block + "\n")
+            new_content = old_content.sub(annotate_pattern(options), "\n" + wrapped_info_block)
+          end
+
           # if there *was* no old schema info (no substitution happened) or :force was passed,
           # we simply need to insert it in correct position
           if new_content == old_content || options[:force]
