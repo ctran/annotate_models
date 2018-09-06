@@ -512,7 +512,7 @@ module AnnotateModels
       new_columns = new_header && new_header.scan(column_pattern).sort
 
       return false if old_columns == new_columns && !options[:force]
-      
+
       # Replace inline the old schema info with the new schema info
       wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
       wrapper_close = options[:wrapper_close] ? "# #{options[:wrapper_close]}\n" : ""
@@ -543,7 +543,7 @@ module AnnotateModels
       end
 
       File.open(file_name, 'wb') { |f| f.puts new_content }
-      return true
+      true
     end
 
     def magic_comment_matcher
