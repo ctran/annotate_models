@@ -498,57 +498,52 @@ module AnnotateModels
     #                           :before, :top, :after or :bottom. Default is :before.
     #
     def annotate_one_file(file_name, info_block, position, options = {})
-      if File.exist?(file_name)
-        old_content = File.read(file_name)
-        return false if old_content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
+      return false unless File.exist?(file_name)
+      old_content = File.read(file_name)
+      return false if old_content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
 
-        # Ignore the Schema version line because it changes with each migration
-        header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?)/
-        old_header = old_content.match(header_pattern).to_s
-        new_header = info_block.match(header_pattern).to_s
+      # Ignore the Schema version line because it changes with each migration
+      header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?)/
+      old_header = old_content.match(header_pattern).to_s
+      new_header = info_block.match(header_pattern).to_s
 
-        column_pattern = /^#[\t ]+[\w\*`]+[\t ]+.+$/
-        old_columns = old_header && old_header.scan(column_pattern).sort
-        new_columns = new_header && new_header.scan(column_pattern).sort
+      column_pattern = /^#[\t ]+[\w\*`]+[\t ]+.+$/
+      old_columns = old_header && old_header.scan(column_pattern).sort
+      new_columns = new_header && new_header.scan(column_pattern).sort
 
-        if old_columns == new_columns && !options[:force]
-          return false
-        else
-          # Replace inline the old schema info with the new schema info
-          wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
-          wrapper_close = options[:wrapper_close] ? "# #{options[:wrapper_close]}\n" : ""
-          wrapped_info_block = "#{wrapper_open}#{info_block}#{wrapper_close}"
+      return false if old_columns == new_columns && !options[:force]
 
-          old_annotation = old_content.match(annotate_pattern(options)).to_s
+      # Replace inline the old schema info with the new schema info
+      wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
+      wrapper_close = options[:wrapper_close] ? "# #{options[:wrapper_close]}\n" : ""
+      wrapped_info_block = "#{wrapper_open}#{info_block}#{wrapper_close}"
 
-          # if there *was* no old schema info or :force was passed, we simply
-          # need to insert it in correct position
-          if old_annotation.empty? || options[:force]
-            magic_comments_block = magic_comments_as_string(old_content)
-            old_content.gsub!(magic_comment_matcher, '')
-            old_content.sub!(annotate_pattern(options), '')
+      old_annotation = old_content.match(annotate_pattern(options)).to_s
 
-            new_content = if %w(after bottom).include?(options[position].to_s)
-                            magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
-                          else
-                            magic_comments_block + wrapped_info_block + "\n" + old_content
-                          end
-          else
-            # replace the old annotation with the new one
+      # if there *was* no old schema info or :force was passed, we simply
+      # need to insert it in correct position
+      if old_annotation.empty? || options[:force]
+        magic_comments_block = magic_comments_as_string(old_content)
+        old_content.gsub!(magic_comment_matcher, '')
+        old_content.sub!(annotate_pattern(options), '')
 
-            # keep the surrounding whitespace the same
-            space_match = old_annotation.match(/\A(?<start>\s*).*?\n(?<end>\s*)\z/m)
-            new_annotation = space_match[:start] + wrapped_info_block + space_match[:end]
-
-            new_content = old_content.sub(annotate_pattern(options), new_annotation)
-          end
-
-          File.open(file_name, 'wb') { |f| f.puts new_content }
-          return true
-        end
+        new_content = if %w(after bottom).include?(options[position].to_s)
+                        magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
+                      else
+                        magic_comments_block + wrapped_info_block + "\n" + old_content
+                      end
       else
-        false
+        # replace the old annotation with the new one
+
+        # keep the surrounding whitespace the same
+        space_match = old_annotation.match(/\A(?<start>\s*).*?\n(?<end>\s*)\z/m)
+        new_annotation = space_match[:start] + wrapped_info_block + space_match[:end]
+
+        new_content = old_content.sub(annotate_pattern(options), new_annotation)
       end
+
+      File.open(file_name, 'wb') { |f| f.puts new_content }
+      true
     end
 
     def magic_comment_matcher
