@@ -936,6 +936,29 @@ EOS
         #  notes(Notes)   :text(55)         not null
         #  no_comment     :text(20)         not null
         #
+    EOS
+
+      mocked_columns_with_multibyte_comment = [
+        [:id,         :integer, { limit: 8,  comment: 'ＩＤ' }],
+        [:active,     :boolean, { limit: 1,  comment: 'ＡＣＴＩＶＥ' }],
+        [:name,       :string,  { limit: 50, comment: 'ＮＡＭＥ' }],
+        [:notes,      :text,    { limit: 55, comment: 'ＮＯＴＥＳ' }],
+        [:no_comment, :text,    { limit: 20, comment: nil }]
+      ]
+
+      when_called_with with_comment: 'yes',
+                       with_columns: mocked_columns_with_multibyte_comment, returns:
+        <<-EOS.strip_heredoc
+        # Schema Info
+        #
+        # Table name: users
+        #
+        #  id(ＩＤ)             :integer          not null, primary key
+        #  active(ＡＣＴＩＶＥ) :boolean          not null
+        #  name(ＮＡＭＥ)       :string(50)       not null
+        #  notes(ＮＯＴＥＳ)    :text(55)         not null
+        #  no_comment           :text(20)         not null
+        #
       EOS
 
       it 'should get schema info as RDoc' do
