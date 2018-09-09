@@ -301,7 +301,7 @@ module AnnotateModels
           type_remainder = (md_type_allowance - 2) - col_type.length
           info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
         else
-          info << sprintf("#  %-#{max_size}.#{max_size}s:%-#{bare_type_allowance}.#{bare_type_allowance}s %s", col_name, col_type, attrs.join(", ")).rstrip + "\n"
+          info << format_default(col_name, max_size, col_type, bare_type_allowance, attrs)
         end
       end
 
@@ -884,7 +884,7 @@ module AnnotateModels
     def max_schema_info_width(klass, options)
       if with_comments?(klass, options)
         max_size = klass.columns.map do |column|
-          column.name.size + (column.comment ? column.comment.size : 0)
+          column.name.size + (column.comment ? width(column.comment) : 0)
         end.max || 0
         max_size += 2
       else
@@ -893,6 +893,20 @@ module AnnotateModels
       max_size += options[:format_rdoc] ? 5 : 1
 
       max_size
+    end
+
+    def format_default(col_name, max_size, col_type, bare_type_allowance, attrs)
+      sprintf("#  %s:%s %s", mb_chars_ljust(col_name, max_size), mb_chars_ljust(col_type, bare_type_allowance),  attrs.join(", ")).rstrip + "\n"
+    end
+
+    def width(string)
+      string.chars.inject(0) { |acc, elem| acc + (elem.bytesize == 1 ? 1 : 2) }
+    end
+
+    def mb_chars_ljust(string, length)
+      string = string.to_s
+      padding = length - width(string)
+      string + (' ' * padding)
     end
   end
 
