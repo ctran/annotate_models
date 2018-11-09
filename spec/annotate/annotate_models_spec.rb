@@ -1697,7 +1697,7 @@ end
       end
     end
 
-    it 'adds an empty line between magic comments and model file content (position :after)' do
+    it 'does not change whitespace between magic comments and model file content (position :after)' do
       content = "class User < ActiveRecord::Base\nend\n"
       magic_comments_list_each do |magic_comment|
         model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
@@ -1705,7 +1705,7 @@ end
         annotate_one_file position: :after
         schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
 
-        expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{content}\n#{schema_info}")
+        expect(File.read(model_file_name)).to eq("#{magic_comment}\n#{content}\n#{schema_info}")
       end
     end
 
