@@ -349,7 +349,13 @@ module AnnotateModels
       indexes = retrieve_indexes_from_table(klass)
       return '' if indexes.empty?
 
-      max_size = indexes.collect{|index| index.name.size}.max + 1
+      fixed_column_width = options[:fixed_column_width].to_i
+      if fixed_column_width > 0
+        max_size = fixed_column_width + 1
+      else
+        max_size = indexes.collect{|index| index.name.size}.max + 1
+      end
+
       indexes.sort_by(&:name).each do |index|
         index_info << if options[:format_markdown]
                         final_index_string_in_markdown(index)
@@ -882,6 +888,11 @@ module AnnotateModels
     end
 
     def max_schema_info_width(klass, options)
+      fixed_column_width = options[:fixed_column_width].to_i
+      if fixed_column_width > 0
+        return fixed_column_width + 1
+      end
+
       if with_comments?(klass, options)
         max_size = klass.columns.map do |column|
           column.name.size + (column.comment ? width(column.comment) : 0)
