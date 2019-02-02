@@ -134,7 +134,7 @@ module AnnotateRoutes
         end
       end
 
-      where_header_found(real_content, header_found_at)
+      real_content_and_header_position(real_content, header_found_at)
     end
 
     def strip_on_removal(content, where_header_found)
@@ -231,7 +231,7 @@ module AnnotateRoutes
       end.join(' | ')
     end
 
-    def where_header_found(real_content, header_found_at)
+    def real_content_and_header_position(real_content, header_found_at)
       # By default assume the annotation was found in the middle of the file
 
       # ... unless we have evidence it was at the beginning ...
