@@ -25,16 +25,6 @@ module AnnotateRoutes
   HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action']
 
   class << self
-    def content(line, maxs, options = {})
-      return line.rstrip unless options[:format_markdown]
-
-      line.each_with_index.map do |elem, index|
-        min_length = maxs.map { |arr| arr[index] }.max || 0
-
-        sprintf("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
-      end.join(' | ')
-    end
-
     def do_annotations(options = {})
       return unless routes_exists?
       existing_text = File.read(routes_file)
@@ -173,6 +163,16 @@ module AnnotateRoutes
         File.open(routes_file, 'wb') { |f| f.puts(new_text) }
         true
       end
+    end
+
+    def content(line, maxs, options = {})
+      return line.rstrip unless options[:format_markdown]
+
+      line.each_with_index.map do |elem, index|
+        min_length = maxs.map { |arr| arr[index] }.max || 0
+
+        sprintf("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
+      end.join(' | ')
     end
   end
 
