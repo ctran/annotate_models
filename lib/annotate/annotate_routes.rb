@@ -63,6 +63,10 @@ module AnnotateRoutes
       routes_exists
     end
 
+    def routes_file
+      @routes_rb ||= File.join('config', 'routes.rb')
+    end
+
     def rewrite_contents_with_header(existing_text, header, options = {})
       content, where_header_found = strip_annotations(existing_text)
       new_content = annotate_routes(header, content, where_header_found, options)
@@ -209,10 +213,6 @@ module AnnotateRoutes
     end
 
     routes_map
-  end
-
-  def self.routes_file
-    @routes_rb ||= File.join('config', 'routes.rb')
   end
 
   def self.annotate_routes(header, content, where_header_found, options = {})
