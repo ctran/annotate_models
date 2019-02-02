@@ -166,7 +166,7 @@ module AnnotateRoutes
       end
     end
 
-    def annotate_routes(header, content, where_header_found, options = {})
+    def annotate_routes(header, content, header_position, options = {})
       magic_comments_map, content = extract_magic_comments_from_array(content)
       if %w(before top).include?(options[:position_in_routes])
         header = header << '' if content.first != ''
@@ -179,7 +179,7 @@ module AnnotateRoutes
 
         # We're moving something from the top of the file to the bottom, so ditch
         # the spacer we put in the first time around.
-        content.shift if where_header_found == :before && content.first == ''
+        content.shift if header_position == :before && content.first == ''
 
         new_content = magic_comments_map + content + header
       end
