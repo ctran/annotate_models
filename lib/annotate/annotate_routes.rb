@@ -165,6 +165,27 @@ module AnnotateRoutes
       end
     end
 
+    def annotate_routes(header, content, where_header_found, options = {})
+      magic_comments_map, content = extract_magic_comments_from_array(content)
+      if %w(before top).include?(options[:position_in_routes])
+        header = header << '' if content.first != ''
+        magic_comments_map << '' if magic_comments_map.any?
+        new_content = magic_comments_map + header + content
+      else
+        # Ensure we have adequate trailing newlines at the end of the file to
+        # ensure a blank line separating the content from the annotation.
+        content << '' unless content.last == ''
+
+        # We're moving something from the top of the file to the bottom, so ditch
+        # the spacer we put in the first time around.
+        content.shift if where_header_found == :before && content.first == ''
+
+        new_content = magic_comments_map + content + header
+      end
+
+      new_content
+    end
+
     def content(line, maxs, options = {})
       return line.rstrip unless options[:format_markdown]
 
@@ -213,27 +234,6 @@ module AnnotateRoutes
     end
 
     routes_map
-  end
-
-  def self.annotate_routes(header, content, where_header_found, options = {})
-    magic_comments_map, content = extract_magic_comments_from_array(content)
-    if %w(before top).include?(options[:position_in_routes])
-      header = header << '' if content.first != ''
-      magic_comments_map << '' if magic_comments_map.any?
-      new_content = magic_comments_map + header + content
-    else
-      # Ensure we have adequate trailing newlines at the end of the file to
-      # ensure a blank line separating the content from the annotation.
-      content << '' unless content.last == ''
-
-      # We're moving something from the top of the file to the bottom, so ditch
-      # the spacer we put in the first time around.
-      content.shift if where_header_found == :before && content.first == ''
-
-      new_content = magic_comments_map + content + header
-    end
-
-    new_content
   end
 
   def self.where_header_found(real_content, header_found_at)
