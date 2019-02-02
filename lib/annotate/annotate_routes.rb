@@ -148,6 +148,21 @@ module AnnotateRoutes
       # TODO: below...
       content
     end
+
+    # @param [String, Array<String>]
+    def rewrite_contents(existing_text, new_content)
+      # Make sure we end on a trailing newline.
+      new_content << '' unless new_content.last == ''
+      new_text = new_content.join("\n")
+
+      if existing_text == new_text
+        puts "#{routes_file} unchanged."
+        false
+      else
+        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
+        true
+      end
+    end
   end
 
   def self.magic_comment_matcher
@@ -198,21 +213,6 @@ module AnnotateRoutes
     puts "Can't find routes.rb" unless routes_exists
 
     routes_exists
-  end
-
-  # @param [String, Array<String>]
-  def self.rewrite_contents(existing_text, new_content)
-    # Make sure we end on a trailing newline.
-    new_content << '' unless new_content.last == ''
-    new_text = new_content.join("\n")
-
-    if existing_text == new_text
-      puts "#{routes_file} unchanged."
-      false
-    else
-      File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-      true
-    end
   end
 
   def self.annotate_routes(header, content, where_header_found, options = {})
