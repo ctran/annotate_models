@@ -138,10 +138,10 @@ module AnnotateRoutes
       real_content_and_header_position(real_content, header_found_at)
     end
 
-    def strip_on_removal(content, where_header_found)
-      if where_header_found == :before
+    def strip_on_removal(content, header_position)
+      if header_position == :before
         content.shift while content.first == ''
-      elsif where_header_found == :after
+      elsif header_position == :after
         content.pop while content.last == ''
       end
 
