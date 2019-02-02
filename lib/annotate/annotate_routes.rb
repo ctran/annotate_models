@@ -230,10 +230,10 @@ module AnnotateRoutes
         sprintf("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
       end.join(' | ')
     end
-  end
 
-  def self.magic_comment_matcher
-    Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/)
+    def magic_comment_matcher
+      Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/)
+    end
   end
 
   def self.where_header_found(real_content, header_found_at)
