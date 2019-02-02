@@ -56,6 +56,13 @@ module AnnotateRoutes
 
     private
 
+    def routes_exists?
+      routes_exists = File.exists?(routes_file)
+      puts "Can't find routes.rb" unless routes_exists
+
+      routes_exists
+    end
+
     def rewrite_contents_with_header(existing_text, header, options = {})
       content, where_header_found = strip_annotations(existing_text)
       new_content = annotate_routes(header, content, where_header_found, options)
@@ -206,13 +213,6 @@ module AnnotateRoutes
 
   def self.routes_file
     @routes_rb ||= File.join('config', 'routes.rb')
-  end
-
-  def self.routes_exists?
-    routes_exists = File.exists?(routes_file)
-    puts "Can't find routes.rb" unless routes_exists
-
-    routes_exists
   end
 
   def self.annotate_routes(header, content, where_header_found, options = {})
