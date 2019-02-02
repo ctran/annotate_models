@@ -135,6 +135,19 @@ module AnnotateRoutes
 
       where_header_found(real_content, header_found_at)
     end
+
+    def strip_on_removal(content, where_header_found)
+      if where_header_found == :before
+        content.shift while content.first == ''
+      elsif where_header_found == :after
+        content.pop while content.last == ''
+      end
+
+      # TODO: If the user buried it in the middle, we should probably see about
+      # TODO: preserving a single line of space between the content above and
+      # TODO: below...
+      content
+    end
   end
 
   def self.magic_comment_matcher
@@ -234,18 +247,5 @@ module AnnotateRoutes
 
     # and the default
     return real_content, header_found_at
-  end
-
-  def self.strip_on_removal(content, where_header_found)
-    if where_header_found == :before
-      content.shift while content.first == ''
-    elsif where_header_found == :after
-      content.pop while content.last == ''
-    end
-
-    # TODO: If the user buried it in the middle, we should probably see about
-    # TODO: preserving a single line of space between the content above and
-    # TODO: below...
-    content
   end
 end
