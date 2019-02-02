@@ -107,6 +107,34 @@ module AnnotateRoutes
 
       out
     end
+
+    # TODO: write the method doc using ruby rdoc formats
+    # where_header_found => This will either be :before, :after, or
+    # a number.  If the number is > 0, the
+    # annotation was found somewhere in the
+    # middle of the file.  If the number is
+    # zero, no annotation was found.
+    def strip_annotations(content)
+      real_content = []
+      mode = :content
+      header_found_at = 0
+
+      content.split(/\n/, -1).each_with_index do |line, line_number|
+        if mode == :header && line !~ /\s*#/
+          mode = :content
+          real_content << line unless line.blank?
+        elsif mode == :content
+          if line =~ /^\s*#\s*== Route.*$/
+            header_found_at = line_number + 1 # index start's at 0
+            mode = :header
+          else
+            real_content << line
+          end
+        end
+      end
+
+      where_header_found(real_content, header_found_at)
+    end
   end
 
   def self.magic_comment_matcher
@@ -193,34 +221,6 @@ module AnnotateRoutes
     end
 
     new_content
-  end
-
-  # TODO: write the method doc using ruby rdoc formats
-  # where_header_found => This will either be :before, :after, or
-  # a number.  If the number is > 0, the
-  # annotation was found somewhere in the
-  # middle of the file.  If the number is
-  # zero, no annotation was found.
-  def self.strip_annotations(content)
-    real_content = []
-    mode = :content
-    header_found_at = 0
-
-    content.split(/\n/, -1).each_with_index do |line, line_number|
-      if mode == :header && line !~ /\s*#/
-        mode = :content
-        real_content << line unless line.blank?
-      elsif mode == :content
-        if line =~ /^\s*#\s*== Route.*$/
-          header_found_at = line_number + 1 # index start's at 0
-          mode = :header
-        else
-          real_content << line
-        end
-      end
-    end
-
-    where_header_found(real_content, header_found_at)
   end
 
   def self.where_header_found(real_content, header_found_at)
