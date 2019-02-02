@@ -110,7 +110,8 @@ module AnnotateRoutes
     end
 
     # TODO: write the method doc using ruby rdoc formats
-    # where_header_found => This will either be :before, :after, or
+    # This method returns an array of 'real_content' and 'header_position'.
+    # 'header_position' will either be :before, :after, or
     # a number.  If the number is > 0, the
     # annotation was found somewhere in the
     # middle of the file.  If the number is
