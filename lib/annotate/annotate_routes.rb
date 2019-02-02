@@ -37,8 +37,8 @@ module AnnotateRoutes
     def remove_annotations(_options={})
       return unless routes_exists?
       existing_text = File.read(routes_file)
-      content, where_header_found = strip_annotations(existing_text)
-      new_content = strip_on_removal(content, where_header_found)
+      content, header_position = strip_annotations(existing_text)
+      new_content = strip_on_removal(content, header_position)
       if rewrite_contents(existing_text, new_content)
         puts "Removed annotations from #{routes_file}."
       end
