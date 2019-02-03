@@ -24,9 +24,10 @@ require_relative './annotate_routes/removal_processor'
 module AnnotateRoutes
   class << self
     def do_annotations(options = {})
-      if routes_file_exist?
-        existing_text = File.read(routes_file)
-        if AnnotationProcessor.update(routes_file, existing_text, options)
+      routes_file = File.join('config', 'routes.rb')
+      processor = AnnotationProcessor.new(options, routes_file)
+      if processor.routes_file_exist?
+        if processor.update
           puts "#{routes_file} was annotated."
         else
           puts "#{routes_file} was not changed."
@@ -37,9 +38,10 @@ module AnnotateRoutes
     end
 
     def remove_annotations(options = {})
-      if routes_file_exist?
-        existing_text = File.read(routes_file)
-        if RemovalProcessor.update(routes_file, existing_text, options)
+      routes_file = File.join('config', 'routes.rb')
+      processor = RemovalProcessor.new(options, routes_file)
+      if processor.routes_file_exist?
+        if processor.update
           puts "Annotations were removed from #{routes_file}."
         else
           puts "#{routes_file} was not changed (Annotation did not exist)."
@@ -47,16 +49,6 @@ module AnnotateRoutes
       else
         puts "#{routes_file} could not be found."
       end
-    end
-
-    private
-
-    def routes_file_exist?
-      File.exist?(routes_file)
-    end
-
-    def routes_file
-      @routes_rb ||= File.join('config', 'routes.rb')
     end
   end
 end
