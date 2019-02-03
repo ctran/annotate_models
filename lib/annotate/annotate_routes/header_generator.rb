@@ -51,13 +51,13 @@ module AnnotateRoutes
 
       out << comment(options[:wrapper_open]) if options[:wrapper_open]
 
-      out << comment(options[:format_markdown] ? PREFIX_MD : PREFIX) + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')
+      out << comment(markdown? ? PREFIX_MD : PREFIX) + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')
       out << comment
       return out if contents_without_magic_comments.size.zero?
 
       maxs = [HEADER_ROW.map(&:size)] + contents_without_magic_comments[1..-1].map { |line| line.split.map(&:size) }
 
-      if options[:format_markdown]
+      if markdown?
         max = maxs.map(&:max).compact.max
 
         out << comment(content(HEADER_ROW, maxs))
@@ -66,7 +66,7 @@ module AnnotateRoutes
         out << comment(content(contents_without_magic_comments[0], maxs))
       end
 
-      out += contents_without_magic_comments[1..-1].map { |line| comment(content(options[:format_markdown] ? line.split(' ') : line, maxs)) }
+      out += contents_without_magic_comments[1..-1].map { |line| comment(content(markdown? ? line.split(' ') : line, maxs)) }
       out << comment(options[:wrapper_close]) if options[:wrapper_close]
 
       out
@@ -85,13 +85,17 @@ module AnnotateRoutes
     end
 
     def content(line, maxs)
-      return line.rstrip unless options[:format_markdown]
+      return line.rstrip unless markdown?
 
       line.each_with_index.map do |elem, index|
         min_length = maxs.map { |arr| arr[index] }.max || 0
 
         format("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
       end.join(' | ')
+    end
+
+    def markdown?
+      options[:format_markdown]
     end
   end
 end
