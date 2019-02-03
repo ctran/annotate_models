@@ -18,8 +18,8 @@
 # Released under the same license as Ruby. No Support. No Warranty.
 #
 
-require_relative './annotate_routes/helpers'
 require_relative './annotate_routes/annotation_processor'
+require_relative './annotate_routes/removal_processor'
 
 module AnnotateRoutes
   class << self
@@ -36,13 +36,10 @@ module AnnotateRoutes
       end
     end
 
-    def remove_annotations(options={})
+    def remove_annotations(options = {})
       if routes_file_exist?
         existing_text = File.read(routes_file)
-        content, header_position = Helpers.strip_annotations(existing_text)
-        new_content = strip_on_removal(content, header_position)
-        new_text = new_content.join("\n")
-        if rewrite_contents(existing_text, new_text, options[:frozen])
+        if RemovalProcessor.update(routes_file, existing_text, options)
           puts "Annotations were removed from #{routes_file}."
         else
           puts "#{routes_file} was not changed (Annotation did not exist)."
@@ -60,33 +57,6 @@ module AnnotateRoutes
 
     def routes_file
       @routes_rb ||= File.join('config', 'routes.rb')
-    end
-
-    def strip_on_removal(content, header_position)
-      if header_position == :before
-        content.shift while content.first == ''
-      elsif header_position == :after
-        content.pop while content.last == ''
-      end
-
-      # Make sure we end on a trailing newline.
-      content << '' unless content.last == ''
-
-      # TODO: If the user buried it in the middle, we should probably see about
-      # TODO: preserving a single line of space between the content above and
-      # TODO: below...
-      content
-    end
-
-    def rewrite_contents(existing_text, new_text, frozen)
-      content_changed = (existing_text != new_text)
-
-      if content_changed
-        abort "annotate error. #{routes_file} needs to be updated, but annotate was run with `--frozen`." if frozen
-        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-      end
-
-      content_changed
     end
   end
 end
