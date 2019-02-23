@@ -203,6 +203,7 @@ you can do so with a simple environment variable, instead of editing the
         -f [bare|rdoc|markdown],         Render Schema Infomation as plain/RDoc/Markdown
             --format
             --force                      Force new annotations even if there are no changes.
+            --frozen                     Do not allow to change annotations. Exits non-zero if there are going to be changes to files.
             --timestamp                  Include timestamp in (routes) annotation
             --trace                      If unable to annotate a file, print the full stack trace, not just the exception message.
         -I, --ignore-columns REGEX       don't annotate columns that match a given REGEX (i.e., `annotate -I '^(id|updated_at|created_at)'`
