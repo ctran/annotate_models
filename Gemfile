@@ -19,7 +19,7 @@ group :development, :test do
   gem 'guard-rspec', require: false
   gem 'rspec', require: false
 
-  gem 'rubocop', '~> 0.46.0', require: false unless RUBY_VERSION =~ /^1.8/
+  gem 'rubocop', '~> 0.66.0', require: false unless RUBY_VERSION =~ /^1.8/
   gem 'simplecov', require: false
   gem 'terminal-notifier-guard', require: false
 
