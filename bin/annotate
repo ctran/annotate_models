@@ -22,7 +22,6 @@ has_set_position = {}
 target_action = :do_annotations
 positions = %w(before top after bottom)
 
-# rubocop:disable Metrics/BlockLength
 OptionParser.new do |opts|
   opts.banner = 'Usage: annotate [options] [model_file]*'
 
@@ -207,7 +206,6 @@ OptionParser.new do |opts|
     ENV['with_comment'] = 'true'
   end
 end.parse!
-# rubocop:enable Metrics/BlockLength
 
 options = Annotate.setup_options(
   is_rake: ENV['is_rake'] && !ENV['is_rake'].empty?

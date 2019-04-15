@@ -5,7 +5,7 @@ require 'annotate/active_record_patch'
 require 'active_support/core_ext/string'
 require 'files'
 
-describe AnnotateModels do
+describe AnnotateModels do # rubocop:disable Metrics/BlockLength
   def mock_index(name, params = {})
     double('IndexKeyDefinition',
            name:          name,
