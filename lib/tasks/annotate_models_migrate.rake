@@ -4,20 +4,16 @@
 # Append annotations to Rake tasks for ActiveRecord, so annotate automatically gets
 # run after doing db:migrate.
 
-namespace :db do
-  [:migrate, :rollback].each do |cmd|
-    task cmd do
-      Rake::Task['set_annotation_options'].invoke
+%w(db:migrate db:migrate:up db:migrate:down db:migrate:reset db:migrate:redo db:rollback).each do |task|
+  Rake::Task[task].enhance do
+    Rake::Task[Rake.application.top_level_tasks.last].enhance do
+      annotation_options_task = if Rake::Task.task_defined?('app:set_annotation_options')
+                                  'app:set_annotation_options'
+                                else
+                                  'set_annotation_options'
+                                end
+      Rake::Task[annotation_options_task].invoke
       Annotate::Migration.update_annotations
-    end
-
-    namespace cmd do
-      [:change, :up, :down, :reset, :redo].each do |t|
-        task t do
-          Rake::Task['set_annotation_options'].invoke
-          Annotate::Migration.update_annotations
-        end
-      end
     end
   end
 end
@@ -46,6 +42,8 @@ module Annotate
     def self.update_routes
       if Rake::Task.task_defined?("annotate_routes")
         Rake::Task["annotate_routes"].invoke
+      elsif Rake::Task.task_defined?("app:annotate_routes")
+        Rake::Task["app:annotate_routes"].invoke
       end
     end
   end

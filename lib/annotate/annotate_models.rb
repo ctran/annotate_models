@@ -62,7 +62,7 @@ module AnnotateModels
 
   # Don't show limit (#) on these column types
   # Example: show "integer" instead of "integer(4)"
-  NO_LIMIT_COL_TYPES = %w(integer boolean).freeze
+  NO_LIMIT_COL_TYPES = %w(integer bigint boolean).freeze
 
   # Don't show default value for these column types
   NO_DEFAULT_COL_TYPES = %w(json jsonb hstore).freeze
@@ -301,7 +301,7 @@ module AnnotateModels
           type_remainder = (md_type_allowance - 2) - col_type.length
           info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
         else
-          info << sprintf("#  %-#{max_size}.#{max_size}s:%-#{bare_type_allowance}.#{bare_type_allowance}s %s", col_name, col_type, attrs.join(", ")).rstrip + "\n"
+          info << format_default(col_name, max_size, col_type, bare_type_allowance, attrs)
         end
       end
 
@@ -362,7 +362,7 @@ module AnnotateModels
     end
 
     def get_col_type(col)
-      if col.respond_to?(:bigint?) && col.bigint?
+      if (col.respond_to?(:bigint?) && col.bigint?) || /\Abigint\b/ =~ col.sql_type
         'bigint'
       else
         (col.type || col.sql_type).to_s
@@ -498,53 +498,56 @@ module AnnotateModels
     #                           :before, :top, :after or :bottom. Default is :before.
     #
     def annotate_one_file(file_name, info_block, position, options = {})
-      if File.exist?(file_name)
-        old_content = File.read(file_name)
-        return false if old_content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
+      return false unless File.exist?(file_name)
+      old_content = File.read(file_name)
+      return false if old_content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
 
-        # Ignore the Schema version line because it changes with each migration
-        header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?)/
-        old_header = old_content.match(header_pattern).to_s
-        new_header = info_block.match(header_pattern).to_s
+      # Ignore the Schema version line because it changes with each migration
+      header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?)/
+      old_header = old_content.match(header_pattern).to_s
+      new_header = info_block.match(header_pattern).to_s
 
-        column_pattern = /^#[\t ]+[\w\*`]+[\t ]+.+$/
-        old_columns = old_header && old_header.scan(column_pattern).sort
-        new_columns = new_header && new_header.scan(column_pattern).sort
+      column_pattern = /^#[\t ]+[\w\*`]+[\t ]+.+$/
+      old_columns = old_header && old_header.scan(column_pattern).sort
+      new_columns = new_header && new_header.scan(column_pattern).sort
 
+      return false if old_columns == new_columns && !options[:force]
+
+      abort "annotate error. #{file_name} needs to be updated, but annotate was run with `--frozen`." if options[:frozen]
+
+      # Replace inline the old schema info with the new schema info
+      wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
+      wrapper_close = options[:wrapper_close] ? "# #{options[:wrapper_close]}\n" : ""
+      wrapped_info_block = "#{wrapper_open}#{info_block}#{wrapper_close}"
+
+      old_annotation = old_content.match(annotate_pattern(options)).to_s
+
+      # if there *was* no old schema info or :force was passed, we simply
+      # need to insert it in correct position
+      if old_annotation.empty? || options[:force]
         magic_comments_block = magic_comments_as_string(old_content)
+        old_content.gsub!(magic_comment_matcher, '')
+        old_content.sub!(annotate_pattern(options), '')
 
-        if old_columns == new_columns && !options[:force]
-          return false
-        else
-          # Replace inline the old schema info with the new schema info
-          new_content = old_content.sub(annotate_pattern(options), info_block + "\n")
-
-          if new_content.end_with?(info_block + "\n")
-            new_content = old_content.sub(annotate_pattern(options), "\n" + info_block)
-          end
-
-          wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
-          wrapper_close = options[:wrapper_close] ? "# #{options[:wrapper_close]}\n" : ""
-          wrapped_info_block = "#{wrapper_open}#{info_block}#{wrapper_close}"
-          # if there *was* no old schema info (no substitution happened) or :force was passed,
-          # we simply need to insert it in correct position
-          if new_content == old_content || options[:force]
-            old_content.gsub!(magic_comment_matcher, '')
-            old_content.sub!(annotate_pattern(options), '')
-
-            new_content = if %w(after bottom).include?(options[position].to_s)
-                            magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
-                          else
-                            magic_comments_block + wrapped_info_block + "\n" + old_content
-                          end
-          end
-
-          File.open(file_name, 'wb') { |f| f.puts new_content }
-          return true
-        end
+        new_content = if %w(after bottom).include?(options[position].to_s)
+                        magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
+                      elsif magic_comments_block.empty?
+                        magic_comments_block + wrapped_info_block + "\n" + old_content
+                      else
+                        magic_comments_block + "\n" + wrapped_info_block + "\n" + old_content
+                      end
       else
-        false
+        # replace the old annotation with the new one
+
+        # keep the surrounding whitespace the same
+        space_match = old_annotation.match(/\A(?<start>\s*).*?\n(?<end>\s*)\z/m)
+        new_annotation = space_match[:start] + wrapped_info_block + space_match[:end]
+
+        new_content = old_content.sub(annotate_pattern(options), new_annotation)
       end
+
+      File.open(file_name, 'wb') { |f| f.puts new_content }
+      true
     end
 
     def magic_comment_matcher
@@ -555,7 +558,7 @@ module AnnotateModels
       magic_comments = content.scan(magic_comment_matcher).flatten.compact
 
       if magic_comments.any?
-        magic_comments.join + "\n"
+        magic_comments.join
       else
         ''
       end
@@ -885,7 +888,7 @@ module AnnotateModels
     def max_schema_info_width(klass, options)
       if with_comments?(klass, options)
         max_size = klass.columns.map do |column|
-          column.name.size + (column.comment ? column.comment.size : 0)
+          column.name.size + (column.comment ? width(column.comment) : 0)
         end.max || 0
         max_size += 2
       else
@@ -894,6 +897,20 @@ module AnnotateModels
       max_size += options[:format_rdoc] ? 5 : 1
 
       max_size
+    end
+
+    def format_default(col_name, max_size, col_type, bare_type_allowance, attrs)
+      sprintf("#  %s:%s %s", mb_chars_ljust(col_name, max_size), mb_chars_ljust(col_type, bare_type_allowance),  attrs.join(", ")).rstrip + "\n"
+    end
+
+    def width(string)
+      string.chars.inject(0) { |acc, elem| acc + (elem.bytesize == 1 ? 1 : 2) }
+    end
+
+    def mb_chars_ljust(string, length)
+      string = string.to_s
+      padding = length - width(string)
+      string + (' ' * padding)
     end
   end
 

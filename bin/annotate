@@ -170,6 +170,10 @@ OptionParser.new do |opts|
     ENV['force'] = 'yes'
   end
 
+  opts.on('--frozen', 'Do not allow to change annotations. Exits non-zero if there are going to be changes to files.') do
+    ENV['frozen'] = 'yes'
+  end
+
   opts.on('--timestamp', 'Include timestamp in (routes) annotation') do
     ENV['timestamp'] = 'true'
   end

@@ -5,7 +5,7 @@ require 'annotate/active_record_patch'
 require 'active_support/core_ext/string'
 require 'files'
 
-describe AnnotateModels do
+describe AnnotateModels do # rubocop:disable Metrics/BlockLength
   def mock_index(name, params = {})
     double('IndexKeyDefinition',
            name:          name,
@@ -52,7 +52,8 @@ describe AnnotateModels do
     default_options = {
       limit: nil,
       null: false,
-      default: nil
+      default: nil,
+      sql_type: type
     }
 
     stubs = default_options.dup
@@ -184,6 +185,7 @@ EOS
                          mock_column(:id, :integer),
                          mock_column(:integer, :integer, unsigned?: true),
                          mock_column(:bigint,  :integer, unsigned?: true, bigint?: true),
+                         mock_column(:bigint,  :bigint,  unsigned?: true),
                          mock_column(:float,   :float,   unsigned?: true),
                          mock_column(:decimal, :decimal, unsigned?: true, precision: 10, scale: 2),
                        ])
@@ -195,6 +197,7 @@ EOS
 #
 #  id      :integer          not null
 #  integer :integer          unsigned, not null
+#  bigint  :bigint           unsigned, not null
 #  bigint  :bigint           unsigned, not null
 #  float   :float            unsigned, not null
 #  decimal :decimal(10, 2)   unsigned, not null
@@ -932,6 +935,29 @@ EOS
         #  name(Name)     :string(50)       not null
         #  notes(Notes)   :text(55)         not null
         #  no_comment     :text(20)         not null
+        #
+    EOS
+
+      mocked_columns_with_multibyte_comment = [
+        [:id,         :integer, { limit: 8,  comment: 'ＩＤ' }],
+        [:active,     :boolean, { limit: 1,  comment: 'ＡＣＴＩＶＥ' }],
+        [:name,       :string,  { limit: 50, comment: 'ＮＡＭＥ' }],
+        [:notes,      :text,    { limit: 55, comment: 'ＮＯＴＥＳ' }],
+        [:no_comment, :text,    { limit: 20, comment: nil }]
+      ]
+
+      when_called_with with_comment: 'yes',
+                       with_columns: mocked_columns_with_multibyte_comment, returns:
+        <<-EOS.strip_heredoc
+        # Schema Info
+        #
+        # Table name: users
+        #
+        #  id(ＩＤ)             :integer          not null, primary key
+        #  active(ＡＣＴＩＶＥ) :boolean          not null
+        #  name(ＮＡＭＥ)       :string(50)       not null
+        #  notes(ＮＯＴＥＳ)    :text(55)         not null
+        #  no_comment           :text(20)         not null
         #
       EOS
 
@@ -1671,7 +1697,7 @@ end
       end
     end
 
-    it 'adds an empty line between magic comments and model file content (position :after)' do
+    it 'does not change whitespace between magic comments and model file content (position :after)' do
       content = "class User < ActiveRecord::Base\nend\n"
       magic_comments_list_each do |magic_comment|
         model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
@@ -1679,7 +1705,7 @@ end
         annotate_one_file position: :after
         schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
 
-        expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{content}\n#{schema_info}")
+        expect(File.read(model_file_name)).to eq("#{magic_comment}\n#{content}\n#{schema_info}")
       end
     end
 
@@ -1740,6 +1766,25 @@ end
 
         expect(error_output).to include("Unable to deannotate #{@model_dir}/user.rb: oops")
         expect(error_output).to include("/user.rb:2:in `<class:User>'")
+      end
+    end
+
+    describe 'frozen option' do
+      it "should abort without existing annotation when frozen: true " do
+        expect { annotate_one_file frozen: true }.to raise_error SystemExit, /user.rb needs to be updated, but annotate was run with `--frozen`./
+      end
+
+      it "should abort with different annotation when frozen: true " do
+        annotate_one_file
+        another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer)]), '== Schema Info')
+        @schema_info = another_schema_info
+
+        expect { annotate_one_file frozen: true }.to raise_error SystemExit, /user.rb needs to be updated, but annotate was run with `--frozen`./
+      end
+
+      it "should NOT abort with same annotation when frozen: true " do
+        annotate_one_file
+        expect { annotate_one_file frozen: true }.not_to raise_error
       end
     end
   end

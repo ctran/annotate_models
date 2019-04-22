@@ -42,11 +42,12 @@ if Rails.env.development?
       'format_markdown'           => 'false',
       'sort'                      => 'false',
       'force'                     => 'false',
+      'frozen'                    => 'false',
       'classified_sort'           => 'true',
       'trace'                     => 'false',
       'wrapper_open'              => nil,
       'wrapper_close'             => nil,
-      'with_comment'              => true
+      'with_comment'              => 'true'
     )
   end
 

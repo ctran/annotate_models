@@ -39,6 +39,7 @@ task annotate_models: :environment do
   options[:format_markdown] = Annotate.true?(ENV['format_markdown'])
   options[:sort] = Annotate.true?(ENV['sort'])
   options[:force] = Annotate.true?(ENV['force'])
+  options[:frozen] = Annotate.true?(ENV['frozen'])
   options[:classified_sort] = Annotate.true?(ENV['classified_sort'])
   options[:trace] = Annotate.true?(ENV['trace'])
   options[:wrapper_open] = Annotate.fallback(ENV['wrapper_open'], ENV['wrapper'])
@@ -47,7 +48,8 @@ task annotate_models: :environment do
   options[:ignore_routes] = ENV.fetch('ignore_routes', nil)
   options[:hide_limit_column_types] = Annotate.fallback(ENV['hide_limit_column_types'], '')
   options[:hide_default_column_types] = Annotate.fallback(ENV['hide_default_column_types'], '')
-  options[:with_comment] = Annotate.fallback(ENV['with_comment'], '')
+  options[:with_comment] = Annotate.true?(ENV['with_comment'])
+  options[:ignore_unknown_models] = Annotate.true?(ENV.fetch('ignore_unknown_models', 'false'))
 
   AnnotateModels.do_annotations(options)
 end
