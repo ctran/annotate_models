@@ -14,7 +14,7 @@ module AnnotateModels
 
   SKIP_ANNOTATION_PREFIX = '# -\*- SkipSchemaAnnotations'.freeze
 
-  MATCHED_TYPES = %w(test fixture factory serializer scaffold controller helper).freeze
+  MATCHED_TYPES = %w(test fixture factory serializer resource scaffold controller helper).freeze
 
   # File.join for windows reverse bar compat?
   # I dont use windows, can`t test
@@ -50,6 +50,11 @@ module AnnotateModels
   SERIALIZERS_DIR       = File.join('app',  "serializers")
   SERIALIZERS_TEST_DIR  = File.join('test', "serializers")
   SERIALIZERS_SPEC_DIR  = File.join('spec', "serializers")
+
+  # jsonapi-rb resources http://jsonapi-rb.org
+  RESOURCES_DIR       = File.join('app',  "resources")
+  RESOURCES_TEST_DIR  = File.join('test', "resources")
+  RESOURCES_SPEC_DIR  = File.join('spec', "resources")
 
   # Controller files
   CONTROLLER_DIR        = File.join('app', "controllers")
@@ -159,6 +164,14 @@ module AnnotateModels
       ]
     end
 
+    def resource_files(root_directory)
+      [
+        File.join(root_directory, RESOURCES_DIR,       "serializable_%MODEL_NAME%.rb"),
+        File.join(root_directory, RESOURCES_TEST_DIR,  "serializable_%MODEL_NAME%_spec.rb"),
+        File.join(root_directory, RESOURCES_SPEC_DIR,  "serializable_%MODEL_NAME%_spec.rb")
+      ]
+    end
+
     def files_by_pattern(root_directory, pattern_type)
       case pattern_type
       when 'test'       then test_files(root_directory)
@@ -166,6 +179,7 @@ module AnnotateModels
       when 'scaffold'   then scaffold_files(root_directory)
       when 'factory'    then factory_files(root_directory)
       when 'serializer' then serialize_files(root_directory)
+      when 'resource'   then resource_files(root_directory)
       when 'controller'
         [File.join(root_directory, CONTROLLER_DIR, "%PLURALIZED_MODEL_NAME%_controller.rb")]
       when 'admin'
@@ -598,10 +612,12 @@ module AnnotateModels
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
     #  :position_in_factory<Symbol>:: where to place the annotated section in factory file
     #  :position_in_serializer<Symbol>:: where to place the annotated section in serializer file
+    #  :position_in_resource<Symbol>:: where to place the annotated section in resource file
     #  :exclude_tests<Symbol>:: whether to skip modification of test/spec files
     #  :exclude_fixtures<Symbol>:: whether to skip modification of fixture files
     #  :exclude_factories<Symbol>:: whether to skip modification of factory files
     #  :exclude_serializers<Symbol>:: whether to skip modification of serializer files
+    #  :exclude_resources<Symbol>:: whether to skip modification of resource files
     #  :exclude_scaffolds<Symbol>:: whether to skip modification of scaffold files
     #  :exclude_controllers<Symbol>:: whether to skip modification of controller files
     #  :exclude_helpers<Symbol>:: whether to skip modification of helper files

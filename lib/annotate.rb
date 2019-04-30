@@ -24,13 +24,13 @@ module Annotate
   POSITION_OPTIONS = [
     :position_in_routes, :position_in_class, :position_in_test,
     :position_in_fixture, :position_in_factory, :position,
-    :position_in_serializer
+    :position_in_serializer, :position_in_resource
   ].freeze
   FLAG_OPTIONS = [
     :show_indexes, :simple_indexes, :include_version, :exclude_tests,
     :exclude_fixtures, :exclude_factories, :ignore_model_sub_dir,
     :format_bare, :format_rdoc, :format_markdown, :sort, :force, :frozen,
-    :trace, :timestamp, :exclude_serializers, :classified_sort,
+    :trace, :timestamp, :exclude_serializers, :exclude_resources, :classified_sort,
     :show_foreign_keys, :show_complete_foreign_keys,
     :exclude_scaffolds, :exclude_controllers, :exclude_helpers,
     :exclude_sti_subclasses, :ignore_unknown_models, :with_comment
