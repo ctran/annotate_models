@@ -4,15 +4,15 @@ workflow "Build, Test, and Publish" {
 }
 
 # Filter for a new tag
-action "Tag" {
+action "Check Tag" {
   uses = "actions/bin/filter@master"
   args = "tag v*"
 }
 
 action "Build" {
-  needs = "Tag"
   uses = "scarhand/actions-ruby@master"
   args = "build *.gemspec"
+  needs = ["Check Tag"]
 }
 
 action "Publish" {
