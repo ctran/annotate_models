@@ -6,19 +6,38 @@ rvm:
 - 2.4.1
 - 2.6.0
 - ruby-head
+
 matrix:
   allow_failures:
   - rvm: ruby-head
+
 before_install:
 - gem update --system
 - gem update bundler
+
 script:
 - bundle exec rubocop && bundle exec rspec
-deploy:
-  provider: rubygems
-  api_key:
-    secure: Y7DUitak26kcRAAkgph/7m6Y1wHeObD0BelSSJbmCfjkRd/qaVy7fz9VvHL9zxlRJtLGVHInyCnwcfzinibY6OFd3MoMYHKv8GFa2LxLJNEVSY46KQYFxfH5JTg1ejh6ldoJRRBoeOx9dcWS80pRNjYMKPGnpSz7yDBl1azibFs=
-  gem: annotate
-  on:
-    tags: true
-    repo: ctran/annotate_models
+
+jobs:
+  include:
+    - stage: GitHub Release
+      rvm: 2.6.0
+      script: echo "Deploying to GitHub releases ..."
+      deploy:
+        provider: releases
+        api_key: $GITHUB_OAUTH_TOKEN
+        skip_cleanup: true
+        on:
+          tags: true
+          repo: ctran/annotate_models
+          
+    - stage: Rubygems Release
+      rvm: 2.6.0
+      script: echo "Deploying to rubygems.org ..."   
+      deploy:
+        provider: rubygems
+        api_key: $RUBYGEMS_API_KEY
+        gem: annotate
+        on:
+          tags: true
+          repo: ctran/annotate_models
