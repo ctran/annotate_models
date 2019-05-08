@@ -33,5 +33,5 @@ jobs:
         api_key: $RUBYGEMS_API_KEY
         gem: annotate
         on:
-          tags: v*
+          tags: true
           repo: ctran/annotate_models
