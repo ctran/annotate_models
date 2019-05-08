@@ -20,7 +20,8 @@ script:
 
 jobs:
   include:
-    - stage: GitHub Release
+    - stage: GitHub release
+      tags: true
       rvm: 2.6.0
       script: echo "Deploying to GitHub releases ..."
       deploy:
@@ -31,7 +32,7 @@ jobs:
           tags: true
           repo: ctran/annotate_models
           
-    - stage: Rubygems Release
+    - stage: gem release
       rvm: 2.6.0
       script: echo "Deploying to rubygems.org ..."   
       deploy:
