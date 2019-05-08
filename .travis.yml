@@ -24,18 +24,6 @@ script:
 
 jobs:
   include:
-    - stage: GitHub release
-      tags: true
-      rvm: 2.6.0
-      script: echo "Deploying to GitHub releases ..."
-      deploy:
-        provider: releases
-        api_key: $GITHUB_OAUTH_TOKEN
-        skip_cleanup: true
-        on:
-          tags: true
-          repo: ctran/annotate_models
-          
     - stage: gem release
       rvm: 2.6.0
       script: echo "Deploying to rubygems.org ..."   
