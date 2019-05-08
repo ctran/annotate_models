@@ -25,6 +25,7 @@ script:
 jobs:
   include:
     - stage: gem release
+      if: tag =~ ^v
       rvm: 2.6.0
       script: echo "Deploying to rubygems.org ..."   
       deploy:
@@ -32,5 +33,5 @@ jobs:
         api_key: $RUBYGEMS_API_KEY
         gem: annotate
         on:
-          tags: true
+          tags: v*
           repo: ctran/annotate_models
