@@ -963,7 +963,6 @@ EOS
         #
       EOS
 
-
       it 'should get schema info as RDoc' do
         klass = mock_class(:users,
                            :id,
