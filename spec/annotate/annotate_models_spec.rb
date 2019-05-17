@@ -943,7 +943,8 @@ EOS
         [:active,     :boolean, { limit: 1,  comment: 'ＡＣＴＩＶＥ' }],
         [:name,       :string,  { limit: 50, comment: 'ＮＡＭＥ' }],
         [:notes,      :text,    { limit: 55, comment: 'ＮＯＴＥＳ' }],
-        [:no_comment, :text,    { limit: 20, comment: nil }]
+        [:no_comment, :text,    { limit: 20, comment: nil }],
+        [:location,   :geometry_collection, { limit: nil, comment: nil }]
       ]
 
       when_called_with with_comment: 'yes',
@@ -958,8 +959,10 @@ EOS
         #  name(ＮＡＭＥ)       :string(50)       not null
         #  notes(ＮＯＴＥＳ)    :text(55)         not null
         #  no_comment           :text(20)         not null
+        #  location             :geometry_collect not null
         #
       EOS
+
 
       it 'should get schema info as RDoc' do
         klass = mock_class(:users,

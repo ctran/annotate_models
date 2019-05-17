@@ -910,7 +910,11 @@ module AnnotateModels
     def mb_chars_ljust(string, length)
       string = string.to_s
       padding = length - width(string)
-      string + (' ' * padding)
+      if padding > 0
+        string + (' ' * padding)
+      else
+        string[0..length-1]
+      end
     end
   end
 
