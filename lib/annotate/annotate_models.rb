@@ -154,7 +154,7 @@ module AnnotateModels
     def serialize_files(root_directory)
       [
         File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
-        File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
+        File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_test.rb"),
         File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
       ]
     end
