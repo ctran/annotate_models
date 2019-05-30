@@ -143,7 +143,9 @@ module Annotate
     load_requires(options)
     require 'annotate/active_record_patch'
 
-    if defined?(Rails::Application)
+    if defined?(Jets)
+      Jets::Autoloaders.main.eager_load
+    elsif defined?(Rails::Application)
       if Rails.version.split('.').first.to_i < 3
         Rails.configuration.eager_load_paths.each do |load_path|
           matcher = /\A#{Regexp.escape(load_path)}(.*)\.rb\Z/
