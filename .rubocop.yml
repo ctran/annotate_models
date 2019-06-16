@@ -1,4 +1,8 @@
-inherit_from: ./.rubocop_todo.yml
+inherit_from:
+  - .rubocop_todo.yml
+  - ./.rubocop_todo.yml
+
+
 
 AllCops:
   Exclude:
