@@ -1,7 +1,7 @@
 sudo: false
 language: ruby
 rvm:
-- 2.2.7
+- 2.2.10
 - 2.3.8
 - 2.4.6
 - 2.5.5
@@ -16,7 +16,7 @@ matrix:
   - rvm: ruby-head
 
 before_install:
-- gem update --system
+- gem update --system || (gem i "rubygems-update:~>2.7" --no-document && update_rubygems)
 - gem update bundler
 
 script:
