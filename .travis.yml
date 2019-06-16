@@ -16,7 +16,7 @@ matrix:
   - rvm: ruby-head
 
 before_install:
-- gem update --system
+- gem update --system || (gem i "rubygems-update:~>2.7" --no-document && update_rubygems)
 - gem update bundler
 
 script:
