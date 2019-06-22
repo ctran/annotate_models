@@ -19,7 +19,7 @@ group :development, :test do
   gem 'guard-rspec', require: false
   gem 'rspec', require: false
 
-  gem 'rubocop', '~> 0.67.2', require: false unless RUBY_VERSION =~ /^1.8/
+  gem 'rubocop', '~> 0.68.1', require: false unless RUBY_VERSION =~ /^1.8/
   gem 'simplecov', require: false
   gem 'terminal-notifier-guard', require: false
 
@@ -27,7 +27,7 @@ group :development, :test do
   gem 'coveralls'
 
   gem 'overcommit'
-  gem 'ruby_dep', '1.3.1'
+  gem 'ruby_dep', '1.5.0'
 
   platforms :mri, :mingw do
     gem 'pry', require: false
