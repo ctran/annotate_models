@@ -50,7 +50,6 @@ if Rails.env.development?
       'wrapper_close'               => nil,
       'with_comment'                => 'true'
     )
-  end
 
   Annotate.load_tasks
 end
