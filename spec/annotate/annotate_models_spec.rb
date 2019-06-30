@@ -70,8 +70,8 @@ describe AnnotateModels do # rubocop:disable Metrics/BlockLength
   it { expect(AnnotateModels.quote(25)).to eql('25') }
   it { expect(AnnotateModels.quote(25.6)).to eql('25.6') }
   it { expect(AnnotateModels.quote(1e-20)).to eql('1.0e-20') }
-  it { expect(AnnotateModels.quote(BigDecimal.new('1.2'))).to eql('1.2') }
-  it { expect(AnnotateModels.quote([BigDecimal.new('1.2')])).to eql(['1.2']) }
+  it { expect(AnnotateModels.quote(BigDecimal('1.2'))).to eql('1.2') }
+  it { expect(AnnotateModels.quote([BigDecimal('1.2')])).to eql(['1.2']) }
 
   describe '#parse_options' do
     let(:options) do
