@@ -208,6 +208,7 @@ describe Parser do # rubocop:disable Metrics/BlockLength
     describe option do
       it 'sets the ENV variable' do
         expect { Parser.parse([option]) }.to output("annotate v#{Annotate.version}\n").to_stdout
+        expect(Parser.parse([option])).to include(exit: true)
       end
     end
   end

@@ -106,6 +106,7 @@ class Parser # rubocop:disable Metrics/ClassLength
 
       opts.on('-v', '--version', 'Show the current version of this gem') do
         puts "annotate v#{Annotate.version}"
+        options[:exit] = true
       end
 
       opts.on('-m', '--show-migration', 'Include the migration version number in the annotation') do
@@ -220,7 +221,8 @@ class Parser # rubocop:disable Metrics/ClassLength
 
   def default_options
     {
-      target_action: :do_annotations
+      target_action: :do_annotations,
+      exit: false
     }
   end
 end
