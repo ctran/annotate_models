@@ -2,6 +2,10 @@ require File.dirname(__FILE__) + '/spec_helper.rb'
 
 module Annotate # rubocop:disable Metrics/ModuleLength
   describe Parser do # rubocop:disable Metrics/BlockLength
+    before(:example) do
+      ENV.clear
+    end
+
     context 'when given empty args' do
       it 'returns an options hash with defaults' do
         result = Parser.parse([])
