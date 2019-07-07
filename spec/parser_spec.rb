@@ -48,10 +48,21 @@ module Annotate # rubocop:disable Metrics/ModuleLength
                 expect(ENV).to have_received(:[]=).with(file_type, position)
               end
             end
-
-            context 'the ENV value for different file type has already been set' do
-            end
           end
+        end
+      end
+    end
+
+    context 'when position_in_class is set to top' do
+      context 'and when position is a different value' do
+        it 'does not override' do
+          other_commands = %w[--pc top]
+          position_command = %w[-p bottom]
+          options = other_commands + position_command
+
+          Parser.parse(options)
+          expect(ENV['position_in_class']).to eq('top')
+          expect(ENV['position']).to eq('bottom')
         end
       end
     end
