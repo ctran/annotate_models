@@ -15,7 +15,7 @@ here = File.expand_path(File.dirname __FILE__)
 $LOAD_PATH << "#{here}/../lib"
 
 require 'annotate'
-require 'parser'
+require 'annotate/parser'
 
 Annotate.bootstrap_rake
 

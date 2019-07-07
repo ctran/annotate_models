@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/spec_helper.rb'
+require File.dirname(__FILE__) + '/../spec_helper.rb'
 
 module Annotate # rubocop:disable Metrics/ModuleLength
   describe Parser do # rubocop:disable Metrics/BlockLength
