@@ -19,7 +19,7 @@ require 'parser'
 
 Annotate.bootstrap_rake
 
-options_result = Parser.parse(ARGV)
+options_result = Annotate::Parser.parse(ARGV)
 
 exit if options_result[:exit]
 
