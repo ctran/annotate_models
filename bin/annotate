@@ -15,7 +15,104 @@ here = File.expand_path(File.dirname __FILE__)
 $LOAD_PATH << "#{here}/../lib"
 
 require 'annotate'
+<<<<<<< HEAD
 require 'annotate/parser'
+=======
+Annotate.bootstrap_rake
+
+has_set_position = {}
+target_action = :do_annotations
+positions = %w(before top after bottom)
+
+OptionParser.new do |opts|
+  opts.banner = 'Usage: annotate [options] [model_file]*'
+
+  opts.on('-a', '--additional_file_patterns', Array, "Additional file paths or globs to annotate") do |additional_file_patterns|
+    ENV['additional_file_patterns'] = additional_file_patterns
+  end
+
+  opts.on('-d', '--delete', 'Remove annotations from all model files or the routes.rb file') do
+    target_action = :remove_annotations
+  end
+
+  opts.on('-p', '--position [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)') do |p|
+    ENV['position'] = p
+    %w(position_in_class position_in_factory position_in_fixture position_in_test position_in_routes position_in_serializer).each do |key|
+      ENV[key] = p unless has_set_position[key]
+    end
+  end
+
+  opts.on('--pc', '--position-in-class [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of the model file') do |p|
+    ENV['position_in_class'] = p
+    has_set_position['position_in_class'] = true
+  end
+
+  opts.on('--pf', '--position-in-factory [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of any factory files') do |p|
+    ENV['position_in_factory'] = p
+    has_set_position['position_in_factory'] = true
+  end
+
+  opts.on('--px', '--position-in-fixture [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of any fixture files') do |p|
+    ENV['position_in_fixture'] = p
+    has_set_position['position_in_fixture'] = true
+  end
+
+  opts.on('--pt', '--position-in-test [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of any test files') do |p|
+    ENV['position_in_test'] = p
+    has_set_position['position_in_test'] = true
+  end
+
+  opts.on('--pr', '--position-in-routes [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of the routes.rb file') do |p|
+    ENV['position_in_routes'] = p
+    has_set_position['position_in_routes'] = true
+  end
+
+  opts.on('--ps', '--position-in-serializer [before|top|after|bottom]', positions,
+          'Place the annotations at the top (before) or the bottom (after) of the serializer files') do |p|
+    ENV['position_in_serializer'] = p
+    has_set_position['position_in_serializer'] = true
+  end
+
+  opts.on('--w', '--wrapper STR', 'Wrap annotation with the text passed as parameter.',
+          'If --w option is used, the same text will be used as opening and closing') do |p|
+    ENV['wrapper'] = p
+  end
+
+  opts.on('--wo', '--wrapper-open STR', 'Annotation wrapper opening.') do |p|
+    ENV['wrapper_open'] = p
+  end
+
+  opts.on('--wc', '--wrapper-close STR', 'Annotation wrapper closing') do |p|
+    ENV['wrapper_close'] = p
+  end
+
+  opts.on('-r', '--routes', "Annotate routes.rb with the output of 'rake routes'") do
+    ENV['routes'] = 'true'
+  end
+
+  opts.on('-a', '--active-admin', 'Annotate active_admin models') do
+    ENV['active_admin'] = 'true'
+  end
+
+  opts.on('-v', '--version', 'Show the current version of this gem') do
+    puts "annotate v#{Annotate.version}"; exit
+  end
+
+  opts.on('-m', '--show-migration', 'Include the migration version number in the annotation') do
+    ENV['include_version'] = 'yes'
+  end
+
+  opts.on('-k', '--show-foreign-keys',
+          "List the table's foreign key constraints in the annotation") do
+    ENV['show_foreign_keys'] = 'yes'
+  end
+>>>>>>> Add additional_file_paths to CLI
 
 Annotate.bootstrap_rake
 
