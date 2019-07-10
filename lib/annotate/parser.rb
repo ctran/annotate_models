@@ -57,6 +57,10 @@ module Annotate
         @options[:target_action] = :remove_annotations
       end
 
+      option_parser.on('-a', '--additional_file_patterns', Array, "Additional file paths or globs to annotate") do |additional_file_patterns|
+        ENV['additional_file_patterns'] = additional_file_patterns
+      end
+
       option_parser.on('-p', '--position [before|top|after|bottom]', positions,
                        'Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)') do |p|
         env['position'] = p
