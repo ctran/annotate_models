@@ -57,6 +57,10 @@ module Annotate
         @options[:target_action] = :remove_annotations
       end
 
+      option_parser.on('--additional_file_patterns path1,path2,path3', Array, "Additional file paths or globs to annotate") do |additional_file_patterns|
+        ENV['additional_file_patterns'] = additional_file_patterns
+      end
+
       option_parser.on('-a', '--additional_file_patterns', Array, "Additional file paths or globs to annotate") do |additional_file_patterns|
         ENV['additional_file_patterns'] = additional_file_patterns
       end
