@@ -780,6 +780,69 @@ EOS
     end
   end
 
+  describe '#files_by_pattern' do
+    subject { AnnotateModels.files_by_pattern(root_directory, pattern_type, options) }
+
+    context 'when pattern_type=additional_file_patterns' do
+      let(:pattern_type) { 'additional_file_patterns' }
+      let(:root_directory) { nil }
+
+      context 'with additional_file_patterns' do
+        let(:additional_file_patterns) do
+          [
+            '%PLURALIZED_MODEL_NAME%/**/*.rb',
+            '%PLURALIZED_MODEL_NAME%/*_form'
+          ]
+        end
+
+        let(:options) { { additional_file_patterns: additional_file_patterns } }
+
+        it do
+          expect(subject).to eq(additional_file_patterns)
+        end
+      end
+
+      context 'without additional_file_patterns' do
+        let(:options) { {} }
+
+        it do
+          expect(subject).to eq([])
+        end
+      end
+    end
+  end
+
+  describe '#get_patterns' do
+    subject { AnnotateModels.get_patterns(options, pattern_type) }
+
+    context 'when pattern_type=additional_file_patterns' do
+      let(:pattern_type) { 'additional_file_patterns' }
+
+      context 'with additional_file_patterns' do
+        let(:additional_file_patterns) do
+          [
+            '/%PLURALIZED_MODEL_NAME%/**/*.rb',
+            '/bar/%PLURALIZED_MODEL_NAME%/*_form'
+          ]
+        end
+
+        let(:options) { { additional_file_patterns: additional_file_patterns } }
+
+        it do
+          expect(subject).to eq(additional_file_patterns)
+        end
+      end
+
+      context 'without additional_file_patterns' do
+        let(:options) { {} }
+
+        it do
+          expect(subject).to eq([])
+        end
+      end
+    end
+  end
+
   describe '#get_schema_info with custom options' do
     def self.when_called_with(options = {})
       expected = options.delete(:returns)
@@ -1505,6 +1568,24 @@ end
       expect(filename). to eq 'test/unit/example_model_test.rb'
     end
 
+    it 'should return the additional glob' do
+      filename_template = '/foo/bar/%MODEL_NAME%/testing.rb'
+      model_name        = 'example_model'
+      table_name        = 'example_models'
+
+      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      expect(filename). to eq '/foo/bar/example_model/testing.rb'
+    end
+
+    it 'should return the additional glob' do
+      filename_template = '/foo/bar/%PLURALIZED_MODEL_NAME%/testing.rb'
+      model_name        = 'example_model'
+      table_name        = 'example_models'
+
+      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      expect(filename). to eq '/foo/bar/example_models/testing.rb'
+    end
+
     it 'should return the fixture path for a model' do
       filename_template = 'test/fixtures/%TABLE_NAME%.yml'
       model_name        = 'example_model'
@@ -1523,6 +1604,7 @@ end
       expect(filename). to eq 'test/fixtures/parent/children.yml'
     end
   end
+
   describe 'annotating a file' do
     before do
       @model_dir = Dir.mktmpdir('annotate_models')

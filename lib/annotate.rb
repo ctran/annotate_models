@@ -36,7 +36,7 @@ module Annotate
     :exclude_sti_subclasses, :ignore_unknown_models, :with_comment
   ].freeze
   OTHER_OPTIONS = [
-    :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close,
+    :additional_file_patterns, :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close,
     :wrapper, :routes, :hide_limit_column_types, :hide_default_column_types,
     :ignore_routes, :active_admin
   ].freeze
@@ -88,6 +88,7 @@ module Annotate
       options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s].split(',') : []
     end
 
+    options[:additional_file_patterns] ||= []
     options[:model_dir] = ['app/models'] if options[:model_dir].empty?
 
     options[:wrapper_open] ||= options[:wrapper]
