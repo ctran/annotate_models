@@ -217,23 +217,24 @@ you can do so with a simple environment variable, instead of editing the
 
 === Option: +additional_file_patterns+
 
-CLI: +--additional_file_patterns+
+CLI: +--additional_file_patterns+<br>
 Ruby: +:additional_file_patterns+
 
-Provide additional paths for the gem to annotate.  It works with existing
-filename resolutions (options for which can be found in the +resolve_filename+ method of
-+annotate_models.rb+).  These paths can also include globs.  It is recommended to use absolute paths.  Here are some
-examples:
+Provide additional paths for the gem to annotate.  These paths can include globs.
+It is recommended to use absolute paths.  Here are some examples:
 
-- +/app/lib/decorates/%MODEL_NAME%/*.rb+
-- +/app/lib/forms/%PLURALIZED_MODEL_NAME%/**/*.rb+
-- +/app/lib/forms/%TABLE_NAME%/*.rb+
 
-The appropriate model will be inferred using the +%*%+ syntax, annotating any matching files.
+- <code>/app/lib/decorates/%MODEL_NAME%/*.rb</code>
+- <code>/app/lib/forms/%PLURALIZED_MODEL_NAME%/**/*.rb</code>
+- <code>/app/lib/forms/%TABLE_NAME%/*.rb</code>
+
+The appropriate model will be inferred using the <code>%*%</code> syntax, annotating any matching files.
+It works with existing filename resolutions (options for which can be found in the +resolve_filename+ method of
++annotate_models.rb+).
 
 When using in a Rails config, you can use the following:
 
-+File.join(Rails.application.root, 'app/lib/forms/%PLURALIZED_MODEL_NAME%/**/*.rb')+
+<code>File.join(Rails.application.root, 'app/lib/forms/%PLURALIZED_MODEL_NAME%/**/*.rb')</code>
 
 
 == Sorting
