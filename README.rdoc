@@ -163,7 +163,7 @@ you can do so with a simple environment variable, instead of editing the
 == Options
 
     Usage: annotate [options] [model_file]*
-            --additional_file_paths      Additional file paths or globs to annotate
+            --additional_file_patterns   Additional file paths or globs to annotate, separated by commas (e.g. `/foo/bar/%model_name%/*.rb,/baz/%model_name%.rb`)
         -d, --delete                     Remove annotations from all model files or the routes.rb file
         -p [before|top|after|bottom],    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)
             --position
@@ -206,14 +206,34 @@ you can do so with a simple environment variable, instead of editing the
             --frozen                     Do not allow to change annotations. Exits non-zero if there are going to be changes to files.
             --timestamp                  Include timestamp in (routes) annotation
             --trace                      If unable to annotate a file, print the full stack trace, not just the exception message.
-        -I, --ignore-columns REGEX       don't annotate columns that match a given REGEX (i.e., `annotate -I '^(id|updated_at|created_at)'`
-            --ignore-routes REGEX        don't annotate routes that match a given REGEX (i.e., `annotate -I '(mobile|resque|pghero)'`
+        -I, --ignore-columns REGEX       don't annotate columns that match a given REGEX (e.g. `annotate -I '^(id|updated_at|created_at)'`)
+            --ignore-routes REGEX        don't annotate routes that match a given REGEX (e.g. `annotate -I '(mobile|resque|pghero)'`)_
             --hide-limit-column-types VALUES
-                                         don't show limit for given column types, separated by commas (i.e., `integer,boolean,text`)
+                                         don't show limit for given column types, separated by commas (e.g. `integer,boolean,text`)
             --hide-default-column-types VALUES
-                                         don't show default for given column types, separated by commas (i.e., `json,jsonb,hstore`)
+                                         don't show default for given column types, separated by commas (e.g. `json,jsonb,hstore`)
             --ignore-unknown-models      don't display warnings for bad model files
             --with-comment               include database comments in model annotations
+
+=== Option: +additional_file_patterns+
+
+CLI: +--additional_file_patterns+
+Ruby: +:additional_file_patterns+
+
+Provide additional paths for the gem to annotate.  It works with existing
+filename resolutions (options for which can be found in the +resolve_filename+ method of
++annotate_models.rb+).  These paths can also include globs.  It is recommended to use absolute paths.  Here are some
+examples:
+
+- +/app/lib/decorates/%MODEL_NAME%/*.rb+
+- +/app/lib/forms/%PLURALIZED_MODEL_NAME%/**/*.rb+
+- +/app/lib/forms/%TABLE_NAME%/*.rb+
+
+The appropriate model will be inferred using the +%*%+ syntax, annotating any matching files.
+
+When using in a Rails config, you can use the following:
+
++File.join(Rails.application.root, 'app/lib/forms/%PLURALIZED_MODEL_NAME%/**/*.rb')+
 
 
 == Sorting
