@@ -345,9 +345,9 @@ module Annotate # rubocop:disable Metrics/ModuleLength
         context "when ENV['require'] is already set" do
           let(:preset_require_value) { 'some_dir/' }
           it "appends the path to ENV['require']" do
-            allow(ENV).to receive(:[]).and_return(preset_require_value)
+            env = { 'require' => preset_require_value }
             expect(ENV).to receive(:[]=).with(env_key, "#{preset_require_value},#{set_value}")
-            Parser.parse([option, set_value])
+            Parser.parse([option, set_value], env)
           end
         end
       end
