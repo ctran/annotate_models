@@ -224,9 +224,9 @@ Provide additional paths for the gem to annotate.  These paths can include globs
 It is recommended to use absolute paths.  Here are some examples:
 
 
-- <code>/app/lib/decorates/%MODEL_NAME%/*.rb</code>
-- <code>/app/lib/forms/%PLURALIZED_MODEL_NAME%/**/*.rb</code>
-- <code>/app/lib/forms/%TABLE_NAME%/*.rb</code>
+- <code>/app/lib/decorates/%MODEL_NAME%/&ast;.rb</code>
+- <code>/app/lib/forms/%PLURALIZED_MODEL_NAME%/&ast;&ast;/&ast;.rb</code>
+- <code>/app/lib/forms/%TABLE_NAME%/&ast;.rb</code>
 
 The appropriate model will be inferred using the <code>%*%</code> syntax, annotating any matching files.
 It works with existing filename resolutions (options for which can be found in the +resolve_filename+ method of
