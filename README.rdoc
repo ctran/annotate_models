@@ -236,7 +236,6 @@ When using in a Rails config, you can use the following:
 
 <code>File.join(Rails.application.root, 'app/lib/forms/%PLURALIZED_MODEL_NAME%/**/*.rb')</code>
 
-
 == Sorting
 
 By default, columns will be sorted in database order (i.e. the order in which
