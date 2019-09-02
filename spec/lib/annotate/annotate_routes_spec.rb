@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper.rb'
+require_relative '../../spec_helper'
 require 'annotate/annotate_routes'
 
 describe AnnotateRoutes do
