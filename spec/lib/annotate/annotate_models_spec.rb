@@ -1,5 +1,5 @@
 # encoding: utf-8
-require_relative '../spec_helper'
+require_relative '../../spec_helper'
 require 'annotate/annotate_models'
 require 'annotate/active_record_patch'
 require 'active_support/core_ext/string'
@@ -1819,7 +1819,7 @@ end
         end
 
         expect(error_output).to include("Unable to annotate #{@model_dir}/user.rb: oops")
-        expect(error_output).to include('/spec/annotate/annotate_models_spec.rb:')
+        expect(error_output).to include('/spec/lib/annotate/annotate_models_spec.rb:')
       end
     end
 

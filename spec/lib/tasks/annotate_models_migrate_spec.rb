@@ -1,4 +1,4 @@
-require_relative '../spec_helper'
+require_relative '../../spec_helper'
 
 describe 'ActiveRecord migration rake task hooks' do
   before do

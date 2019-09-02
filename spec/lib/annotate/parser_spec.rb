@@ -1,4 +1,4 @@
-require_relative '../spec_helper'
+require_relative '../../spec_helper'
 
 module Annotate # rubocop:disable Metrics/ModuleLength
   describe Parser do # rubocop:disable Metrics/BlockLength

@@ -1,4 +1,4 @@
-require_relative '../spec_helper'
+require_relative '../../spec_helper'
 require 'annotate/annotate_routes'
 
 describe AnnotateRoutes do
