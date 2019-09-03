@@ -1,3 +1,13 @@
+== 3.0.0
+* Added `--models` CLI option fixing issue #563 (#647)
+* Added `--additional_file_patterns` option for additional file patterns (#633) #636) #637)
+* Refactored CLI parser (#646)
+* Fixed BigDecimal.new deprecation warning (#634)
+* Fixed annotations for columns with long data types (#622)
+* Made methods private in AnnotateRoutes (#598)
+
+See https://github.com/ctran/annotate_models/releases/tag/v3.0.0
+
 == 2.7.5
 See https://github.com/ctran/annotate_models/releases/tag/v2.7.5
 
