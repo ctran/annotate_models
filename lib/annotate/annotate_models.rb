@@ -159,13 +159,15 @@ module AnnotateModels
       ]
     end
 
-    def files_by_pattern(root_directory, pattern_type)
+    def files_by_pattern(root_directory, pattern_type, options)
       case pattern_type
       when 'test'       then test_files(root_directory)
       when 'fixture'    then fixture_files(root_directory)
       when 'scaffold'   then scaffold_files(root_directory)
       when 'factory'    then factory_files(root_directory)
       when 'serializer' then serialize_files(root_directory)
+      when 'additional_file_patterns'
+        [options[:additional_file_patterns] || []].flatten
       when 'controller'
         [File.join(root_directory, CONTROLLER_DIR, "%PLURALIZED_MODEL_NAME%_controller.rb")]
       when 'admin'
@@ -177,14 +179,20 @@ module AnnotateModels
       end
     end
 
-    def get_patterns(pattern_types = [])
+    def get_patterns(options, pattern_types = [])
       current_patterns = []
       root_dir.each do |root_directory|
         Array(pattern_types).each do |pattern_type|
-          current_patterns += files_by_pattern(root_directory, pattern_type)
+          patterns = files_by_pattern(root_directory, pattern_type, options)
+
+          current_patterns += if pattern_type.to_sym == :additional_file_patterns
+                                patterns
+                              else
+                                patterns.map { |p| p.sub(/^[\/]*/, '') }
+                              end
         end
       end
-      current_patterns.map { |p| p.sub(/^[\/]*/, '') }
+      current_patterns
     end
 
     # Simple quoting for the default column value
@@ -581,8 +589,9 @@ module AnnotateModels
     end
 
     def matched_types(options)
-      types = MATCHED_TYPES
+      types = MATCHED_TYPES.dup
       types << 'admin' if options[:active_admin] =~ TRUE_RE && !types.include?('admin')
+      types << 'additional_file_patterns' if options[:additional_file_patterns].present?
 
       types
     end
@@ -634,8 +643,11 @@ module AnnotateModels
           end
 
           next if options[exclusion_key]
-          get_patterns(key)
+
+          get_patterns(options, key)
             .map { |f| resolve_filename(f, model_name, table_name) }
+            .map { |f| expand_glob_into_files(f) }
+            .flatten
             .each do |f|
               if annotate_one_file(f, info, position_key, options_with_position(options, position_key))
                 annotated << f
@@ -793,6 +805,10 @@ module AnnotateModels
       end
     end
 
+    def expand_glob_into_files(glob)
+      Dir.glob(glob)
+    end
+
     def annotate_model_file(annotated, file, header, options)
       begin
         return false if /#{SKIP_ANNOTATION_PREFIX}.*/ =~ (File.exist?(file) ? File.read(file) : '')
@@ -830,7 +846,7 @@ module AnnotateModels
             model_file_name = file
             deannotated_klass = true if remove_annotation_of_file(model_file_name, options)
 
-            get_patterns(matched_types(options))
+            get_patterns(options, matched_types(options))
               .map { |f| resolve_filename(f, model_name, table_name) }
               .each do |f|
                 if File.exist?(f)
