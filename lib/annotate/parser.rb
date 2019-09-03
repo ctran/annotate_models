@@ -123,6 +123,10 @@ module Annotate
         env['routes'] = 'true'
       end
 
+      option_parser.on('--models', "Annotate routes.rb with the output of 'rake routes'") do
+        env['models'] = 'true'
+      end
+
       option_parser.on('-a', '--active-admin', 'Annotate active_admin models') do
         env['active_admin'] = 'true'
       end

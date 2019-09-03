@@ -89,11 +89,11 @@ To annotate all your models, tests, fixtures, and factories:
 
 To annotate just your models, tests, and factories:
 
-    annotate --exclude fixtures
+    annotate --models --exclude fixtures
 
 To annotate just your models:
 
-    annotate --exclude tests,fixtures,factories,serializers
+    annotate --models
 
 To annotate routes.rb:
 
@@ -184,6 +184,7 @@ you can do so with a simple environment variable, instead of editing the
             --wo, --wrapper-open STR     Annotation wrapper opening.
             --wc, --wrapper-close STR    Annotation wrapper closing
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
+            --models                     Annotate ActiveRecord models
         -a, --active-admin               Annotate active_admin models
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation

@@ -222,6 +222,17 @@ module Annotate # rubocop:disable Metrics/ModuleLength
       end
     end
 
+    %w[--models].each do |option|
+      describe option do
+        let(:env_key) { 'models' }
+        let(:set_value) { 'true' }
+        it 'sets the ENV variable' do
+          expect(ENV).to receive(:[]=).with(env_key, set_value)
+          Parser.parse([option])
+        end
+      end
+    end
+
     %w[-a --active-admin].each do |option|
       describe option do
         let(:env_key) { 'active_admin' }
