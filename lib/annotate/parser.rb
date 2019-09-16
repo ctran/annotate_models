@@ -123,7 +123,7 @@ module Annotate
         env['routes'] = 'true'
       end
 
-      option_parser.on('--models', "Annotate routes.rb with the output of 'rake routes'") do
+      option_parser.on('--models', "Annotate ActiveRecord models") do
         env['models'] = 'true'
       end
 
