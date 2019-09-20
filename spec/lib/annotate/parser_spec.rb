@@ -17,10 +17,6 @@ module Annotate # rubocop:disable Metrics/ModuleLength
     %w[--additional-file-patterns].each do |option|
       describe option do
         it 'sets array of paths to :additional_file_patterns' do
-          # options = "-a ${('foo/bar' 'baz')}"
-          # Parser.parse(options)
-          # expect(ENV['additional_file_patterns']).to eq(['foo/bar', 'baz'])
-
           paths = 'foo/bar,baz'
           allow(ENV).to receive(:[]=)
           Parser.parse([option, paths])
