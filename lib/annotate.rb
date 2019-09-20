@@ -4,6 +4,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'annotate/version'
 require 'annotate/annotate_models'
 require 'annotate/annotate_routes'
+require 'annotate/constants'
 
 begin
   # ActiveSupport 3.x...
@@ -16,7 +17,7 @@ rescue StandardError
 end
 
 module Annotate
-  TRUE_RE = /^(true|t|yes|y|1)$/i
+  TRUE_RE = Constants::TRUE_RE
 
   ##
   # The set of available options to customize the behavior of Annotate.
