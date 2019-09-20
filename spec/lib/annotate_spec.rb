@@ -5,12 +5,6 @@ describe Annotate do
     expect(Annotate.version).to be_instance_of(String)
   end
 
-  describe 'TRUE_RE' do
-    it do
-      expect(Annotate::TRUE_RE).to be_a(Regexp)
-    end
-  end
-
   describe '.skip_on_migration?' do
     it "checks ENV for 'ANNOTATE_SKIP_ON_DB_MIGRATE' or 'skip_on_db_migrate'" do
       expect(ENV).to receive(:[]).twice
