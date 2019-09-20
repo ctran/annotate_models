@@ -14,7 +14,7 @@ module Annotate # rubocop:disable Metrics/ModuleLength
       end
     end
 
-    %w[--additional_file_patterns].each do |option|
+    %w[--additional-file-patterns].each do |option|
       describe option do
         it 'sets array of paths to :additional_file_patterns' do
           # options = "-a ${('foo/bar' 'baz')}"

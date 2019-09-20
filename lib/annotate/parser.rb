@@ -49,16 +49,12 @@ module Annotate
 
       option_parser.banner = 'Usage: annotate [options] [model_file]*'
 
-      option_parser.on('--additional_file_patterns path1,path2,path3', Array, "Additional file paths or globs to annotate, separated by commas (e.g. `/foo/bar/%model_name%/*.rb,/baz/%model_name%.rb`)") do |additional_file_patterns|
+      option_parser.on('--additional-file-patterns path1,path2,path3', Array, "Additional file paths or globs to annotate, separated by commas (e.g. `/foo/bar/%model_name%/*.rb,/baz/%model_name%.rb`)") do |additional_file_patterns|
         ENV['additional_file_patterns'] = additional_file_patterns
       end
 
       option_parser.on('-d', '--delete', 'Remove annotations from all model files or the routes.rb file') do
         @options[:target_action] = :remove_annotations
-      end
-
-      option_parser.on('--additional_file_patterns path1,path2,path3', Array, "Additional file paths or globs to annotate") do |additional_file_patterns|
-        ENV['additional_file_patterns'] = additional_file_patterns
       end
 
       option_parser.on('-p', '--position [before|top|after|bottom]', positions,
