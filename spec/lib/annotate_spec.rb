@@ -4,4 +4,11 @@ describe Annotate do
   it 'should have a version' do
     expect(Annotate.version).to be_instance_of(String)
   end
+
+  describe '.include_routes?' do
+    it "checks ENV with 'routes'" do
+      expect(ENV).to receive(:[]).with('routes')
+      described_class.include_routes?
+    end
+  end
 end
