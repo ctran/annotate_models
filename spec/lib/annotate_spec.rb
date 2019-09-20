@@ -11,4 +11,11 @@ describe Annotate do
       described_class.include_routes?
     end
   end
+
+  describe '.include_models?' do
+    it "checks ENV with 'models'" do
+      expect(ENV).to receive(:[]).with('models')
+      described_class.include_models?
+    end
+  end
 end
