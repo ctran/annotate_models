@@ -2,8 +2,10 @@
 
 require 'bigdecimal'
 
+require 'annotate/constants'
+
 module AnnotateModels
-  TRUE_RE = /^(true|t|yes|y|1)$/i
+  TRUE_RE = Annotate::Constants::TRUE_RE
 
   # Annotate Models plugin use this header
   COMPAT_PREFIX    = '== Schema Info'.freeze
