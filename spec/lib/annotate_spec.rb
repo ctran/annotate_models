@@ -5,6 +5,13 @@ describe Annotate do
     expect(Annotate.version).to be_instance_of(String)
   end
 
+  describe '.skip_on_migration?' do
+    it "checks ENV for 'ANNOTATE_SKIP_ON_DB_MIGRATE' or 'skip_on_db_migrate'" do
+      expect(ENV).to receive(:[]).twice
+      described_class.skip_on_migration?
+    end
+  end
+
   describe '.include_routes?' do
     it "checks ENV with 'routes'" do
       expect(ENV).to receive(:[]).with('routes')
