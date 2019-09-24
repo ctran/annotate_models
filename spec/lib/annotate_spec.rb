@@ -1,8 +1,10 @@
 require_relative '../spec_helper'
 
 describe Annotate do
-  it 'should have a version' do
-    expect(Annotate.version).to be_instance_of(String)
+  describe '.version' do
+    it 'has version' do
+      expect(Annotate.version).to be_instance_of(String)
+    end
   end
 
   describe '.skip_on_migration?' do
