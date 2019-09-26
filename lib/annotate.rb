@@ -4,6 +4,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'annotate/version'
 require 'annotate/annotate_models'
 require 'annotate/annotate_routes'
+require 'annotate/constants'
 
 begin
   # ActiveSupport 3.x...
@@ -16,8 +17,6 @@ rescue StandardError
 end
 
 module Annotate
-  TRUE_RE = /^(true|t|yes|y|1)$/i
-
   ##
   # The set of available options to customize the behavior of Annotate.
   #
@@ -107,15 +106,15 @@ module Annotate
   end
 
   def self.skip_on_migration?
-    ENV['ANNOTATE_SKIP_ON_DB_MIGRATE'] =~ TRUE_RE || ENV['skip_on_db_migrate'] =~ TRUE_RE
+    ENV['ANNOTATE_SKIP_ON_DB_MIGRATE'] =~ Constants::TRUE_RE || ENV['skip_on_db_migrate'] =~ Constants::TRUE_RE
   end
 
   def self.include_routes?
-    ENV['routes'] =~ TRUE_RE
+    ENV['routes'] =~ Constants::TRUE_RE
   end
 
   def self.include_models?
-    ENV['models'] =~ TRUE_RE
+    ENV['models'] =~ Constants::TRUE_RE
   end
 
   def self.loaded_tasks=(val)
@@ -199,7 +198,7 @@ module Annotate
 
   def self.true?(val)
     return false if val.blank?
-    return false unless val =~ TRUE_RE
+    return false unless val =~ Constants::TRUE_RE
     true
   end
 end

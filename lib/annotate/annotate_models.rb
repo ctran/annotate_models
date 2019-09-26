@@ -2,9 +2,9 @@
 
 require 'bigdecimal'
 
-module AnnotateModels
-  TRUE_RE = /^(true|t|yes|y|1)$/i
+require 'annotate/constants'
 
+module AnnotateModels
   # Annotate Models plugin use this header
   COMPAT_PREFIX    = '== Schema Info'.freeze
   COMPAT_PREFIX_MD = '## Schema Info'.freeze
@@ -590,7 +590,7 @@ module AnnotateModels
 
     def matched_types(options)
       types = MATCHED_TYPES.dup
-      types << 'admin' if options[:active_admin] =~ TRUE_RE && !types.include?('admin')
+      types << 'admin' if options[:active_admin] =~ Annotate::Constants::TRUE_RE && !types.include?('admin')
       types << 'additional_file_patterns' if options[:additional_file_patterns].present?
 
       types
