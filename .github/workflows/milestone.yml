@@ -1,0 +1,12 @@
+on: milestone
+name: On Milestone
+jobs:
+  createReleaseNotes:
+    name: Create Release Notes
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Create Release Notes
+      uses: mmornati/release-notes-generator-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
