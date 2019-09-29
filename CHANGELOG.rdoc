@@ -1,3 +1,11 @@
+== 3.0.2
+* Fixes `LoadError` due to gemspec not referencing `parser.rb`, issue #657 (#660)
+* Changes `--additional_file_patterns` to use dashes `--additional-file-patterns` for consistency (#649)
+* Refactor: moving constants into `constants.rb` (#653)
+
+== 3.0.1
+* Skipped as an official release, used the 3.0.1 patch for setting up Github Actions (#619)
+
 == 3.0.0
 * Added `--models` CLI option fixing issue #563 (#647)
 * Added `--additional_file_patterns` option for additional file patterns (#633) #636) #637)
