@@ -26,6 +26,8 @@ Gem::Specification.new do |s|
     'lib/annotate/active_record_patch.rb',
     'lib/annotate/annotate_models.rb',
     'lib/annotate/annotate_routes.rb',
+    'lib/annotate/constants.rb',
+    'lib/annotate/parser.rb',
     'lib/annotate/tasks.rb',
     'lib/annotate/version.rb',
     'lib/generators/annotate/USAGE',
