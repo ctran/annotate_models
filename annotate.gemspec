@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.email = ['alex@stinky.com', 'cuong.tran@gmail.com', 'x@nofxx.com', 'turadg@aleahmad.net', 'jon@cloudability.com']
   s.executables = ['annotate']
   s.extra_rdoc_files = ['README.rdoc', 'CHANGELOG.rdoc', 'TODO.rdoc']
-  s.files = `git ls-files -z *.rdoc *.gemspec bin lib`.split("\x0")
+  s.files = `git ls-files -z LICENSE.txt *.rdoc *.gemspec bin lib`.split("\x0")
   s.homepage = 'http://github.com/ctran/annotate_models'
   s.licenses = ['Ruby']
   s.require_paths = ['lib']
