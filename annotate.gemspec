@@ -14,29 +14,7 @@ Gem::Specification.new do |s|
   s.email = ['alex@stinky.com', 'cuong.tran@gmail.com', 'x@nofxx.com', 'turadg@aleahmad.net', 'jon@cloudability.com']
   s.executables = ['annotate']
   s.extra_rdoc_files = ['README.rdoc', 'CHANGELOG.rdoc', 'TODO.rdoc']
-  s.files = [
-    'AUTHORS.rdoc',
-    'CHANGELOG.rdoc',
-    'LICENSE.txt',
-    'README.rdoc',
-    'TODO.rdoc',
-    'annotate.gemspec',
-    'bin/annotate',
-    'lib/annotate.rb',
-    'lib/annotate/active_record_patch.rb',
-    'lib/annotate/annotate_models.rb',
-    'lib/annotate/annotate_routes.rb',
-    'lib/annotate/constants.rb',
-    'lib/annotate/parser.rb',
-    'lib/annotate/tasks.rb',
-    'lib/annotate/version.rb',
-    'lib/generators/annotate/USAGE',
-    'lib/generators/annotate/install_generator.rb',
-    'lib/generators/annotate/templates/auto_annotate_models.rake',
-    'lib/tasks/annotate_models.rake',
-    'lib/tasks/annotate_routes.rake',
-    'lib/tasks/annotate_models_migrate.rake'
-  ]
+  s.files = `git ls-files -z LICENSE.txt *.rdoc *.gemspec bin lib`.split("\x0")
   s.homepage = 'http://github.com/ctran/annotate_models'
   s.licenses = ['Ruby']
   s.require_paths = ['lib']
