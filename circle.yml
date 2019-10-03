@@ -1,7 +1,0 @@
-machine:
-  ruby:
-    version: 2.2.6
-
-test:
-  override:
-    - bundle exec rubocop && bundle exec rspec
