@@ -1781,6 +1781,18 @@ end
       end
     end
 
+    it 'only keeps a single empty line around the annotation (position :before)' do
+      content = "class User < ActiveRecord::Base\nend\n"
+      magic_comments_list_each do |magic_comment|
+        schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+        model_file_name, = write_model 'user.rb', "#{magic_comment}\n\n\n\n#{content}"
+
+        annotate_one_file position: :before
+
+        expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}\n#{content}")
+      end
+    end
+
     it 'does not change whitespace between magic comments and model file content (position :after)' do
       content = "class User < ActiveRecord::Base\nend\n"
       magic_comments_list_each do |magic_comment|
