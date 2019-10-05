@@ -1,5 +1,13 @@
 name: CI
-on: [push]
+on:
+  pull_request:
+    branches:
+      - '*'
+
+  push:
+    branches:
+      - '*'
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -12,17 +20,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Setup System
-        run: |
-          sudo apt-get install libsqlite3-dev
+
       - name: Setup Ruby
         uses: actions/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
+
       - name: Bundle
         run: |
           gem update --system
           gem update bundler
           bundle install --jobs 4 --retry 3
+
       - name: Test
         run: bundle exec rubocop && bundle exec rspec
