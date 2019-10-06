@@ -24,4 +24,6 @@ Gem::Specification.new do |s|
   s.specification_version = 4 if s.respond_to? :specification_version
   s.add_runtime_dependency(%q<rake>, '>= 10.4', '< 14.0')
   s.add_runtime_dependency(%q<activerecord>, ['>= 3.2', '< 7.0'])
+
+  s.metadata = { "github_repo" => "ssh://github.com/ctran/annotate_models" }
 end
