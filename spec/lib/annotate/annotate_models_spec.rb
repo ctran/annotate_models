@@ -1046,6 +1046,28 @@ EOS
         EOS
       end
 
+      it 'should get schema info as Markdown with multibyte comment' do
+        klass = mock_class(:users,
+                           :id,
+                           [
+                             mock_column(:id, :integer, comment: 'ＩＤ'),
+                             mock_column(:name, :string, limit: 50, comment: 'ＮＡＭＥ')
+                           ])
+        expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, with_comment: true)).to eql(<<-EOS.strip_heredoc)
+        # #{AnnotateModels::PREFIX}
+        #
+        # Table name: `users`
+        #
+        # ### Columns
+        #
+        # Name                  | Type               | Attributes
+        # --------------------- | ------------------ | ---------------------------
+        # **`id(ＩＤ)`**        | `integer`          | `not null, primary key`
+        # **`name(ＮＡＭＥ)`**  | `string(50)`       | `not null`
+        #
+        EOS
+      end
+
       it 'should get schema info as Markdown' do
         klass = mock_class(:users,
                            :id,

@@ -408,7 +408,7 @@ Lint/ShadowingOuterLocalVariable:
 
 # Offense count: 20
 Metrics/AbcSize:
-  Max: 138
+  Max: 139
 
 # Offense count: 28
 # Configuration parameters: CountComments, ExcludedMethods.
