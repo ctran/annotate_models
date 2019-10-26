@@ -920,7 +920,7 @@ module AnnotateModels
     end
 
     def width(string)
-      string.chars.inject(0) { |acc, elem| acc + (elem.bytesize == 1 ? 1 : 2) }
+      string.chars.inject(0) { |acc, elem| acc + (elem.bytesize == 3 ? 2 : 1) }
     end
 
     def mb_chars_ljust(string, length)

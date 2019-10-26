@@ -1006,6 +1006,9 @@ EOS
         [:active,     :boolean, { limit: 1,  comment: 'ＡＣＴＩＶＥ' }],
         [:name,       :string,  { limit: 50, comment: 'ＮＡＭＥ' }],
         [:notes,      :text,    { limit: 55, comment: 'ＮＯＴＥＳ' }],
+        [:cyrillic,   :text,    { limit: 30, comment: 'Кириллица' }],
+        [:japanese,   :text,    { limit: 60, comment: '熊本大学　イタリア　宝島' }],
+        [:arabic,     :text,    { limit: 20, comment: 'لغة' }],
         [:no_comment, :text,    { limit: 20, comment: nil }],
         [:location,   :geometry_collection, { limit: nil, comment: nil }]
       ]
@@ -1017,12 +1020,15 @@ EOS
         #
         # Table name: users
         #
-        #  id(ＩＤ)             :integer          not null, primary key
-        #  active(ＡＣＴＩＶＥ) :boolean          not null
-        #  name(ＮＡＭＥ)       :string(50)       not null
-        #  notes(ＮＯＴＥＳ)    :text(55)         not null
-        #  no_comment           :text(20)         not null
-        #  location             :geometry_collect not null
+        #  id(ＩＤ)                           :integer          not null, primary key
+        #  active(ＡＣＴＩＶＥ)               :boolean          not null
+        #  name(ＮＡＭＥ)                     :string(50)       not null
+        #  notes(ＮＯＴＥＳ)                  :text(55)         not null
+        #  cyrillic(Кириллица)                :text(30)         not null
+        #  japanese(熊本大学　イタリア　宝島) :text(60)         not null
+        #  arabic(لغة)                        :text(20)         not null
+        #  no_comment                         :text(20)         not null
+        #  location                           :geometry_collect not null
         #
       EOS
 
