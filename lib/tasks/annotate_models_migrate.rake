@@ -4,7 +4,18 @@
 # Append annotations to Rake tasks for ActiveRecord, so annotate automatically gets
 # run after doing db:migrate.
 
-%w(db:migrate db:migrate:up db:migrate:down db:migrate:reset db:migrate:redo db:rollback).each do |task|
+migration_tasks = %w(db:migrate db:migrate:up db:migrate:down db:migrate:reset db:migrate:redo db:rollback)
+if defined?(Rails::Application) && Rails.version.split('.').first.to_i >= 6
+  require 'active_record'
+
+  databases = ActiveRecord::Tasks::DatabaseTasks.setup_initial_database_yaml
+
+  ActiveRecord::Tasks::DatabaseTasks.for_each(databases) do |spec_name|
+    migration_tasks.concat(%w(db:migrate db:migrate:up db:migrate:down).map { |task| "#{task}:#{spec_name}" })
+  end
+end
+
+migration_tasks.each do |task|
   Rake::Task[task].enhance do
     Rake::Task[Rake.application.top_level_tasks.last].enhance do
       annotation_options_task = if Rake::Task.task_defined?('app:set_annotation_options')
