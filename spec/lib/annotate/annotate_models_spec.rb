@@ -225,6 +225,29 @@ EOS
 EOS
   end
 
+  it 'sets correct default value for integer column when ActiveRecord::Enum is used' do
+    klass = mock_class(:users,
+                       :id,
+                       [
+                         mock_column(:id, :integer),
+                         mock_column(:status, :integer, default: 0)
+                       ])
+    # column_defaults may be overritten when ActiveRecord::Enum is used, e.g:
+    # class User < ActiveRecord::Base
+    #   enum status: [ :disabled, :enabled ]
+    # end
+    allow(klass).to receive(:column_defaults).and_return('id' => nil, 'status' => 'disabled')
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
+# Schema Info
+#
+# Table name: users
+#
+#  id     :integer          not null, primary key
+#  status :integer          default(0), not null
+#
+EOS
+  end
+
   it 'should get foreign key info' do
     klass = mock_class(:users,
                        :id,
