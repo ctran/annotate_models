@@ -1,3 +1,10 @@
+== 3.0.3
+* Use a less error-prone way of specifying gem files (#662)
+* Update rake requirement from >= 10.4, < 13.0 to >= 10.4, < 14.0 (#659)
+* Bump nokogiri from 1.6.6.2 to 1.10.4 in /spec/integration/rails_4.2.0 (#655)
+* Defaults annotate models to true (#671)
+* Bump loofah from 2.3.0 to 2.3.1 in /spec/integration/rails_4.2.0 (#681)
+
 == 3.0.2
 * Fixes `LoadError` due to gemspec not referencing `parser.rb`, issue #657 (#660)
 * Changes `--additional_file_patterns` to use dashes `--additional-file-patterns` for consistency (#649)
