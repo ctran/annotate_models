@@ -305,7 +305,7 @@ module AnnotateModels
         if options[:format_rdoc]
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
         elsif options[:format_markdown]
-          name_remainder = max_size - col_name.length
+          name_remainder = max_size - col_name.length - non_ascii_length(col_name)
           type_remainder = (md_type_allowance - 2) - col_type.length
           info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
         else
@@ -931,6 +931,10 @@ module AnnotateModels
       else
         string[0..length-1]
       end
+    end
+
+    def non_ascii_length(string)
+      string.to_s.chars.reject(&:ascii_only?).length
     end
   end
 
