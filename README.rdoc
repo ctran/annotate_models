@@ -3,10 +3,10 @@
 {<img src="https://badge.fury.io/rb/annotate.svg" alt="Gem Version" />}[http://badge.fury.io/rb/annotate]
 {<img src="https://img.shields.io/gem/dt/annotate.svg?style=flat" />}[https://rubygems.org/gems/annotate]
 {<img src="https://travis-ci.org/ctran/annotate_models.svg?branch=develop" />}[https://travis-ci.org/ctran/annotate_models]
+{<img src="https://github.com/ctran/annotate_models/workflows/CI/badge.svg" />}[https://github.com/ctran/annotate_models/actions?workflow=CI]
 {<img src="https://coveralls.io/repos/ctran/annotate_models/badge.svg?branch=develop" />}[https://coveralls.io/r/ctran/annotate_models?branch=develop]
 {<img src="https://codeclimate.com/github/ctran/annotate_models/badges/gpa.svg" />}[https://codeclimate.com/github/ctran/annotate_models]
 {<img src="http://inch-ci.org/github/ctran/annotate_models.svg?branch=develop" alt="Inline docs" />}[http://inch-ci.org/github/ctran/annotate_models]
-{<img src="https://gemnasium.com/ctran/annotate_models.png" />}[https://gemnasium.com/ctran/annotate_models]
 
 Add a comment summarizing the current schema to the top or bottom of each of
 your...
@@ -90,11 +90,11 @@ To annotate all your models, tests, fixtures, and factories:
 
 To annotate just your models, tests, and factories:
 
-    annotate --exclude fixtures
+    annotate --models --exclude fixtures
 
 To annotate just your models:
 
-    annotate --exclude tests,fixtures,factories,serializers
+    annotate --models
 
 To annotate routes.rb:
 
@@ -164,6 +164,7 @@ you can do so with a simple environment variable, instead of editing the
 == Options
 
     Usage: annotate [options] [model_file]*
+            --additional_file_patterns   Additional file paths or globs to annotate, separated by commas (e.g. `/foo/bar/%model_name%/*.rb,/baz/%model_name%.rb`)
         -d, --delete                     Remove annotations from all model files or the routes.rb file
         -p [before|top|after|bottom],    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)
             --position
@@ -184,6 +185,7 @@ you can do so with a simple environment variable, instead of editing the
             --wo, --wrapper-open STR     Annotation wrapper opening.
             --wc, --wrapper-close STR    Annotation wrapper closing
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
+            --models                     Annotate ActiveRecord models
         -a, --active-admin               Annotate active_admin models
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
@@ -206,16 +208,35 @@ you can do so with a simple environment variable, instead of editing the
             --frozen                     Do not allow to change annotations. Exits non-zero if there are going to be changes to files.
             --timestamp                  Include timestamp in (routes) annotation
             --trace                      If unable to annotate a file, print the full stack trace, not just the exception message.
-        -I, --ignore-columns REGEX       don't annotate columns that match a given REGEX (i.e., `annotate -I '^(id|updated_at|created_at)'`
-            --ignore-routes REGEX        don't annotate routes that match a given REGEX (i.e., `annotate -I '(mobile|resque|pghero)'`
+        -I, --ignore-columns REGEX       don't annotate columns that match a given REGEX (e.g. `annotate -I '^(id|updated_at|created_at)'`)
+            --ignore-routes REGEX        don't annotate routes that match a given REGEX (e.g. `annotate -I '(mobile|resque|pghero)'`)_
             --hide-limit-column-types VALUES
-                                         don't show limit for given column types, separated by commas (i.e., `integer,boolean,text`)
+                                         don't show limit for given column types, separated by commas (e.g. `integer,boolean,text`)
             --hide-default-column-types VALUES
-                                         don't show default for given column types, separated by commas (i.e., `json,jsonb,hstore`)
+                                         don't show default for given column types, separated by commas (e.g. `json,jsonb,hstore`)
             --ignore-unknown-models      don't display warnings for bad model files
             --with-comment               include database comments in model annotations
 
+=== Option: +additional_file_patterns+
 
+CLI: +--additional_file_patterns+<br>
+Ruby: +:additional_file_patterns+
+
+Provide additional paths for the gem to annotate.  These paths can include globs.
+It is recommended to use absolute paths.  Here are some examples:
+
+
+- <code>/app/lib/decorates/%MODEL_NAME%/&ast;.rb</code>
+- <code>/app/lib/forms/%PLURALIZED_MODEL_NAME%/&ast;&ast;/&ast;.rb</code>
+- <code>/app/lib/forms/%TABLE_NAME%/&ast;.rb</code>
+
+The appropriate model will be inferred using the <code>%*%</code> syntax, annotating any matching files.
+It works with existing filename resolutions (options for which can be found in the +resolve_filename+ method of
++annotate_models.rb+).
+
+When using in a Rails config, you can use the following:
+
+<code>File.join(Rails.application.root, 'app/lib/forms/%PLURALIZED_MODEL_NAME%/**/*.rb')</code>
 
 == Sorting
 

@@ -1,5 +1,5 @@
 # encoding: utf-8
-require File.dirname(__FILE__) + '/../spec_helper.rb'
+require_relative '../../spec_helper'
 require 'annotate/annotate_models'
 require 'annotate/active_record_patch'
 require 'active_support/core_ext/string'
@@ -70,8 +70,8 @@ describe AnnotateModels do # rubocop:disable Metrics/BlockLength
   it { expect(AnnotateModels.quote(25)).to eql('25') }
   it { expect(AnnotateModels.quote(25.6)).to eql('25.6') }
   it { expect(AnnotateModels.quote(1e-20)).to eql('1.0e-20') }
-  it { expect(AnnotateModels.quote(BigDecimal.new('1.2'))).to eql('1.2') }
-  it { expect(AnnotateModels.quote([BigDecimal.new('1.2')])).to eql(['1.2']) }
+  it { expect(AnnotateModels.quote(BigDecimal('1.2'))).to eql('1.2') }
+  it { expect(AnnotateModels.quote([BigDecimal('1.2')])).to eql(['1.2']) }
 
   describe '#parse_options' do
     let(:options) do
@@ -777,6 +777,69 @@ EOS
 
     after :each do
       ENV.delete('show_complete_foreign_keys')
+    end
+  end
+
+  describe '#files_by_pattern' do
+    subject { AnnotateModels.files_by_pattern(root_directory, pattern_type, options) }
+
+    context 'when pattern_type=additional_file_patterns' do
+      let(:pattern_type) { 'additional_file_patterns' }
+      let(:root_directory) { nil }
+
+      context 'with additional_file_patterns' do
+        let(:additional_file_patterns) do
+          [
+            '%PLURALIZED_MODEL_NAME%/**/*.rb',
+            '%PLURALIZED_MODEL_NAME%/*_form'
+          ]
+        end
+
+        let(:options) { { additional_file_patterns: additional_file_patterns } }
+
+        it do
+          expect(subject).to eq(additional_file_patterns)
+        end
+      end
+
+      context 'without additional_file_patterns' do
+        let(:options) { {} }
+
+        it do
+          expect(subject).to eq([])
+        end
+      end
+    end
+  end
+
+  describe '#get_patterns' do
+    subject { AnnotateModels.get_patterns(options, pattern_type) }
+
+    context 'when pattern_type=additional_file_patterns' do
+      let(:pattern_type) { 'additional_file_patterns' }
+
+      context 'with additional_file_patterns' do
+        let(:additional_file_patterns) do
+          [
+            '/%PLURALIZED_MODEL_NAME%/**/*.rb',
+            '/bar/%PLURALIZED_MODEL_NAME%/*_form'
+          ]
+        end
+
+        let(:options) { { additional_file_patterns: additional_file_patterns } }
+
+        it do
+          expect(subject).to eq(additional_file_patterns)
+        end
+      end
+
+      context 'without additional_file_patterns' do
+        let(:options) { {} }
+
+        it do
+          expect(subject).to eq([])
+        end
+      end
     end
   end
 
@@ -1505,6 +1568,24 @@ end
       expect(filename). to eq 'test/unit/example_model_test.rb'
     end
 
+    it 'should return the additional glob' do
+      filename_template = '/foo/bar/%MODEL_NAME%/testing.rb'
+      model_name        = 'example_model'
+      table_name        = 'example_models'
+
+      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      expect(filename). to eq '/foo/bar/example_model/testing.rb'
+    end
+
+    it 'should return the additional glob' do
+      filename_template = '/foo/bar/%PLURALIZED_MODEL_NAME%/testing.rb'
+      model_name        = 'example_model'
+      table_name        = 'example_models'
+
+      filename = AnnotateModels.resolve_filename(filename_template, model_name, table_name)
+      expect(filename). to eq '/foo/bar/example_models/testing.rb'
+    end
+
     it 'should return the fixture path for a model' do
       filename_template = 'test/fixtures/%TABLE_NAME%.yml'
       model_name        = 'example_model'
@@ -1523,6 +1604,7 @@ end
       expect(filename). to eq 'test/fixtures/parent/children.yml'
     end
   end
+
   describe 'annotating a file' do
     before do
       @model_dir = Dir.mktmpdir('annotate_models')
@@ -1737,7 +1819,7 @@ end
         end
 
         expect(error_output).to include("Unable to annotate #{@model_dir}/user.rb: oops")
-        expect(error_output).to include('/spec/annotate/annotate_models_spec.rb:')
+        expect(error_output).to include('/spec/lib/annotate/annotate_models_spec.rb:')
       end
     end
 

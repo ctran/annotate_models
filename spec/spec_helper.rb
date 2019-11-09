@@ -28,6 +28,7 @@ require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/class/subclasses'
 require 'active_support/core_ext/string/inflections'
 require 'annotate'
+require 'annotate/parser'
 require 'byebug'
 
 module Annotate
