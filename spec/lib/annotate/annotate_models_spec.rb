@@ -1055,6 +1055,32 @@ EOS
         #
       EOS
 
+      mocked_columns_with_geometries = [
+        [:id,       :integer,  { limit: 8 }],
+        [:active,   :boolean,  { default: false, null: false }],
+        [:geometry, :geometry, {
+          geometric_type: 'Geometry', srid: 4326,
+          limit:          { srid: 4326, type: 'geometry' }
+        }],
+        [:location, :geography, {
+          geometric_type: 'Point', srid: 0,
+          limit:          { srid: 0, type: 'geometry' }
+        }]
+      ]
+
+      when_called_with with_columns: mocked_columns_with_geometries, returns:
+        <<-EOS.strip_heredoc
+        # Schema Info
+        #
+        # Table name: users
+        #
+        #  id       :integer          not null, primary key
+        #  active   :boolean          default(FALSE), not null
+        #  geometry :geometry         not null, geometry, 4326
+        #  location :geography        not null, point, 0
+        #
+      EOS
+
       it 'should get schema info as RDoc' do
         klass = mock_class(:users,
                            :id,

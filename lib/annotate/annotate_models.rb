@@ -264,7 +264,7 @@ module AnnotateModels
 
         if col_type == 'decimal'
           col_type << "(#{col.precision}, #{col.scale})"
-        elsif col_type != 'spatial'
+        elsif !%w[spatial geometry geography].include?(col_type)
           if col.limit
             if col.limit.is_a? Array
               attrs << "(#{col.limit.join(', ')})"
