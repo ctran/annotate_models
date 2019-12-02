@@ -7,6 +7,7 @@ if Rails.env.development?
     # You can override any of these by setting an environment variable of the
     # same name.
     Annotate.set_defaults(
+      'active_admin'                => 'false',
       'additional_file_patterns'    => [],
       'routes'                      => 'false',
       'models'                      => 'true',
