@@ -50,6 +50,25 @@ It also annotates geometrical columns, geom type and srid, when using
 Also, if you pass the -r option, it'll annotate routes.rb with the output of
 <code>rake routes</code>.
 
+== Upgrading to 3.X and annotate models not working?
+In versions 2.7.X the annotate gem defaulted to annotating models if no arguments were passed in. The annotate gem by default would not allow for routes and models to be annotated together. A 
+{change was added in #647}[link:https://github.com/ctran/annotate_models/pull/647]. You {can read more here}[https://github.com/ctran/annotate_models/issues/663].
+
+There are a few ways of fixing this. 
+If using CLI explicitly pass in models flag using +--models+
+
+OR
+
+a) Running 
+    rails g annotate:install
+will overwrite your defaults with the annotating models option set to true.
+
+b) In +lib/tasks/auto_annotate_models.rake+ add the models key-value option:
+
+    Annotate.set_defaults(
+        ...
+        'models'                      => 'true',
+        ...
 
 == Install
 
