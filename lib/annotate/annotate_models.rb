@@ -472,7 +472,10 @@ module AnnotateModels
       foreign_keys = klass.connection.foreign_keys(klass.table_name)
       return '' if foreign_keys.empty?
 
-      format_name = ->(fk) { options[:show_complete_foreign_keys] ? fk.name : fk.name.gsub(/(?<=^fk_rails_)[0-9a-f]{10}$/, '...') }
+      format_name = lambda do |fk|
+        return fk.options[:column] if fk.name.blank?
+        options[:show_complete_foreign_keys] ? fk.name : fk.name.gsub(/(?<=^fk_rails_)[0-9a-f]{10}$/, '...')
+      end
 
       max_size = foreign_keys.map(&format_name).map(&:size).max + 1
       foreign_keys.sort_by {|fk| [format_name.call(fk), fk.column]}.each do |fk|
