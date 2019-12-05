@@ -60,7 +60,7 @@ namespace :gem do
       end
 
       gem.executables = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
-      gem.extra_rdoc_files = ['README.rdoc', 'CHANGELOG.rdoc', 'TODO.rdoc']
+      gem.extra_rdoc_files = ['README.md', 'CHANGELOG.md', 'TODO.md']
 
       gem.files = `git ls-files -- .`.split("\n").reject do |fn|
         fn =~ /^Gemfile.*/ ||

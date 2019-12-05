@@ -1,15 +1,14 @@
-== Annotate (aka AnnotateModels)
+## Annotate (aka AnnotateModels)
 
-{<img src="https://badge.fury.io/rb/annotate.svg" alt="Gem Version" />}[http://badge.fury.io/rb/annotate]
-{<img src="https://img.shields.io/gem/dt/annotate.svg?style=flat" />}[https://rubygems.org/gems/annotate]
-{<img src="https://travis-ci.org/ctran/annotate_models.svg?branch=develop" />}[https://travis-ci.org/ctran/annotate_models]
-{<img src="https://github.com/ctran/annotate_models/workflows/CI/badge.svg" />}[https://github.com/ctran/annotate_models/actions?workflow=CI]
-{<img src="https://coveralls.io/repos/ctran/annotate_models/badge.svg?branch=develop" />}[https://coveralls.io/r/ctran/annotate_models?branch=develop]
-{<img src="https://codeclimate.com/github/ctran/annotate_models/badges/gpa.svg" />}[https://codeclimate.com/github/ctran/annotate_models]
-{<img src="http://inch-ci.org/github/ctran/annotate_models.svg?branch=develop" alt="Inline docs" />}[http://inch-ci.org/github/ctran/annotate_models]
+[![Gem Version](https://badge.fury.io/rb/annotate.svg)](http://badge.fury.io/rb/annotate)
+[![Downloads count](https://img.shields.io/gem/dt/annotate.svg?style=flat)](https://rubygems.org/gems/annotate)
+[![Build status](https://travis-ci.org/ctran/annotate_models.svg?branch=develop)](https://travis-ci.org/ctran/annotate_models)
+[![CI Status](https://github.com/ctran/annotate_models/workflows/CI/badge.svg)](https://github.com/ctran/annotate_models/actions?workflow=CI)
+[![Coveralls](https://coveralls.io/repos/ctran/annotate_models/badge.svg?branch=develop)](https://coveralls.io/r/ctran/annotate_models?branch=develop)
+[![Maintenability](https://codeclimate.com/github/ctran/annotate_models/badges/gpa.svg)](https://codeclimate.com/github/ctran/annotate_models)
+[![Inline docs](http://inch-ci.org/github/ctran/annotate_models.svg?branch=develop)](http://inch-ci.org/github/ctran/annotate_models)
 
-Add a comment summarizing the current schema to the top or bottom of each of
-your...
+Add a comment summarizing the current schema to the top or bottom of each of your...
 
 - ActiveRecord models
 - Fixture files
@@ -17,72 +16,85 @@ your...
 - Object Daddy exemplars
 - Machinist blueprints
 - Fabrication fabricators
-- Thoughtbot's factory_bot factories, i.e. the (spec|test)/factories/<model>_factory.rb files
-- routes.rb file (for Rails projects)
+- Thoughtbot's factory_bot factories, i.e. the `(spec|test)/factories/<model>_factory.rb` files
+- `routes.rb` file (for Rails projects)
+
 
 The schema comment looks like this:
 
-   # == Schema Info
-   #
-   # Table name: line_items
-   #
-   #  id                  :integer(11)    not null, primary key
-   #  quantity            :integer(11)    not null
-   #  product_id          :integer(11)    not null
-   #  unit_price          :float
-   #  order_id            :integer(11)
-   #
+```ruby
+# == Schema Info
+#
+# Table name: line_items
+#
+#  id                  :integer(11)    not null, primary key
+#  quantity            :integer(11)    not null
+#  product_id          :integer(11)    not null
+#  unit_price          :float
+#  order_id            :integer(11)
+#
 
-    class LineItem < ActiveRecord::Base
-      belongs_to :product
-     . . .
+class LineItem < ActiveRecord::Base
+  belongs_to :product
+  . . .
+```
 
-It also annotates geometrical columns, geom type and srid, when using
-+SpatialAdapter+, +PostgisAdapter+ or +PostGISAdapter+:
+It also annotates geometrical columns, `geom` type and `srid`,
+when using `SpatialAdapter`, `PostgisAdapter` or `PostGISAdapter`:
 
-   # == Schema Info
-   #
-   # Table name: trips
-   #
-   #  local           :geometry        point, 4326
-   #  path            :geometry        line_string, 4326
+```ruby
+# == Schema Info
+#
+# Table name: trips
+#
+#  local           :geometry        point, 4326
+#  path            :geometry        line_string, 4326
+```
 
-Also, if you pass the -r option, it'll annotate routes.rb with the output of
-<code>rake routes</code>.
+Also, if you pass the `-r` option, it'll annotate `routes.rb` with the output of `rake routes`.
 
-== Upgrading to 3.X and annotate models not working?
-In versions 2.7.X the annotate gem defaulted to annotating models if no arguments were passed in. The annotate gem by default would not allow for routes and models to be annotated together. A 
-{change was added in #647}[link:https://github.com/ctran/annotate_models/pull/647]. You {can read more here}[https://github.com/ctran/annotate_models/issues/663].
 
-There are a few ways of fixing this. 
-If using CLI explicitly pass in models flag using +--models+
+## Upgrading to 3.X and annotate models not working?
+
+In versions 2.7.X the annotate gem defaulted to annotating models if no arguments were passed in.
+The annotate gem by default would not allow for routes and models to be annotated together.
+A [change was added in #647](https:/github.com/ctran/annotate_models/pull/647).
+You [can read more here](https://github.com/ctran/annotate_models/issues/663).
+
+There are a few ways of fixing this:
+
+- If using CLI explicitly pass in models flag using `--models`
 
 OR
 
-a) Running 
-    rails g annotate:install
-will overwrite your defaults with the annotating models option set to true.
+a) Running `rails g annotate:install` will overwrite your defaults with the annotating `models` option set to `'true'`.
 
-b) In +lib/tasks/auto_annotate_models.rake+ add the models key-value option:
+b) In `lib/tasks/auto_annotate_models.rake` add the `models` key-value option:
 
+```ruby
     Annotate.set_defaults(
-        ...
-        'models'                      => 'true',
-        ...
+      ...
+      'models'                      => 'true',
+      ...
+```
 
-== Install
+## Install
 
 Into Gemfile from rubygems.org:
 
-    group :development do
-      gem 'annotate'
-    end
+```ruby
+group :development do
+  gem 'annotate'
+end
+```
 
 Into Gemfile from Github:
 
-    group :development do
-      gem 'annotate', git: 'https://github.com/ctran/annotate_models.git'
-    end
+```ruby
+group :development do
+  gem 'annotate', git: 'https://github.com/ctran/annotate_models.git'
+end
+```
 
 Into environment gems from rubygems.org:
 
@@ -95,12 +107,11 @@ Into environment gems from Github checkout:
     rake build
     gem install pkg/annotate-*.gem
 
+## Usage
 
-== Usage
+(If you used the Gemfile install, prefix the below commands with `bundle exec`.)
 
-(If you used the Gemfile install, prefix the below commands with <code>bundle exec</code>.)
-
-=== Usage in Rails
+### Usage in Rails
 
 To annotate all your models, tests, fixtures, and factories:
 
@@ -127,26 +138,28 @@ To remove routes.rb annotations:
 
     annotate --routes --delete
 
-To automatically annotate every time you run <code>db:migrate</code>, either run <code>rails g annotate:install</code> or add +Annotate.load_tasks+ to your `Rakefile`. See the {configuration in Rails}[link:README.rdoc#configuration-in-rails] section for more info.
+To automatically annotate every time you run `db:migrate`,
+either run `rails g annotate:install`
+or add `Annotate.load_tasks` to your `Rakefile`.
 
-=== Usage Outside of Rails
+See the [configuration in Rails](#configuration-in-rails) section for more info.
 
-Everything above applies, except that +--routes+ is not meaningful, and you will
-probably need to explicitly set one or more +--require+ option(s), and/or one
-or more +--model-dir+ options to inform annotate about the structure of your
-project and help it bootstrap and load the relevant code.
+### Usage Outside of Rails
 
+Everything above applies, except that `--routes` is not meaningful,
+and you will probably need to explicitly set one or more `--require` option(s), and/or one or more `--model-dir` options
+to inform `annotate` about the structure of your project and help it bootstrap and load the relevant code.
 
-== Configuration
+## Configuration
 
 If you want to always skip annotations on a particular model, add this string
 anywhere in the file:
 
     # -*- SkipSchemaAnnotations
 
-=== Configuration in Rails
+### Configuration in Rails
 
-To generate a configuration file (in the form of a +.rake+ file), to set
+To generate a configuration file (in the form of a `.rake` file), to set
 default options:
 
     rails g annotate:install
@@ -154,7 +167,7 @@ default options:
 Edit this file to control things like output format, where annotations are
 added (top or bottom of file), and in which artifacts.
 
-The generated rakefile +lib/tasks/auto_annotate_models.rake+ also contains
+The generated rakefile `lib/tasks/auto_annotate_models.rake` also contains
 `Annotate.load_tasks`. This adds a few rake tasks which duplicate command-line
 functionality:
 
@@ -163,24 +176,27 @@ functionality:
     rake remove_annotation                        # Remove schema information from model and fixture files
 
 By default, once you've generated a configuration file, annotate will be
-executed whenever you run <code>rake db:migrate</code> (but only in development mode).
-If you want to disable this behavior permanently, edit the +.rake+ file and
-change:
+executed whenever you run `rake db:migrate` (but only in development mode).
+If you want to disable this behavior permanently,
+edit the `.rake` file and change:
 
+```ruby
     'skip_on_db_migrate'   => 'false',
+```
 
 To:
 
+```ruby
     'skip_on_db_migrate'   => 'true',
+```
 
-If you want to run <code>rake db:migrate</code> as a one-off without running annotate,
+If you want to run `rake db:migrate` as a one-off without running annotate,
 you can do so with a simple environment variable, instead of editing the
-+.rake+ file:
+`.rake` file:
 
     ANNOTATE_SKIP_ON_DB_MIGRATE=1 rake db:migrate
 
-
-== Options
+## Options
 
     Usage: annotate [options] [model_file]*
             --additional_file_patterns   Additional file paths or globs to annotate, separated by commas (e.g. `/foo/bar/%model_name%/*.rb,/baz/%model_name%.rb`)
@@ -236,82 +252,80 @@ you can do so with a simple environment variable, instead of editing the
             --ignore-unknown-models      don't display warnings for bad model files
             --with-comment               include database comments in model annotations
 
-=== Option: +additional_file_patterns+
+### Option: `additional_file_patterns`
 
-CLI: +--additional_file_patterns+<br>
-Ruby: +:additional_file_patterns+
+CLI: `--additional_file_patterns`<br>
+Ruby: `:additional_file_patterns`
 
-Provide additional paths for the gem to annotate.  These paths can include globs.
-It is recommended to use absolute paths.  Here are some examples:
+Provide additional paths for the gem to annotate.  These paths can include
+globs. It is recommended to use absolute paths.  Here are some examples:
+
+*   `/app/lib/decorates/%MODEL_NAME%/&ast;.rb`
+*   `/app/lib/forms/%PLURALIZED_MODEL_NAME%/&ast;&ast;/&ast;.rb`
+*   `/app/lib/forms/%TABLE_NAME%/&ast;.rb`
 
 
-- <code>/app/lib/decorates/%MODEL_NAME%/&ast;.rb</code>
-- <code>/app/lib/forms/%PLURALIZED_MODEL_NAME%/&ast;&ast;/&ast;.rb</code>
-- <code>/app/lib/forms/%TABLE_NAME%/&ast;.rb</code>
-
-The appropriate model will be inferred using the <code>%*%</code> syntax, annotating any matching files.
-It works with existing filename resolutions (options for which can be found in the +resolve_filename+ method of
-+annotate_models.rb+).
+The appropriate model will be inferred using the `%*%` syntax, annotating any
+matching files. It works with existing filename resolutions (options for which
+can be found in the `resolve_filename` method of `annotate_models.rb`).
 
 When using in a Rails config, you can use the following:
 
-<code>File.join(Rails.application.root, 'app/lib/forms/%PLURALIZED_MODEL_NAME%/**/*.rb')</code>
+`File.join(Rails.application.root,
+'app/lib/forms/%PLURALIZED_MODEL_NAME%/***/**.rb')`
 
-== Sorting
+## Sorting
 
 By default, columns will be sorted in database order (i.e. the order in which
 migrations were run).
 
-If you prefer to sort alphabetically so that the results of
-annotation are consistent regardless of what order migrations are executed in,
-use +--sort+.
+If you prefer to sort alphabetically so that the results of annotation are
+consistent regardless of what order migrations are executed in, use `--sort`.
 
-
-== Markdown
+## Markdown
 
 The format produced is actually MultiMarkdown, making use of the syntax
-extension for tables.  It's recommended you use +kramdown+ as your parser if
-you want to use this format.  If you're using +yard+ to generate documentation,
-specify a format of markdown with +kramdown+ as the provider by adding this to
-your +.yardopts+ file:
+extension for tables.  It's recommended you use `kramdown` as your parser if
+you want to use this format.  If you're using `yard` to generate
+documentation, specify a format of markdown with `kramdown` as the provider by
+adding this to your `.yardopts` file:
 
     --markup markdown
     --markup-provider kramdown
 
-Be sure to add this to your +Gemfile+ as well:
+Be sure to add this to your `Gemfile` as well:
 
-    gem 'kramdown', :groups => [:development], :require => false
+    gem 'kramdown', groups => [:development], require => false
 
+## WARNING
 
-== WARNING
-
-<b>Don't add text after an automatically-created comment block.</b> This tool
+**Don't add text after an automatically-created comment block.** This tool
 will blow away the initial/final comment block in your models if it looks like
 it was previously added by this gem.
 
-Be sure to check the changes that this tool makes! If you are using Git,
-you may simply check your project's status after running +annotate+:
+Be sure to check the changes that this tool makes! If you are using Git, you
+may simply check your project's status after running `annotate`:
 
     $ git status
 
 If you are not using a VCS (like Git, Subversion or similar), please tread
 extra carefully, and consider using one.
 
-== Links
+## Links
 
-- Factory Bot: http://github.com/thoughtbot/factory_bot
-- Object Daddy: http://github.com/flogic/object_daddy
-- Machinist: http://github.com/notahat/machinist
-- Fabrication: http://github.com/paulelliott/fabrication
-- SpatialAdapter: http://github.com/pdeffendol/spatial_adapter
-- PostgisAdapter: http://github.com/nofxx/postgis_adapter
-- PostGISAdapter: https://github.com/dazuma/activerecord-postgis-adapter
+*   Factory Bot: http://github.com/thoughtbot/factory_bot
+*   Object Daddy: http://github.com/flogic/object_daddy
+*   Machinist: http://github.com/notahat/machinist
+*   Fabrication: http://github.com/paulelliott/fabrication
+*   SpatialAdapter: http://github.com/pdeffendol/spatial_adapter
+*   PostgisAdapter: http://github.com/nofxx/postgis_adapter
+*   PostGISAdapter: https://github.com/dazuma/activerecord-postgis-adapter
 
 
-== License
+## License
 
 Released under the same license as Ruby. No Support. No Warranty.
 
-== Authors
+## Authors
 
-{See AUTHORS.rdoc}[link:AUTHORS.rdoc].
+[See AUTHORS.md](AUTHORS.md).

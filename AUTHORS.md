@@ -1,4 +1,4 @@
-== Authors
+## Authors
 
 - Original code by: Dave Thomas -- Pragmatic Programmers, LLC <http://agilewebdevelopment.com/plugins/annotate_models>
 - Overhauled by: Alex Chaffee <http://alexch.github.com> alex@stinky.com
@@ -6,7 +6,7 @@
 - Maintained by: Alex Chaffee and Cuong Tran
 - Homepage: http://github.com/ctran/annotate_models
 
-With help from:
+### With help from:
 
 - Jack Danger - http://github.com/JackDanger
 - Michael Bumann - http://github.com/bumi
