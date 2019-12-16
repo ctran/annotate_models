@@ -12,7 +12,7 @@ matrix:
   - rvm: ruby-head
 
 before_install:
-- gem update --system -f
+- yes | gem update --system
 - gem update bundler
 
 script:
