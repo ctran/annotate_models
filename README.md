@@ -260,9 +260,9 @@ Ruby: `:additional_file_patterns`
 Provide additional paths for the gem to annotate.  These paths can include
 globs. It is recommended to use absolute paths.  Here are some examples:
 
-*   `/app/lib/decorates/%MODEL_NAME%/&ast;.rb`
-*   `/app/lib/forms/%PLURALIZED_MODEL_NAME%/&ast;&ast;/&ast;.rb`
-*   `/app/lib/forms/%TABLE_NAME%/&ast;.rb`
+*   `/app/lib/decorates/%MODEL_NAME%/*.rb`
+*   `/app/lib/forms/%PLURALIZED_MODEL_NAME%/**/*.rb`
+*   `/app/lib/forms/%TABLE_NAME%/*.rb`
 
 
 The appropriate model will be inferred using the `%*%` syntax, annotating any
