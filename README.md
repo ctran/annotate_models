@@ -199,7 +199,7 @@ you can do so with a simple environment variable, instead of editing the
 ## Options
 
     Usage: annotate [options] [model_file]*
-            --additional_file_patterns   Additional file paths or globs to annotate, separated by commas (e.g. `/foo/bar/%model_name%/*.rb,/baz/%model_name%.rb`)
+            --additional-file-patterns   Additional file paths or globs to annotate, separated by commas (e.g. `/foo/bar/%model_name%/*.rb,/baz/%model_name%.rb`)
         -d, --delete                     Remove annotations from all model files or the routes.rb file
         -p [before|top|after|bottom],    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)
             --position
@@ -254,7 +254,7 @@ you can do so with a simple environment variable, instead of editing the
 
 ### Option: `additional_file_patterns`
 
-CLI: `--additional_file_patterns`<br>
+CLI: `--additional-file-patterns`<br>
 Ruby: `:additional_file_patterns`
 
 Provide additional paths for the gem to annotate.  These paths can include
