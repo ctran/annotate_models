@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   s.description = 'Annotates Rails/ActiveRecord Models, routes, fixtures, and others based on the database schema.'
   s.email = ['alex@stinky.com', 'cuong.tran@gmail.com', 'x@nofxx.com', 'turadg@aleahmad.net', 'jon@cloudability.com']
   s.executables = ['annotate']
-  s.extra_rdoc_files = ['README.rdoc', 'CHANGELOG.rdoc', 'TODO.rdoc']
-  s.files = `git ls-files -z LICENSE.txt *.rdoc *.gemspec bin lib`.split("\x0")
+  s.extra_rdoc_files = ['README.md', 'CHANGELOG.md', 'TODO.md']
+  s.files = `git ls-files -z LICENSE.txt *.md *.gemspec bin lib`.split("\x0")
   s.homepage = 'http://github.com/ctran/annotate_models'
   s.licenses = ['Ruby']
   s.require_paths = ['lib']

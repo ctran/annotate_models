@@ -1,10 +1,10 @@
-== TODO
+## TODO
 
 - clean up history
 - change default position back to "top" for all annotations
 - change 'exclude' to 'only' (double negatives are not unconfusing)
 
-== TODO (proposed)
+## TODO (proposed)
 
 - push two identical gems, named 'annotate' and 'annotate_models'
 - supply two binaries, named 'annotate' and 'annotate_models', since there's already a unix tool named 'annotate'
