@@ -512,23 +512,13 @@ module AnnotateModels
       return false unless File.exist?(file_name)
       old_content = File.read(file_name)
       return false if old_content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
-
-      # Ignore the Schema version line because it changes with each migration
-      header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?)/
-      old_header = old_content.match(header_pattern).to_s
-      new_header = info_block.match(header_pattern).to_s
-
-      column_pattern = /^#[\t ]+[\w\*`]+[\t ]+.+$/
-      old_columns = old_header && old_header.scan(column_pattern).sort
-      new_columns = new_header && new_header.scan(column_pattern).sort
-
-      return false if old_columns == new_columns && !options[:force]
+      return false if columns_unchanged?(old_content, info_block, options) && !options[:force]
 
       abort "annotate error. #{file_name} needs to be updated, but annotate was run with `--frozen`." if options[:frozen]
 
       # Replace inline the old schema info with the new schema info
-      wrapper_open = options[:wrapper_open] ? "# #{options[:wrapper_open]}\n" : ""
-      wrapper_close = options[:wrapper_close] ? "# #{options[:wrapper_close]}\n" : ""
+      wrapper_open = options[:wrapper_open] ? "#{wrapper_line(options[:wrapper_open])}\n" : ""
+      wrapper_close = options[:wrapper_close] ? "#{wrapper_line(options[:wrapper_close])}\n" : ""
       wrapped_info_block = "#{wrapper_open}#{info_block}#{wrapper_close}"
 
       old_annotation = old_content.match(annotate_pattern(options)).to_s
@@ -938,6 +928,34 @@ module AnnotateModels
 
     def non_ascii_length(string)
       string.to_s.chars.reject(&:ascii_only?).length
+    end
+
+    def wrapper_line(wrapper)
+      "# #{wrapper}"
+    end
+
+    def columns_unchanged?(old_content, info_block, options)
+      # Ignore the Schema version line because it changes with each migration
+      header_pattern = /(^# Table name:.*?\n(#.*[\r]?\n)*[\r]?)/
+      old_header = old_content.match(header_pattern).to_s
+      new_header = info_block.match(header_pattern).to_s
+
+      column_pattern = /^#[\t ]+[\w\*`]+[\t ]+.+$/
+      old_columns = []
+      new_columns = []
+
+      if old_header
+        old_columns = old_header.scan(column_pattern).sort
+        old_columns.delete(wrapper_line(options[:wrapper_open])) if options[:wrapper_open]
+        old_columns.delete(wrapper_line(options[:wrapper_close])) if options[:wrapper_close]
+      end
+      if new_header
+        new_columns = new_header.scan(column_pattern).sort
+        new_columns.delete(wrapper_line(options[:wrapper_open])) if options[:wrapper_open]
+        new_columns.delete(wrapper_line(options[:wrapper_close])) if options[:wrapper_close]
+      end
+
+      old_columns == new_columns
     end
   end
 

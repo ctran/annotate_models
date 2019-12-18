@@ -1711,13 +1711,14 @@ end
     def annotate_one_file(options = {})
       Annotate.set_defaults(options)
       options = Annotate.setup_options(options)
-      AnnotateModels.annotate_one_file(@model_file_name, @schema_info, :position_in_class, options)
+      result = AnnotateModels.annotate_one_file(@model_file_name, @schema_info, :position_in_class, options)
 
       # Wipe settings so the next call will pick up new values...
       Annotate.instance_variable_set('@has_set_defaults', false)
       Annotate::POSITION_OPTIONS.each { |key| ENV[key.to_s] = '' }
       Annotate::FLAG_OPTIONS.each { |key| ENV[key.to_s] = '' }
       Annotate::PATH_OPTIONS.each { |key| ENV[key.to_s] = '' }
+      result
     end
 
     def magic_comments_list_each
@@ -1879,6 +1880,21 @@ end
         schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
 
         expect(File.read(model_file_name)).to eq("#{magic_comment}\n#{content}\n#{schema_info}")
+      end
+    end
+
+    describe 'wrapper value matches column pattern' do
+      let(:wrapper) { 'Schema generated with `annotate`' }
+
+      it 'does not consider this as a new column and does not try to re-annotate' do
+        res = annotate_one_file wrapper_open: wrapper, wrapper_close: wrapper
+        expect(res).to eq(true)
+
+        expect(File.read(@model_file_name))
+          .to eq("# #{wrapper}\n#{@schema_info}# #{wrapper}\n\n#{@file_content}")
+
+        res = annotate_one_file wrapper_open: wrapper, wrapper_close: wrapper
+        expect(res).to eq(false) # Model file unchanged
       end
     end
 
