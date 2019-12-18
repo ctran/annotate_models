@@ -54,7 +54,7 @@ module Annotate
     return if @has_set_defaults
     @has_set_defaults = true
 
-    options = HashWithIndifferentAccess.new(options)
+    options = ActiveSupport::HashWithIndifferentAccess.new(options)
 
     all_options.flatten.each do |key|
       if options.key?(key)
