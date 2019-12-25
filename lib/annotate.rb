@@ -79,7 +79,7 @@ module Annotate
       options[key] = fallback(ENV[key.to_s], ENV['position'], 'before')
     end
     FLAG_OPTIONS.each do |key|
-      options[key] = true?(ENV[key.to_s])
+      options[key] = Annotate::Helpers.true?(ENV[key.to_s])
     end
     OTHER_OPTIONS.each do |key|
       options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s] : nil
@@ -95,9 +95,9 @@ module Annotate
     options[:wrapper_close] ||= options[:wrapper]
 
     # These were added in 2.7.0 but so this is to revert to old behavior by default
-    options[:exclude_scaffolds] = Annotate.true?(ENV.fetch('exclude_scaffolds', 'true'))
-    options[:exclude_controllers] = Annotate.true?(ENV.fetch('exclude_controllers', 'true'))
-    options[:exclude_helpers] = Annotate.true?(ENV.fetch('exclude_helpers', 'true'))
+    options[:exclude_scaffolds] = Annotate::Helpers.true?(ENV.fetch('exclude_scaffolds', 'true'))
+    options[:exclude_controllers] = Annotate::Helpers.true?(ENV.fetch('exclude_controllers', 'true'))
+    options[:exclude_helpers] = Annotate::Helpers.true?(ENV.fetch('exclude_helpers', 'true'))
 
     options
   end
@@ -183,11 +183,5 @@ module Annotate
 
   def self.fallback(*args)
     args.detect { |arg| !arg.blank? }
-  end
-
-  def self.true?(val)
-    return false if val.blank?
-    return false unless val =~ Constants::TRUE_RE
-    true
   end
 end

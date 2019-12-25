@@ -790,12 +790,12 @@ EOS
 
   describe '#set_defaults' do
     it 'should default show_complete_foreign_keys to false' do
-      expect(Annotate.true?(ENV['show_complete_foreign_keys'])).to be(false)
+      expect(Annotate::Helpers.true?(ENV['show_complete_foreign_keys'])).to be(false)
     end
 
     it 'should be able to set show_complete_foreign_keys to true' do
       Annotate.set_defaults('show_complete_foreign_keys' => 'true')
-      expect(Annotate.true?(ENV['show_complete_foreign_keys'])).to be(true)
+      expect(Annotate::Helpers.true?(ENV['show_complete_foreign_keys'])).to be(true)
     end
 
     after :each do
