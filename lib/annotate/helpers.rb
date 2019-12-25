@@ -13,6 +13,13 @@ module Annotate
       def include_models?
         ENV['models'] =~ Constants::TRUE_RE
       end
+
+      def true?(val)
+        return false if val.blank?
+        return false unless val =~ Constants::TRUE_RE
+
+        true
+      end
     end
   end
 end

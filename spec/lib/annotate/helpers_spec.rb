@@ -74,4 +74,29 @@ RSpec.describe Annotate::Helpers do
       it { is_expected.to be_truthy }
     end
   end
+
+  describe '.true?' do
+    subject { described_class.true?(val) }
+
+    let(:val) { nil }
+    it { is_expected.to be_falsy }
+
+    context 'when val is blank' do
+      let(:val) { '' }
+
+      it { is_expected.to be_falsy }
+    end
+
+    context 'when it matches the regex' do
+      valid_truthy_values = %w[true t yes y 1]
+
+      valid_truthy_values.each do |truthy_value|
+        let(:val) { truthy_value }
+
+        it "returns truthy for '#{truthy_value}'" do
+          is_expected.to be_truthy
+        end
+      end
+    end
+  end
 end
