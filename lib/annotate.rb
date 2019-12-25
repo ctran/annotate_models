@@ -106,18 +106,6 @@ module Annotate
     all_options.flatten.each { |key| ENV[key.to_s] = nil }
   end
 
-  def self.skip_on_migration?
-    Helpers.skip_on_migration?
-  end
-
-  def self.include_routes?
-    Helpers.include_routes?
-  end
-
-  def self.include_models?
-    Helpers.include_models?
-  end
-
   def self.loaded_tasks=(val)
     @loaded_tasks = val
   end
