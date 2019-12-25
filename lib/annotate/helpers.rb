@@ -20,6 +20,10 @@ module Annotate
 
         true
       end
+
+      def fallback(*args)
+        args.detect { |arg| !arg.blank? }
+      end
     end
   end
 end
