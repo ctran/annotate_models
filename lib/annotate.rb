@@ -5,6 +5,7 @@ require 'annotate/version'
 require 'annotate/annotate_models'
 require 'annotate/annotate_routes'
 require 'annotate/constants'
+require 'annotate/helpers'
 
 begin
   # ActiveSupport 3.x...
@@ -106,15 +107,15 @@ module Annotate
   end
 
   def self.skip_on_migration?
-    ENV['ANNOTATE_SKIP_ON_DB_MIGRATE'] =~ Constants::TRUE_RE || ENV['skip_on_db_migrate'] =~ Constants::TRUE_RE
+    Helpers.skip_on_migration?
   end
 
   def self.include_routes?
-    ENV['routes'] =~ Constants::TRUE_RE
+    Helpers.include_routes?
   end
 
   def self.include_models?
-    ENV['models'] =~ Constants::TRUE_RE
+    Helpers.include_models?
   end
 
   def self.loaded_tasks=(val)
