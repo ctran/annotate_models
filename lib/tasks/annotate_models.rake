@@ -11,13 +11,13 @@ task annotate_models: :environment do
   require "#{annotate_lib}/annotate/active_record_patch"
 
   options = {is_rake: true}
-  ENV['position'] = options[:position] = Annotate.fallback(ENV['position'], 'before')
+  ENV['position'] = options[:position] = Annotate::Helpers.fallback(ENV['position'], 'before')
   options[:additional_file_patterns] = ENV['additional_file_patterns'] ? ENV['additional_file_patterns'].split(',') : []
-  options[:position_in_class] = Annotate.fallback(ENV['position_in_class'], ENV['position'])
-  options[:position_in_fixture] = Annotate.fallback(ENV['position_in_fixture'], ENV['position'])
-  options[:position_in_factory] = Annotate.fallback(ENV['position_in_factory'], ENV['position'])
-  options[:position_in_test] = Annotate.fallback(ENV['position_in_test'], ENV['position'])
-  options[:position_in_serializer] = Annotate.fallback(ENV['position_in_serializer'], ENV['position'])
+  options[:position_in_class] = Annotate::Helpers.fallback(ENV['position_in_class'], ENV['position'])
+  options[:position_in_fixture] = Annotate::Helpers.fallback(ENV['position_in_fixture'], ENV['position'])
+  options[:position_in_factory] = Annotate::Helpers.fallback(ENV['position_in_factory'], ENV['position'])
+  options[:position_in_test] = Annotate::Helpers.fallback(ENV['position_in_test'], ENV['position'])
+  options[:position_in_serializer] = Annotate::Helpers.fallback(ENV['position_in_serializer'], ENV['position'])
   options[:show_foreign_keys] = Annotate::Helpers.true?(ENV['show_foreign_keys'])
   options[:show_complete_foreign_keys] = Annotate::Helpers.true?(ENV['show_complete_foreign_keys'])
   options[:show_indexes] = Annotate::Helpers.true?(ENV['show_indexes'])
@@ -43,12 +43,12 @@ task annotate_models: :environment do
   options[:frozen] = Annotate::Helpers.true?(ENV['frozen'])
   options[:classified_sort] = Annotate::Helpers.true?(ENV['classified_sort'])
   options[:trace] = Annotate::Helpers.true?(ENV['trace'])
-  options[:wrapper_open] = Annotate.fallback(ENV['wrapper_open'], ENV['wrapper'])
-  options[:wrapper_close] = Annotate.fallback(ENV['wrapper_close'], ENV['wrapper'])
+  options[:wrapper_open] = Annotate::Helpers.fallback(ENV['wrapper_open'], ENV['wrapper'])
+  options[:wrapper_close] = Annotate::Helpers.fallback(ENV['wrapper_close'], ENV['wrapper'])
   options[:ignore_columns] = ENV.fetch('ignore_columns', nil)
   options[:ignore_routes] = ENV.fetch('ignore_routes', nil)
-  options[:hide_limit_column_types] = Annotate.fallback(ENV['hide_limit_column_types'], '')
-  options[:hide_default_column_types] = Annotate.fallback(ENV['hide_default_column_types'], '')
+  options[:hide_limit_column_types] = Annotate::Helpers.fallback(ENV['hide_limit_column_types'], '')
+  options[:hide_default_column_types] = Annotate::Helpers.fallback(ENV['hide_default_column_types'], '')
   options[:with_comment] = Annotate::Helpers.true?(ENV['with_comment'])
   options[:ignore_unknown_models] = Annotate::Helpers.true?(ENV.fetch('ignore_unknown_models', 'false'))
 

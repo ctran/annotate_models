@@ -76,7 +76,7 @@ module Annotate
   #
   def self.setup_options(options = {})
     POSITION_OPTIONS.each do |key|
-      options[key] = fallback(ENV[key.to_s], ENV['position'], 'before')
+      options[key] = Annotate::Helpers.fallback(ENV[key.to_s], ENV['position'], 'before')
     end
     FLAG_OPTIONS.each do |key|
       options[key] = Annotate::Helpers.true?(ENV[key.to_s])
@@ -179,9 +179,5 @@ module Annotate
 
     load_tasks
     Rake::Task[:set_annotation_options].invoke
-  end
-
-  def self.fallback(*args)
-    args.detect { |arg| !arg.blank? }
   end
 end
