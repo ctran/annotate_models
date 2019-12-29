@@ -1715,9 +1715,9 @@ end
 
       # Wipe settings so the next call will pick up new values...
       Annotate.instance_variable_set('@has_set_defaults', false)
-      Annotate::POSITION_OPTIONS.each { |key| ENV[key.to_s] = '' }
-      Annotate::FLAG_OPTIONS.each { |key| ENV[key.to_s] = '' }
-      Annotate::PATH_OPTIONS.each { |key| ENV[key.to_s] = '' }
+      Annotate::Constants::POSITION_OPTIONS.each { |key| ENV[key.to_s] = '' }
+      Annotate::Constants::FLAG_OPTIONS.each { |key| ENV[key.to_s] = '' }
+      Annotate::Constants::PATH_OPTIONS.each { |key| ENV[key.to_s] = '' }
     end
 
     def magic_comments_list_each

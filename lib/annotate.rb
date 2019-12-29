@@ -18,34 +18,8 @@ rescue StandardError
 end
 
 module Annotate
-  ##
-  # The set of available options to customize the behavior of Annotate.
-  #
-  POSITION_OPTIONS = [
-    :position_in_routes, :position_in_class, :position_in_test,
-    :position_in_fixture, :position_in_factory, :position,
-    :position_in_serializer
-  ].freeze
-  FLAG_OPTIONS = [
-    :show_indexes, :simple_indexes, :include_version, :exclude_tests,
-    :exclude_fixtures, :exclude_factories, :ignore_model_sub_dir,
-    :format_bare, :format_rdoc, :format_markdown, :sort, :force, :frozen,
-    :trace, :timestamp, :exclude_serializers, :classified_sort,
-    :show_foreign_keys, :show_complete_foreign_keys,
-    :exclude_scaffolds, :exclude_controllers, :exclude_helpers,
-    :exclude_sti_subclasses, :ignore_unknown_models, :with_comment
-  ].freeze
-  OTHER_OPTIONS = [
-    :additional_file_patterns, :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close,
-    :wrapper, :routes, :models, :hide_limit_column_types, :hide_default_column_types,
-    :ignore_routes, :active_admin
-  ].freeze
-  PATH_OPTIONS = [
-    :require, :model_dir, :root_dir
-  ].freeze
-
   def self.all_options
-    [POSITION_OPTIONS, FLAG_OPTIONS, PATH_OPTIONS, OTHER_OPTIONS]
+    [Constants::POSITION_OPTIONS, Constants::FLAG_OPTIONS, Constants::OTHER_OPTIONS, Constants::PATH_OPTIONS]
   end
 
   ##
@@ -75,16 +49,16 @@ module Annotate
   # TODO: what is the difference between this and set_defaults?
   #
   def self.setup_options(options = {})
-    POSITION_OPTIONS.each do |key|
+    Constants::POSITION_OPTIONS.each do |key|
       options[key] = Annotate::Helpers.fallback(ENV[key.to_s], ENV['position'], 'before')
     end
-    FLAG_OPTIONS.each do |key|
+    Constants::FLAG_OPTIONS.each do |key|
       options[key] = Annotate::Helpers.true?(ENV[key.to_s])
     end
-    OTHER_OPTIONS.each do |key|
+    Constants::OTHER_OPTIONS.each do |key|
       options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s] : nil
     end
-    PATH_OPTIONS.each do |key|
+    Constants::PATH_OPTIONS.each do |key|
       options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s].split(',') : []
     end
 
