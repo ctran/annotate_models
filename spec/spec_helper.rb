@@ -30,6 +30,7 @@ require 'active_support/core_ext/string/inflections'
 require 'annotate'
 require 'annotate/parser'
 require 'annotate/helpers'
+require 'annotate/constants'
 require 'byebug'
 
 module Annotate
