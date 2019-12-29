@@ -33,8 +33,6 @@ describe "annotate inside Rails, using #{CURRENT_RUBY}" do
       # Don't proceed if the working copy is dirty!
       expect(Annotate::Integration.clean?(test_rig)).to eq(true)
 
-      skip 'temporarily ignored until Travis can run them'
-
       Bundler.with_clean_env do
         dir base_dir do
           temp_dir = Dir.pwd
