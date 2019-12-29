@@ -18,10 +18,6 @@ rescue StandardError
 end
 
 module Annotate
-  def self.all_options
-    [Constants::POSITION_OPTIONS, Constants::FLAG_OPTIONS, Constants::OTHER_OPTIONS, Constants::PATH_OPTIONS]
-  end
-
   ##
   # Set default values that can be overridden via environment variables.
   #
@@ -31,7 +27,7 @@ module Annotate
 
     options = ActiveSupport::HashWithIndifferentAccess.new(options)
 
-    all_options.flatten.each do |key|
+    Constants::ALL_ANNOTATE_OPTIONS.flatten.each do |key|
       if options.key?(key)
         default_value = if options[key].is_a?(Array)
                           options[key].join(',')
@@ -74,10 +70,6 @@ module Annotate
     options[:exclude_helpers] = Annotate::Helpers.true?(ENV.fetch('exclude_helpers', 'true'))
 
     options
-  end
-
-  def self.reset_options
-    all_options.flatten.each { |key| ENV[key.to_s] = nil }
   end
 
   def self.loaded_tasks=(val)

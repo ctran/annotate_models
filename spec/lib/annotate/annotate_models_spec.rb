@@ -1697,7 +1697,7 @@ end
                             mock_column(:name, :string, limit: 50)
                           ])
       @schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
-      Annotate.reset_options
+      Annotate::Helpers.reset_options(Annotate::Constants::ALL_ANNOTATE_OPTIONS)
     end
 
     def write_model(file_name, file_content)
