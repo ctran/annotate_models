@@ -118,4 +118,24 @@ RSpec.describe Annotate::Helpers do
       it { is_expected.to eq(arg_1) }
     end
   end
+
+  describe '.reset_options' do
+    subject { described_class.reset_options(options) }
+
+    let(:options) { [included_option] }
+    let(:included_option) { :some_key }
+    let(:excluded_option) { :yet_another_key }
+    let(:reset_value) { nil }
+
+    before do
+      allow(ENV).to receive(:[]=)
+    end
+
+    it 'resets ENV value' do
+      expect(ENV).to receive(:[]=).with(included_option.to_s, reset_value)
+      expect(ENV).to_not receive(:[]=).with(excluded_option.to_s, reset_value)
+
+      subject
+    end
+  end
 end

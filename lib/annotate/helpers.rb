@@ -24,6 +24,10 @@ module Annotate
       def fallback(*args)
         args.detect { |arg| !arg.blank? }
       end
+
+      def reset_options(options)
+        options.flatten.each { |key| ENV[key.to_s] = nil }
+      end
     end
   end
 end
