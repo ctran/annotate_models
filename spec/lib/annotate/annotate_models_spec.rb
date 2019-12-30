@@ -1682,7 +1682,7 @@ end
     end
   end
 
-  describe 'annotating a file' do
+  describe 'annotating a file' do # rubocop:disable Metrics/BlockLength
     before do
       @model_dir = Dir.mktmpdir('annotate_models')
       (@model_file_name, @file_content) = write_model 'user.rb', <<-EOS
