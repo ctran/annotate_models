@@ -790,12 +790,12 @@ EOS
 
   describe '#set_defaults' do
     it 'should default show_complete_foreign_keys to false' do
-      expect(Annotate.true?(ENV['show_complete_foreign_keys'])).to be(false)
+      expect(Annotate::Helpers.true?(ENV['show_complete_foreign_keys'])).to be(false)
     end
 
     it 'should be able to set show_complete_foreign_keys to true' do
       Annotate.set_defaults('show_complete_foreign_keys' => 'true')
-      expect(Annotate.true?(ENV['show_complete_foreign_keys'])).to be(true)
+      expect(Annotate::Helpers.true?(ENV['show_complete_foreign_keys'])).to be(true)
     end
 
     after :each do
@@ -1697,7 +1697,7 @@ end
                             mock_column(:name, :string, limit: 50)
                           ])
       @schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
-      Annotate.reset_options
+      Annotate::Helpers.reset_options(Annotate::Constants::ALL_ANNOTATE_OPTIONS)
     end
 
     def write_model(file_name, file_content)
@@ -1715,9 +1715,9 @@ end
 
       # Wipe settings so the next call will pick up new values...
       Annotate.instance_variable_set('@has_set_defaults', false)
-      Annotate::POSITION_OPTIONS.each { |key| ENV[key.to_s] = '' }
-      Annotate::FLAG_OPTIONS.each { |key| ENV[key.to_s] = '' }
-      Annotate::PATH_OPTIONS.each { |key| ENV[key.to_s] = '' }
+      Annotate::Constants::POSITION_OPTIONS.each { |key| ENV[key.to_s] = '' }
+      Annotate::Constants::FLAG_OPTIONS.each { |key| ENV[key.to_s] = '' }
+      Annotate::Constants::PATH_OPTIONS.each { |key| ENV[key.to_s] = '' }
     end
 
     def magic_comments_list_each

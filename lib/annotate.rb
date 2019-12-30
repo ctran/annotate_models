@@ -5,6 +5,7 @@ require 'annotate/version'
 require 'annotate/annotate_models'
 require 'annotate/annotate_routes'
 require 'annotate/constants'
+require 'annotate/helpers'
 
 begin
   # ActiveSupport 3.x...
@@ -18,36 +19,6 @@ end
 
 module Annotate
   ##
-  # The set of available options to customize the behavior of Annotate.
-  #
-  POSITION_OPTIONS = [
-    :position_in_routes, :position_in_class, :position_in_test,
-    :position_in_fixture, :position_in_factory, :position,
-    :position_in_serializer
-  ].freeze
-  FLAG_OPTIONS = [
-    :show_indexes, :simple_indexes, :include_version, :exclude_tests,
-    :exclude_fixtures, :exclude_factories, :ignore_model_sub_dir,
-    :format_bare, :format_rdoc, :format_markdown, :sort, :force, :frozen,
-    :trace, :timestamp, :exclude_serializers, :classified_sort,
-    :show_foreign_keys, :show_complete_foreign_keys,
-    :exclude_scaffolds, :exclude_controllers, :exclude_helpers,
-    :exclude_sti_subclasses, :ignore_unknown_models, :with_comment
-  ].freeze
-  OTHER_OPTIONS = [
-    :additional_file_patterns, :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close,
-    :wrapper, :routes, :models, :hide_limit_column_types, :hide_default_column_types,
-    :ignore_routes, :active_admin
-  ].freeze
-  PATH_OPTIONS = [
-    :require, :model_dir, :root_dir
-  ].freeze
-
-  def self.all_options
-    [POSITION_OPTIONS, FLAG_OPTIONS, PATH_OPTIONS, OTHER_OPTIONS]
-  end
-
-  ##
   # Set default values that can be overridden via environment variables.
   #
   def self.set_defaults(options = {})
@@ -56,7 +27,7 @@ module Annotate
 
     options = ActiveSupport::HashWithIndifferentAccess.new(options)
 
-    all_options.flatten.each do |key|
+    Constants::ALL_ANNOTATE_OPTIONS.flatten.each do |key|
       if options.key?(key)
         default_value = if options[key].is_a?(Array)
                           options[key].join(',')
@@ -74,16 +45,16 @@ module Annotate
   # TODO: what is the difference between this and set_defaults?
   #
   def self.setup_options(options = {})
-    POSITION_OPTIONS.each do |key|
-      options[key] = fallback(ENV[key.to_s], ENV['position'], 'before')
+    Constants::POSITION_OPTIONS.each do |key|
+      options[key] = Annotate::Helpers.fallback(ENV[key.to_s], ENV['position'], 'before')
     end
-    FLAG_OPTIONS.each do |key|
-      options[key] = true?(ENV[key.to_s])
+    Constants::FLAG_OPTIONS.each do |key|
+      options[key] = Annotate::Helpers.true?(ENV[key.to_s])
     end
-    OTHER_OPTIONS.each do |key|
+    Constants::OTHER_OPTIONS.each do |key|
       options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s] : nil
     end
-    PATH_OPTIONS.each do |key|
+    Constants::PATH_OPTIONS.each do |key|
       options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s].split(',') : []
     end
 
@@ -94,27 +65,11 @@ module Annotate
     options[:wrapper_close] ||= options[:wrapper]
 
     # These were added in 2.7.0 but so this is to revert to old behavior by default
-    options[:exclude_scaffolds] = Annotate.true?(ENV.fetch('exclude_scaffolds', 'true'))
-    options[:exclude_controllers] = Annotate.true?(ENV.fetch('exclude_controllers', 'true'))
-    options[:exclude_helpers] = Annotate.true?(ENV.fetch('exclude_helpers', 'true'))
+    options[:exclude_scaffolds] = Annotate::Helpers.true?(ENV.fetch('exclude_scaffolds', 'true'))
+    options[:exclude_controllers] = Annotate::Helpers.true?(ENV.fetch('exclude_controllers', 'true'))
+    options[:exclude_helpers] = Annotate::Helpers.true?(ENV.fetch('exclude_helpers', 'true'))
 
     options
-  end
-
-  def self.reset_options
-    all_options.flatten.each { |key| ENV[key.to_s] = nil }
-  end
-
-  def self.skip_on_migration?
-    ENV['ANNOTATE_SKIP_ON_DB_MIGRATE'] =~ Constants::TRUE_RE || ENV['skip_on_db_migrate'] =~ Constants::TRUE_RE
-  end
-
-  def self.include_routes?
-    ENV['routes'] =~ Constants::TRUE_RE
-  end
-
-  def self.include_models?
-    ENV['models'] =~ Constants::TRUE_RE
   end
 
   def self.loaded_tasks=(val)
@@ -190,15 +145,5 @@ module Annotate
 
     load_tasks
     Rake::Task[:set_annotation_options].invoke
-  end
-
-  def self.fallback(*args)
-    args.detect { |arg| !arg.blank? }
-  end
-
-  def self.true?(val)
-    return false if val.blank?
-    return false unless val =~ Constants::TRUE_RE
-    true
   end
 end
