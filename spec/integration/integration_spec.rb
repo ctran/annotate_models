@@ -34,7 +34,10 @@ describe "annotate inside Rails, using #{CURRENT_RUBY}" do
       expect(Annotate::Integration.clean?(test_rig)).to eq(true)
 
       Bundler.with_clean_env do
+        expect(1).to eq(1)
+
         dir base_dir do
+          expect(1).to eq(1)
           temp_dir = Dir.pwd
           expect(File.basename(temp_dir)).to eq(base_dir)
 
