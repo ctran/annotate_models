@@ -4,6 +4,7 @@ require 'spec_helper'
 require 'files'
 require 'wrong'
 require 'rake'
+require 'pry'
 include Files
 include Wrong::D
 
@@ -41,6 +42,9 @@ describe "annotate inside Rails, using #{CURRENT_RUBY}" do
         expect(1).to eq(1)
 
         dir base_dir do
+
+          binding.pry
+
           expect(1).to eq(1)
           temp_dir = Dir.pwd
           expect(File.basename(temp_dir)).to eq(base_dir)
