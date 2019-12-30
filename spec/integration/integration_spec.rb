@@ -15,6 +15,10 @@ CURRENT_RUBY = `rvm-prompt i v p 2>/dev/null`.chomp
 ENV['rvm_pretty_print_flag'] = '0'
 ENV['BUNDLE_GEMFILE'] = './Gemfile'
 
+module Files
+  include RSpec::Matchers
+end
+
 describe "annotate inside Rails, using #{CURRENT_RUBY}" do
   chosen_scenario = nil
   unless ENV['SCENARIO'].blank?
