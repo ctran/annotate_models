@@ -119,7 +119,7 @@ module AnnotateRoutes
     def strip_annotations(content)
       real_content = []
       mode = :content
-      header_found_at = 0
+      header_position = 0
 
       content.split(/\n/, -1).each_with_index do |line, line_number|
         if mode == :header && line !~ /\s*#/
@@ -127,7 +127,7 @@ module AnnotateRoutes
           real_content << line unless line.blank?
         elsif mode == :content
           if line =~ /^\s*#\s*== Route.*$/
-            header_found_at = line_number + 1 # index start's at 0
+            header_position = line_number + 1 # index start's at 0
             mode = :header
           else
             real_content << line
@@ -135,7 +135,7 @@ module AnnotateRoutes
         end
       end
 
-      real_content_and_header_position(real_content, header_found_at)
+      real_content_and_header_position(real_content, header_position)
     end
 
     def strip_on_removal(content, header_position)
