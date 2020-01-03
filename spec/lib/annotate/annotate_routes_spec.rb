@@ -7,8 +7,12 @@ describe AnnotateRoutes do
   ANNOTATION_REMOVED = "Removed annotations from #{ROUTE_FILE}.".freeze
   FILE_UNCHANGED = "#{ROUTE_FILE} unchanged.".freeze
 
-  def mock_file(stubs = {})
-    @mock_file ||= double(File, stubs)
+  let :stubs do
+    {}
+  end
+
+  let :mock_file do
+    double(File, stubs)
   end
 
   def magic_comments_list_each
@@ -56,7 +60,7 @@ describe AnnotateRoutes do
 
       it 'annotate normal' do
         expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-        expect(@mock_file).to receive(:puts).with("
+        expect(mock_file).to receive(:puts).with("
 # == Route Map
 #
 #                                       Prefix Verb       URI Pattern                                               Controller#Action
@@ -69,7 +73,7 @@ describe AnnotateRoutes do
 
       it 'annotate markdown' do
         expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-        expect(@mock_file).to receive(:puts).with("
+        expect(mock_file).to receive(:puts).with("
 # ## Route Map
 #
 # Prefix    | Verb       | URI Pattern     | Controller#Action   
@@ -83,7 +87,7 @@ describe AnnotateRoutes do
 
       it 'wraps annotation if wrapper is specified' do
         expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-        expect(@mock_file).to receive(:puts).with("
+        expect(mock_file).to receive(:puts).with("
 # START
 # == Route Map
 #
@@ -104,7 +108,7 @@ describe AnnotateRoutes do
             .and_return("#{magic_comment}\n#{rake_routes_content}")
 
           expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-          expect(@mock_file).to receive(:puts).with("
+          expect(mock_file).to receive(:puts).with("
 #{magic_comment}
 
 # == Route Map
@@ -124,7 +128,7 @@ describe AnnotateRoutes do
             .and_return("#{magic_comment}\n#{rake_routes_content}")
 
           expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-          expect(@mock_file).to receive(:puts).with("
+          expect(mock_file).to receive(:puts).with("
 #{magic_comment}
 
 # ## Route Map
@@ -144,7 +148,7 @@ describe AnnotateRoutes do
           expect(AnnotateRoutes).to receive(:`).with('rake routes')
             .and_return("#{magic_comment}\n#{rake_routes_content}")
           expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-          expect(@mock_file).to receive(:puts).with("
+          expect(mock_file).to receive(:puts).with("
 #{magic_comment}
 
 # START
@@ -173,7 +177,7 @@ describe AnnotateRoutes do
     it 'should insert annotations if file does not contain annotations' do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("")
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-      expect(@mock_file).to receive(:puts).with("\n# == Route Map\n#\n")
+      expect(mock_file).to receive(:puts).with("\n# == Route Map\n#\n")
       expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
 
       AnnotateRoutes.do_annotations
@@ -182,7 +186,7 @@ describe AnnotateRoutes do
     it 'should insert annotations if file does not contain annotations and ignore routes' do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("")
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-      expect(@mock_file).to receive(:puts).with("\n# == Route Map\n#\n")
+      expect(mock_file).to receive(:puts).with("\n# == Route Map\n#\n")
       expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
 
       AnnotateRoutes.do_annotations(ignore_routes: 'my_route')
@@ -191,7 +195,7 @@ describe AnnotateRoutes do
     it 'should insert annotations if file does not contain annotations and position top' do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("")
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-      expect(@mock_file).to receive(:puts).with("# == Route Map\n#\n")
+      expect(mock_file).to receive(:puts).with("# == Route Map\n#\n")
       expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
 
       AnnotateRoutes.do_annotations(position_in_routes: 'top')
@@ -211,7 +215,7 @@ describe AnnotateRoutes do
 
         magic_comments_list_each do |magic_comment|
           expect(File).to receive(:read).with(ROUTE_FILE).and_return("#{magic_comment}\nSomething")
-          expect(@mock_file).to receive(:puts).with("#{magic_comment}\n\n# == Route Map\n#\n\nSomething\n")
+          expect(mock_file).to receive(:puts).with("#{magic_comment}\n\n# == Route Map\n#\n\nSomething\n")
           expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
           AnnotateRoutes.do_annotations(position_in_routes: 'top')
         end
@@ -223,7 +227,7 @@ describe AnnotateRoutes do
 
         magic_comments_list_each do |magic_comment|
           expect(File).to receive(:read).with(ROUTE_FILE).and_return("#{magic_comment}\nSomething")
-          expect(@mock_file).to receive(:puts).with("#{magic_comment}\nSomething\n\n# == Route Map\n#\n")
+          expect(mock_file).to receive(:puts).with("#{magic_comment}\nSomething\n\n# == Route Map\n#\n")
           expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
           AnnotateRoutes.do_annotations(position_in_routes: 'bottom')
         end
@@ -251,13 +255,13 @@ describe AnnotateRoutes do
 
     it 'should annotate and add a newline!' do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
-      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
+      expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
       AnnotateRoutes.do_annotations
     end
 
     it 'should not add a newline if there are empty lines' do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo\n")
-      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
+      expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
       AnnotateRoutes.do_annotations
     end
   end
@@ -272,19 +276,19 @@ describe AnnotateRoutes do
 
     it 'should annotate and add a newline!' do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
-      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
+      expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
       AnnotateRoutes.do_annotations
     end
 
     it 'should not add a newline if there are empty lines' do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo\n")
-      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
+      expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
       AnnotateRoutes.do_annotations
     end
 
     it 'should add a timestamp when :timestamp is passed' do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
-      expect(@mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
+      expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
       AnnotateRoutes.do_annotations timestamp: true
     end
   end
@@ -311,7 +315,7 @@ describe AnnotateRoutes do
       # good line
       EOS
                                                                 )
-      expect(@mock_file).to receive(:puts).with(<<-EOS
+      expect(mock_file).to receive(:puts).with(<<-EOS
 
 
 
@@ -340,7 +344,7 @@ describe AnnotateRoutes do
 
       EOS
                                                                 )
-      expect(@mock_file).to receive(:puts).with(<<-EOS
+      expect(mock_file).to receive(:puts).with(<<-EOS
       Rails.application.routes.draw do
         root 'root#index'
       end
@@ -365,7 +369,7 @@ describe AnnotateRoutes do
       EOS
                                                                 )
 
-      expect(@mock_file).to receive(:puts).with(<<-EOS
+      expect(mock_file).to receive(:puts).with(<<-EOS
       # My comment
       Rails.application.routes.draw do
         root 'root#index'
