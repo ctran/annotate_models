@@ -51,7 +51,7 @@ module AnnotateRoutes
 
       out << comment(options[:wrapper_open]) if options[:wrapper_open]
 
-      out << comment(markdown? ? PREFIX_MD : PREFIX) + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')
+      out << comment(markdown? ? PREFIX_MD : PREFIX) + timestamp_if_required
       out << comment
       return out if contents_without_magic_comments.size.zero?
 
@@ -96,6 +96,10 @@ module AnnotateRoutes
 
     def markdown?
       options[:format_markdown]
+    end
+
+    def timestamp_if_required
+      options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : ''
     end
   end
 end
