@@ -232,17 +232,17 @@ module AnnotateRoutes
       end.join(' | ')
     end
 
-    def real_content_and_header_position(real_content, header_found_at)
+    def real_content_and_header_position(real_content, header_position)
       # By default assume the annotation was found in the middle of the file
 
       # ... unless we have evidence it was at the beginning ...
-      return real_content, :before if header_found_at == 1
+      return real_content, :before if header_position == 1
 
       # ... or that it was at the end.
-      return real_content, :after if header_found_at >= real_content.count
+      return real_content, :after if header_position >= real_content.count
 
       # and the default
-      return real_content, header_found_at
+      return real_content, header_position
     end
 
     def magic_comment_matcher
