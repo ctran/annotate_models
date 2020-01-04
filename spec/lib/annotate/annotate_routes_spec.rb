@@ -7,28 +7,26 @@ describe AnnotateRoutes do
   ANNOTATION_REMOVED = "Removed annotations from #{ROUTE_FILE}.".freeze
   FILE_UNCHANGED = "#{ROUTE_FILE} unchanged.".freeze
 
+  MAGIC_COMMENTS = [
+    '# encoding: UTF-8',
+    '# coding: UTF-8',
+    '# -*- coding: UTF-8 -*-',
+    '#encoding: utf-8',
+    '# encoding: utf-8',
+    '# -*- encoding : utf-8 -*-',
+    "# encoding: utf-8\n# frozen_string_literal: true",
+    "# frozen_string_literal: true\n# encoding: utf-8",
+    '# frozen_string_literal: true',
+    '#frozen_string_literal: false',
+    '# -*- frozen_string_literal : true -*-'
+  ].freeze
+
   let :stubs do
     {}
   end
 
   let :mock_file do
     double(File, stubs)
-  end
-
-  def magic_comments_list_each
-    [
-      '# encoding: UTF-8',
-      '# coding: UTF-8',
-      '# -*- coding: UTF-8 -*-',
-      '#encoding: utf-8',
-      '# encoding: utf-8',
-      '# -*- encoding : utf-8 -*-',
-      "# encoding: utf-8\n# frozen_string_literal: true",
-      "# frozen_string_literal: true\n# encoding: utf-8",
-      '# frozen_string_literal: true',
-      '#frozen_string_literal: false',
-      '# -*- frozen_string_literal : true -*-'
-    ].each { |magic_comment| yield magic_comment }
   end
 
   it 'should check if routes.rb exists' do
@@ -103,7 +101,7 @@ describe AnnotateRoutes do
 
     context 'file with magic comments' do
       it 'should not remove magic comments' do
-        magic_comments_list_each do |magic_comment|
+        MAGIC_COMMENTS.each do |magic_comment|
           expect(AnnotateRoutes).to receive(:`).with('rake routes')
             .and_return("#{magic_comment}\n#{rake_routes_content}")
 
@@ -123,7 +121,7 @@ describe AnnotateRoutes do
       end
 
       it 'annotate markdown' do
-        magic_comments_list_each do |magic_comment|
+        MAGIC_COMMENTS.each do |magic_comment|
           expect(AnnotateRoutes).to receive(:`).with('rake routes')
             .and_return("#{magic_comment}\n#{rake_routes_content}")
 
@@ -144,7 +142,7 @@ describe AnnotateRoutes do
       end
 
       it 'wraps annotation if wrapper is specified' do
-        magic_comments_list_each do |magic_comment|
+        MAGIC_COMMENTS.each do |magic_comment|
           expect(AnnotateRoutes).to receive(:`).with('rake routes')
             .and_return("#{magic_comment}\n#{rake_routes_content}")
           expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
@@ -213,7 +211,7 @@ describe AnnotateRoutes do
         expect(File).to receive(:open).with(ROUTE_FILE, 'wb')
           .and_yield(mock_file).at_least(:once)
 
-        magic_comments_list_each do |magic_comment|
+        MAGIC_COMMENTS.each do |magic_comment|
           expect(File).to receive(:read).with(ROUTE_FILE).and_return("#{magic_comment}\nSomething")
           expect(mock_file).to receive(:puts).with("#{magic_comment}\n\n# == Route Map\n#\n\nSomething\n")
           expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
@@ -225,7 +223,7 @@ describe AnnotateRoutes do
         expect(File).to receive(:open).with(ROUTE_FILE, 'wb')
           .and_yield(mock_file).at_least(:once)
 
-        magic_comments_list_each do |magic_comment|
+        MAGIC_COMMENTS.each do |magic_comment|
           expect(File).to receive(:read).with(ROUTE_FILE).and_return("#{magic_comment}\nSomething")
           expect(mock_file).to receive(:puts).with("#{magic_comment}\nSomething\n\n# == Route Map\n#\n")
           expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
@@ -234,7 +232,7 @@ describe AnnotateRoutes do
       end
 
       it 'skips annotations if file does already contain annotation' do
-        magic_comments_list_each do |magic_comment|
+        MAGIC_COMMENTS.each do |magic_comment|
           expect(File).to receive(:read).with(ROUTE_FILE)
             .and_return("#{magic_comment}\n\n# == Route Map\n#\n")
           expect(AnnotateRoutes).to receive(:puts).with(FILE_UNCHANGED)
