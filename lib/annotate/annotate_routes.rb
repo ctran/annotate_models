@@ -37,8 +37,8 @@ module AnnotateRoutes
     def remove_annotations(_options={})
       return unless routes_exists?
       existing_text = File.read(routes_file)
-      content, where_header_found = strip_annotations(existing_text)
-      new_content = strip_on_removal(content, where_header_found)
+      content, header_position = strip_annotations(existing_text)
+      new_content = strip_on_removal(content, header_position)
       if rewrite_contents(existing_text, new_content)
         puts "Removed annotations from #{routes_file}."
       end
@@ -58,8 +58,8 @@ module AnnotateRoutes
     end
 
     def rewrite_contents_with_header(existing_text, header, options = {})
-      content, where_header_found = strip_annotations(existing_text)
-      new_content = annotate_routes(header, content, where_header_found, options)
+      content, header_position = strip_annotations(existing_text)
+      new_content = annotate_routes(header, content, header_position, options)
 
       # Make sure we end on a trailing newline.
       new_content << '' unless new_content.last == ''
@@ -110,7 +110,8 @@ module AnnotateRoutes
     end
 
     # TODO: write the method doc using ruby rdoc formats
-    # where_header_found => This will either be :before, :after, or
+    # This method returns an array of 'real_content' and 'header_position'.
+    # 'header_position' will either be :before, :after, or
     # a number.  If the number is > 0, the
     # annotation was found somewhere in the
     # middle of the file.  If the number is
@@ -118,7 +119,7 @@ module AnnotateRoutes
     def strip_annotations(content)
       real_content = []
       mode = :content
-      header_found_at = 0
+      header_position = 0
 
       content.split(/\n/, -1).each_with_index do |line, line_number|
         if mode == :header && line !~ /\s*#/
@@ -126,7 +127,7 @@ module AnnotateRoutes
           real_content << line unless line.blank?
         elsif mode == :content
           if line =~ /^\s*#\s*== Route.*$/
-            header_found_at = line_number + 1 # index start's at 0
+            header_position = line_number + 1 # index start's at 0
             mode = :header
           else
             real_content << line
@@ -134,13 +135,13 @@ module AnnotateRoutes
         end
       end
 
-      where_header_found(real_content, header_found_at)
+      real_content_and_header_position(real_content, header_position)
     end
 
-    def strip_on_removal(content, where_header_found)
-      if where_header_found == :before
+    def strip_on_removal(content, header_position)
+      if header_position == :before
         content.shift while content.first == ''
-      elsif where_header_found == :after
+      elsif header_position == :after
         content.pop while content.last == ''
       end
 
@@ -165,7 +166,7 @@ module AnnotateRoutes
       end
     end
 
-    def annotate_routes(header, content, where_header_found, options = {})
+    def annotate_routes(header, content, header_position, options = {})
       magic_comments_map, content = extract_magic_comments_from_array(content)
       if %w(before top).include?(options[:position_in_routes])
         header = header << '' if content.first != ''
@@ -178,7 +179,7 @@ module AnnotateRoutes
 
         # We're moving something from the top of the file to the bottom, so ditch
         # the spacer we put in the first time around.
-        content.shift if where_header_found == :before && content.first == ''
+        content.shift if header_position == :before && content.first == ''
 
         new_content = magic_comments_map + content + header
       end
@@ -231,17 +232,17 @@ module AnnotateRoutes
       end.join(' | ')
     end
 
-    def where_header_found(real_content, header_found_at)
+    def real_content_and_header_position(real_content, header_position)
       # By default assume the annotation was found in the middle of the file
 
       # ... unless we have evidence it was at the beginning ...
-      return real_content, :before if header_found_at == 1
+      return real_content, :before if header_position == 1
 
       # ... or that it was at the end.
-      return real_content, :after if header_found_at >= real_content.count
+      return real_content, :after if header_position >= real_content.count
 
       # and the default
-      return real_content, header_found_at
+      return real_content, header_position
     end
 
     def magic_comment_matcher
