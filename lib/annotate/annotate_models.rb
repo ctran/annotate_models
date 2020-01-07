@@ -82,6 +82,8 @@ module AnnotateModels
     }
   }.freeze
 
+  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/).freeze
+
   class << self
     def annotate_pattern(options = {})
       if options[:wrapper_open]
@@ -537,7 +539,7 @@ module AnnotateModels
       # need to insert it in correct position
       if old_annotation.empty? || options[:force]
         magic_comments_block = magic_comments_as_string(old_content)
-        old_content.gsub!(magic_comment_matcher, '')
+        old_content.gsub!(MAGIC_COMMENT_MATCHER, '')
         old_content.sub!(annotate_pattern(options), '')
 
         new_content = if %w(after bottom).include?(options[position].to_s)
@@ -561,12 +563,8 @@ module AnnotateModels
       true
     end
 
-    def magic_comment_matcher
-      Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/)
-    end
-
     def magic_comments_as_string(content)
-      magic_comments = content.scan(magic_comment_matcher).flatten.compact
+      magic_comments = content.scan(MAGIC_COMMENT_MATCHER).flatten.compact
 
       if magic_comments.any?
         magic_comments.join
