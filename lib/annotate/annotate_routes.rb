@@ -39,7 +39,12 @@ module AnnotateRoutes
       existing_text = File.read(routes_file)
       content, header_position = strip_annotations(existing_text)
       new_content = strip_on_removal(content, header_position)
-      if rewrite_contents(existing_text, new_content)
+
+      # Make sure we end on a trailing newline.
+      new_content << '' unless new_content.last == ''
+      new_text = new_content.join("\n")
+
+      if rewrite_contents(existing_text, new_text)
         puts "Removed annotations from #{routes_file}."
       end
     end
@@ -152,11 +157,7 @@ module AnnotateRoutes
     end
 
     # @param [String, Array<String>]
-    def rewrite_contents(existing_text, new_content)
-      # Make sure we end on a trailing newline.
-      new_content << '' unless new_content.last == ''
-      new_text = new_content.join("\n")
-
+    def rewrite_contents(existing_text, new_text)
       if existing_text == new_text
         puts "#{routes_file} unchanged."
         false
