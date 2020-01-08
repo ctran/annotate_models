@@ -9,7 +9,7 @@ module AnnotateRoutes
     # @return [Boolean]
     def update
       header = HeaderGenerator.generate(options)
-      content, header_position = Helpers.strip_annotations(existing_text)
+      content, header_position = strip_annotations(existing_text)
       new_content = annotate_routes(header, content, header_position)
       new_text = new_content.join("\n")
       rewrite_contents(new_text)

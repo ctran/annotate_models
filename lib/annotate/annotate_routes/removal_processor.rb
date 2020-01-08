@@ -1,5 +1,4 @@
 require_relative './base_processor'
-require_relative './helpers'
 
 # This module provides methods for annotating config/routes.rb.
 module AnnotateRoutes
@@ -7,7 +6,7 @@ module AnnotateRoutes
   class RemovalProcessor < BaseProcessor
     # @return [Boolean]
     def update
-      content, header_position = Helpers.strip_annotations(existing_text)
+      content, header_position = strip_annotations(existing_text)
       new_content = strip_on_removal(content, header_position)
       new_text = new_content.join("\n")
       rewrite_contents(new_text)
