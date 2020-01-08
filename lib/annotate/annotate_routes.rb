@@ -25,30 +25,14 @@ module AnnotateRoutes
   class << self
     def do_annotations(options = {})
       routes_file = File.join('config', 'routes.rb')
-      processor = AnnotationProcessor.new(options, routes_file)
-      if processor.routes_file_exist?
-        if processor.update
-          puts "#{routes_file} was annotated."
-        else
-          puts "#{routes_file} was not changed."
-        end
-      else
-        puts "#{routes_file} could not be found."
-      end
+      result = AnnotationProcessor.execute(options, routes_file)
+      puts result
     end
 
     def remove_annotations(options = {})
       routes_file = File.join('config', 'routes.rb')
-      processor = RemovalProcessor.new(options, routes_file)
-      if processor.routes_file_exist?
-        if processor.update
-          puts "Annotations were removed from #{routes_file}."
-        else
-          puts "#{routes_file} was not changed (Annotation did not exist)."
-        end
-      else
-        puts "#{routes_file} could not be found."
-      end
+      result = RemovalProcessor.execute(options, routes_file)
+      puts result
     end
   end
 end

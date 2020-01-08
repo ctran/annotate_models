@@ -6,6 +6,19 @@ require_relative './magic_comments_extractor'
 module AnnotateRoutes
   # This class provides methods for adding annotation to config/routes.rb.
   class AnnotationProcessor < BaseProcessor
+    # @return [String]
+    def execute
+      if routes_file_exist?
+        if update
+          "#{routes_file} was annotated."
+        else
+          "#{routes_file} was not changed."
+        end
+      else
+        "#{routes_file} could not be found."
+      end
+    end
+
     private
 
     def header

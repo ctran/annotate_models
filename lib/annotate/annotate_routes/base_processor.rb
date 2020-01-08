@@ -2,6 +2,17 @@
 module AnnotateRoutes
   # This class is abstract class of classes adding and removing annotation to config/routes.rb.
   class BaseProcessor
+    class << self
+      # @param options [Hash]
+      # @param routes_file [String]
+      # @return [String]
+      def execute(options, routes_file)
+        new(options, routes_file).execute
+      end
+
+      private :new
+    end
+
     def initialize(options, routes_file)
       @options = options
       @routes_file = routes_file
