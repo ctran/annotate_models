@@ -22,7 +22,7 @@
 module AnnotateRoutes
   PREFIX = '== Route Map'.freeze
   PREFIX_MD = '## Route Map'.freeze
-  HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action']
+  HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action'].freeze
 
   class << self
     def do_annotations(options = {})
