@@ -21,6 +21,7 @@
 #
 
 require_relative './annotate_routes/helpers'
+require_relative './annotate_routes/header_generator'
 
 module AnnotateRoutes
   PREFIX = '== Route Map'.freeze
@@ -72,7 +73,7 @@ module AnnotateRoutes
     end
 
     def header(options = {})
-      routes_map = app_routes_map(options)
+      routes_map = HeaderGenerator.app_routes_map(options)
 
       magic_comments_map, routes_map = Helpers.extract_magic_comments_from_array(routes_map)
 
@@ -161,23 +162,6 @@ module AnnotateRoutes
       new_content << '' unless new_content.last == ''
 
       new_content
-    end
-
-    def app_routes_map(options)
-      routes_map = `rake routes`.chomp("\n").split(/\n/, -1)
-
-      # In old versions of Rake, the first line of output was the cwd.  Not so
-      # much in newer ones.  We ditch that line if it exists, and if not, we
-      # keep the line around.
-      routes_map.shift if routes_map.first =~ /^\(in \//
-
-      # Skip routes which match given regex
-      # Note: it matches the complete line (route_name, path, controller/action)
-      if options[:ignore_routes]
-        routes_map.reject! { |line| line =~ /#{options[:ignore_routes]}/ }
-      end
-
-      routes_map
     end
 
     def content(line, maxs, options = {})
