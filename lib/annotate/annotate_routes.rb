@@ -65,9 +65,6 @@ module AnnotateRoutes
     def rewrite_contents_with_header(existing_text, header, options = {})
       content, header_position = strip_annotations(existing_text)
       new_content = annotate_routes(header, content, header_position, options)
-
-      # Make sure we end on a trailing newline.
-      new_content << '' unless new_content.last == ''
       new_text = new_content.join("\n")
 
       if existing_text == new_text
@@ -195,6 +192,9 @@ module AnnotateRoutes
 
         new_content = magic_comments_map + content + header
       end
+
+      # Make sure we end on a trailing newline.
+      new_content << '' unless new_content.last == ''
 
       new_content
     end
