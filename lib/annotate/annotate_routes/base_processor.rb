@@ -7,6 +7,14 @@ module AnnotateRoutes
       @routes_file = routes_file
     end
 
+    # @return [Boolean]
+    def update
+      content, header_position = strip_annotations(existing_text)
+      new_content = generate_new_content_array(content, header_position)
+      new_text = new_content.join("\n")
+      rewrite_contents(new_text)
+    end
+
     def routes_file_exist?
       File.exist?(routes_file)
     end
