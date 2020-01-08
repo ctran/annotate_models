@@ -39,9 +39,6 @@ module AnnotateRoutes
       existing_text = File.read(routes_file)
       content, header_position = strip_annotations(existing_text)
       new_content = strip_on_removal(content, header_position)
-
-      # Make sure we end on a trailing newline.
-      new_content << '' unless new_content.last == ''
       new_text = new_content.join("\n")
 
       if rewrite_contents(existing_text, new_text)
@@ -149,6 +146,9 @@ module AnnotateRoutes
       elsif header_position == :after
         content.pop while content.last == ''
       end
+
+      # Make sure we end on a trailing newline.
+      content << '' unless content.last == ''
 
       # TODO: If the user buried it in the middle, we should probably see about
       # TODO: preserving a single line of space between the content above and
