@@ -31,7 +31,7 @@ module AnnotateRoutes
     def do_annotations(options = {})
       if routes_file_exist?
         existing_text = File.read(routes_file)
-        content, header_position = strip_annotations(existing_text)
+        content, header_position = Helpers.strip_annotations(existing_text)
         new_content = annotate_routes(header(options), content, header_position, options)
         new_text = new_content.join("\n")
 
@@ -48,7 +48,7 @@ module AnnotateRoutes
     def remove_annotations(_options={})
       if routes_file_exist?
         existing_text = File.read(routes_file)
-        content, header_position = strip_annotations(existing_text)
+        content, header_position = Helpers.strip_annotations(existing_text)
         new_content = strip_on_removal(content, header_position)
         new_text = new_content.join("\n")
         if rewrite_contents(existing_text, new_text)
@@ -112,35 +112,6 @@ module AnnotateRoutes
       else
         "# #{row}"
       end
-    end
-
-    # TODO: write the method doc using ruby rdoc formats
-    # This method returns an array of 'real_content' and 'header_position'.
-    # 'header_position' will either be :before, :after, or
-    # a number.  If the number is > 0, the
-    # annotation was found somewhere in the
-    # middle of the file.  If the number is
-    # zero, no annotation was found.
-    def strip_annotations(content)
-      real_content = []
-      mode = :content
-      header_position = 0
-
-      content.split(/\n/, -1).each_with_index do |line, line_number|
-        if mode == :header && line !~ /\s*#/
-          mode = :content
-          real_content << line unless line.blank?
-        elsif mode == :content
-          if line =~ /^\s*#\s*== Route.*$/
-            header_position = line_number + 1 # index start's at 0
-            mode = :header
-          else
-            real_content << line
-          end
-        end
-      end
-
-      real_content_and_header_position(real_content, header_position)
     end
 
     def strip_on_removal(content, header_position)
@@ -217,19 +188,6 @@ module AnnotateRoutes
 
         sprintf("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
       end.join(' | ')
-    end
-
-    def real_content_and_header_position(real_content, header_position)
-      # By default assume the annotation was found in the middle of the file
-
-      # ... unless we have evidence it was at the beginning ...
-      return real_content, :before if header_position == 1
-
-      # ... or that it was at the end.
-      return real_content, :after if header_position >= real_content.count
-
-      # and the default
-      return real_content, header_position
     end
   end
 end
