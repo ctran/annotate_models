@@ -1,4 +1,4 @@
-require_relative './helpers'
+require_relative './magic_comments_extractor'
 
 module AnnotateRoutes
   class HeaderGenerator
@@ -42,7 +42,7 @@ module AnnotateRoutes
     end
 
     def generate
-      magic_comments_map, contents_without_magic_comments = Helpers.extract_magic_comments_from_array(routes_map)
+      magic_comments_map, contents_without_magic_comments = MagicCommentsExtractor.execute(routes_map)
 
       out = []
 

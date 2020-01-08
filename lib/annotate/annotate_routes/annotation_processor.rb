@@ -1,6 +1,6 @@
 require_relative './base_processor'
-require_relative './helpers'
 require_relative './header_generator'
+require_relative './magic_comments_extractor'
 
 # This module provides methods for annotating config/routes.rb.
 module AnnotateRoutes
@@ -10,7 +10,7 @@ module AnnotateRoutes
 
     def generate_new_content_array(content, header_position)
       header = HeaderGenerator.generate(options)
-      magic_comments_map, content = Helpers.extract_magic_comments_from_array(content)
+      magic_comments_map, content = MagicCommentsExtractor.execute(content)
       if %w[before top].include?(options[:position_in_routes])
         header = header << '' if content.first != ''
         magic_comments_map << '' if magic_comments_map.any?
