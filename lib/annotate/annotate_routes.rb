@@ -24,16 +24,12 @@ require_relative './annotate_routes/helpers'
 require_relative './annotate_routes/header_generator'
 
 module AnnotateRoutes
-  PREFIX = '== Route Map'.freeze
-  PREFIX_MD = '## Route Map'.freeze
-  HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action'].freeze
-
   class << self
     def do_annotations(options = {})
       if routes_file_exist?
         existing_text = File.read(routes_file)
         content, header_position = Helpers.strip_annotations(existing_text)
-        new_content = annotate_routes(header(options), content, header_position, options)
+        new_content = annotate_routes(HeaderGenerator.generate(options), content, header_position, options)
         new_text = new_content.join("\n")
 
         if rewrite_contents(existing_text, new_text)
@@ -70,49 +66,6 @@ module AnnotateRoutes
 
     def routes_file
       @routes_rb ||= File.join('config', 'routes.rb')
-    end
-
-    def header(options = {})
-      routes_map = HeaderGenerator.app_routes_map(options)
-
-      magic_comments_map, routes_map = Helpers.extract_magic_comments_from_array(routes_map)
-
-      out = []
-
-      magic_comments_map.each do |magic_comment|
-        out << magic_comment
-      end
-      out << '' if magic_comments_map.any?
-
-      out << comment(options[:wrapper_open]) if options[:wrapper_open]
-
-      out << comment(options[:format_markdown] ? PREFIX_MD : PREFIX) + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')
-      out << comment
-      return out if routes_map.size.zero?
-
-      maxs = [HEADER_ROW.map(&:size)] + routes_map[1..-1].map { |line| line.split.map(&:size) }
-
-      if options[:format_markdown]
-        max = maxs.map(&:max).compact.max
-
-        out << comment(content(HEADER_ROW, maxs, options))
-        out << comment(content(['-' * max, '-' * max, '-' * max, '-' * max], maxs, options))
-      else
-        out << comment(content(routes_map[0], maxs, options))
-      end
-
-      out += routes_map[1..-1].map { |line| comment(content(options[:format_markdown] ? line.split(' ') : line, maxs, options)) }
-      out << comment(options[:wrapper_close]) if options[:wrapper_close]
-
-      out
-    end
-
-    def comment(row = '')
-      if row == ''
-        '#'
-      else
-        "# #{row}"
-      end
     end
 
     def strip_on_removal(content, header_position)
@@ -162,16 +115,6 @@ module AnnotateRoutes
       new_content << '' unless new_content.last == ''
 
       new_content
-    end
-
-    def content(line, maxs, options = {})
-      return line.rstrip unless options[:format_markdown]
-
-      line.each_with_index.map do |elem, index|
-        min_length = maxs.map { |arr| arr[index] }.max || 0
-
-        sprintf("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
-      end.join(' | ')
     end
   end
 end
