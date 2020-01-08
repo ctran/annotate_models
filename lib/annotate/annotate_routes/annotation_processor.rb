@@ -8,16 +8,16 @@ module AnnotateRoutes
   class AnnotationProcessor < BaseProcessor
     # @return [Boolean]
     def update
-      header = HeaderGenerator.generate(options)
       content, header_position = strip_annotations(existing_text)
-      new_content = annotate_routes(header, content, header_position)
+      new_content = annotate_routes(content, header_position)
       new_text = new_content.join("\n")
       rewrite_contents(new_text)
     end
 
     private
 
-    def annotate_routes(header, content, header_position)
+    def annotate_routes(content, header_position)
+      header = HeaderGenerator.generate(options)
       magic_comments_map, content = Helpers.extract_magic_comments_from_array(content)
       if %w[before top].include?(options[:position_in_routes])
         header = header << '' if content.first != ''
