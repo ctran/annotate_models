@@ -52,7 +52,7 @@ module AnnotateRoutes
     private
 
     def routes_exists?
-      File.exists?(routes_file)
+      File.exist?(routes_file)
     end
 
     def routes_file
