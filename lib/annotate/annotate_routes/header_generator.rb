@@ -40,7 +40,7 @@ module AnnotateRoutes
     end
 
     def generate
-      magic_comments_map, routes_map = Helpers.extract_magic_comments_from_array(routes_map)
+      magic_comments_map, contents_without_magic_comments = Helpers.extract_magic_comments_from_array(routes_map)
 
       out = []
 
@@ -53,9 +53,9 @@ module AnnotateRoutes
 
       out << comment(options[:format_markdown] ? PREFIX_MD : PREFIX) + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')
       out << comment
-      return out if routes_map.size.zero?
+      return out if contents_without_magic_comments.size.zero?
 
-      maxs = [HEADER_ROW.map(&:size)] + routes_map[1..-1].map { |line| line.split.map(&:size) }
+      maxs = [HEADER_ROW.map(&:size)] + contents_without_magic_comments[1..-1].map { |line| line.split.map(&:size) }
 
       if options[:format_markdown]
         max = maxs.map(&:max).compact.max
@@ -63,10 +63,10 @@ module AnnotateRoutes
         out << comment(content(HEADER_ROW, maxs))
         out << comment(content(['-' * max, '-' * max, '-' * max, '-' * max], maxs))
       else
-        out << comment(content(routes_map[0], maxs))
+        out << comment(content(contents_without_magic_comments[0], maxs))
       end
 
-      out += routes_map[1..-1].map { |line| comment(content(options[:format_markdown] ? line.split(' ') : line, maxs)) }
+      out += contents_without_magic_comments[1..-1].map { |line| comment(content(options[:format_markdown] ? line.split(' ') : line, maxs)) }
       out << comment(options[:wrapper_close]) if options[:wrapper_close]
 
       out
