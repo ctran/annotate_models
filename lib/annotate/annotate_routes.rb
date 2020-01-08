@@ -26,7 +26,7 @@ module AnnotateRoutes
 
   class << self
     def do_annotations(options = {})
-      if routes_exists?
+      if routes_file_exist?
         existing_text = File.read(routes_file)
         if rewrite_contents_with_header(existing_text, header(options), options)
           puts "#{routes_file} annotated."
@@ -37,7 +37,7 @@ module AnnotateRoutes
     end
 
     def remove_annotations(_options={})
-      if routes_exists?
+      if routes_file_exist?
         existing_text = File.read(routes_file)
         content, header_position = strip_annotations(existing_text)
         new_content = strip_on_removal(content, header_position)
@@ -51,7 +51,7 @@ module AnnotateRoutes
 
     private
 
-    def routes_exists?
+    def routes_file_exist?
       File.exist?(routes_file)
     end
 
