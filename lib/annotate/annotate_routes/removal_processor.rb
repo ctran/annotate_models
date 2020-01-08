@@ -7,14 +7,14 @@ module AnnotateRoutes
     # @return [Boolean]
     def update
       content, header_position = strip_annotations(existing_text)
-      new_content = strip_on_removal(content, header_position)
+      new_content = generate_new_content_array(content, header_position)
       new_text = new_content.join("\n")
       rewrite_contents(new_text)
     end
 
     private
 
-    def strip_on_removal(content, header_position)
+    def generate_new_content_array(content, header_position)
       case header_position
       when :before
         content.shift while content.first == ''
