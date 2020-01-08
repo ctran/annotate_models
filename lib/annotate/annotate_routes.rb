@@ -66,14 +66,7 @@ module AnnotateRoutes
       content, header_position = strip_annotations(existing_text)
       new_content = annotate_routes(header, content, header_position, options)
       new_text = new_content.join("\n")
-
-      if existing_text == new_text
-        puts "#{routes_file} unchanged."
-        false
-      else
-        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-        true
-      end
+      rewrite_contents(existing_text, new_text)
     end
 
     def header(options = {})
