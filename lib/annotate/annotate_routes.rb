@@ -167,7 +167,6 @@ module AnnotateRoutes
       content
     end
 
-    # @param [String, Array<String>]
     def rewrite_contents(existing_text, new_text)
       if existing_text == new_text
         puts "#{routes_file} unchanged."
