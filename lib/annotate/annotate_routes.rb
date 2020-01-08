@@ -211,7 +211,7 @@ module AnnotateRoutes
       magic_comments = []
       new_content = []
 
-      content_array.map do |row|
+      content_array.each do |row|
         if row =~ magic_comment_matcher
           magic_comments << row.strip
         else
