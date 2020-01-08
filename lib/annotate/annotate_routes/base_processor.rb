@@ -9,10 +9,16 @@ module AnnotateRoutes
 
     # @return [Boolean]
     def update
-      content, header_position = strip_annotations(existing_text)
-      new_content = generate_new_content_array(content, header_position)
-      new_text = new_content.join("\n")
-      rewrite_contents(new_text)
+      content_changed = content_changed?(new_text)
+
+      abort "annotate error. #{routes_file} needs to be updated, but annotate was run with `--frozen`." if content_changed && frozen?
+
+      if content_changed
+        write(new_text)
+        true
+      else
+        false
+      end
     end
 
     def routes_file_exist?
@@ -27,19 +33,11 @@ module AnnotateRoutes
       @existing_text ||= File.read(routes_file)
     end
 
-    # @param new_text [String]
-    # @return [Boolean]
-    def rewrite_contents(new_text)
-      content_changed = content_changed?(new_text)
-
-      abort "annotate error. #{routes_file} needs to be updated, but annotate was run with `--frozen`." if content_changed && frozen?
-
-      if content_changed
-        write(new_text)
-        true
-      else
-        false
-      end
+    # @return [String]
+    def new_text
+      content, header_position = strip_annotations(existing_text)
+      new_content = generate_new_content_array(content, header_position)
+      new_content.join("\n")
     end
 
     def write(text)
