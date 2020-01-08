@@ -26,31 +26,33 @@ module AnnotateRoutes
 
   class << self
     def do_annotations(options = {})
-      return unless routes_exists?
-      existing_text = File.read(routes_file)
-
-      if rewrite_contents_with_header(existing_text, header(options), options)
-        puts "#{routes_file} annotated."
+      if routes_exists?
+        existing_text = File.read(routes_file)
+        if rewrite_contents_with_header(existing_text, header(options), options)
+          puts "#{routes_file} annotated."
+        end
+      else
+        puts "Can't find routes.rb"
       end
     end
 
     def remove_annotations(_options={})
-      return unless routes_exists?
-      existing_text = File.read(routes_file)
-      content, header_position = strip_annotations(existing_text)
-      new_content = strip_on_removal(content, header_position)
-      if rewrite_contents(existing_text, new_content)
-        puts "Removed annotations from #{routes_file}."
+      if routes_exists?
+        existing_text = File.read(routes_file)
+        content, header_position = strip_annotations(existing_text)
+        new_content = strip_on_removal(content, header_position)
+        if rewrite_contents(existing_text, new_content)
+          puts "Removed annotations from #{routes_file}."
+        end
+      else
+        puts "Can't find routes.rb"
       end
     end
 
     private
 
     def routes_exists?
-      routes_exists = File.exists?(routes_file)
-      puts "Can't find routes.rb" unless routes_exists
-
-      routes_exists
+      File.exists?(routes_file)
     end
 
     def routes_file
