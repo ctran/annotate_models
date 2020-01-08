@@ -35,12 +35,12 @@ module AnnotateRoutes
         new_text = new_content.join("\n")
 
         if rewrite_contents(existing_text, new_text)
-          puts "#{routes_file} annotated."
+          puts "#{routes_file} was annotated."
         else
-          puts "#{routes_file} unchanged."
+          puts "#{routes_file} was not changed."
         end
       else
-        puts "Can't find routes.rb"
+        puts "#{routes_file} could not be found."
       end
     end
 

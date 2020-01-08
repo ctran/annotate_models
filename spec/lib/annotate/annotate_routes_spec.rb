@@ -3,9 +3,10 @@ require 'annotate/annotate_routes'
 
 describe AnnotateRoutes do
   ROUTE_FILE = 'config/routes.rb'.freeze
-  ANNOTATION_ADDED = "#{ROUTE_FILE} annotated.".freeze
+  ANNOTATION_ADDED = "#{ROUTE_FILE} was annotated.".freeze
+  ANNOTATION_FILE_UNCHANGED = "#{ROUTE_FILE} was not changed.".freeze
+  ANNOTATION_FILE_COULD_NOT_FOUND = "#{ROUTE_FILE} could not be found.".freeze
   ANNOTATION_REMOVED = "Removed annotations from #{ROUTE_FILE}.".freeze
-  FILE_UNCHANGED = "#{ROUTE_FILE} unchanged.".freeze
 
   def mock_file(stubs = {})
     @mock_file ||= double(File, stubs)
@@ -29,7 +30,7 @@ describe AnnotateRoutes do
 
   it 'should check if routes.rb exists' do
     expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(false)
-    expect(AnnotateRoutes).to receive(:puts).with("Can't find routes.rb")
+    expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_FILE_COULD_NOT_FOUND)
     AnnotateRoutes.do_annotations
   end
 
@@ -199,7 +200,7 @@ describe AnnotateRoutes do
 
     it 'should skip annotations if file does already contain annotation' do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("\n# == Route Map\n#\n")
-      expect(AnnotateRoutes).to receive(:puts).with(FILE_UNCHANGED)
+      expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_FILE_UNCHANGED)
 
       AnnotateRoutes.do_annotations
     end
@@ -233,7 +234,7 @@ describe AnnotateRoutes do
         magic_comments_list_each do |magic_comment|
           expect(File).to receive(:read).with(ROUTE_FILE)
             .and_return("#{magic_comment}\n\n# == Route Map\n#\n")
-          expect(AnnotateRoutes).to receive(:puts).with(FILE_UNCHANGED)
+          expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_FILE_UNCHANGED)
 
           AnnotateRoutes.do_annotations
         end
