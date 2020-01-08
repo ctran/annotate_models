@@ -8,8 +8,11 @@ module AnnotateRoutes
   class AnnotationProcessor < BaseProcessor
     private
 
+    def header
+      @header ||= HeaderGenerator.generate(options)
+    end
+
     def generate_new_content_array(content, header_position)
-      header = HeaderGenerator.generate(options)
       magic_comments_map, content = MagicCommentsExtractor.execute(content)
       if %w[before top].include?(options[:position_in_routes])
         new_content_array = []
