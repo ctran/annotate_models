@@ -86,10 +86,10 @@ module AnnotateRoutes
       end
       out << '' if magic_comments_map.any?
 
-      out += ["# #{options[:wrapper_open]}"] if options[:wrapper_open]
+      out << "# #{options[:wrapper_open]}" if options[:wrapper_open]
 
-      out += ["# #{options[:format_markdown] ? PREFIX_MD : PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')]
-      out += ['#']
+      out << "# #{options[:format_markdown] ? PREFIX_MD : PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')
+      out << '#'
       return out if routes_map.size.zero?
 
       maxs = [HEADER_ROW.map(&:size)] + routes_map[1..-1].map { |line| line.split.map(&:size) }
@@ -97,14 +97,14 @@ module AnnotateRoutes
       if options[:format_markdown]
         max = maxs.map(&:max).compact.max
 
-        out += ["# #{content(HEADER_ROW, maxs, options)}"]
-        out += ["# #{content(['-' * max, '-' * max, '-' * max, '-' * max], maxs, options)}"]
+        out << "# #{content(HEADER_ROW, maxs, options)}"
+        out << "# #{content(['-' * max, '-' * max, '-' * max, '-' * max], maxs, options)}"
       else
-        out += ["# #{content(routes_map[0], maxs, options)}"]
+        out << "# #{content(routes_map[0], maxs, options)}"
       end
 
       out += routes_map[1..-1].map { |line| "# #{content(options[:format_markdown] ? line.split(' ') : line, maxs, options)}" }
-      out += ["# #{options[:wrapper_close]}"] if options[:wrapper_close]
+      out << "# #{options[:wrapper_close]}" if options[:wrapper_close]
 
       out
     end
