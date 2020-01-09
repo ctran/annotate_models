@@ -87,11 +87,12 @@ module AnnotateRoutes
     def content(line, maxs)
       return line.rstrip unless markdown?
 
-      line.each_with_index.map do |elem, index|
-        min_length = maxs.map { |arr| arr[index] }.max || 0
+      line.each_with_index.map { |elem, index| format_line_element(elem, maxs, index) }.join(' | ')
+    end
 
-        format("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
-      end.join(' | ')
+    def format_line_element(elem, maxs, index)
+      min_length = maxs.map { |arr| arr[index] }.max || 0
+      format("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
     end
 
     def markdown?
