@@ -17,20 +17,23 @@ module AnnotateRoutes
       private
 
       def app_routes_map(options)
-        routes_map = `rake routes`.chomp("\n").split(/\n/, -1)
+        result = `rake routes`.chomp("\n").split(/\n/, -1)
 
         # In old versions of Rake, the first line of output was the cwd.  Not so
         # much in newer ones.  We ditch that line if it exists, and if not, we
         # keep the line around.
-        routes_map.shift if routes_map.first =~ %r{^\(in \/}
+        result.shift if result.first =~ %r{^\(in \/}
+
+        ignore_routes = options[:ignore_routes]
+        regexp_for_ignoring_routes = ignore_routes ? /#{ignore_routes}/ : nil
 
         # Skip routes which match given regex
         # Note: it matches the complete line (route_name, path, controller/action)
-        if options[:ignore_routes]
-          routes_map.reject! { |line| line =~ /#{options[:ignore_routes]}/ }
+        if regexp_for_ignoring_routes
+          result.reject { |line| line =~ regexp_for_ignoring_routes }
+        else
+          result
         end
-
-        routes_map
       end
     end
 
