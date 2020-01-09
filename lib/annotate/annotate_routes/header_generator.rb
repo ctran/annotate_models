@@ -8,15 +8,14 @@ module AnnotateRoutes
 
     class << self
       def generate(options = {})
-        routes_map = app_routes_map(options)
-        new(options, routes_map).generate
+        new(options, routes_map(options)).generate
       end
 
       private :new
 
       private
 
-      def app_routes_map(options)
+      def routes_map(options)
         result = `rake routes`.chomp("\n").split(/\n/, -1)
 
         # In old versions of Rake, the first line of output was the cwd.  Not so
