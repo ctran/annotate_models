@@ -102,8 +102,13 @@ module AnnotateRoutes
       options[:format_markdown]
     end
 
-    def timestamp_if_required
-      options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : ''
+    def timestamp_if_required(time = Time.now)
+      if options[:timestamp]
+        time_formatted = time.strftime('%Y-%m-%d %H:%M')
+        " (Updated #{time_formatted})"
+      else
+        ''
+      end
     end
   end
 end
