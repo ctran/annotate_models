@@ -23,16 +23,22 @@ require_relative './annotate_routes/removal_processor'
 
 module AnnotateRoutes
   class << self
+    # @param options [Hash]
+    # @return [String]
     def do_annotations(options = {})
       routes_file = File.join('config', 'routes.rb')
-      result = AnnotationProcessor.execute(options, routes_file)
-      puts result
+      AnnotationProcessor.execute(options, routes_file).tap do |result|
+        puts result
+      end
     end
 
+    # @param options [Hash]
+    # @return [String]
     def remove_annotations(options = {})
       routes_file = File.join('config', 'routes.rb')
-      result = RemovalProcessor.execute(options, routes_file)
-      puts result
+      RemovalProcessor.execute(options, routes_file).tap do |result|
+        puts result
+      end
     end
   end
 end
