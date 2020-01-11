@@ -21,6 +21,7 @@
 require_relative './annotate_routes/annotation_processor'
 require_relative './annotate_routes/removal_processor'
 
+# This module provides methods for annotating config/routes.rb.
 module AnnotateRoutes
   class << self
     # @param options [Hash]

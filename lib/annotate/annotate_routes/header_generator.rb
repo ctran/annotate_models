@@ -1,6 +1,8 @@
 require_relative './magic_comments_extractor'
 
+# This module provides methods for annotating config/routes.rb.
 module AnnotateRoutes
+  # This class processes result of `rake routes` and generate content enbeded in config/routes.rb.
   class HeaderGenerator
     PREFIX = '== Route Map'.freeze
     PREFIX_MD = '## Route Map'.freeze
