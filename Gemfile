@@ -12,6 +12,7 @@ group :development do
   platforms :mri, :mingw do
     gem 'yard', require: false
   end
+  gem 'pry-byebug'
 end
 
 group :development, :test do
