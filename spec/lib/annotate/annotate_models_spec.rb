@@ -909,13 +909,13 @@ EOS
     end
   end
 
-  describe '#get_patterns' do
+  describe '.get_patterns' do
     subject { AnnotateModels.get_patterns(options, pattern_type) }
 
-    context 'when pattern_type=additional_file_patterns' do
+    context 'when pattern_type is "additional_file_patterns"' do
       let(:pattern_type) { 'additional_file_patterns' }
 
-      context 'with additional_file_patterns' do
+      context 'when additional_file_patterns is specified in the options' do
         let(:additional_file_patterns) do
           [
             '/%PLURALIZED_MODEL_NAME%/**/*.rb',
@@ -925,16 +925,16 @@ EOS
 
         let(:options) { { additional_file_patterns: additional_file_patterns } }
 
-        it do
-          expect(subject).to eq(additional_file_patterns)
+        it 'returns additional_file_patterns in the argument "options"' do
+          is_expected.to eq(additional_file_patterns)
         end
       end
 
-      context 'without additional_file_patterns' do
+      context 'when additional_file_patterns is not specified is the options' do
         let(:options) { {} }
 
-        it do
-          expect(subject).to eq([])
+        it 'returns an empty array' do
+          is_expected.to eq([])
         end
       end
     end
