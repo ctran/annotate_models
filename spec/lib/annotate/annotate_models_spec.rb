@@ -1373,7 +1373,7 @@ EOS
     end
   end
 
-  describe '#get_model_files' do
+  describe '.get_model_files' do
     subject { described_class.get_model_files(options) }
 
     before do
