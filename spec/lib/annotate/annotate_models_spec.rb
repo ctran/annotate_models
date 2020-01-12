@@ -128,7 +128,7 @@ describe AnnotateModels do # rubocop:disable Metrics/BlockLength
     end
   end
 
-  describe '#parse_options' do
+  describe '.parse_options' do
     let(:options) do
       {
         root_dir: '/root',
@@ -136,20 +136,34 @@ describe AnnotateModels do # rubocop:disable Metrics/BlockLength
       }
     end
 
-    it 'sets @root_dir' do
+    before :each do
       AnnotateModels.send(:parse_options, options)
-      expect(AnnotateModels.instance_variable_get(:@root_dir)).to eq('/root')
     end
 
-    it 'sets @model_dir separated with a comma' do
-      AnnotateModels.send(:parse_options, options)
-      expected = [
-        'app/models',
-        'app/one',
-        'app/two',
-        'app/three'
-      ]
-      expect(AnnotateModels.instance_variable_get(:@model_dir)).to eq(expected)
+    describe '@root_dir' do
+      subject do
+        AnnotateModels.instance_variable_get(:@root_dir)
+      end
+
+      it 'sets @root_dir' do
+        expect(AnnotateModels.instance_variable_get(:@root_dir)).to eq('/root')
+      end
+    end
+
+    describe '@model_dir' do
+      subject do
+        AnnotateModels.instance_variable_get(:@model_dir)
+      end
+
+      it 'separates option "model_dir" with commas and sets @model_dir as an array of string' do
+        expected = [
+          'app/models',
+          'app/one',
+          'app/two',
+          'app/three'
+        ]
+        expect(subject).to eq(expected)
+      end
     end
   end
 
