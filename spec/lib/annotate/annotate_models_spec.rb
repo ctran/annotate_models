@@ -6,6 +6,20 @@ require 'active_support/core_ext/string'
 require 'files'
 
 describe AnnotateModels do # rubocop:disable Metrics/BlockLength
+  MAGIC_COMMENTS = [
+    '# encoding: UTF-8',
+    '# coding: UTF-8',
+    '# -*- coding: UTF-8 -*-',
+    '#encoding: utf-8',
+    '# encoding: utf-8',
+    '# -*- encoding : utf-8 -*-',
+    "# encoding: utf-8\n# frozen_string_literal: true",
+    "# frozen_string_literal: true\n# encoding: utf-8",
+    '# frozen_string_literal: true',
+    '#frozen_string_literal: false',
+    '# -*- frozen_string_literal : true -*-'
+  ].freeze
+
   def mock_index(name, params = {})
     double('IndexKeyDefinition',
            name:          name,
@@ -1803,22 +1817,6 @@ end
       Annotate::Constants::PATH_OPTIONS.each { |key| ENV[key.to_s] = '' }
     end
 
-    def magic_comments_list_each
-      [
-        '# encoding: UTF-8',
-        '# coding: UTF-8',
-        '# -*- coding: UTF-8 -*-',
-        '#encoding: utf-8',
-        '# encoding: utf-8',
-        '# -*- encoding : utf-8 -*-',
-        "# encoding: utf-8\n# frozen_string_literal: true",
-        "# frozen_string_literal: true\n# encoding: utf-8",
-        '# frozen_string_literal: true',
-        '#frozen_string_literal: false',
-        '# -*- frozen_string_literal : true -*-'
-      ].each { |magic_comment| yield magic_comment }
-    end
-
     ['before', :before, 'top', :top].each do |position|
       it "should put annotation before class if :position == #{position}" do
         annotate_one_file position: position
@@ -1954,7 +1952,7 @@ end
     end
 
     it 'should not touch magic comments' do
-      magic_comments_list_each do |magic_comment|
+      MAGIC_COMMENTS.each do |magic_comment|
         write_model 'user.rb', <<-EOS
 #{magic_comment}
 class User < ActiveRecord::Base
@@ -1974,7 +1972,7 @@ end
 
     it 'adds an empty line between magic comments and annotation (position :before)' do
       content = "class User < ActiveRecord::Base\nend\n"
-      magic_comments_list_each do |magic_comment|
+      MAGIC_COMMENTS.each do |magic_comment|
         model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
 
         annotate_one_file position: :before
@@ -1986,7 +1984,7 @@ end
 
     it 'only keeps a single empty line around the annotation (position :before)' do
       content = "class User < ActiveRecord::Base\nend\n"
-      magic_comments_list_each do |magic_comment|
+      MAGIC_COMMENTS.each do |magic_comment|
         schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
         model_file_name, = write_model 'user.rb', "#{magic_comment}\n\n\n\n#{content}"
 
@@ -1998,7 +1996,7 @@ end
 
     it 'does not change whitespace between magic comments and model file content (position :after)' do
       content = "class User < ActiveRecord::Base\nend\n"
-      magic_comments_list_each do |magic_comment|
+      MAGIC_COMMENTS.each do |magic_comment|
         model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
 
         annotate_one_file position: :after
