@@ -79,11 +79,6 @@ module Annotate
     end
   end
 
-  def self.load_requires(options)
-    options[:require].count > 0 &&
-      options[:require].each { |path| require path }
-  end
-
   def self.eager_load(options)
     load_requires(options)
     require 'annotate/active_record_patch'
@@ -135,5 +130,14 @@ module Annotate
 
     load_tasks
     Rake::Task[:set_annotation_options].invoke
+  end
+
+  class << self
+    private
+
+    def load_requires(options)
+      options[:require].count > 0 &&
+        options[:require].each { |path| require path }
+    end
   end
 end
