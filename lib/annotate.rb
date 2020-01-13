@@ -72,17 +72,9 @@ module Annotate
     options
   end
 
-  def self.loaded_tasks=(val)
-    @loaded_tasks = val
-  end
-
-  def self.loaded_tasks
-    @loaded_tasks
-  end
-
   def self.load_tasks
-    return if loaded_tasks
-    self.loaded_tasks = true
+    return if @loaded_tasks
+    @loaded_tasks = true
 
     Dir[File.join(File.dirname(__FILE__), 'tasks', '**/*.rake')].each do |rake|
       load rake
