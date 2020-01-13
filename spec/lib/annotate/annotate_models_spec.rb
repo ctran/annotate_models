@@ -1539,187 +1539,236 @@ EOS
     end
   end
 
-  describe '#remove_annotation_of_file' do
-    require 'tmpdir'
-
-    def create(file, body = 'hi')
-      path = File.join(@dir, file)
-      File.open(path, 'w') do |f|
-        f.puts(body)
-      end
-
-      path
+  describe '.remove_annotation_of_file' do
+    subject do
+      AnnotateModels.remove_annotation_of_file(path)
     end
 
-    def content(path)
+    let :tmpdir do
+      require 'tmpdir'
+      Dir.mktmpdir('annotate_models')
+    end
+
+    let :path do
+      File.join(tmpdir, filename).tap do |path|
+        File.open(path, 'w') do |f|
+          f.puts(file_content)
+        end
+      end
+    end
+
+    let :file_content_after_removal do
+      subject
       File.read(path)
     end
 
-    before :each do
-      @dir = Dir.mktmpdir 'annotate_models'
-    end
-
-    it 'should remove before annotate' do
-      path = create 'before.rb', <<-EOS
-# == Schema Information
-#
-# Table name: foo
-#
-#  id                  :integer         not null, primary key
-#  created_at          :datetime
-#  updated_at          :datetime
-#
-
-class Foo < ActiveRecord::Base
-end
-      EOS
-
-      AnnotateModels.remove_annotation_of_file(path)
-
-      expect(content(path)).to eq <<-EOS
-class Foo < ActiveRecord::Base
-end
+    let :expected_result do
+      <<~EOS
+        class Foo < ActiveRecord::Base
+        end
       EOS
     end
 
-    it 'should remove annotate if CRLF is used for line breaks' do
-      path = create 'before.rb', <<-EOS
-# == Schema Information
-#
-# Table name: foo\r\n#
-#  id                  :integer         not null, primary key
-#  created_at          :datetime
-#  updated_at          :datetime
-#
-\r\n
-class Foo < ActiveRecord::Base
-end
-      EOS
+    context 'when annotation is before main content' do
+      let :filename do
+        'before.rb'
+      end
 
-      AnnotateModels.remove_annotation_of_file(path)
+      let :file_content do
+        <<~EOS
+          # == Schema Information
+          #
+          # Table name: foo
+          #
+          #  id                  :integer         not null, primary key
+          #  created_at          :datetime
+          #  updated_at          :datetime
+          #
 
-      expect(content(path)).to eq <<-EOS
-class Foo < ActiveRecord::Base
-end
-      EOS
+          class Foo < ActiveRecord::Base
+          end
+        EOS
+      end
+
+      it 'removes annotation' do
+        expect(file_content_after_removal).to eq expected_result
+      end
     end
 
-    it 'should remove after annotate' do
-      path = create 'after.rb', <<-EOS
-class Foo < ActiveRecord::Base
-end
+    context 'when annotation is before main content and CRLF is used for line breaks' do
+      let :filename do
+        'before.rb'
+      end
 
-# == Schema Information
-#
-# Table name: foo
-#
-#  id                  :integer         not null, primary key
-#  created_at          :datetime
-#  updated_at          :datetime
-#
+      let :file_content do
+        <<~EOS
+          # == Schema Information
+          #
+          # Table name: foo\r\n#
+          #  id                  :integer         not null, primary key
+          #  created_at          :datetime
+          #  updated_at          :datetime
+          #
+          \r\n
+          class Foo < ActiveRecord::Base
+          end
+        EOS
+      end
 
-      EOS
-
-      AnnotateModels.remove_annotation_of_file(path)
-
-      expect(content(path)).to eq <<-EOS
-class Foo < ActiveRecord::Base
-end
-      EOS
+      it 'removes annotation' do
+        expect(file_content_after_removal).to eq expected_result
+      end
     end
 
-    it 'should remove opening wrapper' do
-      path = create 'opening_wrapper.rb', <<-EOS
-# wrapper
-# == Schema Information
-#
-# Table name: foo
-#
-#  id                  :integer         not null, primary key
-#  created_at          :datetime
-#  updated_at          :datetime
-#
+    context 'when annotation is before main content and with opening wrapper' do
+      let :filename do
+        'opening_wrapper.rb'
+      end
 
-class Foo < ActiveRecord::Base
-end
-      EOS
+      let :file_content do
+        <<~EOS
+          # wrapper
+          # == Schema Information
+          #
+          # Table name: foo
+          #
+          #  id                  :integer         not null, primary key
+          #  created_at          :datetime
+          #  updated_at          :datetime
+          #
 
-      AnnotateModels.remove_annotation_of_file(path, wrapper_open: 'wrapper')
+          class Foo < ActiveRecord::Base
+          end
+        EOS
+      end
 
-      expect(content(path)).to eq <<-EOS
-class Foo < ActiveRecord::Base
-end
-      EOS
+      subject do
+        AnnotateModels.remove_annotation_of_file(path, wrapper_open: 'wrapper')
+      end
+
+      it 'removes annotation' do
+        expect(file_content_after_removal).to eq expected_result
+      end
     end
 
-    it 'should remove wrapper if CRLF is used for line breaks' do
-      path = create 'opening_wrapper.rb', <<-EOS
-# wrapper\r\n# == Schema Information
-#
-# Table name: foo
-#
-#  id                  :integer         not null, primary key
-#  created_at          :datetime
-#  updated_at          :datetime
-#
+    context 'when annotation is before main content and with opening wrapper' do
+      let :filename do
+        'opening_wrapper.rb'
+      end
 
-class Foo < ActiveRecord::Base
-end
-      EOS
+      let :file_content do
+        <<~EOS
+          # wrapper\r\n# == Schema Information
+          #
+          # Table name: foo
+          #
+          #  id                  :integer         not null, primary key
+          #  created_at          :datetime
+          #  updated_at          :datetime
+          #
 
-      AnnotateModels.remove_annotation_of_file(path, wrapper_open: 'wrapper')
+          class Foo < ActiveRecord::Base
+          end
+        EOS
+      end
 
-      expect(content(path)).to eq <<-EOS
-class Foo < ActiveRecord::Base
-end
-      EOS
+      subject do
+        AnnotateModels.remove_annotation_of_file(path, wrapper_open: 'wrapper')
+      end
+
+      it 'removes annotation' do
+        expect(file_content_after_removal).to eq expected_result
+      end
     end
 
-    it 'should remove closing wrapper' do
-      path = create 'closing_wrapper.rb', <<-EOS
-class Foo < ActiveRecord::Base
-end
+    context 'when annotation is after main content' do
+      let :filename do
+        'after.rb'
+      end
 
-# == Schema Information
-#
-# Table name: foo
-#
-#  id                  :integer         not null, primary key
-#  created_at          :datetime
-#  updated_at          :datetime
-#
-# wrapper
+      let :file_content do
+        <<~EOS
+          class Foo < ActiveRecord::Base
+          end
 
-      EOS
+          # == Schema Information
+          #
+          # Table name: foo
+          #
+          #  id                  :integer         not null, primary key
+          #  created_at          :datetime
+          #  updated_at          :datetime
+          #
 
-      AnnotateModels.remove_annotation_of_file(path, wrapper_close: 'wrapper')
+        EOS
+      end
 
-      expect(content(path)).to eq <<-EOS
-class Foo < ActiveRecord::Base
-end
-      EOS
+      it 'removes annotation' do
+        expect(file_content_after_removal).to eq expected_result
+      end
     end
 
-    it 'does not change file with #SkipSchemaAnnotations' do
-      content = <<-EOS
-# -*- SkipSchemaAnnotations
-# == Schema Information
-#
-# Table name: foo
-#
-#  id                  :integer         not null, primary key
-#  created_at          :datetime
-#  updated_at          :datetime
-#
+    context 'when annotation is after main content and with closing wrapper' do
+      let :filename do
+        'closing_wrapper.rb'
+      end
 
-class Foo < ActiveRecord::Base
-end
-      EOS
+      let :file_content do
+        <<~EOS
+          class Foo < ActiveRecord::Base
+          end
 
-      path = create 'skip.rb', content
+          # == Schema Information
+          #
+          # Table name: foo
+          #
+          #  id                  :integer         not null, primary key
+          #  created_at          :datetime
+          #  updated_at          :datetime
+          #
+          # wrapper
 
-      AnnotateModels.remove_annotation_of_file(path)
-      expect(content(path)).to eq(content)
+        EOS
+      end
+
+      subject do
+        AnnotateModels.remove_annotation_of_file(path, wrapper_close: 'wrapper')
+      end
+
+      it 'removes annotation' do
+        expect(file_content_after_removal).to eq expected_result
+      end
+    end
+
+    context 'when annotation is before main content and with comment "-*- SkipSchemaAnnotations"' do
+      let :filename do
+        'skip.rb'
+      end
+
+      let :file_content do
+        <<~EOS
+          # -*- SkipSchemaAnnotations
+          # == Schema Information
+          #
+          # Table name: foo
+          #
+          #  id                  :integer         not null, primary key
+          #  created_at          :datetime
+          #  updated_at          :datetime
+          #
+
+          class Foo < ActiveRecord::Base
+          end
+        EOS
+      end
+
+      let :expected_result do
+        file_content
+      end
+
+      it 'does not remove annotation' do
+        expect(file_content_after_removal).to eq expected_result
+      end
     end
   end
 
