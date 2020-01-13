@@ -71,12 +71,13 @@ module Annotate
   end
 
   def self.load_tasks
-    return if @loaded_tasks
-    @loaded_tasks = true
+    return if @tasks_loaded
 
     Dir[File.join(File.dirname(__FILE__), 'tasks', '**/*.rake')].each do |rake|
       load rake
     end
+
+    @tasks_loaded = true
   end
 
   def self.eager_load(options)
