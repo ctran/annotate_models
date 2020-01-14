@@ -2234,9 +2234,9 @@ describe AnnotateModels do # rubocop:disable Metrics/BlockLength
   describe 'annotating a file' do
     before do
       @model_dir = Dir.mktmpdir('annotate_models')
-      (@model_file_name, @file_content) = write_model 'user.rb', <<-EOS
-class User < ActiveRecord::Base
-end
+      (@model_file_name, @file_content) = write_model 'user.rb', <<~EOS
+        class User < ActiveRecord::Base
+        end
       EOS
 
       @klass = mock_class(:users,
@@ -2387,9 +2387,9 @@ end
     end
 
     it 'works with namespaced models (i.e. models inside modules/subdirectories)' do
-      (model_file_name, file_content) = write_model 'foo/user.rb', <<-EOS
-class Foo::User < ActiveRecord::Base
-end
+      (model_file_name, file_content) = write_model 'foo/user.rb', <<~EOS
+        class Foo::User < ActiveRecord::Base
+        end
       EOS
 
       klass = mock_class(:'foo_users',
@@ -2405,10 +2405,10 @@ end
 
     it 'should not touch magic comments' do
       MAGIC_COMMENTS.each do |magic_comment|
-        write_model 'user.rb', <<-EOS
-#{magic_comment}
-class User < ActiveRecord::Base
-end
+        write_model 'user.rb', <<~EOS
+          #{magic_comment}
+          class User < ActiveRecord::Base
+          end
         EOS
 
         annotate_one_file position: :before
@@ -2462,7 +2462,7 @@ end
       before do
         allow(AnnotateModels).to receive(:get_loaded_model_by_path).with('user').and_return(nil)
 
-        write_model('user.rb', <<-EOS)
+        write_model('user.rb', <<~EOS)
           class User < ActiveRecord::Base
             raise "oops"
           end
@@ -2492,7 +2492,7 @@ end
       before do
         allow(AnnotateModels).to receive(:get_loaded_model_by_path).with('user').and_return(nil)
 
-        write_model('user.rb', <<-EOS)
+        write_model('user.rb', <<~EOS)
           class User < ActiveRecord::Base
             raise "oops"
           end
