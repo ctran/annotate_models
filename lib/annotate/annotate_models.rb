@@ -304,6 +304,14 @@ module AnnotateModels
                    end
         if options[:format_rdoc]
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+        elsif options[:format_yard]
+          info << sprintf("# @!attribute #{col_name}") + "\n"
+          if col_type == 'boolean'
+            info << sprintf("#   @return [TrueClass]") + "\n"
+            info << sprintf("#   @return [FalseClass]") + "\n"
+          else
+            info << sprintf("#   @return [#{map_col_type_to_ruby_classes(col_type)}]") + "\n"
+          end
         elsif options[:format_markdown]
           name_remainder = max_size - col_name.length - non_ascii_length(col_name)
           type_remainder = (md_type_allowance - 2) - col_type.length
@@ -941,6 +949,16 @@ module AnnotateModels
     end
   end
 
+  def map_col_type_to_ruby_classes(col_type)
+    case col_type
+    when 'integer'                                       then Integer.to_s
+    when 'float'                                         then Float.to_s
+    when 'decimal'                                       then BigDecimal.to_s
+    when 'datetime', 'timestamp', 'time'                 then Time.to_s
+    when 'date'                                          then Date.to_s
+    when 'text', 'string', 'binary', 'inet', 'uuid'      then String.to_s
+    end
+  end
   class BadModelFileError < LoadError
     def to_s
       "file doesn't contain a valid model class"

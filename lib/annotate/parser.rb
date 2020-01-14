@@ -12,7 +12,7 @@ module Annotate
     ANNOTATION_POSITIONS = %w[before top after bottom].freeze
     FILE_TYPE_POSITIONS = %w[position_in_class position_in_factory position_in_fixture position_in_test position_in_routes position_in_serializer].freeze
     EXCLUSION_LIST = %w[tests fixtures factories serializers].freeze
-    FORMAT_TYPES = %w[bare rdoc markdown].freeze
+    FORMAT_TYPES = %w[bare rdoc yard markdown].freeze
 
     def initialize(args, env)
       @args = args
@@ -196,7 +196,7 @@ module Annotate
         exclusions.each { |exclusion| env["exclude_#{exclusion}"] = 'yes' }
       end
 
-      option_parser.on('-f', '--format [bare|rdoc|markdown]', FORMAT_TYPES, 'Render Schema Infomation as plain/RDoc/Markdown') do |fmt|
+      option_parser.on('-f', '--format [bare|rdoc|yard|markdown]', FORMAT_TYPES, 'Render Schema Infomation as plain/RDoc/Yard/Markdown') do |fmt|
         env["format_#{fmt}"] = 'yes'
       end
 
