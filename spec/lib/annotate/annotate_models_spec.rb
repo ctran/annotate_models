@@ -2305,12 +2305,14 @@ EOS
       allow(Foo).to receive(:table_exists?) { false }
     end
 
+    subject do
+      AnnotateModels.annotate_model_file([], 'foo.rb', nil, {})
+    end
+
     after { Object.send :remove_const, 'Foo' }
 
     it 'skips attempt to annotate if no table exists for model' do
-      annotate_model_file = AnnotateModels.annotate_model_file([], 'foo.rb', nil, {})
-
-      expect(annotate_model_file).to eq nil
+      is_expected.to eq nil
     end
   end
 end
