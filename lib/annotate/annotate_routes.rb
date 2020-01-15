@@ -22,7 +22,7 @@
 module AnnotateRoutes
   PREFIX = '== Route Map'.freeze
   PREFIX_MD = '## Route Map'.freeze
-  HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action']
+  HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action'].freeze
 
   MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/).freeze
 
