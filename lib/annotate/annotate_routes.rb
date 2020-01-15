@@ -24,6 +24,8 @@ module AnnotateRoutes
   PREFIX_MD = '## Route Map'.freeze
   HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action']
 
+  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/).freeze
+
   class << self
     def do_annotations(options = {})
       return unless routes_exists?
@@ -212,7 +214,7 @@ module AnnotateRoutes
       new_content = []
 
       content_array.map do |row|
-        if row =~ magic_comment_matcher
+        if row =~ MAGIC_COMMENT_MATCHER
           magic_comments << row.strip
         else
           new_content << row
@@ -243,10 +245,6 @@ module AnnotateRoutes
 
       # and the default
       return real_content, header_position
-    end
-
-    def magic_comment_matcher
-      Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/)
     end
   end
 end
