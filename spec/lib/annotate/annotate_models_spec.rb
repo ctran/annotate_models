@@ -182,21 +182,21 @@ describe AnnotateModels do # rubocop:disable Metrics/BlockLength
   end
 
   describe '.get_schema_info' do # rubocop:disable Metrics/BlockLength
+    let :klass do
+      mock_class(:users, primary_key, columns, indexes, foreign_keys)
+    end
+
+    let :indexes do
+      []
+    end
+
+    let :foreign_keys do
+      []
+    end
+
     context 'when option is not present' do # rubocop:disable Metrics/BlockLength
       subject do
         AnnotateModels.get_schema_info(klass, header)
-      end
-
-      let :klass do
-        mock_class(:users, primary_key, columns, indexes, foreign_keys)
-      end
-
-      let :indexes do
-        []
-      end
-
-      let :foreign_keys do
-        []
       end
 
       context 'when header is "Schema Info"' do # rubocop:disable Metrics/BlockLength
@@ -1124,8 +1124,8 @@ describe AnnotateModels do # rubocop:disable Metrics/BlockLength
     end
 
     describe 'when option is present' do
-      let :klass do
-        mock_class(:users, :id, columns)
+      let :primary_key do
+        :id
       end
 
       subject do
