@@ -176,21 +176,21 @@ describe AnnotateModels do
   end
 
   describe '.get_schema_info' do
+    let :klass do
+      mock_class(:users, primary_key, columns, indexes, foreign_keys)
+    end
+
+    let :indexes do
+      []
+    end
+
+    let :foreign_keys do
+      []
+    end
+
     context 'when option is not present' do
       subject do
         AnnotateModels.get_schema_info(klass, header)
-      end
-
-      let :klass do
-        mock_class(:users, primary_key, columns, indexes, foreign_keys)
-      end
-
-      let :indexes do
-        []
-      end
-
-      let :foreign_keys do
-        []
       end
 
       context 'when header is "Schema Info"' do
@@ -1185,8 +1185,8 @@ describe AnnotateModels do
     end
 
     context 'when option is present' do
-      let :klass do
-        mock_class(:users, :id, columns)
+      let :primary_key do
+        :id
       end
 
       subject do
@@ -1513,8 +1513,8 @@ describe AnnotateModels do
         end
 
         context 'when "format_doc" and "with_comment" are specified in options' do
-          subject do
-            AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_rdoc: true, with_comment: true)
+          let :options do
+            { format_rdoc: true, with_comment: true }
           end
 
           context 'when columns are normal' do
@@ -1546,8 +1546,8 @@ describe AnnotateModels do
         end
 
         context 'when "format_markdown" and "with_comment" are specified in options' do
-          subject do
-            AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, with_comment: true)
+          let :options do
+            { format_markdown: true, with_comment: true }
           end
 
           context 'when columns have comments' do
