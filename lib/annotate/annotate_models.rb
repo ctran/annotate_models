@@ -957,6 +957,7 @@ module AnnotateModels
     when 'datetime', 'timestamp', 'time'                 then Time.to_s
     when 'date'                                          then Date.to_s
     when 'text', 'string', 'binary', 'inet', 'uuid'      then String.to_s
+    when 'json', 'jsonb'                                 then Hash.to_s
     end
   end
   class BadModelFileError < LoadError
