@@ -38,9 +38,9 @@ module AnnotateModels
   BLUEPRINTS_TEST_DIR   = File.join('test', "blueprints")
   BLUEPRINTS_SPEC_DIR   = File.join('spec', "blueprints")
 
-  # Factory Girl http://github.com/thoughtbot/factory_girl
-  FACTORY_GIRL_TEST_DIR = File.join('test', "factories")
-  FACTORY_GIRL_SPEC_DIR = File.join('spec', "factories")
+  # Factory Girl https://github.com/thoughtbot/factory_bot
+  FACTORY_BOT_TEST_DIR = File.join('test', "factories")
+  FACTORY_BOT_SPEC_DIR = File.join('spec', "factories")
 
   # Fabrication https://github.com/paulelliott/fabrication.git
   FABRICATORS_TEST_DIR  = File.join('test', "fabricators")
