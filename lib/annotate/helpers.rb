@@ -19,7 +19,7 @@ module Annotate
       end
 
       def fallback(*args)
-        args.detect { |arg| !arg.blank? }
+        args.detect(&:present?)
       end
 
       def reset_options(options)
