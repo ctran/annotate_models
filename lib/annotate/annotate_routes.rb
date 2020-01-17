@@ -22,7 +22,9 @@
 module AnnotateRoutes
   PREFIX = '== Route Map'.freeze
   PREFIX_MD = '## Route Map'.freeze
-  HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action']
+  HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action'].freeze
+
+  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/).freeze
 
   class << self
     def do_annotations(options = {})
@@ -41,7 +43,8 @@ module AnnotateRoutes
         existing_text = File.read(routes_file)
         content, header_position = strip_annotations(existing_text)
         new_content = strip_on_removal(content, header_position)
-        if rewrite_contents(existing_text, new_content)
+        new_text = new_content.join("\n")
+        if rewrite_contents(existing_text, new_text)
           puts "Removed annotations from #{routes_file}."
         end
       else
@@ -88,10 +91,10 @@ module AnnotateRoutes
       end
       out << '' if magic_comments_map.any?
 
-      out += ["# #{options[:wrapper_open]}"] if options[:wrapper_open]
+      out << comment(options[:wrapper_open]) if options[:wrapper_open]
 
-      out += ["# #{options[:format_markdown] ? PREFIX_MD : PREFIX}" + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')]
-      out += ['#']
+      out << comment(options[:format_markdown] ? PREFIX_MD : PREFIX) + (options[:timestamp] ? " (Updated #{Time.now.strftime('%Y-%m-%d %H:%M')})" : '')
+      out << comment
       return out if routes_map.size.zero?
 
       maxs = [HEADER_ROW.map(&:size)] + routes_map[1..-1].map { |line| line.split.map(&:size) }
@@ -99,16 +102,24 @@ module AnnotateRoutes
       if options[:format_markdown]
         max = maxs.map(&:max).compact.max
 
-        out += ["# #{content(HEADER_ROW, maxs, options)}"]
-        out += ["# #{content(['-' * max, '-' * max, '-' * max, '-' * max], maxs, options)}"]
+        out << comment(content(HEADER_ROW, maxs, options))
+        out << comment(content(['-' * max, '-' * max, '-' * max, '-' * max], maxs, options))
       else
-        out += ["# #{content(routes_map[0], maxs, options)}"]
+        out << comment(content(routes_map[0], maxs, options))
       end
 
-      out += routes_map[1..-1].map { |line| "# #{content(options[:format_markdown] ? line.split(' ') : line, maxs, options)}" }
-      out += ["# #{options[:wrapper_close]}"] if options[:wrapper_close]
+      out += routes_map[1..-1].map { |line| comment(content(options[:format_markdown] ? line.split(' ') : line, maxs, options)) }
+      out << comment(options[:wrapper_close]) if options[:wrapper_close]
 
       out
+    end
+
+    def comment(row = '')
+      if row == ''
+        '#'
+      else
+        "# #{row}"
+      end
     end
 
     # TODO: write the method doc using ruby rdoc formats
@@ -147,6 +158,9 @@ module AnnotateRoutes
         content.pop while content.last == ''
       end
 
+      # Make sure we end on a trailing newline.
+      content << '' unless content.last == ''
+
       # TODO: If the user buried it in the middle, we should probably see about
       # TODO: preserving a single line of space between the content above and
       # TODO: below...
@@ -154,11 +168,7 @@ module AnnotateRoutes
     end
 
     # @param [String, Array<String>]
-    def rewrite_contents(existing_text, new_content)
-      # Make sure we end on a trailing newline.
-      new_content << '' unless new_content.last == ''
-      new_text = new_content.join("\n")
-
+    def rewrite_contents(existing_text, new_text)
       if existing_text == new_text
         puts "#{routes_file} unchanged."
         false
@@ -213,8 +223,8 @@ module AnnotateRoutes
       magic_comments = []
       new_content = []
 
-      content_array.map do |row|
-        if row =~ magic_comment_matcher
+      content_array.each do |row|
+        if row =~ MAGIC_COMMENT_MATCHER
           magic_comments << row.strip
         else
           new_content << row
@@ -245,10 +255,6 @@ module AnnotateRoutes
 
       # and the default
       return real_content, header_position
-    end
-
-    def magic_comment_matcher
-      Regexp.new(/(^#\s*encoding:.*)|(^# coding:.*)|(^# -\*- coding:.*)|(^# -\*- encoding\s?:.*)|(^#\s*frozen_string_literal:.+)|(^# -\*- frozen_string_literal\s*:.+-\*-)/)
     end
   end
 end

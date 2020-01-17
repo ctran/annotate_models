@@ -1,5 +1,3 @@
-# rubocop:disable  Metrics/ModuleLength
-
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'annotate/version'
 require 'annotate/annotate_models'
@@ -72,26 +70,14 @@ module Annotate
     options
   end
 
-  def self.loaded_tasks=(val)
-    @loaded_tasks = val
-  end
-
-  def self.loaded_tasks
-    @loaded_tasks
-  end
-
   def self.load_tasks
-    return if loaded_tasks
-    self.loaded_tasks = true
+    return if @tasks_loaded
 
     Dir[File.join(File.dirname(__FILE__), 'tasks', '**/*.rake')].each do |rake|
       load rake
     end
-  end
 
-  def self.load_requires(options)
-    options[:require].count > 0 &&
-      options[:require].each { |path| require path }
+    @tasks_loaded = true
   end
 
   def self.eager_load(options)
@@ -145,5 +131,14 @@ module Annotate
 
     load_tasks
     Rake::Task[:set_annotation_options].invoke
+  end
+
+  class << self
+    private
+
+    def load_requires(options)
+      options[:require].count > 0 &&
+        options[:require].each { |path| require path }
+    end
   end
 end
