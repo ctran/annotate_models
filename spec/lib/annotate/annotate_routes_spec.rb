@@ -6,7 +6,7 @@ describe AnnotateRoutes do
   ANNOTATION_ADDED = "#{ROUTE_FILE} was annotated.".freeze
   ANNOTATION_FILE_UNCHANGED = "#{ROUTE_FILE} was not changed.".freeze
   ANNOTATION_FILE_COULD_NOT_FOUND = "#{ROUTE_FILE} could not be found.".freeze
-  ANNOTATION_REMOVED = "Removed annotations from #{ROUTE_FILE}.".freeze
+  ANNOTATION_REMOVED = "Annotations were removed from #{ROUTE_FILE}.".freeze
 
   def mock_file(stubs = {})
     @mock_file ||= double(File, stubs)

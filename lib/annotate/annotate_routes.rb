@@ -51,12 +51,12 @@ module AnnotateRoutes
         new_content = strip_on_removal(content, header_position)
         new_text = new_content.join("\n")
         if rewrite_contents(existing_text, new_text)
-          puts "Removed annotations from #{routes_file}."
+          puts "Annotations were removed from #{routes_file}."
         else
-          puts "#{routes_file} unchanged."
+          puts "#{routes_file} was not changed (Annotation did not exist)."
         end
       else
-        puts "Can't find routes.rb"
+        puts "#{routes_file} could not be found."
       end
     end
 
