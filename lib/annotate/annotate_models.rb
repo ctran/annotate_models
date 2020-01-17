@@ -904,6 +904,17 @@ module AnnotateModels
       ([id] << rest_cols << timestamps << associations).flatten.compact
     end
 
+    def map_col_type_to_ruby_classes(col_type)
+      case col_type
+      when 'integer'                                       then Integer.to_s
+      when 'float'                                         then Float.to_s
+      when 'decimal'                                       then BigDecimal.to_s
+      when 'datetime', 'timestamp', 'time'                 then Time.to_s
+      when 'date'                                          then Date.to_s
+      when 'text', 'string', 'binary', 'inet', 'uuid'      then String.to_s
+      when 'json', 'jsonb'                                 then Hash.to_s
+      end
+    end
     private
 
     def with_comments?(klass, options)
@@ -949,17 +960,6 @@ module AnnotateModels
     end
   end
 
-  def map_col_type_to_ruby_classes(col_type)
-    case col_type
-    when 'integer'                                       then Integer.to_s
-    when 'float'                                         then Float.to_s
-    when 'decimal'                                       then BigDecimal.to_s
-    when 'datetime', 'timestamp', 'time'                 then Time.to_s
-    when 'date'                                          then Date.to_s
-    when 'text', 'string', 'binary', 'inet', 'uuid'      then String.to_s
-    when 'json', 'jsonb'                                 then Hash.to_s
-    end
-  end
   class BadModelFileError < LoadError
     def to_s
       "file doesn't contain a valid model class"
