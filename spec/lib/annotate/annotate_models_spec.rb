@@ -557,7 +557,7 @@ EOS
 
   it 'should get schema info as YARD' do
     klass = mock_class(:users,
-                       :id, 
+                       :id,
                        [
                          mock_column(:id, :integer),
                          mock_column(:name, :string, limit: 50),

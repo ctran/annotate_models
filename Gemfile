@@ -16,7 +16,6 @@ end
 
 group :development, :test do
   gem 'byebug'
-  gem 'pry-byebug'
   gem 'guard-rspec', require: false
   gem 'rspec', require: false
 

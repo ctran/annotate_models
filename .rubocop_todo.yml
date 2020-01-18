@@ -408,7 +408,7 @@ Lint/ShadowingOuterLocalVariable:
 
 # Offense count: 20
 Metrics/AbcSize:
-  Max: 141
+  Max: 155
 
 # Offense count: 31
 # Configuration parameters: CountComments, ExcludedMethods.
@@ -423,16 +423,16 @@ Metrics/BlockNesting:
 
 # Offense count: 10
 Metrics/CyclomaticComplexity:
-  Max: 36
+  Max: 41
 
 # Offense count: 30
 # Configuration parameters: CountComments, ExcludedMethods.
 Metrics/MethodLength:
-  Max: 75
+  Max: 80
 
 # Offense count: 8
 Metrics/PerceivedComplexity:
-  Max: 42
+  Max: 47
 
 # Offense count: 1
 Naming/AccessorMethodName:

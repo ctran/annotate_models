@@ -912,6 +912,7 @@ module AnnotateModels
       when 'boolean'                                       then 'Boolean'
       end
     end
+
     private
 
     def with_comments?(klass, options)
