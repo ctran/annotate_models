@@ -38,9 +38,9 @@ module AnnotateModels
   BLUEPRINTS_TEST_DIR   = File.join('test', "blueprints")
   BLUEPRINTS_SPEC_DIR   = File.join('spec', "blueprints")
 
-  # Factory Girl http://github.com/thoughtbot/factory_girl
-  FACTORY_GIRL_TEST_DIR = File.join('test', "factories")
-  FACTORY_GIRL_SPEC_DIR = File.join('spec', "factories")
+  # Factory Girl https://github.com/thoughtbot/factory_bot
+  FACTORY_BOT_TEST_DIR = File.join('test', "factories")
+  FACTORY_BOT_SPEC_DIR = File.join('spec', "factories")
 
   # Fabrication https://github.com/paulelliott/fabrication.git
   FABRICATORS_TEST_DIR  = File.join('test', "fabricators")
@@ -81,6 +81,8 @@ module AnnotateModels
       markdown: '_using_'
     }
   }.freeze
+
+  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/).freeze
 
   class << self
     def annotate_pattern(options = {})
@@ -541,7 +543,7 @@ module AnnotateModels
       # need to insert it in correct position
       if old_annotation.empty? || options[:force]
         magic_comments_block = magic_comments_as_string(old_content)
-        old_content.gsub!(magic_comment_matcher, '')
+        old_content.gsub!(MAGIC_COMMENT_MATCHER, '')
         old_content.sub!(annotate_pattern(options), '')
 
         new_content = if %w(after bottom).include?(options[position].to_s)
@@ -565,12 +567,8 @@ module AnnotateModels
       true
     end
 
-    def magic_comment_matcher
-      Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/)
-    end
-
     def magic_comments_as_string(content)
-      magic_comments = content.scan(magic_comment_matcher).flatten.compact
+      magic_comments = content.scan(MAGIC_COMMENT_MATCHER).flatten.compact
 
       if magic_comments.any?
         magic_comments.join
