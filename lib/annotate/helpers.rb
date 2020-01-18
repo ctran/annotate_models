@@ -15,14 +15,11 @@ module Annotate
       end
 
       def true?(val)
-        return false if val.blank?
-        return false unless val =~ Constants::TRUE_RE
-
-        true
+        val.present? && Constants::TRUE_RE.match?(val)
       end
 
       def fallback(*args)
-        args.detect { |arg| !arg.blank? }
+        args.detect(&:present?)
       end
 
       def reset_options(options)
