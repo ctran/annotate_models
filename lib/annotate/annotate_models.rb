@@ -306,7 +306,8 @@ module AnnotateModels
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
         elsif options[:format_yard]
           info << sprintf("# @!attribute #{col_name}") + "\n"
-          info << sprintf("#   @return [#{map_col_type_to_ruby_classes(col_type)}]") + "\n"
+          ruby_class = col.respond_to?(:array) && col.array ? "Array<#{map_col_type_to_ruby_classes(col_type)}>": map_col_type_to_ruby_classes(col_type)
+          info << sprintf("#   @return [#{ruby_class}]") + "\n"
         elsif options[:format_markdown]
           name_remainder = max_size - col_name.length - non_ascii_length(col_name)
           type_remainder = (md_type_allowance - 2) - col_type.length
