@@ -31,15 +31,15 @@ module Annotate
 
     private
 
-    def commit
-      env.each_pair do |key, value|
-        ENV[key] = value
-      end
-    end
-
     def parser
       OptionParser.new do |option_parser|
         add_options_to_parser(option_parser)
+      end
+    end
+
+    def commit
+      env.each_pair do |key, value|
+        ENV[key] = value
       end
     end
 
@@ -184,7 +184,7 @@ module Annotate
 
       option_parser.on('-R', '--require path',
                        "Additional file to require before loading models, may be used multiple times") do |path|
-        env['require'] = if !env['require'].blank?
+        env['require'] = if env['require'].present?
                            env['require'] + ",#{path}"
                          else
                            path
