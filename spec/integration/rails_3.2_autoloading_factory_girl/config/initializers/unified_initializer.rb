@@ -1,1 +1,0 @@
-../../../../fixtures/rails32_unified_initializer.rb
