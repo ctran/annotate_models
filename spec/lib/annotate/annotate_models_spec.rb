@@ -357,40 +357,6 @@ describe AnnotateModels do
     expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true)).to eql(expected_result)
   end
 
-  it 'should get foreign key info if on_delete/on_update options present' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:foreign_thing_id, :integer)
-                       ],
-                       [],
-                       [
-                         mock_foreign_key('fk_rails_02e851e3b7',
-                                          'foreign_thing_id',
-                                          'foreign_things',
-                                          'id',
-                                          on_delete: 'on_delete_value',
-                                          on_update: 'on_update_value')
-                       ])
-
-    expected_result = <<~EOS
-      # Schema Info
-      #
-      # Table name: users
-      #
-      #  id               :integer          not null, primary key
-      #  foreign_thing_id :integer          not null
-      #
-      # Foreign Keys
-      #
-      #  fk_rails_...  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
-      #
-    EOS
-
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true)).to eql(expected_result)
-  end
-
   it 'should get indexes keys' do
     klass = mock_class(:users,
                        :id,
@@ -594,6 +560,40 @@ describe AnnotateModels do
     EOS
 
     expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(expected_result)
+  end
+
+  it 'should get foreign key info if on_delete/on_update options present' do
+    klass = mock_class(:users,
+                       :id,
+                       [
+                         mock_column(:id, :integer),
+                         mock_column(:foreign_thing_id, :integer)
+                       ],
+                       [],
+                       [
+                         mock_foreign_key('fk_rails_02e851e3b7',
+                                          'foreign_thing_id',
+                                          'foreign_things',
+                                          'id',
+                                          on_delete: 'on_delete_value',
+                                          on_update: 'on_update_value')
+                       ])
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id               :integer          not null, primary key
+      #  foreign_thing_id :integer          not null
+      #
+      # Foreign Keys
+      #
+      #  fk_rails_...  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true)).to eql(expected_result)
   end
 
   it 'should get complete foreign key info' do
