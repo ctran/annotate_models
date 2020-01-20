@@ -30,7 +30,11 @@ module AnnotateRoutes
     def do_annotations(options = {})
       if routes_file_exist?
         existing_text = File.read(routes_file)
-        if rewrite_contents_with_header(existing_text, header(options), options)
+        content, header_position = strip_annotations(existing_text)
+        new_content = annotate_routes(header(options), content, header_position, options)
+        new_text = new_content.join("\n")
+
+        if rewrite_contents(existing_text, new_text)
           puts "#{routes_file} annotated."
         end
       else
@@ -60,20 +64,6 @@ module AnnotateRoutes
 
     def routes_file
       @routes_rb ||= File.join('config', 'routes.rb')
-    end
-
-    def rewrite_contents_with_header(existing_text, header, options = {})
-      content, header_position = strip_annotations(existing_text)
-      new_content = annotate_routes(header, content, header_position, options)
-      new_text = new_content.join("\n")
-
-      if existing_text == new_text
-        puts "#{routes_file} unchanged."
-        false
-      else
-        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-        true
-      end
     end
 
     def header(options = {})
