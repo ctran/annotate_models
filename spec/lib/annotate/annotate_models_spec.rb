@@ -767,49 +767,6 @@ describe AnnotateModels do
               end
             end
 
-            context 'when option "show_foreign_keys" is true' do
-              context 'when foreign_keys have option "on_delete" and "on_update"' do
-                it 'should get schema info as Markdown with foreign keys' do
-                  klass = mock_class(:users,
-                                     :id,
-                                     [
-                                       mock_column(:id, :integer),
-                                       mock_column(:foreign_thing_id, :integer)
-                                     ],
-                                     [],
-                                     [
-                                       mock_foreign_key('fk_rails_02e851e3b7',
-                                                        'foreign_thing_id',
-                                                        'foreign_things',
-                                                        'id',
-                                                        on_delete: 'on_delete_value',
-                                                        on_update: 'on_update_value')
-                                     ])
-
-                  expected_result = <<~EOS
-                    # == Schema Information
-                    #
-                    # Table name: `users`
-                    #
-                    # ### Columns
-                    #
-                    # Name                    | Type               | Attributes
-                    # ----------------------- | ------------------ | ---------------------------
-                    # **`id`**                | `integer`          | `not null, primary key`
-                    # **`foreign_thing_id`**  | `integer`          | `not null`
-                    #
-                    # ### Foreign Keys
-                    #
-                    # * `fk_rails_...` (_ON DELETE => on_delete_value ON UPDATE => on_update_value_):
-                    #     * **`foreign_thing_id => foreign_things.id`**
-                    #
-                  EOS
-
-                  expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_foreign_keys: true)).to eql(expected_result)
-                end
-              end
-            end
-
             context 'when option "show_indexes" is true' do
               context 'when indexes are normal' do
                 it 'should get schema info as Markdown with indexes' do
@@ -1008,6 +965,49 @@ describe AnnotateModels do
                   EOS
 
                   expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(expected_result)
+                end
+              end
+            end
+
+            context 'when option "show_foreign_keys" is true' do
+              context 'when foreign_keys have option "on_delete" and "on_update"' do
+                it 'should get schema info as Markdown with foreign keys' do
+                  klass = mock_class(:users,
+                                     :id,
+                                     [
+                                       mock_column(:id, :integer),
+                                       mock_column(:foreign_thing_id, :integer)
+                                     ],
+                                     [],
+                                     [
+                                       mock_foreign_key('fk_rails_02e851e3b7',
+                                                        'foreign_thing_id',
+                                                        'foreign_things',
+                                                        'id',
+                                                        on_delete: 'on_delete_value',
+                                                        on_update: 'on_update_value')
+                                     ])
+
+                  expected_result = <<~EOS
+                    # == Schema Information
+                    #
+                    # Table name: `users`
+                    #
+                    # ### Columns
+                    #
+                    # Name                    | Type               | Attributes
+                    # ----------------------- | ------------------ | ---------------------------
+                    # **`id`**                | `integer`          | `not null, primary key`
+                    # **`foreign_thing_id`**  | `integer`          | `not null`
+                    #
+                    # ### Foreign Keys
+                    #
+                    # * `fk_rails_...` (_ON DELETE => on_delete_value ON UPDATE => on_update_value_):
+                    #     * **`foreign_thing_id => foreign_things.id`**
+                    #
+                  EOS
+
+                  expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_foreign_keys: true)).to eql(expected_result)
                 end
               end
             end
