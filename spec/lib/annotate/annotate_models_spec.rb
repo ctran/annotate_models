@@ -1221,14 +1221,14 @@ EOS
                              ])
 
           expected_result = <<~EOS
-            # #{AnnotateModels::PREFIX}
+            # == Schema Information
             #
             # Table name: users
             #
             # *id(ID)*::     <tt>integer, not null, primary key</tt>
             # *name(Name)*:: <tt>string(50), not null</tt>
             #--
-            # #{AnnotateModels::END_MARK}
+            # == Schema Information End
             #++
           EOS
 
@@ -1247,7 +1247,7 @@ EOS
                                ])
 
             expected_result = <<~EOS
-              # #{AnnotateModels::PREFIX}
+              # == Schema Information
               #
               # Table name: `users`
               #
@@ -1274,7 +1274,7 @@ EOS
                                ])
 
             expected_result = <<~EOS
-              # #{AnnotateModels::PREFIX}
+              # == Schema Information
               #
               # Table name: `users`
               #
