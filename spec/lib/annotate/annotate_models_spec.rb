@@ -179,7 +179,7 @@ describe AnnotateModels do
     context 'when header is "Schema Info"' do
       context 'when the primary key is not specified' do
         context 'when the columns are normal' do
-          it 'should get schema info even if the primary key is not set' do
+          it 'returns schema info' do
             klass = mock_class(:users,
                                nil,
                                [
@@ -202,7 +202,7 @@ describe AnnotateModels do
         end
 
         context 'when an enum column exists' do
-          it 'should get schema info with enum type' do
+          it 'returns schema info' do
             klass = mock_class(:users,
                                nil,
                                [
@@ -225,7 +225,7 @@ describe AnnotateModels do
         end
 
         context 'when unsigned columns exist' do
-          it 'should get schema info with unsigned' do
+          it 'returns schema info' do
             klass = mock_class(:users,
                                nil,
                                [
@@ -259,7 +259,7 @@ describe AnnotateModels do
       context 'when the primary key is specified' do
         context 'when the primary_key is :id' do
           context 'when columns are normal' do
-            it 'should get schema info with default options' do
+            it 'returns schema info' do
               klass = mock_class(:users,
                                  :id,
                                  [
@@ -284,7 +284,7 @@ describe AnnotateModels do
           end
 
           context 'when columns have default values' do
-            it 'should get schema info for integer and boolean with default' do
+            it 'returns schema info with default values' do
               klass = mock_class(:users,
                                  :id,
                                  [
@@ -309,7 +309,7 @@ describe AnnotateModels do
           end
 
           context 'when an integer column using ActiveRecord::Enum exists' do
-            it 'sets correct default value for integer column when ActiveRecord::Enum is used' do
+            it 'returns schema info with default values' do
               klass = mock_class(:users,
                                  :id,
                                  [
@@ -339,7 +339,7 @@ describe AnnotateModels do
           context 'when indexes exist' do
             context 'when option "show_indexes" is true' do
               context 'when indexes are normal' do
-                it 'should get indexes keys' do
+                it 'returns schema info with index information' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -368,7 +368,7 @@ describe AnnotateModels do
               end
 
               context 'when one of indexes includes orderd index key' do
-                it 'should get ordered indexes keys' do
+                it 'returns schema info with index information' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -406,7 +406,7 @@ describe AnnotateModels do
               end
 
               context 'when one of indexes includes "where" clause' do
-                it 'should get indexes keys with where clause' do
+                it 'returns schema info with index information' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -444,7 +444,7 @@ describe AnnotateModels do
               end
 
               context 'when one of indexes includes "using" clause other than "btree"' do
-                it 'should get indexes keys with using clause other than btree' do
+                it 'returns schema info with index information' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -482,7 +482,7 @@ describe AnnotateModels do
               end
 
               context 'when index is not defined' do
-                it 'should not crash getting indexes keys' do
+                it 'returns schema info without index information' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -507,7 +507,7 @@ describe AnnotateModels do
 
             context 'when option "simple_indexes" is true' do
               context 'when one of indexes includes "orders" clause' do # TODO
-                it 'should get simple indexes keys' do
+                it 'returns schema info with index information' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -536,7 +536,7 @@ describe AnnotateModels do
               end
 
               context 'when one of indexes is in string form' do
-                it 'should get simple indexes keys if one is in string form' do
+                it 'returns schema info with index information' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -564,7 +564,7 @@ describe AnnotateModels do
           context 'when foreign keys exist' do
             context 'when option "show_foreign_keys" is specified' do
               context 'when foreign_keys does not have option' do
-                it 'should get foreign key info' do
+                it 'returns schema info with foreign keys' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -605,7 +605,7 @@ describe AnnotateModels do
               end
 
               context 'when foreign_keys have option "on_delete" and "on_update"' do
-                it 'should get foreign key info if on_delete/on_update options present' do
+                it 'returns schema info with foreign keys' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -642,7 +642,7 @@ describe AnnotateModels do
             end
 
             context 'when option "show_foreign_keys" and "show_complete_foreign_keys" are specified' do
-              it 'should get complete foreign key info' do
+              it 'returns schema info with foreign keys' do
                 klass = mock_class(:users,
                                    :id,
                                    [
@@ -685,7 +685,7 @@ describe AnnotateModels do
         end
 
         context 'when the primary key is an array (using composite_primary_keys)' do
-          it 'should get schema info even if the primary key is array, if using composite_primary_keys' do
+          it 'returns schema info' do
             klass = mock_class(:users,
                                [:a_id, :b_id],
                                [
@@ -715,7 +715,7 @@ describe AnnotateModels do
       context 'when the primary key is specified' do
         context 'when the primary_key is :id' do
           context 'when option "format_rdoc" is true' do
-            it 'should get schema info as RDoc' do
+            it 'returns schema info in RDoc format' do
               klass = mock_class(:users,
                                  :id,
                                  [
@@ -741,7 +741,7 @@ describe AnnotateModels do
 
           context 'when option "format_markdown" is true' do
             context 'when other option is not specified' do
-              it 'should get schema info as Markdown' do
+              it 'returns schema info in Markdown format' do
                 klass = mock_class(:users,
                                    :id,
                                    [
@@ -769,7 +769,7 @@ describe AnnotateModels do
 
             context 'when option "show_indexes" is true' do
               context 'when indexes are normal' do
-                it 'should get schema info as Markdown with indexes' do
+                it 'returns schema info with index information in Markdown format' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -808,7 +808,7 @@ describe AnnotateModels do
               end
 
               context 'when one of indexes includes "unique" clause' do
-                it 'should get schema info as Markdown with unique indexes' do
+                it 'returns schema info with index information in Markdown format' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -848,7 +848,7 @@ describe AnnotateModels do
               end
 
               context 'when one of indexes includes orderd index key' do
-                it 'should get schema info as Markdown with ordered indexes' do
+                it 'returns schema info with index information in Markdown format' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -888,7 +888,7 @@ describe AnnotateModels do
               end
 
               context 'when one of indexes includes "where" clause and "unique" clause' do
-                it 'should get schema info as Markdown with indexes with WHERE clause' do
+                it 'returns schema info with index information in Markdown format' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -929,7 +929,7 @@ describe AnnotateModels do
               end
 
               context 'when one of indexes includes "using" clause other than "btree"' do
-                it 'should get schema info as Markdown with indexes with using clause other than btree' do
+                it 'returns schema info with index information in Markdown format' do
                   klass = mock_class(:users,
                                      :id,
                                      [
@@ -971,7 +971,7 @@ describe AnnotateModels do
 
             context 'when option "show_foreign_keys" is true' do
               context 'when foreign_keys have option "on_delete" and "on_update"' do
-                it 'should get schema info as Markdown with foreign keys' do
+                it 'returns schema info with foreign_keys in Markdown format' do
                   klass = mock_class(:users,
                                      :id,
                                      [
