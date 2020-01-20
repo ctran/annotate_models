@@ -184,16 +184,18 @@ describe AnnotateModels do
                          mock_column(:notes, :text, limit: 55)
                        ])
 
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id    :integer          not null, primary key
-#  name  :string(50)       not null
-#  notes :text(55)         not null
-#
-EOS
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id    :integer          not null, primary key
+      #  name  :string(50)       not null
+      #  notes :text(55)         not null
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_result)
   end
 
   it 'should get schema info even if the primary key is not set' do
@@ -204,15 +206,17 @@ EOS
                          mock_column(:name, :string, limit: 50)
                        ])
 
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id   :integer          not null
-#  name :string(50)       not null
-#
-EOS
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id   :integer          not null
+      #  name :string(50)       not null
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_result)
   end
 
   it 'should get schema info even if the primary key is array, if using composite_primary_keys' do
@@ -224,16 +228,18 @@ EOS
                          mock_column(:name, :string, limit: 50)
                        ])
 
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  a_id :integer          not null, primary key
-#  b_id :integer          not null, primary key
-#  name :string(50)       not null
-#
-EOS
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  a_id :integer          not null, primary key
+      #  b_id :integer          not null, primary key
+      #  name :string(50)       not null
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_result)
   end
 
   it 'should get schema info with enum type' do
@@ -244,15 +250,17 @@ EOS
                          mock_column(:name, :enum, limit: [:enum1, :enum2])
                        ])
 
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id   :integer          not null
-#  name :enum             not null, (enum1, enum2)
-#
-EOS
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id   :integer          not null
+      #  name :enum             not null, (enum1, enum2)
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_result)
   end
 
   it 'should get schema info with unsigned' do
@@ -267,19 +275,21 @@ EOS
                          mock_column(:decimal, :decimal, unsigned?: true, precision: 10, scale: 2),
                        ])
 
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id      :integer          not null
-#  integer :integer          unsigned, not null
-#  bigint  :bigint           unsigned, not null
-#  bigint  :bigint           unsigned, not null
-#  float   :float            unsigned, not null
-#  decimal :decimal(10, 2)   unsigned, not null
-#
-EOS
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id      :integer          not null
+      #  integer :integer          unsigned, not null
+      #  bigint  :bigint           unsigned, not null
+      #  bigint  :bigint           unsigned, not null
+      #  float   :float            unsigned, not null
+      #  decimal :decimal(10, 2)   unsigned, not null
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_result)
   end
 
   it 'should get schema info for integer and boolean with default' do
@@ -290,16 +300,19 @@ EOS
                          mock_column(:size, :integer, default: 20),
                          mock_column(:flag, :boolean, default: false)
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id   :integer          not null, primary key
-#  size :integer          default(20), not null
-#  flag :boolean          default(FALSE), not null
-#
-EOS
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id   :integer          not null, primary key
+      #  size :integer          default(20), not null
+      #  flag :boolean          default(FALSE), not null
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_result)
   end
 
   it 'sets correct default value for integer column when ActiveRecord::Enum is used' do
@@ -309,20 +322,23 @@ EOS
                          mock_column(:id, :integer),
                          mock_column(:status, :integer, default: 0)
                        ])
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id     :integer          not null, primary key
+      #  status :integer          default(0), not null
+      #
+    EOS
+
     # column_defaults may be overritten when ActiveRecord::Enum is used, e.g:
     # class User < ActiveRecord::Base
     #   enum status: [ :disabled, :enabled ]
     # end
     allow(klass).to receive(:column_defaults).and_return('id' => nil, 'status' => 'disabled')
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id     :integer          not null, primary key
-#  status :integer          default(0), not null
-#
-EOS
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_result)
   end
 
   it 'should get foreign key info' do
@@ -344,21 +360,24 @@ EOS
                                           'third_thing_id',
                                           'third_things')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id               :integer          not null, primary key
-#  foreign_thing_id :integer          not null
-#
-# Foreign Keys
-#
-#  custom_fk_name  (other_thing_id => other_things.id)
-#  fk_rails_...    (foreign_thing_id => foreign_things.id)
-#  fk_rails_...    (third_thing_id => third_things.id)
-#
-EOS
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id               :integer          not null, primary key
+      #  foreign_thing_id :integer          not null
+      #
+      # Foreign Keys
+      #
+      #  custom_fk_name  (other_thing_id => other_things.id)
+      #  fk_rails_...    (foreign_thing_id => foreign_things.id)
+      #  fk_rails_...    (third_thing_id => third_things.id)
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true)).to eql(expected_result)
   end
 
   it 'should get complete foreign key info' do
@@ -380,21 +399,24 @@ EOS
                                           'third_thing_id',
                                           'third_things')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true, show_complete_foreign_keys: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id               :integer          not null, primary key
-#  foreign_thing_id :integer          not null
-#
-# Foreign Keys
-#
-#  custom_fk_name       (other_thing_id => other_things.id)
-#  fk_rails_a70234b26c  (third_thing_id => third_things.id)
-#  fk_rails_cf2568e89e  (foreign_thing_id => foreign_things.id)
-#
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id               :integer          not null, primary key
+      #  foreign_thing_id :integer          not null
+      #
+      # Foreign Keys
+      #
+      #  custom_fk_name       (other_thing_id => other_things.id)
+      #  fk_rails_a70234b26c  (third_thing_id => third_things.id)
+      #  fk_rails_cf2568e89e  (foreign_thing_id => foreign_things.id)
+      #
     EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true, show_complete_foreign_keys: true)).to eql(expected_result)
   end
 
   it 'should get foreign key info if on_delete/on_update options present' do
@@ -413,19 +435,22 @@ EOS
                                           on_delete: 'on_delete_value',
                                           on_update: 'on_update_value')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id               :integer          not null, primary key
-#  foreign_thing_id :integer          not null
-#
-# Foreign Keys
-#
-#  fk_rails_...  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
-#
-EOS
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id               :integer          not null, primary key
+      #  foreign_thing_id :integer          not null
+      #
+      # Foreign Keys
+      #
+      #  fk_rails_...  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true)).to eql(expected_result)
   end
 
   it 'should get indexes keys' do
@@ -436,20 +461,23 @@ EOS
                          mock_column(:foreign_thing_id, :integer)
                        ], [mock_index('index_rails_02e851e3b7', columns: ['id']),
                        mock_index('index_rails_02e851e3b8', columns: ['foreign_thing_id'])])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id               :integer          not null, primary key
-#  foreign_thing_id :integer          not null
-#
-# Indexes
-#
-#  index_rails_02e851e3b7  (id)
-#  index_rails_02e851e3b8  (foreign_thing_id)
-#
-EOS
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id               :integer          not null, primary key
+      #  foreign_thing_id :integer          not null
+      #
+      # Indexes
+      #
+      #  index_rails_02e851e3b7  (id)
+      #  index_rails_02e851e3b8  (foreign_thing_id)
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(expected_result)
   end
 
   it 'should get ordered indexes keys' do
@@ -467,22 +495,25 @@ EOS
                                     columns: %w(firstname surname value),
                                     orders: { 'surname' => :asc, 'value' => :desc })
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id        :integer          not null, primary key
-#  firstname :string           not null
-#  surname   :string           not null
-#  value     :string           not null
-#
-# Indexes
-#
-#  index_rails_02e851e3b7  (id)
-#  index_rails_02e851e3b8  (firstname,surname ASC,value DESC)
-#
-EOS
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id        :integer          not null, primary key
+      #  firstname :string           not null
+      #  surname   :string           not null
+      #  value     :string           not null
+      #
+      # Indexes
+      #
+      #  index_rails_02e851e3b7  (id)
+      #  index_rails_02e851e3b8  (firstname,surname ASC,value DESC)
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(expected_result)
   end
 
   it 'should get indexes keys with where clause' do
@@ -500,22 +531,25 @@ EOS
                                     columns: %w(firstname surname),
                                     where: 'value IS NOT NULL')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id        :integer          not null, primary key
-#  firstname :string           not null
-#  surname   :string           not null
-#  value     :string           not null
-#
-# Indexes
-#
-#  index_rails_02e851e3b7  (id)
-#  index_rails_02e851e3b8  (firstname,surname) WHERE value IS NOT NULL
-#
-EOS
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id        :integer          not null, primary key
+      #  firstname :string           not null
+      #  surname   :string           not null
+      #  value     :string           not null
+      #
+      # Indexes
+      #
+      #  index_rails_02e851e3b7  (id)
+      #  index_rails_02e851e3b8  (firstname,surname) WHERE value IS NOT NULL
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(expected_result)
   end
 
   it 'should get indexes keys with using clause other than btree' do
@@ -533,22 +567,25 @@ EOS
                                     columns: %w(firstname surname),
                                     using: 'hash')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id        :integer          not null, primary key
-#  firstname :string           not null
-#  surname   :string           not null
-#  value     :string           not null
-#
-# Indexes
-#
-#  index_rails_02e851e3b7  (id)
-#  index_rails_02e851e3b8  (firstname,surname) USING hash
-#
-EOS
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id        :integer          not null, primary key
+      #  firstname :string           not null
+      #  surname   :string           not null
+      #  value     :string           not null
+      #
+      # Indexes
+      #
+      #  index_rails_02e851e3b7  (id)
+      #  index_rails_02e851e3b8  (firstname,surname) USING hash
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(expected_result)
   end
 
   it 'should get simple indexes keys' do
@@ -564,15 +601,18 @@ EOS
                                     columns: ['foreign_thing_id'],
                                     orders: { 'foreign_thing_id' => :desc })
                        ])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', simple_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id               :integer          not null, primary key
-#  foreign_thing_id :integer          not null
-#
-EOS
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id               :integer          not null, primary key
+      #  foreign_thing_id :integer          not null
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', simple_indexes: true)).to eql(expected_result)
   end
 
   it 'should get simple indexes keys if one is in string form' do
@@ -583,15 +623,18 @@ EOS
                          mock_column("name", :string)
                        ], [mock_index('index_rails_02e851e3b7', columns: ['id']),
                        mock_index('index_rails_02e851e3b8', columns: 'LOWER(name)')])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', simple_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id   :integer          not null, primary key, indexed
-#  name :string           not null
-#
-EOS
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id   :integer          not null, primary key, indexed
+      #  name :string           not null
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', simple_indexes: true)).to eql(expected_result)
   end
 
   it 'should not crash getting indexes keys' do
@@ -601,15 +644,18 @@ EOS
                          mock_column(:id, :integer),
                          mock_column(:foreign_thing_id, :integer)
                        ], [])
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(<<-EOS)
-# Schema Info
-#
-# Table name: users
-#
-#  id               :integer          not null, primary key
-#  foreign_thing_id :integer          not null
-#
-EOS
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id               :integer          not null, primary key
+      #  foreign_thing_id :integer          not null
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(expected_result)
   end
 
   it 'should get schema info as RDoc' do
@@ -619,17 +665,20 @@ EOS
                          mock_column(:id, :integer),
                          mock_column(:name, :string, limit: 50)
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_rdoc: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: users
-#
-# *id*::   <tt>integer, not null, primary key</tt>
-# *name*:: <tt>string(50), not null</tt>
-#--
-# #{AnnotateModels::END_MARK}
-#++
-EOS
+
+    expected_result = <<~EOS
+      # #{AnnotateModels::PREFIX}
+      #
+      # Table name: users
+      #
+      # *id*::   <tt>integer, not null, primary key</tt>
+      # *name*:: <tt>string(50), not null</tt>
+      #--
+      # #{AnnotateModels::END_MARK}
+      #++
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_rdoc: true)).to eql(expected_result)
   end
 
   it 'should get schema info as Markdown' do
@@ -639,19 +688,22 @@ EOS
                          mock_column(:id, :integer),
                          mock_column(:name, :string, limit: 50)
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name        | Type               | Attributes
-# ----------- | ------------------ | ---------------------------
-# **`id`**    | `integer`          | `not null, primary key`
-# **`name`**  | `string(50)`       | `not null`
-#
-EOS
+
+    expected_result = <<~EOS
+      # #{AnnotateModels::PREFIX}
+      #
+      # Table name: `users`
+      #
+      # ### Columns
+      #
+      # Name        | Type               | Attributes
+      # ----------- | ------------------ | ---------------------------
+      # **`id`**    | `integer`          | `not null, primary key`
+      # **`name`**  | `string(50)`       | `not null`
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true)).to eql(expected_result)
   end
 
   it 'should get schema info as Markdown with foreign keys' do
@@ -670,24 +722,27 @@ EOS
                                           on_delete: 'on_delete_value',
                                           on_update: 'on_update_value')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_foreign_keys: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name                    | Type               | Attributes
-# ----------------------- | ------------------ | ---------------------------
-# **`id`**                | `integer`          | `not null, primary key`
-# **`foreign_thing_id`**  | `integer`          | `not null`
-#
-# ### Foreign Keys
-#
-# * `fk_rails_...` (_ON DELETE => on_delete_value ON UPDATE => on_update_value_):
-#     * **`foreign_thing_id => foreign_things.id`**
-#
-EOS
+
+    expected_result = <<~EOS
+      # #{AnnotateModels::PREFIX}
+      #
+      # Table name: `users`
+      #
+      # ### Columns
+      #
+      # Name                    | Type               | Attributes
+      # ----------------------- | ------------------ | ---------------------------
+      # **`id`**                | `integer`          | `not null, primary key`
+      # **`foreign_thing_id`**  | `integer`          | `not null`
+      #
+      # ### Foreign Keys
+      #
+      # * `fk_rails_...` (_ON DELETE => on_delete_value ON UPDATE => on_update_value_):
+      #     * **`foreign_thing_id => foreign_things.id`**
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_foreign_keys: true)).to eql(expected_result)
   end
 
   it 'should get schema info as Markdown with indexes' do
@@ -702,26 +757,29 @@ EOS
                          mock_index('index_rails_02e851e3b8',
                                     columns: ['foreign_thing_id'])
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name        | Type               | Attributes
-# ----------- | ------------------ | ---------------------------
-# **`id`**    | `integer`          | `not null, primary key`
-# **`name`**  | `string(50)`       | `not null`
-#
-# ### Indexes
-#
-# * `index_rails_02e851e3b7`:
-#     * **`id`**
-# * `index_rails_02e851e3b8`:
-#     * **`foreign_thing_id`**
-#
-EOS
+
+    expected_result = <<~EOS
+      # #{AnnotateModels::PREFIX}
+      #
+      # Table name: `users`
+      #
+      # ### Columns
+      #
+      # Name        | Type               | Attributes
+      # ----------- | ------------------ | ---------------------------
+      # **`id`**    | `integer`          | `not null, primary key`
+      # **`name`**  | `string(50)`       | `not null`
+      #
+      # ### Indexes
+      #
+      # * `index_rails_02e851e3b7`:
+      #     * **`id`**
+      # * `index_rails_02e851e3b8`:
+      #     * **`foreign_thing_id`**
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(expected_result)
   end
 
   it 'should get schema info as Markdown with unique indexes' do
@@ -737,26 +795,29 @@ EOS
                                     columns: ['foreign_thing_id'],
                                     unique: true)
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name        | Type               | Attributes
-# ----------- | ------------------ | ---------------------------
-# **`id`**    | `integer`          | `not null, primary key`
-# **`name`**  | `string(50)`       | `not null`
-#
-# ### Indexes
-#
-# * `index_rails_02e851e3b7`:
-#     * **`id`**
-# * `index_rails_02e851e3b8` (_unique_):
-#     * **`foreign_thing_id`**
-#
-EOS
+
+    expected_result = <<~EOS
+      # #{AnnotateModels::PREFIX}
+      #
+      # Table name: `users`
+      #
+      # ### Columns
+      #
+      # Name        | Type               | Attributes
+      # ----------- | ------------------ | ---------------------------
+      # **`id`**    | `integer`          | `not null, primary key`
+      # **`name`**  | `string(50)`       | `not null`
+      #
+      # ### Indexes
+      #
+      # * `index_rails_02e851e3b7`:
+      #     * **`id`**
+      # * `index_rails_02e851e3b8` (_unique_):
+      #     * **`foreign_thing_id`**
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(expected_result)
   end
 
   it 'should get schema info as Markdown with ordered indexes' do
@@ -772,26 +833,29 @@ EOS
                                     columns: ['foreign_thing_id'],
                                     orders: { 'foreign_thing_id' => :desc })
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name        | Type               | Attributes
-# ----------- | ------------------ | ---------------------------
-# **`id`**    | `integer`          | `not null, primary key`
-# **`name`**  | `string(50)`       | `not null`
-#
-# ### Indexes
-#
-# * `index_rails_02e851e3b7`:
-#     * **`id`**
-# * `index_rails_02e851e3b8`:
-#     * **`foreign_thing_id DESC`**
-#
-EOS
+
+    expected_result = <<~EOS
+      # #{AnnotateModels::PREFIX}
+      #
+      # Table name: `users`
+      #
+      # ### Columns
+      #
+      # Name        | Type               | Attributes
+      # ----------- | ------------------ | ---------------------------
+      # **`id`**    | `integer`          | `not null, primary key`
+      # **`name`**  | `string(50)`       | `not null`
+      #
+      # ### Indexes
+      #
+      # * `index_rails_02e851e3b7`:
+      #     * **`id`**
+      # * `index_rails_02e851e3b8`:
+      #     * **`foreign_thing_id DESC`**
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(expected_result)
   end
 
   it 'should get schema info as Markdown with indexes with WHERE clause' do
@@ -808,26 +872,29 @@ EOS
                                     unique: true,
                                     where: 'name IS NOT NULL')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name        | Type               | Attributes
-# ----------- | ------------------ | ---------------------------
-# **`id`**    | `integer`          | `not null, primary key`
-# **`name`**  | `string(50)`       | `not null`
-#
-# ### Indexes
-#
-# * `index_rails_02e851e3b7`:
-#     * **`id`**
-# * `index_rails_02e851e3b8` (_unique_ _where_ name IS NOT NULL):
-#     * **`foreign_thing_id`**
-#
-EOS
+
+    expected_result = <<~EOS
+      # #{AnnotateModels::PREFIX}
+      #
+      # Table name: `users`
+      #
+      # ### Columns
+      #
+      # Name        | Type               | Attributes
+      # ----------- | ------------------ | ---------------------------
+      # **`id`**    | `integer`          | `not null, primary key`
+      # **`name`**  | `string(50)`       | `not null`
+      #
+      # ### Indexes
+      #
+      # * `index_rails_02e851e3b7`:
+      #     * **`id`**
+      # * `index_rails_02e851e3b8` (_unique_ _where_ name IS NOT NULL):
+      #     * **`foreign_thing_id`**
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(expected_result)
   end
 
   it 'should get schema info as Markdown with indexes with using clause other than btree' do
@@ -843,26 +910,29 @@ EOS
                                     columns: ['foreign_thing_id'],
                                     using: 'hash')
                        ])
-    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(<<-EOS)
-# #{AnnotateModels::PREFIX}
-#
-# Table name: `users`
-#
-# ### Columns
-#
-# Name        | Type               | Attributes
-# ----------- | ------------------ | ---------------------------
-# **`id`**    | `integer`          | `not null, primary key`
-# **`name`**  | `string(50)`       | `not null`
-#
-# ### Indexes
-#
-# * `index_rails_02e851e3b7`:
-#     * **`id`**
-# * `index_rails_02e851e3b8` (_using_ hash):
-#     * **`foreign_thing_id`**
-#
-EOS
+
+    expected_result = <<~EOS
+      # #{AnnotateModels::PREFIX}
+      #
+      # Table name: `users`
+      #
+      # ### Columns
+      #
+      # Name        | Type               | Attributes
+      # ----------- | ------------------ | ---------------------------
+      # **`id`**    | `integer`          | `not null, primary key`
+      # **`name`**  | `string(50)`       | `not null`
+      #
+      # ### Indexes
+      #
+      # * `index_rails_02e851e3b7`:
+      #     * **`id`**
+      # * `index_rails_02e851e3b8` (_using_ hash):
+      #     * **`foreign_thing_id`**
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(expected_result)
   end
 
   it 'should work with the Globalize gem' do
