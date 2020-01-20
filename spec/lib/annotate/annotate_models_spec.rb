@@ -196,29 +196,6 @@ describe AnnotateModels do
     expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_result)
   end
 
-  it 'should get schema info even if the primary key is array, if using composite_primary_keys' do
-    klass = mock_class(:users,
-                       [:a_id, :b_id],
-                       [
-                         mock_column(:a_id, :integer),
-                         mock_column(:b_id, :integer),
-                         mock_column(:name, :string, limit: 50)
-                       ])
-
-    expected_result = <<~EOS
-      # Schema Info
-      #
-      # Table name: users
-      #
-      #  a_id :integer          not null, primary key
-      #  b_id :integer          not null, primary key
-      #  name :string(50)       not null
-      #
-    EOS
-
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_result)
-  end
-
   it 'should get schema info with enum type' do
     klass = mock_class(:users,
                        nil,
@@ -933,6 +910,29 @@ describe AnnotateModels do
     EOS
 
     expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, show_indexes: true)).to eql(expected_result)
+  end
+
+  it 'should get schema info even if the primary key is array, if using composite_primary_keys' do
+    klass = mock_class(:users,
+                       [:a_id, :b_id],
+                       [
+                         mock_column(:a_id, :integer),
+                         mock_column(:b_id, :integer),
+                         mock_column(:name, :string, limit: 50)
+                       ])
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  a_id :integer          not null, primary key
+      #  b_id :integer          not null, primary key
+      #  name :string(50)       not null
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_result)
   end
 
   it 'should work with the Globalize gem' do
