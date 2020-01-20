@@ -667,14 +667,14 @@ describe AnnotateModels do
                        ])
 
     expected_result = <<~EOS
-      # #{AnnotateModels::PREFIX}
+      # == Schema Information
       #
       # Table name: users
       #
       # *id*::   <tt>integer, not null, primary key</tt>
       # *name*:: <tt>string(50), not null</tt>
       #--
-      # #{AnnotateModels::END_MARK}
+      # == Schema Information End
       #++
     EOS
 
@@ -690,7 +690,7 @@ describe AnnotateModels do
                        ])
 
     expected_result = <<~EOS
-      # #{AnnotateModels::PREFIX}
+      # == Schema Information
       #
       # Table name: `users`
       #
@@ -724,7 +724,7 @@ describe AnnotateModels do
                        ])
 
     expected_result = <<~EOS
-      # #{AnnotateModels::PREFIX}
+      # == Schema Information
       #
       # Table name: `users`
       #
@@ -759,7 +759,7 @@ describe AnnotateModels do
                        ])
 
     expected_result = <<~EOS
-      # #{AnnotateModels::PREFIX}
+      # == Schema Information
       #
       # Table name: `users`
       #
@@ -797,7 +797,7 @@ describe AnnotateModels do
                        ])
 
     expected_result = <<~EOS
-      # #{AnnotateModels::PREFIX}
+      # == Schema Information
       #
       # Table name: `users`
       #
@@ -835,7 +835,7 @@ describe AnnotateModels do
                        ])
 
     expected_result = <<~EOS
-      # #{AnnotateModels::PREFIX}
+      # == Schema Information
       #
       # Table name: `users`
       #
@@ -874,7 +874,7 @@ describe AnnotateModels do
                        ])
 
     expected_result = <<~EOS
-      # #{AnnotateModels::PREFIX}
+      # == Schema Information
       #
       # Table name: `users`
       #
@@ -912,7 +912,7 @@ describe AnnotateModels do
                        ])
 
     expected_result = <<~EOS
-      # #{AnnotateModels::PREFIX}
+      # == Schema Information
       #
       # Table name: `users`
       #
