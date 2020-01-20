@@ -913,7 +913,7 @@ EOS
         end
       end
 
-      context 'when additional_file_patterns is not specified is the options' do
+      context 'when additional_file_patterns is not specified in the options' do
         let(:options) { {} }
 
         it 'returns an empty array' do
@@ -944,7 +944,7 @@ EOS
         end
       end
 
-      context 'when additional_file_patterns is not specified is the options' do
+      context 'when additional_file_patterns is not specified in the options' do
         let(:options) { {} }
 
         it 'returns an empty array' do
