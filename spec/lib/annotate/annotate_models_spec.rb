@@ -453,6 +453,27 @@ describe AnnotateModels do
     expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(expected_result)
   end
 
+  it 'should not crash getting indexes keys' do
+    klass = mock_class(:users,
+                       :id,
+                       [
+                         mock_column(:id, :integer),
+                         mock_column(:foreign_thing_id, :integer)
+                       ], [])
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id               :integer          not null, primary key
+      #  foreign_thing_id :integer          not null
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(expected_result)
+  end
+
   it 'should get simple indexes keys' do
     klass = mock_class(:users,
                        :id,
@@ -500,27 +521,6 @@ describe AnnotateModels do
     EOS
 
     expect(AnnotateModels.get_schema_info(klass, 'Schema Info', simple_indexes: true)).to eql(expected_result)
-  end
-
-  it 'should not crash getting indexes keys' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer),
-                         mock_column(:foreign_thing_id, :integer)
-                       ], [])
-
-    expected_result = <<~EOS
-      # Schema Info
-      #
-      # Table name: users
-      #
-      #  id               :integer          not null, primary key
-      #  foreign_thing_id :integer          not null
-      #
-    EOS
-
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info', show_indexes: true)).to eql(expected_result)
   end
 
   it 'should get foreign key info' do
