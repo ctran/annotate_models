@@ -175,29 +175,6 @@ describe AnnotateModels do
     end
   end
 
-  it 'should get schema info with default options' do
-    klass = mock_class(:users,
-                       :id,
-                       [
-                         mock_column(:id, :integer, limit: 8),
-                         mock_column(:name, :string, limit: 50),
-                         mock_column(:notes, :text, limit: 55)
-                       ])
-
-    expected_result = <<~EOS
-      # Schema Info
-      #
-      # Table name: users
-      #
-      #  id    :integer          not null, primary key
-      #  name  :string(50)       not null
-      #  notes :text(55)         not null
-      #
-    EOS
-
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_result)
-  end
-
   it 'should get schema info even if the primary key is not set' do
     klass = mock_class(:users,
                        nil,
@@ -286,6 +263,29 @@ describe AnnotateModels do
       #  bigint  :bigint           unsigned, not null
       #  float   :float            unsigned, not null
       #  decimal :decimal(10, 2)   unsigned, not null
+      #
+    EOS
+
+    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_result)
+  end
+
+  it 'should get schema info with default options' do
+    klass = mock_class(:users,
+                       :id,
+                       [
+                         mock_column(:id, :integer, limit: 8),
+                         mock_column(:name, :string, limit: 50),
+                         mock_column(:notes, :text, limit: 55)
+                       ])
+
+    expected_result = <<~EOS
+      # Schema Info
+      #
+      # Table name: users
+      #
+      #  id    :integer          not null, primary key
+      #  name  :string(50)       not null
+      #  notes :text(55)         not null
       #
     EOS
 
