@@ -947,7 +947,7 @@ module AnnotateModels
       when 'boolean'                                       then 'Boolean'
       end
     end
- 
+
     def columns(klass, options)
       cols = klass.columns
       cols += translated_columns(klass)
