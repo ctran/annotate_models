@@ -632,6 +632,26 @@ EOS
 EOS
   end
 
+  it 'should get schema info as YARD' do
+    klass = mock_class(:users,
+                       :id,
+                       [
+                         mock_column(:id, :integer),
+                         mock_column(:name, :string, limit: 50),
+                       ])
+    expect(AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_yard: true)).to eql(<<-EOS)
+# #{AnnotateModels::PREFIX}
+#
+# Table name: users
+#
+# @!attribute id
+#   @return [Integer]
+# @!attribute name
+#   @return [String]
+#
+EOS
+  end
+
   it 'should get schema info as Markdown' do
     klass = mock_class(:users,
                        :id,

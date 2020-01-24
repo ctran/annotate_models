@@ -258,7 +258,7 @@ module AnnotateModels
         if col_type == 'decimal'
           col_type << "(#{col.precision}, #{col.scale})"
         elsif !%w[spatial geometry geography].include?(col_type)
-          if col.limit
+          if col.limit && !options[:format_yard]
             if col.limit.is_a? Array
               attrs << "(#{col.limit.join(', ')})"
             else
@@ -297,6 +297,10 @@ module AnnotateModels
                    end
         if options[:format_rdoc]
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+        elsif options[:format_yard]
+          info << sprintf("# @!attribute #{col_name}") + "\n"
+          ruby_class = col.respond_to?(:array) && col.array ? "Array<#{map_col_type_to_ruby_classes(col_type)}>": map_col_type_to_ruby_classes(col_type)
+          info << sprintf("#   @return [#{ruby_class}]") + "\n"
         elsif options[:format_markdown]
           name_remainder = max_size - col_name.length - non_ascii_length(col_name)
           type_remainder = (md_type_allowance - 2) - col_type.length
@@ -929,6 +933,19 @@ module AnnotateModels
 
     def non_ascii_length(string)
       string.to_s.chars.reject(&:ascii_only?).length
+    end
+
+    def map_col_type_to_ruby_classes(col_type)
+      case col_type
+      when 'integer'                                       then Integer.to_s
+      when 'float'                                         then Float.to_s
+      when 'decimal'                                       then BigDecimal.to_s
+      when 'datetime', 'timestamp', 'time'                 then Time.to_s
+      when 'date'                                          then Date.to_s
+      when 'text', 'string', 'binary', 'inet', 'uuid'      then String.to_s
+      when 'json', 'jsonb'                                 then Hash.to_s
+      when 'boolean'                                       then 'Boolean'
+      end
     end
 
     def columns(klass, options)
