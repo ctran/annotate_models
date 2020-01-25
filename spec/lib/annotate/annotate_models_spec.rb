@@ -838,6 +838,30 @@ describe AnnotateModels do
             end
           end
 
+          context 'when option "format_yard" is true' do
+            subject do
+              AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_yard: true)
+            end
+
+            let :expected_result do
+              <<~EOS
+                # == Schema Information
+                #
+                # Table name: users
+                #
+                # @!attribute id
+                #   @return [Integer]
+                # @!attribute name
+                #   @return [String]
+                #
+              EOS
+            end
+
+            it 'returns schema info in YARD format' do
+              is_expected.to eq(expected_result)
+            end
+          end
+
           context 'when option "format_markdown" is true' do
             context 'when other option is not specified' do
               subject do

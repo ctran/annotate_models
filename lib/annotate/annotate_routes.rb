@@ -36,6 +36,8 @@ module AnnotateRoutes
 
         if rewrite_contents(existing_text, new_text)
           puts "#{routes_file} annotated."
+        else
+          puts "#{routes_file} unchanged."
         end
       else
         puts "Can't find routes.rb"
@@ -50,6 +52,8 @@ module AnnotateRoutes
         new_text = new_content.join("\n")
         if rewrite_contents(existing_text, new_text)
           puts "Removed annotations from #{routes_file}."
+        else
+          puts "#{routes_file} unchanged."
         end
       else
         puts "Can't find routes.rb"
@@ -156,7 +160,6 @@ module AnnotateRoutes
 
     def rewrite_contents(existing_text, new_text)
       if existing_text == new_text
-        puts "#{routes_file} unchanged."
         false
       else
         File.open(routes_file, 'wb') { |f| f.puts(new_text) }
