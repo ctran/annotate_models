@@ -735,7 +735,7 @@ describe AnnotateModels do
 
             context 'when option "show_foreign_keys" and "show_complete_foreign_keys" are specified' do
               subject do
-                AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true, show_complete_foreign_keys: true)
+                AnnotateModels.get_schema_info(klass, header, show_foreign_keys: true, show_complete_foreign_keys: true)
               end
 
               let :expected_result do
@@ -816,7 +816,7 @@ describe AnnotateModels do
 
           context 'when option "format_rdoc" is true' do
             subject do
-              AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_rdoc: true)
+              AnnotateModels.get_schema_info(klass, header, format_rdoc: true)
             end
 
             let :expected_result do
@@ -840,7 +840,7 @@ describe AnnotateModels do
 
           context 'when option "format_yard" is true' do
             subject do
-              AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_yard: true)
+              AnnotateModels.get_schema_info(klass, header, format_yard: true)
             end
 
             let :expected_result do
