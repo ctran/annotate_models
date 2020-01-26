@@ -37,6 +37,7 @@ task annotate_models: :environment do
   options[:ignore_model_sub_dir] = Annotate::Helpers.true?(ENV['ignore_model_sub_dir'])
   options[:format_bare] = Annotate::Helpers.true?(ENV['format_bare'])
   options[:format_rdoc] = Annotate::Helpers.true?(ENV['format_rdoc'])
+  options[:format_yard] = Annotate::Helpers.true?(ENV['format_yard'])
   options[:format_markdown] = Annotate::Helpers.true?(ENV['format_markdown'])
   options[:sort] = Annotate::Helpers.true?(ENV['sort'])
   options[:force] = Annotate::Helpers.true?(ENV['force'])
