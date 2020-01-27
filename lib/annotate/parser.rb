@@ -45,7 +45,6 @@ module Annotate
 
     def add_options_to_parser(option_parser) # rubocop:disable Metrics/MethodLength
       has_set_position = {}
-      positions = ANNOTATION_POSITIONS
 
       option_parser.banner = 'Usage: annotate [options] [model_file]*'
 
@@ -57,7 +56,7 @@ module Annotate
         @options[:target_action] = :remove_annotations
       end
 
-      option_parser.on('-p', '--position [before|top|after|bottom]', positions,
+      option_parser.on('-p', '--position [before|top|after|bottom]', ANNOTATION_POSITIONS,
                        'Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)') do |p|
         env['position'] = p
 
@@ -66,37 +65,37 @@ module Annotate
         end
       end
 
-      option_parser.on('--pc', '--position-in-class [before|top|after|bottom]', positions,
+      option_parser.on('--pc', '--position-in-class [before|top|after|bottom]', ANNOTATION_POSITIONS,
                        'Place the annotations at the top (before) or the bottom (after) of the model file') do |p|
         env['position_in_class'] = p
         has_set_position['position_in_class'] = true
       end
 
-      option_parser.on('--pf', '--position-in-factory [before|top|after|bottom]', positions,
+      option_parser.on('--pf', '--position-in-factory [before|top|after|bottom]', ANNOTATION_POSITIONS,
                        'Place the annotations at the top (before) or the bottom (after) of any factory files') do |p|
         env['position_in_factory'] = p
         has_set_position['position_in_factory'] = true
       end
 
-      option_parser.on('--px', '--position-in-fixture [before|top|after|bottom]', positions,
+      option_parser.on('--px', '--position-in-fixture [before|top|after|bottom]', ANNOTATION_POSITIONS,
                        'Place the annotations at the top (before) or the bottom (after) of any fixture files') do |p|
         env['position_in_fixture'] = p
         has_set_position['position_in_fixture'] = true
       end
 
-      option_parser.on('--pt', '--position-in-test [before|top|after|bottom]', positions,
+      option_parser.on('--pt', '--position-in-test [before|top|after|bottom]', ANNOTATION_POSITIONS,
                        'Place the annotations at the top (before) or the bottom (after) of any test files') do |p|
         env['position_in_test'] = p
         has_set_position['position_in_test'] = true
       end
 
-      option_parser.on('--pr', '--position-in-routes [before|top|after|bottom]', positions,
+      option_parser.on('--pr', '--position-in-routes [before|top|after|bottom]', ANNOTATION_POSITIONS,
                        'Place the annotations at the top (before) or the bottom (after) of the routes.rb file') do |p|
         env['position_in_routes'] = p
         has_set_position['position_in_routes'] = true
       end
 
-      option_parser.on('--ps', '--position-in-serializer [before|top|after|bottom]', positions,
+      option_parser.on('--ps', '--position-in-serializer [before|top|after|bottom]', ANNOTATION_POSITIONS,
                        'Place the annotations at the top (before) or the bottom (after) of the serializer files') do |p|
         env['position_in_serializer'] = p
         has_set_position['position_in_serializer'] = true
