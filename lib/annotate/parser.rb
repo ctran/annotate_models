@@ -9,6 +9,11 @@ module Annotate
 
     attr_reader :args, :options, :env
 
+    DEFAULT_OPTIONS = {
+      target_action: :do_annotations,
+      exit: false
+    }.freeze
+
     ANNOTATION_POSITIONS = %w[before top after bottom].freeze
     FILE_TYPE_POSITIONS = %w[position_in_class position_in_factory position_in_fixture position_in_test position_in_routes position_in_serializer].freeze
     EXCLUSION_LIST = %w[tests fixtures factories serializers].freeze
@@ -16,7 +21,7 @@ module Annotate
 
     def initialize(args, env)
       @args = args
-      @options = default_options
+      @options = DEFAULT_OPTIONS.dup
       @env = env
     end
 
@@ -293,13 +298,6 @@ module Annotate
                        "include database comments in model annotations") do
         env['with_comment'] = 'true'
       end
-    end
-
-    def default_options
-      {
-        target_action: :do_annotations,
-        exit: false
-      }
     end
   end
 end
