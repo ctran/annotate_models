@@ -839,349 +839,6 @@ describe AnnotateModels do
           end
         end
       end
-
-      context 'when header is "== Schema Information"' do
-        let :header do
-          AnnotateModels::PREFIX
-        end
-
-        context 'when the primary key is specified' do
-          context 'when the primary_key is :id' do
-            let :primary_key do
-              :id
-            end
-
-            let :columns do
-              [
-                mock_column(:id, :integer),
-                mock_column(:name, :string, limit: 50)
-              ]
-            end
-
-            context 'when option "format_rdoc" is true' do
-              subject do
-                AnnotateModels.get_schema_info(klass, header, format_rdoc: true)
-              end
-
-              let :expected_result do
-                <<~EOS
-                  # == Schema Information
-                  #
-                  # Table name: users
-                  #
-                  # *id*::   <tt>integer, not null, primary key</tt>
-                  # *name*:: <tt>string(50), not null</tt>
-                  #--
-                  # == Schema Information End
-                  #++
-                EOS
-              end
-
-              it 'returns schema info in RDoc format' do
-                is_expected.to eq(expected_result)
-              end
-            end
-
-            context 'when option "format_yard" is true' do
-              subject do
-                AnnotateModels.get_schema_info(klass, header, format_yard: true)
-              end
-
-              let :expected_result do
-                <<~EOS
-                  # == Schema Information
-                  #
-                  # Table name: users
-                  #
-                  # @!attribute id
-                  #   @return [Integer]
-                  # @!attribute name
-                  #   @return [String]
-                  #
-                EOS
-              end
-
-              it 'returns schema info in YARD format' do
-                is_expected.to eq(expected_result)
-              end
-            end
-
-            context 'when option "format_markdown" is true' do
-              context 'when other option is not specified' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, format_markdown: true)
-                end
-
-                let :expected_result do
-                  <<~EOS
-                    # == Schema Information
-                    #
-                    # Table name: `users`
-                    #
-                    # ### Columns
-                    #
-                    # Name        | Type               | Attributes
-                    # ----------- | ------------------ | ---------------------------
-                    # **`id`**    | `integer`          | `not null, primary key`
-                    # **`name`**  | `string(50)`       | `not null`
-                    #
-                  EOS
-                end
-
-                it 'returns schema info in Markdown format' do
-                  is_expected.to eq(expected_result)
-                end
-              end
-
-              context 'when option "show_indexes" is true' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, format_markdown: true, show_indexes: true)
-                end
-
-                context 'when indexes are normal' do
-                  let :indexes do
-                    [
-                      mock_index('index_rails_02e851e3b7', columns: ['id']),
-                      mock_index('index_rails_02e851e3b8', columns: ['foreign_thing_id'])
-                    ]
-                  end
-
-                  let :expected_result do
-                    <<~EOS
-                      # == Schema Information
-                      #
-                      # Table name: `users`
-                      #
-                      # ### Columns
-                      #
-                      # Name        | Type               | Attributes
-                      # ----------- | ------------------ | ---------------------------
-                      # **`id`**    | `integer`          | `not null, primary key`
-                      # **`name`**  | `string(50)`       | `not null`
-                      #
-                      # ### Indexes
-                      #
-                      # * `index_rails_02e851e3b7`:
-                      #     * **`id`**
-                      # * `index_rails_02e851e3b8`:
-                      #     * **`foreign_thing_id`**
-                      #
-                    EOS
-                  end
-
-                  it 'returns schema info with index information in Markdown format' do
-                    is_expected.to eq expected_result
-                  end
-                end
-
-                context 'when one of indexes includes "unique" clause' do
-                  let :indexes do
-                    [
-                      mock_index('index_rails_02e851e3b7', columns: ['id']),
-                      mock_index('index_rails_02e851e3b8',
-                                 columns: ['foreign_thing_id'],
-                                 unique: true)
-                    ]
-                  end
-
-                  let :expected_result do
-                    <<~EOS
-                      # == Schema Information
-                      #
-                      # Table name: `users`
-                      #
-                      # ### Columns
-                      #
-                      # Name        | Type               | Attributes
-                      # ----------- | ------------------ | ---------------------------
-                      # **`id`**    | `integer`          | `not null, primary key`
-                      # **`name`**  | `string(50)`       | `not null`
-                      #
-                      # ### Indexes
-                      #
-                      # * `index_rails_02e851e3b7`:
-                      #     * **`id`**
-                      # * `index_rails_02e851e3b8` (_unique_):
-                      #     * **`foreign_thing_id`**
-                      #
-                    EOS
-                  end
-
-                  it 'returns schema info with index information in Markdown format' do
-                    is_expected.to eq expected_result
-                  end
-                end
-
-                context 'when one of indexes includes orderd index key' do
-                  let :indexes do
-                    [
-                      mock_index('index_rails_02e851e3b7', columns: ['id']),
-                      mock_index('index_rails_02e851e3b8',
-                                 columns: ['foreign_thing_id'],
-                                 orders: { 'foreign_thing_id' => :desc })
-                    ]
-                  end
-
-                  let :expected_result do
-                    <<~EOS
-                      # == Schema Information
-                      #
-                      # Table name: `users`
-                      #
-                      # ### Columns
-                      #
-                      # Name        | Type               | Attributes
-                      # ----------- | ------------------ | ---------------------------
-                      # **`id`**    | `integer`          | `not null, primary key`
-                      # **`name`**  | `string(50)`       | `not null`
-                      #
-                      # ### Indexes
-                      #
-                      # * `index_rails_02e851e3b7`:
-                      #     * **`id`**
-                      # * `index_rails_02e851e3b8`:
-                      #     * **`foreign_thing_id DESC`**
-                      #
-                    EOS
-                  end
-
-                  it 'returns schema info with index information in Markdown format' do
-                    is_expected.to eq expected_result
-                  end
-                end
-
-                context 'when one of indexes includes "where" clause and "unique" clause' do
-                  let :indexes do
-                    [
-                      mock_index('index_rails_02e851e3b7', columns: ['id']),
-                      mock_index('index_rails_02e851e3b8',
-                                 columns: ['foreign_thing_id'],
-                                 unique: true,
-                                 where: 'name IS NOT NULL')
-                    ]
-                  end
-
-                  let :expected_result do
-                    <<~EOS
-                      # == Schema Information
-                      #
-                      # Table name: `users`
-                      #
-                      # ### Columns
-                      #
-                      # Name        | Type               | Attributes
-                      # ----------- | ------------------ | ---------------------------
-                      # **`id`**    | `integer`          | `not null, primary key`
-                      # **`name`**  | `string(50)`       | `not null`
-                      #
-                      # ### Indexes
-                      #
-                      # * `index_rails_02e851e3b7`:
-                      #     * **`id`**
-                      # * `index_rails_02e851e3b8` (_unique_ _where_ name IS NOT NULL):
-                      #     * **`foreign_thing_id`**
-                      #
-                    EOS
-                  end
-
-                  it 'returns schema info with index information in Markdown format' do
-                    is_expected.to eq expected_result
-                  end
-                end
-
-                context 'when one of indexes includes "using" clause other than "btree"' do
-                  let :indexes do
-                    [
-                      mock_index('index_rails_02e851e3b7', columns: ['id']),
-                      mock_index('index_rails_02e851e3b8',
-                                 columns: ['foreign_thing_id'],
-                                 using: 'hash')
-                    ]
-                  end
-
-                  let :expected_result do
-                    <<~EOS
-                      # == Schema Information
-                      #
-                      # Table name: `users`
-                      #
-                      # ### Columns
-                      #
-                      # Name        | Type               | Attributes
-                      # ----------- | ------------------ | ---------------------------
-                      # **`id`**    | `integer`          | `not null, primary key`
-                      # **`name`**  | `string(50)`       | `not null`
-                      #
-                      # ### Indexes
-                      #
-                      # * `index_rails_02e851e3b7`:
-                      #     * **`id`**
-                      # * `index_rails_02e851e3b8` (_using_ hash):
-                      #     * **`foreign_thing_id`**
-                      #
-                    EOS
-                  end
-
-                  it 'returns schema info with index information in Markdown format' do
-                    is_expected.to eq expected_result
-                  end
-                end
-              end
-
-              context 'when option "show_foreign_keys" is true' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, format_markdown: true, show_foreign_keys: true)
-                end
-
-                let :columns do
-                  [
-                    mock_column(:id, :integer),
-                    mock_column(:foreign_thing_id, :integer)
-                  ]
-                end
-
-                context 'when foreign_keys have option "on_delete" and "on_update"' do
-                  let :foreign_keys do
-                    [
-                      mock_foreign_key('fk_rails_02e851e3b7',
-                                       'foreign_thing_id',
-                                       'foreign_things',
-                                       'id',
-                                       on_delete: 'on_delete_value',
-                                       on_update: 'on_update_value')
-                    ]
-                  end
-
-                  let :expected_result do
-                    <<~EOS
-                      # == Schema Information
-                      #
-                      # Table name: `users`
-                      #
-                      # ### Columns
-                      #
-                      # Name                    | Type               | Attributes
-                      # ----------------------- | ------------------ | ---------------------------
-                      # **`id`**                | `integer`          | `not null, primary key`
-                      # **`foreign_thing_id`**  | `integer`          | `not null`
-                      #
-                      # ### Foreign Keys
-                      #
-                      # * `fk_rails_...` (_ON DELETE => on_delete_value ON UPDATE => on_update_value_):
-                      #     * **`foreign_thing_id => foreign_things.id`**
-                      #
-                    EOS
-                  end
-
-                  it 'returns schema info with foreign_keys in Markdown format' do
-                    is_expected.to eq(expected_result)
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
     end
 
     context 'when option is present' do
@@ -1518,6 +1175,335 @@ describe AnnotateModels do
           context 'when the primary_key is :id' do
             let :primary_key do
               :id
+            end
+
+            let :columns do
+              [
+                mock_column(:id, :integer),
+                mock_column(:name, :string, limit: 50)
+              ]
+            end
+
+            context 'when option "format_rdoc" is true' do
+              let :options do
+                { format_rdoc: true }
+              end
+
+              let :expected_result do
+                <<~EOS
+                  # == Schema Information
+                  #
+                  # Table name: users
+                  #
+                  # *id*::   <tt>integer, not null, primary key</tt>
+                  # *name*:: <tt>string(50), not null</tt>
+                  #--
+                  # == Schema Information End
+                  #++
+                EOS
+              end
+
+              it 'returns schema info in RDoc format' do
+                is_expected.to eq(expected_result)
+              end
+            end
+
+            context 'when option "format_yard" is true' do
+              let :options do
+                { format_yard: true }
+              end
+
+              let :expected_result do
+                <<~EOS
+                  # == Schema Information
+                  #
+                  # Table name: users
+                  #
+                  # @!attribute id
+                  #   @return [Integer]
+                  # @!attribute name
+                  #   @return [String]
+                  #
+                EOS
+              end
+
+              it 'returns schema info in YARD format' do
+                is_expected.to eq(expected_result)
+              end
+            end
+
+            context 'when option "format_markdown" is true' do
+              context 'when other option is not specified' do
+                let :options do
+                  { format_markdown: true }
+                end
+
+                let :expected_result do
+                  <<~EOS
+                    # == Schema Information
+                    #
+                    # Table name: `users`
+                    #
+                    # ### Columns
+                    #
+                    # Name        | Type               | Attributes
+                    # ----------- | ------------------ | ---------------------------
+                    # **`id`**    | `integer`          | `not null, primary key`
+                    # **`name`**  | `string(50)`       | `not null`
+                    #
+                  EOS
+                end
+
+                it 'returns schema info in Markdown format' do
+                  is_expected.to eq(expected_result)
+                end
+              end
+
+              context 'when option "show_indexes" is true' do
+                let :options do
+                  { format_markdown: true, show_indexes: true }
+                end
+
+                context 'when indexes are normal' do
+                  let :indexes do
+                    [
+                      mock_index('index_rails_02e851e3b7', columns: ['id']),
+                      mock_index('index_rails_02e851e3b8', columns: ['foreign_thing_id'])
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # == Schema Information
+                      #
+                      # Table name: `users`
+                      #
+                      # ### Columns
+                      #
+                      # Name        | Type               | Attributes
+                      # ----------- | ------------------ | ---------------------------
+                      # **`id`**    | `integer`          | `not null, primary key`
+                      # **`name`**  | `string(50)`       | `not null`
+                      #
+                      # ### Indexes
+                      #
+                      # * `index_rails_02e851e3b7`:
+                      #     * **`id`**
+                      # * `index_rails_02e851e3b8`:
+                      #     * **`foreign_thing_id`**
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with index information in Markdown format' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when one of indexes includes "unique" clause' do
+                  let :indexes do
+                    [
+                      mock_index('index_rails_02e851e3b7', columns: ['id']),
+                      mock_index('index_rails_02e851e3b8',
+                                 columns: ['foreign_thing_id'],
+                                 unique: true)
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # == Schema Information
+                      #
+                      # Table name: `users`
+                      #
+                      # ### Columns
+                      #
+                      # Name        | Type               | Attributes
+                      # ----------- | ------------------ | ---------------------------
+                      # **`id`**    | `integer`          | `not null, primary key`
+                      # **`name`**  | `string(50)`       | `not null`
+                      #
+                      # ### Indexes
+                      #
+                      # * `index_rails_02e851e3b7`:
+                      #     * **`id`**
+                      # * `index_rails_02e851e3b8` (_unique_):
+                      #     * **`foreign_thing_id`**
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with index information in Markdown format' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when one of indexes includes orderd index key' do
+                  let :indexes do
+                    [
+                      mock_index('index_rails_02e851e3b7', columns: ['id']),
+                      mock_index('index_rails_02e851e3b8',
+                                 columns: ['foreign_thing_id'],
+                                 orders: { 'foreign_thing_id' => :desc })
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # == Schema Information
+                      #
+                      # Table name: `users`
+                      #
+                      # ### Columns
+                      #
+                      # Name        | Type               | Attributes
+                      # ----------- | ------------------ | ---------------------------
+                      # **`id`**    | `integer`          | `not null, primary key`
+                      # **`name`**  | `string(50)`       | `not null`
+                      #
+                      # ### Indexes
+                      #
+                      # * `index_rails_02e851e3b7`:
+                      #     * **`id`**
+                      # * `index_rails_02e851e3b8`:
+                      #     * **`foreign_thing_id DESC`**
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with index information in Markdown format' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when one of indexes includes "where" clause and "unique" clause' do
+                  let :indexes do
+                    [
+                      mock_index('index_rails_02e851e3b7', columns: ['id']),
+                      mock_index('index_rails_02e851e3b8',
+                                 columns: ['foreign_thing_id'],
+                                 unique: true,
+                                 where: 'name IS NOT NULL')
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # == Schema Information
+                      #
+                      # Table name: `users`
+                      #
+                      # ### Columns
+                      #
+                      # Name        | Type               | Attributes
+                      # ----------- | ------------------ | ---------------------------
+                      # **`id`**    | `integer`          | `not null, primary key`
+                      # **`name`**  | `string(50)`       | `not null`
+                      #
+                      # ### Indexes
+                      #
+                      # * `index_rails_02e851e3b7`:
+                      #     * **`id`**
+                      # * `index_rails_02e851e3b8` (_unique_ _where_ name IS NOT NULL):
+                      #     * **`foreign_thing_id`**
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with index information in Markdown format' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when one of indexes includes "using" clause other than "btree"' do
+                  let :indexes do
+                    [
+                      mock_index('index_rails_02e851e3b7', columns: ['id']),
+                      mock_index('index_rails_02e851e3b8',
+                                 columns: ['foreign_thing_id'],
+                                 using: 'hash')
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # == Schema Information
+                      #
+                      # Table name: `users`
+                      #
+                      # ### Columns
+                      #
+                      # Name        | Type               | Attributes
+                      # ----------- | ------------------ | ---------------------------
+                      # **`id`**    | `integer`          | `not null, primary key`
+                      # **`name`**  | `string(50)`       | `not null`
+                      #
+                      # ### Indexes
+                      #
+                      # * `index_rails_02e851e3b7`:
+                      #     * **`id`**
+                      # * `index_rails_02e851e3b8` (_using_ hash):
+                      #     * **`foreign_thing_id`**
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with index information in Markdown format' do
+                    is_expected.to eq expected_result
+                  end
+                end
+              end
+
+              context 'when option "show_foreign_keys" is true' do
+                let :options do
+                  { format_markdown: true, show_foreign_keys: true }
+                end
+
+                let :columns do
+                  [
+                    mock_column(:id, :integer),
+                    mock_column(:foreign_thing_id, :integer)
+                  ]
+                end
+
+                context 'when foreign_keys have option "on_delete" and "on_update"' do
+                  let :foreign_keys do
+                    [
+                      mock_foreign_key('fk_rails_02e851e3b7',
+                                       'foreign_thing_id',
+                                       'foreign_things',
+                                       'id',
+                                       on_delete: 'on_delete_value',
+                                       on_update: 'on_update_value')
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # == Schema Information
+                      #
+                      # Table name: `users`
+                      #
+                      # ### Columns
+                      #
+                      # Name                    | Type               | Attributes
+                      # ----------------------- | ------------------ | ---------------------------
+                      # **`id`**                | `integer`          | `not null, primary key`
+                      # **`foreign_thing_id`**  | `integer`          | `not null`
+                      #
+                      # ### Foreign Keys
+                      #
+                      # * `fk_rails_...` (_ON DELETE => on_delete_value ON UPDATE => on_update_value_):
+                      #     * **`foreign_thing_id => foreign_things.id`**
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with foreign_keys in Markdown format' do
+                    is_expected.to eq(expected_result)
+                  end
+                end
+              end
             end
 
             context 'when "format_doc" and "with_comment" are specified in options' do
