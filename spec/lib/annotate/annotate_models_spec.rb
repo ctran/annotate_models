@@ -380,10 +380,104 @@ describe AnnotateModels do
               end
             end
 
+            context 'with Globalize gem' do
+              let :translation_klass do
+                double('Post::Translation',
+                       to_s: 'Post::Translation',
+                       columns: [
+                         mock_column(:id, :integer, limit: 8),
+                         mock_column(:post_id, :integer, limit: 8),
+                         mock_column(:locale, :string, limit: 50),
+                         mock_column(:title, :string, limit: 50),
+                       ])
+              end
+
+              let :klass do
+                mock_class(:posts, primary_key, columns, indexes, foreign_keys).tap do |mock_klass|
+                  allow(mock_klass).to receive(:translation_class).and_return(translation_klass)
+                end
+              end
+
+              let :columns do
+                [
+                  mock_column(:id, :integer, limit: 8),
+                  mock_column(:author_name, :string, limit: 50),
+                ]
+              end
+
+              let :expected_result do
+                <<~EOS
+                  # Schema Info
+                  #
+                  # Table name: posts
+                  #
+                  #  id          :integer          not null, primary key
+                  #  author_name :string(50)       not null
+                  #  title       :string(50)       not null
+                  #
+                EOS
+              end
+
+              it 'returns schema info' do
+                is_expected.to eq expected_result
+              end
+            end
+          end
+
+          context 'when the primary key is an array (using composite_primary_keys)' do
+            let :primary_key do
+              [:a_id, :b_id]
+            end
+
+            let :columns do
+              [
+                mock_column(:a_id, :integer),
+                mock_column(:b_id, :integer),
+                mock_column(:name, :string, limit: 50)
+              ]
+            end
+
+            let :expected_result do
+              <<~EOS
+                # Schema Info
+                #
+                # Table name: users
+                #
+                #  a_id :integer          not null, primary key
+                #  b_id :integer          not null, primary key
+                #  name :string(50)       not null
+                #
+              EOS
+            end
+
+            it 'returns schema info' do
+              is_expected.to eq(expected_result)
+            end
+          end
+        end
+      end
+    end
+
+    context 'when option is present' do
+      subject do
+        AnnotateModels.get_schema_info(klass, header, options)
+      end
+
+      context 'when header is "Schema Info"' do
+        let :header do
+          'Schema Info'
+        end
+
+        context 'when the primary key is specified' do
+          context 'when the primary_key is :id' do
+            let :primary_key do
+              :id
+            end
+
             context 'when indexes exist' do
               context 'when option "show_indexes" is true' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, show_indexes: true)
+                let :options do
+                  { show_indexes: true }
                 end
 
                 context 'when indexes are normal' do
@@ -583,8 +677,8 @@ describe AnnotateModels do
               end
 
               context 'when option "simple_indexes" is true' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, simple_indexes: true)
+                let :options do
+                  { simple_indexes: true }
                 end
 
                 context 'when one of indexes includes "orders" clause' do # TODO
@@ -672,8 +766,8 @@ describe AnnotateModels do
               end
 
               context 'when option "show_foreign_keys" is specified' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, show_foreign_keys: true)
+                let :options do
+                  { show_foreign_keys: true }
                 end
 
                 context 'when foreign_keys does not have option' do
@@ -735,8 +829,8 @@ describe AnnotateModels do
               end
 
               context 'when option "show_foreign_keys" and "show_complete_foreign_keys" are specified' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, show_foreign_keys: true, show_complete_foreign_keys: true)
+                let :options do
+                  { show_foreign_keys: true, show_complete_foreign_keys: true }
                 end
 
                 let :expected_result do
@@ -761,100 +855,6 @@ describe AnnotateModels do
                   is_expected.to eq(expected_result)
                 end
               end
-            end
-
-            context 'with Globalize gem' do
-              let :translation_klass do
-                double('Post::Translation',
-                       to_s: 'Post::Translation',
-                       columns: [
-                         mock_column(:id, :integer, limit: 8),
-                         mock_column(:post_id, :integer, limit: 8),
-                         mock_column(:locale, :string, limit: 50),
-                         mock_column(:title, :string, limit: 50),
-                       ])
-              end
-
-              let :klass do
-                mock_class(:posts, primary_key, columns, indexes, foreign_keys).tap do |mock_klass|
-                  allow(mock_klass).to receive(:translation_class).and_return(translation_klass)
-                end
-              end
-
-              let :columns do
-                [
-                  mock_column(:id, :integer, limit: 8),
-                  mock_column(:author_name, :string, limit: 50),
-                ]
-              end
-
-              let :expected_result do
-                <<~EOS
-                  # Schema Info
-                  #
-                  # Table name: posts
-                  #
-                  #  id          :integer          not null, primary key
-                  #  author_name :string(50)       not null
-                  #  title       :string(50)       not null
-                  #
-                EOS
-              end
-
-              it 'returns schema info' do
-                is_expected.to eq expected_result
-              end
-            end
-          end
-
-          context 'when the primary key is an array (using composite_primary_keys)' do
-            let :primary_key do
-              [:a_id, :b_id]
-            end
-
-            let :columns do
-              [
-                mock_column(:a_id, :integer),
-                mock_column(:b_id, :integer),
-                mock_column(:name, :string, limit: 50)
-              ]
-            end
-
-            let :expected_result do
-              <<~EOS
-                # Schema Info
-                #
-                # Table name: users
-                #
-                #  a_id :integer          not null, primary key
-                #  b_id :integer          not null, primary key
-                #  name :string(50)       not null
-                #
-              EOS
-            end
-
-            it 'returns schema info' do
-              is_expected.to eq(expected_result)
-            end
-          end
-        end
-      end
-    end
-
-    context 'when option is present' do
-      subject do
-        AnnotateModels.get_schema_info(klass, header, options)
-      end
-
-      context 'when header is "Schema Info"' do
-        let :header do
-          'Schema Info'
-        end
-
-        context 'when the primary key is specified' do
-          context 'when the primary_key is :id' do
-            let :primary_key do
-              :id
             end
 
             context 'when "hide_limit_column_types" is specified in options' do
