@@ -167,17 +167,17 @@ module Annotate
       end
 
       option_parser.on('--ignore-model-subdirects',
-                       "Ignore subdirectories of the models directory") do |_dir|
+                       "Ignore subdirectories of the models directory") do
         env['ignore_model_sub_dir'] = 'yes'
       end
 
       option_parser.on('--sort',
-                       "Sort columns alphabetically, rather than in creation order") do |_dir|
+                       "Sort columns alphabetically, rather than in creation order") do
         env['sort'] = 'yes'
       end
 
       option_parser.on('--classified-sort',
-                       "Sort columns alphabetically, but first goes id, then the rest columns, then the timestamp columns and then the association columns") do |_dir|
+                       "Sort columns alphabetically, but first goes id, then the rest columns, then the timestamp columns and then the association columns") do
         env['classified_sort'] = 'yes'
       end
 
@@ -199,7 +199,7 @@ module Annotate
         env["format_#{fmt}"] = 'yes'
       end
 
-      option_parser.on('--force', 'Force new annotations even if there are no changes.') do |_force|
+      option_parser.on('--force', 'Force new annotations even if there are no changes.') do
         env['force'] = 'yes'
       end
 
@@ -211,7 +211,7 @@ module Annotate
         env['timestamp'] = 'true'
       end
 
-      option_parser.on('--trace', 'If unable to annotate a file, print the full stack trace, not just the exception message.') do |_value|
+      option_parser.on('--trace', 'If unable to annotate a file, print the full stack trace, not just the exception message.') do
         env['trace'] = 'yes'
       end
 
@@ -231,11 +231,11 @@ module Annotate
         env['hide_default_column_types'] = values.to_s
       end
 
-      option_parser.on('--ignore-unknown-models', "don't display warnings for bad model files") do |_values|
+      option_parser.on('--ignore-unknown-models', "don't display warnings for bad model files") do
         env['ignore_unknown_models'] = 'true'
       end
 
-      option_parser.on('--with-comment', "include database comments in model annotations") do |_values|
+      option_parser.on('--with-comment', "include database comments in model annotations") do
         env['with_comment'] = 'true'
       end
     end
