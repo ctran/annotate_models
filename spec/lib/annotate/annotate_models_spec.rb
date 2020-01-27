@@ -736,7 +736,7 @@ describe AnnotateModels do
 
               context 'when option "show_foreign_keys" and "show_complete_foreign_keys" are specified' do
                 subject do
-                  AnnotateModels.get_schema_info(klass, 'Schema Info', show_foreign_keys: true, show_complete_foreign_keys: true)
+                  AnnotateModels.get_schema_info(klass, header, show_foreign_keys: true, show_complete_foreign_keys: true)
                 end
 
                 let :expected_result do
