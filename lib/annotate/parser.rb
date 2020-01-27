@@ -227,7 +227,7 @@ module Annotate
                        '--require path',
                        "Additional file to require before loading models, may be used multiple times") do |path|
         env['require'] = if env['require'].present?
-                           env['require'] + ",#{path}"
+                           "#{env['require']},#{path}"
                          else
                            path
                          end
