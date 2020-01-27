@@ -3,9 +3,11 @@ require 'annotate/annotate_routes'
 
 describe AnnotateRoutes do
   ROUTE_FILE = 'config/routes.rb'.freeze
-  ANNOTATION_ADDED = "#{ROUTE_FILE} annotated.".freeze
-  ANNOTATION_REMOVED = "Removed annotations from #{ROUTE_FILE}.".freeze
-  FILE_UNCHANGED = "#{ROUTE_FILE} unchanged.".freeze
+
+  MESSAGE_ANNOTATED = "#{ROUTE_FILE} was annotated.".freeze
+  MESSAGE_UNCHANGED = "#{ROUTE_FILE} was not changed.".freeze
+  MESSAGE_NOT_FOUND = "#{ROUTE_FILE} could not be found.".freeze
+  MESSAGE_REMOVED = "Annotations were removed from #{ROUTE_FILE}.".freeze
 
   MAGIC_COMMENTS = [
     '# encoding: UTF-8',
@@ -31,7 +33,7 @@ describe AnnotateRoutes do
 
   it 'should check if routes.rb exists' do
     expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(false)
-    expect(AnnotateRoutes).to receive(:puts).with("Can't find routes.rb")
+    expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_NOT_FOUND)
     AnnotateRoutes.do_annotations
   end
 
@@ -50,7 +52,7 @@ describe AnnotateRoutes do
 
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("").at_least(:once)
 
-      expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED).at_least(:once)
+      expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).at_least(:once)
     end
 
     context 'without magic comments' do
@@ -202,7 +204,7 @@ describe AnnotateRoutes do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("")
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
       expect(mock_file).to receive(:puts).with("\n# == Route Map\n#\n")
-      expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
+      expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
 
       AnnotateRoutes.do_annotations
     end
@@ -211,7 +213,7 @@ describe AnnotateRoutes do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("")
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
       expect(mock_file).to receive(:puts).with("\n# == Route Map\n#\n")
-      expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
+      expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
 
       AnnotateRoutes.do_annotations(ignore_routes: 'my_route')
     end
@@ -220,14 +222,14 @@ describe AnnotateRoutes do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("")
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
       expect(mock_file).to receive(:puts).with("# == Route Map\n#\n")
-      expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
+      expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
 
       AnnotateRoutes.do_annotations(position_in_routes: 'top')
     end
 
     it 'should skip annotations if file does already contain annotation' do
       expect(File).to receive(:read).with(ROUTE_FILE).and_return("\n# == Route Map\n#\n")
-      expect(AnnotateRoutes).to receive(:puts).with(FILE_UNCHANGED)
+      expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_UNCHANGED)
 
       AnnotateRoutes.do_annotations
     end
@@ -240,7 +242,7 @@ describe AnnotateRoutes do
         MAGIC_COMMENTS.each do |magic_comment|
           expect(File).to receive(:read).with(ROUTE_FILE).and_return("#{magic_comment}\nSomething")
           expect(mock_file).to receive(:puts).with("#{magic_comment}\n\n# == Route Map\n#\n\nSomething\n")
-          expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
+          expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
           AnnotateRoutes.do_annotations(position_in_routes: 'top')
         end
       end
@@ -252,7 +254,7 @@ describe AnnotateRoutes do
         MAGIC_COMMENTS.each do |magic_comment|
           expect(File).to receive(:read).with(ROUTE_FILE).and_return("#{magic_comment}\nSomething")
           expect(mock_file).to receive(:puts).with("#{magic_comment}\nSomething\n\n# == Route Map\n#\n")
-          expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
+          expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
           AnnotateRoutes.do_annotations(position_in_routes: 'bottom')
         end
       end
@@ -261,7 +263,7 @@ describe AnnotateRoutes do
         MAGIC_COMMENTS.each do |magic_comment|
           expect(File).to receive(:read).with(ROUTE_FILE)
             .and_return("#{magic_comment}\n\n# == Route Map\n#\n")
-          expect(AnnotateRoutes).to receive(:puts).with(FILE_UNCHANGED)
+          expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_UNCHANGED)
 
           AnnotateRoutes.do_annotations
         end
@@ -274,7 +276,7 @@ describe AnnotateRoutes do
       expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
       expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return("(in /bad/line)\ngood line")
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-      expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
+      expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
     end
 
     it 'should annotate and add a newline!' do
@@ -295,7 +297,7 @@ describe AnnotateRoutes do
       expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
       expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return("another good line\ngood line")
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-      expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_ADDED)
+      expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
     end
 
     it 'should annotate and add a newline!' do
@@ -321,7 +323,7 @@ describe AnnotateRoutes do
     before(:each) do
       expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
       expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-      expect(AnnotateRoutes).to receive(:puts).with(ANNOTATION_REMOVED)
+      expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_REMOVED)
     end
 
     it 'should remove trailing annotation and trim trailing newlines, but leave leading newlines alone' do
