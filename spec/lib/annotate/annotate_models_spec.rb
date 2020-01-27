@@ -1812,7 +1812,7 @@ describe AnnotateModels do
     end
   end
 
-  describe '.get_model_class' do # rubocop:disable Metrics/BlockLength
+  describe '.get_model_class' do
     before :all do
       require 'tmpdir'
       AnnotateModels.model_dir = Dir.mktmpdir('annotate_models')
