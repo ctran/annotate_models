@@ -195,8 +195,8 @@ module Annotate
         exclusions.each { |exclusion| env["exclude_#{exclusion}"] = 'yes' }
       end
 
-      option_parser.on('-f', '--format [bare|rdoc|yard|markdown]', FORMAT_TYPES, 'Render Schema Infomation as plain/RDoc/Yard/Markdown') do |fmt|
-        env["format_#{fmt}"] = 'yes'
+      option_parser.on('-f', '--format [bare|rdoc|yard|markdown]', FORMAT_TYPES, 'Render Schema Infomation as plain/RDoc/Yard/Markdown') do |format_type|
+        env["format_#{format_type}"] = 'yes'
       end
 
       option_parser.on('--force', 'Force new annotations even if there are no changes.') do
