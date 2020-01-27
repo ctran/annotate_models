@@ -57,61 +57,61 @@ module Annotate
       end
 
       option_parser.on('-p', '--position [before|top|after|bottom]', ANNOTATION_POSITIONS,
-                       'Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)') do |p|
-        env['position'] = p
+                       'Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)') do |position|
+        env['position'] = position
 
         FILE_TYPE_POSITIONS.each do |key|
-          env[key] = p unless has_set_position[key]
+          env[key] = position unless has_set_position[key]
         end
       end
 
       option_parser.on('--pc', '--position-in-class [before|top|after|bottom]', ANNOTATION_POSITIONS,
-                       'Place the annotations at the top (before) or the bottom (after) of the model file') do |p|
-        env['position_in_class'] = p
+                       'Place the annotations at the top (before) or the bottom (after) of the model file') do |position_in_class|
+        env['position_in_class'] = position_in_class
         has_set_position['position_in_class'] = true
       end
 
       option_parser.on('--pf', '--position-in-factory [before|top|after|bottom]', ANNOTATION_POSITIONS,
-                       'Place the annotations at the top (before) or the bottom (after) of any factory files') do |p|
-        env['position_in_factory'] = p
+                       'Place the annotations at the top (before) or the bottom (after) of any factory files') do |position_in_factory|
+        env['position_in_factory'] = position_in_factory
         has_set_position['position_in_factory'] = true
       end
 
       option_parser.on('--px', '--position-in-fixture [before|top|after|bottom]', ANNOTATION_POSITIONS,
-                       'Place the annotations at the top (before) or the bottom (after) of any fixture files') do |p|
-        env['position_in_fixture'] = p
+                       'Place the annotations at the top (before) or the bottom (after) of any fixture files') do |position_in_fixture|
+        env['position_in_fixture'] = position_in_fixture
         has_set_position['position_in_fixture'] = true
       end
 
       option_parser.on('--pt', '--position-in-test [before|top|after|bottom]', ANNOTATION_POSITIONS,
-                       'Place the annotations at the top (before) or the bottom (after) of any test files') do |p|
-        env['position_in_test'] = p
+                       'Place the annotations at the top (before) or the bottom (after) of any test files') do |position_in_test|
+        env['position_in_test'] = position_in_test
         has_set_position['position_in_test'] = true
       end
 
       option_parser.on('--pr', '--position-in-routes [before|top|after|bottom]', ANNOTATION_POSITIONS,
-                       'Place the annotations at the top (before) or the bottom (after) of the routes.rb file') do |p|
-        env['position_in_routes'] = p
+                       'Place the annotations at the top (before) or the bottom (after) of the routes.rb file') do |position_in_routes|
+        env['position_in_routes'] = position_in_routes
         has_set_position['position_in_routes'] = true
       end
 
       option_parser.on('--ps', '--position-in-serializer [before|top|after|bottom]', ANNOTATION_POSITIONS,
-                       'Place the annotations at the top (before) or the bottom (after) of the serializer files') do |p|
-        env['position_in_serializer'] = p
+                       'Place the annotations at the top (before) or the bottom (after) of the serializer files') do |position_in_serializer|
+        env['position_in_serializer'] = position_in_serializer
         has_set_position['position_in_serializer'] = true
       end
 
       option_parser.on('--w', '--wrapper STR', 'Wrap annotation with the text passed as parameter.',
-                       'If --w option is used, the same text will be used as opening and closing') do |p|
-        env['wrapper'] = p
+                       'If --w option is used, the same text will be used as opening and closing') do |wrapper|
+        env['wrapper'] = wrapper
       end
 
-      option_parser.on('--wo', '--wrapper-open STR', 'Annotation wrapper opening.') do |p|
-        env['wrapper_open'] = p
+      option_parser.on('--wo', '--wrapper-open STR', 'Annotation wrapper opening.') do |wrapper_open|
+        env['wrapper_open'] = wrapper_open
       end
 
-      option_parser.on('--wc', '--wrapper-close STR', 'Annotation wrapper closing') do |p|
-        env['wrapper_close'] = p
+      option_parser.on('--wc', '--wrapper-close STR', 'Annotation wrapper closing') do |wrapper_close|
+        env['wrapper_close'] = wrapper_close
       end
 
       option_parser.on('-r', '--routes', "Annotate routes.rb with the output of 'rake routes'") do
