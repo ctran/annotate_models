@@ -30,11 +30,17 @@ module AnnotateRoutes
     def do_annotations(options = {})
       if routes_file_exist?
         existing_text = File.read(routes_file)
-        if rewrite_contents_with_header(existing_text, header(options), options)
-          puts "#{routes_file} annotated."
+        content, header_position = strip_annotations(existing_text)
+        new_content = annotate_routes(header(options), content, header_position, options)
+        new_text = new_content.join("\n")
+
+        if rewrite_contents(existing_text, new_text)
+          puts "#{routes_file} was annotated."
+        else
+          puts "#{routes_file} was not changed."
         end
       else
-        puts "Can't find routes.rb"
+        puts "#{routes_file} could not be found."
       end
     end
 
@@ -45,10 +51,12 @@ module AnnotateRoutes
         new_content = strip_on_removal(content, header_position)
         new_text = new_content.join("\n")
         if rewrite_contents(existing_text, new_text)
-          puts "Removed annotations from #{routes_file}."
+          puts "Annotations were removed from #{routes_file}."
+        else
+          puts "#{routes_file} was not changed (Annotation did not exist)."
         end
       else
-        puts "Can't find routes.rb"
+        puts "#{routes_file} could not be found."
       end
     end
 
@@ -60,23 +68,6 @@ module AnnotateRoutes
 
     def routes_file
       @routes_rb ||= File.join('config', 'routes.rb')
-    end
-
-    def rewrite_contents_with_header(existing_text, header, options = {})
-      content, header_position = strip_annotations(existing_text)
-      new_content = annotate_routes(header, content, header_position, options)
-
-      # Make sure we end on a trailing newline.
-      new_content << '' unless new_content.last == ''
-      new_text = new_content.join("\n")
-
-      if existing_text == new_text
-        puts "#{routes_file} unchanged."
-        false
-      else
-        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-        true
-      end
     end
 
     def header(options = {})
@@ -167,10 +158,8 @@ module AnnotateRoutes
       content
     end
 
-    # @param [String, Array<String>]
     def rewrite_contents(existing_text, new_text)
       if existing_text == new_text
-        puts "#{routes_file} unchanged."
         false
       else
         File.open(routes_file, 'wb') { |f| f.puts(new_text) }
@@ -195,6 +184,9 @@ module AnnotateRoutes
 
         new_content = magic_comments_map + content + header
       end
+
+      # Make sure we end on a trailing newline.
+      new_content << '' unless new_content.last == ''
 
       new_content
     end
