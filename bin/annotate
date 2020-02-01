@@ -26,7 +26,7 @@ exit if options_result[:exit]
 options = Annotate.setup_options(
   is_rake: ENV['is_rake'] && !ENV['is_rake'].empty?
 )
-Annotate.eager_load(options) if Annotate.include_models?
+Annotate.eager_load(options) if Annotate::Helpers.include_models?
 
-AnnotateModels.send(options_result[:target_action], options) if Annotate.include_models?
-AnnotateRoutes.send(options_result[:target_action], options) if Annotate.include_routes?
+AnnotateModels.send(options_result[:target_action], options) if Annotate::Helpers.include_models?
+AnnotateRoutes.send(options_result[:target_action], options) if Annotate::Helpers.include_routes?
