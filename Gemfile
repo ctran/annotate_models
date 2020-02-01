@@ -31,11 +31,12 @@ group :development, :test do
 
   platforms :mri, :mingw do
     gem 'pry', require: false
-    gem 'pry-coolline', require: false
+    gem 'pry-byebug', require: false
   end
 end
 
 group :test do
   gem 'files', require: false
+  gem 'git', require: false
   gem 'wrong', require: false
 end
