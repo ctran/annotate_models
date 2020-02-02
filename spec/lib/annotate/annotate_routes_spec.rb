@@ -319,96 +319,116 @@ describe AnnotateRoutes do
     end
   end
 
-  describe 'When removing' do
-    before(:each) do
-      expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
-      expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-      expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_REMOVED)
+  describe '.remove_annotations' do
+    before :each do
+      expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true).once
+      expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content).once
+      expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file).once
     end
 
-    it 'should remove trailing annotation and trim trailing newlines, but leave leading newlines alone' do
-      route_file_content = <<~EOS
+    context 'When trailing annotation exists' do
+      let :route_file_content do
+        <<~EOS
 
 
 
-        ActionController::Routing...
-        foo
+          ActionController::Routing...
+          foo
 
 
-        # == Route Map
-        #
-        # another good line
-        # good line
-      EOS
+          # == Route Map
+          #
+          # another good line
+          # good line
+        EOS
+      end
 
-      expected_result = <<~EOS
+      let :expected_result do
+        <<~EOS
 
 
 
-        ActionController::Routing...
-        foo
-      EOS
+          ActionController::Routing...
+          foo
+        EOS
+      end
 
-      expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
-      expect(mock_file).to receive(:puts).with(expected_result)
-      AnnotateRoutes.remove_annotations
+      it 'removes trailing annotation and trim trailing newlines, but leave leading newlines alone' do
+        expect(mock_file).to receive(:puts).with(expected_result).once
+        expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_REMOVED).once
+
+        AnnotateRoutes.remove_annotations
+      end
     end
 
-    it 'should remove prepended annotation and trim leading newlines, but leave trailing newlines alone' do
-      route_file_content = <<~EOS
-        # == Route Map
-        #
-        # another good line
-        # good line
+    context 'When prepended annotation exists' do
+      let :route_file_content do
+        <<~EOS
+          # == Route Map
+          #
+          # another good line
+          # good line
 
 
 
 
-        Rails.application.routes.draw do
-          root 'root#index'
-        end
+          Rails.application.routes.draw do
+            root 'root#index'
+          end
 
 
 
-      EOS
+        EOS
+      end
 
-      expected_result = <<~EOS
-        Rails.application.routes.draw do
-          root 'root#index'
-        end
+      let :expected_result do
+        <<~EOS
+          Rails.application.routes.draw do
+            root 'root#index'
+          end
 
 
 
-      EOS
+        EOS
+      end
 
-      expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
-      expect(mock_file).to receive(:puts).with(expected_result)
-      AnnotateRoutes.remove_annotations
+      it 'removes prepended annotation and trim leading newlines, but leave trailing newlines alone' do
+        expect(mock_file).to receive(:puts).with(expected_result).once
+        expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_REMOVED).once
+
+        AnnotateRoutes.remove_annotations
+      end
     end
 
-    it 'should not remove custom comments above route map' do
-      route_file_content = <<~EOS
-        # My comment
-        # == Route Map
-        #
-        # another good line
-        # good line
-        Rails.application.routes.draw do
-          root 'root#index'
-        end
-      EOS
+    context 'When custome comments are above route map' do
+      let :route_file_content do
+        <<~EOS
+          # My comment
+          # == Route Map
+          #
+          # another good line
+          # good line
+          Rails.application.routes.draw do
+            root 'root#index'
+          end
+        EOS
+      end
 
-      expected_result = <<~EOS
-        # My comment
-        Rails.application.routes.draw do
-          root 'root#index'
-        end
-      EOS
+      let :expected_result do
+        <<~EOS
+          # My comment
+          Rails.application.routes.draw do
+            root 'root#index'
+          end
+        EOS
+      end
 
-      expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
-      expect(mock_file).to receive(:puts).with(expected_result)
+      it 'does not remove custom comments above route map' do
+        expect(mock_file).to receive(:puts).with(expected_result).once
+        expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_REMOVED).once
 
-      AnnotateRoutes.remove_annotations
+        AnnotateRoutes.remove_annotations
+      end
     end
   end
 end
