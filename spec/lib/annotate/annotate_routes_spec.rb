@@ -272,14 +272,15 @@ describe AnnotateRoutes do
   end
 
   describe 'As for Rake versions' do
-    context 'with older Rake versions' do
-      before(:each) do
-        expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
-        expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return(rake_routes_result)
-        expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-        expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
-      end
+    before :each do
+      expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
+      expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+      expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
 
+      expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return(rake_routes_result)
+    end
+
+    context 'with older Rake versions' do
       let :rake_routes_result do
         <<~EOS.chomp
           (in /bad/line)
@@ -307,8 +308,9 @@ describe AnnotateRoutes do
         end
 
         it 'annotates with an empty line' do
-          expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
           expect(mock_file).to receive(:puts).with(expected_result)
+          expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
+
           AnnotateRoutes.do_annotations
         end
       end
@@ -333,21 +335,15 @@ describe AnnotateRoutes do
         end
 
         it 'annotates without an empty line' do
-          expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
           expect(mock_file).to receive(:puts).with(expected_result)
+          expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
+
           AnnotateRoutes.do_annotations
         end
       end
     end
 
     context 'with newer Rake versions' do
-      before(:each) do
-        expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
-        expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return(rake_routes_result)
-        expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-        expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
-      end
-
       let :rake_routes_result do
         <<~EOS.chomp
           another good line
@@ -377,8 +373,9 @@ describe AnnotateRoutes do
           end
 
           it 'annotates with an empty line' do
-            expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
             expect(mock_file).to receive(:puts).with(expected_result)
+            expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
+
             AnnotateRoutes.do_annotations
           end
         end
@@ -405,8 +402,9 @@ describe AnnotateRoutes do
         end
 
         it 'annotates without an empty line' do
-          expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
           expect(mock_file).to receive(:puts).with(expected_result)
+          expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
+
           AnnotateRoutes.do_annotations
         end
       end
@@ -424,8 +422,9 @@ describe AnnotateRoutes do
         end
 
         it 'annotates with the timestamp and an empty line' do
-          expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
           expect(mock_file).to receive(:puts).with(expected_result)
+          expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
+
           AnnotateRoutes.do_annotations timestamp: true
         end
       end
