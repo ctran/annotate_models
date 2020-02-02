@@ -399,7 +399,6 @@ describe AnnotateRoutes do
   describe 'As for Rake versions' do
     before :each do
       expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
-      expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
       expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
 
       expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return(rake_routes_result)
@@ -433,6 +432,7 @@ describe AnnotateRoutes do
         end
 
         it 'annotates with an empty line' do
+          expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
           expect(mock_file).to receive(:puts).with(expected_result)
           expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
 
@@ -460,6 +460,7 @@ describe AnnotateRoutes do
         end
 
         it 'annotates without an empty line' do
+          expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
           expect(mock_file).to receive(:puts).with(expected_result)
           expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
 
@@ -498,6 +499,7 @@ describe AnnotateRoutes do
           end
 
           it 'annotates with an empty line' do
+            expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
             expect(mock_file).to receive(:puts).with(expected_result)
             expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
 
@@ -527,6 +529,7 @@ describe AnnotateRoutes do
         end
 
         it 'annotates without an empty line' do
+          expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
           expect(mock_file).to receive(:puts).with(expected_result)
           expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
 
@@ -547,6 +550,7 @@ describe AnnotateRoutes do
         end
 
         it 'annotates with the timestamp and an empty line' do
+          expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
           expect(mock_file).to receive(:puts).with(expected_result)
           expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
 
