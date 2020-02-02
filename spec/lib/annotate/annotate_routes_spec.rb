@@ -235,10 +235,10 @@ describe AnnotateRoutes do
 
   describe 'When adding' do
     before(:each) do
-      expect(File).to receive(:exist?).with(ROUTE_FILE)
-        .and_return(true).at_least(:once)
-      expect(AnnotateRoutes).to receive(:`).with('rake routes')
-        .and_return(rake_routes_result).at_least(:once)
+      expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true).at_least(:once)
+      expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
+
+      expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return(rake_routes_result).at_least(:once)
     end
 
     let :rake_routes_result do
@@ -261,7 +261,6 @@ describe AnnotateRoutes do
 
         context 'When no option is specified' do
           it 'inserts annotations' do
-            expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
             expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
             expect(mock_file).to receive(:puts).with(expected_result)
             expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
@@ -272,7 +271,6 @@ describe AnnotateRoutes do
 
         context 'When the option "ignore_routes" is specified' do
           it 'inserts annotations' do
-            expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
             expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
             expect(mock_file).to receive(:puts).with(expected_result)
             expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
@@ -290,7 +288,6 @@ describe AnnotateRoutes do
           end
 
           it 'inserts annotations' do
-            expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
             expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
             expect(mock_file).to receive(:puts).with(expected_result)
             expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
@@ -310,7 +307,6 @@ describe AnnotateRoutes do
         end
 
         it 'should skip annotations if file does already contain annotation' do
-          expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
           expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_UNCHANGED)
 
           AnnotateRoutes.do_annotations
@@ -326,10 +322,6 @@ describe AnnotateRoutes do
               #{magic_comment}
               Something
             EOS
-          end
-
-          before :each do
-            expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
           end
 
           context 'When the option "position_in_routes" is specified as "top"' do
