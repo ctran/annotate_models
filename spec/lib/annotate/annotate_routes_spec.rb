@@ -271,51 +271,53 @@ describe AnnotateRoutes do
     end
   end
 
-  describe 'When adding with older Rake versions' do
-    before(:each) do
-      expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
-      expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return("(in /bad/line)\ngood line")
-      expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-      expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
+  describe 'As for Rake versions' do
+    describe 'When adding with older Rake versions' do
+      before(:each) do
+        expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
+        expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return("(in /bad/line)\ngood line")
+        expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+        expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
+      end
+
+      it 'should annotate and add a newline!' do
+        expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
+        expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
+        AnnotateRoutes.do_annotations
+      end
+
+      it 'should not add a newline if there are empty lines' do
+        expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo\n")
+        expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
+        AnnotateRoutes.do_annotations
+      end
     end
 
-    it 'should annotate and add a newline!' do
-      expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
-      expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
-      AnnotateRoutes.do_annotations
-    end
+    describe 'When adding with newer Rake versions' do
+      before(:each) do
+        expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
+        expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return("another good line\ngood line")
+        expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+        expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
+      end
 
-    it 'should not add a newline if there are empty lines' do
-      expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo\n")
-      expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
-      AnnotateRoutes.do_annotations
-    end
-  end
+      it 'should annotate and add a newline!' do
+        expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
+        expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
+        AnnotateRoutes.do_annotations
+      end
 
-  describe 'When adding with newer Rake versions' do
-    before(:each) do
-      expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
-      expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return("another good line\ngood line")
-      expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-      expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
-    end
+      it 'should not add a newline if there are empty lines' do
+        expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo\n")
+        expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
+        AnnotateRoutes.do_annotations
+      end
 
-    it 'should annotate and add a newline!' do
-      expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
-      expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
-      AnnotateRoutes.do_annotations
-    end
-
-    it 'should not add a newline if there are empty lines' do
-      expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo\n")
-      expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
-      AnnotateRoutes.do_annotations
-    end
-
-    it 'should add a timestamp when :timestamp is passed' do
-      expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
-      expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
-      AnnotateRoutes.do_annotations timestamp: true
+      it 'should add a timestamp when :timestamp is passed' do
+        expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
+        expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
+        AnnotateRoutes.do_annotations timestamp: true
+      end
     end
   end
 
