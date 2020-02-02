@@ -266,6 +266,10 @@ describe AnnotateRoutes do
             EOS
           end
 
+          before :each do
+            expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
+          end
+
           context 'When the option "position_in_routes" is specified as "top"' do
             let :expected_result do
               <<~EOS
@@ -282,7 +286,6 @@ describe AnnotateRoutes do
               expect(File).to receive(:open).with(ROUTE_FILE, 'wb')
                 .and_yield(mock_file).at_least(:once)
 
-              expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
               expect(mock_file).to receive(:puts).with(expected_result)
               expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
               AnnotateRoutes.do_annotations(position_in_routes: 'top')
@@ -304,7 +307,6 @@ describe AnnotateRoutes do
               expect(File).to receive(:open).with(ROUTE_FILE, 'wb')
                 .and_yield(mock_file).at_least(:once)
 
-              expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
               expect(mock_file).to receive(:puts).with(expected_result)
               expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
               AnnotateRoutes.do_annotations(position_in_routes: 'bottom')
@@ -322,8 +324,6 @@ describe AnnotateRoutes do
             end
 
             it 'skips annotations' do
-              expect(File).to receive(:read).with(ROUTE_FILE)
-                .and_return(route_file_content)
               expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_UNCHANGED)
 
               AnnotateRoutes.do_annotations
