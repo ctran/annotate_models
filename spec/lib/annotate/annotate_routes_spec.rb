@@ -60,7 +60,6 @@ describe AnnotateRoutes do
 
       before(:each) do
         expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true).at_least(:once)
-
         expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content).at_least(:once)
 
         expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return(rake_routes_result)
