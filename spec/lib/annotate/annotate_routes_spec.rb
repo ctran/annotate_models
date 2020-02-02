@@ -118,72 +118,80 @@ describe AnnotateRoutes do
     context 'When the file contains magic comments' do
       MAGIC_COMMENTS.each do |magic_comment|
         describe "magic comment: #{magic_comment.inspect}" do
-          it 'should not remove magic comments' do
-            expected_result = <<~EOS
+          context 'When the file does not contain annotation yet' do
+            context 'When no option is passed' do
+              it 'annotates normally' do
+                expected_result = <<~EOS
 
-              #{magic_comment}
+                  #{magic_comment}
 
-              # == Route Map
-              #
-              #                                       Prefix Verb       URI Pattern                                               Controller#Action
-              #                                    myaction1 GET        /url1(.:format)                                           mycontroller1#action
-              #                                    myaction2 POST       /url2(.:format)                                           mycontroller2#action
-              #                                    myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action
-            EOS
+                  # == Route Map
+                  #
+                  #                                       Prefix Verb       URI Pattern                                               Controller#Action
+                  #                                    myaction1 GET        /url1(.:format)                                           mycontroller1#action
+                  #                                    myaction2 POST       /url2(.:format)                                           mycontroller2#action
+                  #                                    myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action
+                EOS
 
-            expect(AnnotateRoutes).to receive(:`).with('rake routes')
-              .and_return("#{magic_comment}\n#{rake_routes_result}")
+                expect(AnnotateRoutes).to receive(:`).with('rake routes')
+                  .and_return("#{magic_comment}\n#{rake_routes_result}")
 
-            expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-            expect(mock_file).to receive(:puts).with(expected_result)
+                expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+                expect(mock_file).to receive(:puts).with(expected_result)
 
-            AnnotateRoutes.do_annotations
-          end
+                AnnotateRoutes.do_annotations
+              end
+            end
 
-          it 'annotate markdown' do
-            expected_result = <<~EOS
+            context 'When the option "format_markdown" is passed' do
+              it 'annotates in Markdown format' do
+                expected_result = <<~EOS
 
-              #{magic_comment}
+                  #{magic_comment}
 
-              # ## Route Map
-              #
-              # Prefix    | Verb       | URI Pattern     | Controller#Action   
-              # --------- | ---------- | --------------- | --------------------
-              # myaction1 | GET        | /url1(.:format) | mycontroller1#action
-              # myaction2 | POST       | /url2(.:format) | mycontroller2#action
-              # myaction3 | DELETE-GET | /url3(.:format) | mycontroller3#action
-            EOS
+                  # ## Route Map
+                  #
+                  # Prefix    | Verb       | URI Pattern     | Controller#Action   
+                  # --------- | ---------- | --------------- | --------------------
+                  # myaction1 | GET        | /url1(.:format) | mycontroller1#action
+                  # myaction2 | POST       | /url2(.:format) | mycontroller2#action
+                  # myaction3 | DELETE-GET | /url3(.:format) | mycontroller3#action
+                EOS
 
-            expect(AnnotateRoutes).to receive(:`).with('rake routes')
-              .and_return("#{magic_comment}\n#{rake_routes_result}")
+                expect(AnnotateRoutes).to receive(:`).with('rake routes')
+                  .and_return("#{magic_comment}\n#{rake_routes_result}")
 
-            expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-            expect(mock_file).to receive(:puts).with(expected_result)
+                expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+                expect(mock_file).to receive(:puts).with(expected_result)
 
-            AnnotateRoutes.do_annotations(format_markdown: true)
-          end
+                AnnotateRoutes.do_annotations(format_markdown: true)
+              end
+            end
 
-          it 'wraps annotation if wrapper is specified' do
-            expected_result = <<~EOS
+            context 'When the options "wrapper_open" and "wrapper_close" are passed' do
+              it 'annotates and wraps annotation with specified words' do
+                expected_result = <<~EOS
 
-              #{magic_comment}
+                  #{magic_comment}
 
-              # START
-              # == Route Map
-              #
-              #                                       Prefix Verb       URI Pattern                                               Controller#Action
-              #                                    myaction1 GET        /url1(.:format)                                           mycontroller1#action
-              #                                    myaction2 POST       /url2(.:format)                                           mycontroller2#action
-              #                                    myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action
-              # END
-            EOS
+                  # START
+                  # == Route Map
+                  #
+                  #                                       Prefix Verb       URI Pattern                                               Controller#Action
+                  #                                    myaction1 GET        /url1(.:format)                                           mycontroller1#action
+                  #                                    myaction2 POST       /url2(.:format)                                           mycontroller2#action
+                  #                                    myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action
+                  # END
+                EOS
 
-            expect(AnnotateRoutes).to receive(:`).with('rake routes')
-              .and_return("#{magic_comment}\n#{rake_routes_result}")
-            expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-            expect(mock_file).to receive(:puts).with(expected_result)
+                expect(AnnotateRoutes).to receive(:`).with('rake routes')
+                  .and_return("#{magic_comment}\n#{rake_routes_result}")
+                expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+                expect(mock_file).to receive(:puts).with(expected_result)
 
-            AnnotateRoutes.do_annotations(wrapper_open: 'START', wrapper_close: 'END')
+                AnnotateRoutes.do_annotations(wrapper_open: 'START', wrapper_close: 'END')
+              end
+            end
           end
         end
       end
@@ -235,32 +243,38 @@ describe AnnotateRoutes do
     context 'When the file contains magic comments' do
       MAGIC_COMMENTS.each do |magic_comment|
         describe "magic comment: #{magic_comment.inspect}" do
-          it 'leaves magic comment on top, adds an empty line between magic comment and annotation (position_in_routes :top)' do
-            expect(File).to receive(:open).with(ROUTE_FILE, 'wb')
-              .and_yield(mock_file).at_least(:once)
+          context 'When the option "position_in_routes" is specified as "top"' do
+            it 'leaves magic comment on top and adds an empty line between magic comment and annotation' do
+              expect(File).to receive(:open).with(ROUTE_FILE, 'wb')
+                .and_yield(mock_file).at_least(:once)
 
-            expect(File).to receive(:read).with(ROUTE_FILE).and_return("#{magic_comment}\nSomething")
-            expect(mock_file).to receive(:puts).with("#{magic_comment}\n\n# == Route Map\n#\n\nSomething\n")
-            expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
-            AnnotateRoutes.do_annotations(position_in_routes: 'top')
+              expect(File).to receive(:read).with(ROUTE_FILE).and_return("#{magic_comment}\nSomething")
+              expect(mock_file).to receive(:puts).with("#{magic_comment}\n\n# == Route Map\n#\n\nSomething\n")
+              expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
+              AnnotateRoutes.do_annotations(position_in_routes: 'top')
+            end
           end
 
-          it 'leaves magic comment on top, adds an empty line between magic comment and annotation (position_in_routes :bottom)' do
-            expect(File).to receive(:open).with(ROUTE_FILE, 'wb')
-              .and_yield(mock_file).at_least(:once)
+          context 'When the option "position_in_routes" is specified as "bottom"' do
+            it 'leaves magic comment on top and adds an empty line between magic comment and annotation' do
+              expect(File).to receive(:open).with(ROUTE_FILE, 'wb')
+                .and_yield(mock_file).at_least(:once)
 
-            expect(File).to receive(:read).with(ROUTE_FILE).and_return("#{magic_comment}\nSomething")
-            expect(mock_file).to receive(:puts).with("#{magic_comment}\nSomething\n\n# == Route Map\n#\n")
-            expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
-            AnnotateRoutes.do_annotations(position_in_routes: 'bottom')
+              expect(File).to receive(:read).with(ROUTE_FILE).and_return("#{magic_comment}\nSomething")
+              expect(mock_file).to receive(:puts).with("#{magic_comment}\nSomething\n\n# == Route Map\n#\n")
+              expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
+              AnnotateRoutes.do_annotations(position_in_routes: 'bottom')
+            end
           end
 
-          it 'skips annotations if file does already contain annotation' do
-            expect(File).to receive(:read).with(ROUTE_FILE)
-              .and_return("#{magic_comment}\n\n# == Route Map\n#\n")
-            expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_UNCHANGED)
+          context 'When the file already contains annotation' do
+            it 'skips annotations' do
+              expect(File).to receive(:read).with(ROUTE_FILE)
+                .and_return("#{magic_comment}\n\n# == Route Map\n#\n")
+              expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_UNCHANGED)
 
-            AnnotateRoutes.do_annotations
+              AnnotateRoutes.do_annotations
+            end
           end
         end
       end
