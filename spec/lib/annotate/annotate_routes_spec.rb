@@ -275,23 +275,66 @@ describe AnnotateRoutes do
     context 'with older Rake versions' do
       before(:each) do
         expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
-        expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return("(in /bad/line)\ngood line")
+        expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return(rake_routes_result)
         expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
         expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
       end
 
+      let :rake_routes_result do
+        <<~EOS.chomp
+          (in /bad/line)
+          good line
+        EOS
+      end
+
       context 'When the route file does not end with an empty line' do
+        let :route_file_content do
+          <<~EOS.chomp
+            ActionController::Routing...
+            foo
+          EOS
+        end
+
+        let :expected_result do
+          <<~EOS
+            ActionController::Routing...
+            foo
+
+            # == Route Map
+            #
+            # good line
+          EOS
+        end
+
         it 'annotates with an empty line' do
-          expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
-          expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
+          expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
+          expect(mock_file).to receive(:puts).with(expected_result)
           AnnotateRoutes.do_annotations
         end
       end
 
       context 'When the route file ends with an empty line' do
+        let :route_file_content do
+          <<~EOS
+            ActionController::Routing...
+            foo
+          EOS
+        end
+
+        let :expected_result do
+          <<~EOS
+            ActionController::Routing...
+            foo
+
+            # == Route Map
+            #
+            # good line
+          EOS
+        end
+
         it 'annotates without an empty line' do
-          expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo\n")
-          expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# good line\n/)
+          expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
+          expect(mock_file).to receive(:puts).with(expected_result)
           AnnotateRoutes.do_annotations
         end
       end
@@ -300,33 +343,89 @@ describe AnnotateRoutes do
     context 'with newer Rake versions' do
       before(:each) do
         expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true)
-        expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return("another good line\ngood line")
+        expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return(rake_routes_result)
         expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
         expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED)
       end
 
+      let :rake_routes_result do
+        <<~EOS.chomp
+          another good line
+          good line
+        EOS
+      end
+
       context 'When the route file does not end with an empty line' do
         context 'When no option is passed' do
+          let :route_file_content do
+            <<~EOS.chomp
+              ActionController::Routing...
+              foo
+            EOS
+          end
+
+          let :expected_result do
+            <<~EOS
+              ActionController::Routing...
+              foo
+
+              # == Route Map
+              #
+              # another good line
+              # good line
+            EOS
+          end
+
           it 'annotates with an empty line' do
-            expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
-            expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
+            expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
+            expect(mock_file).to receive(:puts).with(expected_result)
             AnnotateRoutes.do_annotations
           end
         end
       end
 
       context 'When the route file ends with an empty line' do
+        let :route_file_content do
+          <<~EOS
+            ActionController::Routing...
+            foo
+          EOS
+        end
+
+        let :expected_result do
+          <<~EOS
+            ActionController::Routing...
+            foo
+
+            # == Route Map
+            #
+            # another good line
+            # good line
+          EOS
+        end
+
         it 'annotates without an empty line' do
-          expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo\n")
-          expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map\n#\n# another good line\n# good line\n/)
+          expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
+          expect(mock_file).to receive(:puts).with(expected_result)
           AnnotateRoutes.do_annotations
         end
       end
 
       context 'When option "timestamp" is passed' do
+        let :route_file_content do
+          <<~EOS.chomp
+            ActionController::Routing...
+            foo
+          EOS
+        end
+
+        let :expected_result do
+          /ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/
+        end
+
         it 'annotates with the timestamp and an empty line' do
-          expect(File).to receive(:read).with(ROUTE_FILE).and_return("ActionController::Routing...\nfoo")
-          expect(mock_file).to receive(:puts).with(/ActionController::Routing...\nfoo\n\n# == Route Map \(Updated \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)\n#\n# another good line\n# good line\n/)
+          expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content)
+          expect(mock_file).to receive(:puts).with(expected_result)
           AnnotateRoutes.do_annotations timestamp: true
         end
       end
