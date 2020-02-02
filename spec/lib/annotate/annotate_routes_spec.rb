@@ -64,7 +64,6 @@ describe AnnotateRoutes do
         expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content).at_least(:once)
 
         expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return(rake_routes_result)
-        expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).at_least(:once)
       end
 
       context 'When the file does not contain magic comment' do
@@ -85,6 +84,7 @@ describe AnnotateRoutes do
             it 'annotates normally' do
               expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
               expect(mock_file).to receive(:puts).with(expected_result)
+              expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).at_least(:once)
 
               AnnotateRoutes.do_annotations
             end
@@ -107,6 +107,7 @@ describe AnnotateRoutes do
             it 'annotates in Markdown format' do
               expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
               expect(mock_file).to receive(:puts).with(expected_result)
+              expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).at_least(:once)
 
               AnnotateRoutes.do_annotations(format_markdown: true)
             end
@@ -130,6 +131,7 @@ describe AnnotateRoutes do
             it 'annotates and wraps annotation with specified words' do
               expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
               expect(mock_file).to receive(:puts).with(expected_result)
+              expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).at_least(:once)
 
               AnnotateRoutes.do_annotations(wrapper_open: 'START', wrapper_close: 'END')
             end
@@ -169,6 +171,7 @@ describe AnnotateRoutes do
                 it 'annotates normally' do
                   expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
                   expect(mock_file).to receive(:puts).with(expected_result)
+                  expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).at_least(:once)
 
                   AnnotateRoutes.do_annotations
                 end
@@ -193,6 +196,7 @@ describe AnnotateRoutes do
                 it 'annotates in Markdown format' do
                   expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
                   expect(mock_file).to receive(:puts).with(expected_result)
+                  expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).at_least(:once)
 
                   AnnotateRoutes.do_annotations(format_markdown: true)
                 end
@@ -218,6 +222,7 @@ describe AnnotateRoutes do
                 it 'annotates and wraps annotation with specified words' do
                   expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
                   expect(mock_file).to receive(:puts).with(expected_result)
+                  expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).at_least(:once)
 
                   AnnotateRoutes.do_annotations(wrapper_open: 'START', wrapper_close: 'END')
                 end
