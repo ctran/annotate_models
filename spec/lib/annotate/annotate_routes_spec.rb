@@ -307,6 +307,8 @@ describe AnnotateRoutes do
         end
 
         it 'should skip annotations if file does already contain annotation' do
+          expect(File).not_to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+          expect(mock_file).not_to receive(:puts)
           expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_UNCHANGED).once
 
           AnnotateRoutes.do_annotations
@@ -376,6 +378,8 @@ describe AnnotateRoutes do
             end
 
             it 'skips annotations' do
+              expect(File).not_to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+              expect(mock_file).not_to receive(:puts)
               expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_UNCHANGED).once
 
               AnnotateRoutes.do_annotations
