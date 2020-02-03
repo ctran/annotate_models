@@ -82,40 +82,11 @@ describe 'annotate Rails' do
   end
 
   it 'annotate models' do
-    puts "project_path: #{project_path}"
-    puts "app_path: #{project_path}"
-
-    puts "Dir.pwd: #{Dir.pwd}"
-    puts "__dir__: #{__dir__}"
-    puts "__FILE__: #{__FILE__}"
-
-    pp ENV
-
     Bundler.with_clean_env do
-      puts "app_path: #{app_path}"
       Dir.chdir app_path do
-        puts 'inside Dir.chdir'
-        puts "Dir.pwd: #{Dir.pwd}"
-        puts "__dir__: #{__dir__}"
-        puts "__FILE__: #{__FILE__}"
-
         expect(git.diff.any?).to be_falsy
 
-        puts 'trying ** '
-        puts `pwd`
-        puts `ls -lah`
-        puts `ls -lah db`
-        puts `bin/rails db:migrate`
-        puts 'trying ** '
-
-        pp ENV
-
         puts `#{command}`
-
-        puts 'trying ** '
-        puts `ls -lah`
-        puts 'trying ** '
-        puts `ls -lah db`
 
         expect(git.diff.entries).to contain_exactly(
           an_object_having_attributes(task_model),
