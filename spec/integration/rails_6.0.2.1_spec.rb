@@ -82,7 +82,7 @@ describe 'annotate Rails' do
   end
 
   it 'annotate models' do
-    Bundler.with_clean_env do
+    Bundler.with_original_env do
       Dir.chdir app_path do
         expect(git.diff.any?).to be_falsy
 
