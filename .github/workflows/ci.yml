@@ -40,5 +40,8 @@ jobs:
         run: |
           bundle install --jobs=4 --retry=3 --gemfile=spec/integration/rails_6.0.2.1/Gemfile
 
-      - name: Test
-        run: bundle exec rubocop && bundle exec rspec
+      - name: Run Tests
+        run: bundle exec rspec
+
+      - name: Rubocop
+        run: bundle exec rubocop
