@@ -234,159 +234,164 @@ describe AnnotateRoutes do
           end
         end
       end
-    end
-  end
 
-  describe 'When the result of `rake routes` is blank' do
-    before(:each) do
-      expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true).once
-      expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content).once
-
-      expect(AnnotateRoutes).to receive(:`).with('rake routes').and_return(rake_routes_result).once
-    end
-
-    let :rake_routes_result do
-      ''
-    end
-
-    context 'When the file does not contain magic comment' do
-      context 'When the file does not contain annotation yet' do
-        let :expected_result do
-          <<~EOS
-
-            # == Route Map
-            #
-          EOS
-        end
-
-        let :route_file_content do
+      context 'When the result of `rake routes` is blank' do
+        let :rake_routes_result do
           ''
         end
 
-        context 'When no option is specified' do
-          it 'inserts annotations' do
-            expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file).once
-            expect(mock_file).to receive(:puts).with(expected_result).once
-            expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).once
-
-            AnnotateRoutes.do_annotations
-          end
-        end
-
-        context 'When the option "ignore_routes" is specified' do
-          it 'inserts annotations' do
-            expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file).once
-            expect(mock_file).to receive(:puts).with(expected_result).once
-            expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).once
-
-            AnnotateRoutes.do_annotations(ignore_routes: 'my_route')
-          end
-        end
-
-        context 'When the option "position_in_routes" is specified as "top"' do
-          let :expected_result do
-            <<~EOS
-              # == Route Map
-              #
-            EOS
-          end
-
-          it 'inserts annotations' do
-            expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file).once
-            expect(mock_file).to receive(:puts).with(expected_result).once
-            expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).once
-
-            AnnotateRoutes.do_annotations(position_in_routes: 'top')
-          end
-        end
-      end
-
-      context 'When the file already contains annotation' do
-        let :route_file_content do
-          <<~EOS
-
-            # == Route Map
-            #
-          EOS
-        end
-
-        it 'should skip annotations if file does already contain annotation' do
-          expect(File).not_to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-          expect(mock_file).not_to receive(:puts)
-          expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_UNCHANGED).once
-
-          AnnotateRoutes.do_annotations
-        end
-      end
-    end
-
-    context 'When the file contains magic comments' do
-      MAGIC_COMMENTS.each do |magic_comment|
-        describe "magic comment: #{magic_comment.inspect}" do
-          let :route_file_content do
-            <<~EOS
-              #{magic_comment}
-              Something
-            EOS
-          end
-
-          context 'When the option "position_in_routes" is specified as "top"' do
-            let :expected_result do
-              <<~EOS
-                #{magic_comment}
-
-                # == Route Map
-                #
-
-                Something
-              EOS
+        context 'When the file does not contain magic comment' do
+          context 'When the file does not contain annotation yet' do
+            let :route_file_content do
+              ''
             end
 
-            it 'leaves magic comment on top and adds an empty line between magic comment and annotation' do
-              expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file).once
-              expect(mock_file).to receive(:puts).with(expected_result).once
-              expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).once
+            context 'When no option is specified' do
+              let :expected_result do
+                <<~EOS
 
-              AnnotateRoutes.do_annotations(position_in_routes: 'top')
-            end
-          end
+                  # == Route Map
+                  #
+                EOS
+              end
 
-          context 'When the option "position_in_routes" is specified as "bottom"' do
-            let :expected_result do
-              <<~EOS
-                #{magic_comment}
-                Something
+              it 'inserts annotations' do
+                expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file).once
+                expect(mock_file).to receive(:puts).with(expected_result).once
+                expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).once
 
-                # == Route Map
-                #
-              EOS
+                AnnotateRoutes.do_annotations
+              end
             end
 
-            it 'leaves magic comment on top and adds an empty line between magic comment and annotation' do
-              expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file).once
-              expect(mock_file).to receive(:puts).with(expected_result).once
-              expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).once
+            context 'When the option "ignore_routes" is specified' do
+              let :expected_result do
+                <<~EOS
 
-              AnnotateRoutes.do_annotations(position_in_routes: 'bottom')
+                  # == Route Map
+                  #
+                EOS
+              end
+
+              it 'inserts annotations' do
+                expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file).once
+                expect(mock_file).to receive(:puts).with(expected_result).once
+                expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).once
+
+                AnnotateRoutes.do_annotations(ignore_routes: 'my_route')
+              end
+            end
+
+            context 'When the option "position_in_routes" is specified as "top"' do
+              let :expected_result do
+                <<~EOS
+                  # == Route Map
+                  #
+                EOS
+              end
+
+              it 'inserts annotations' do
+                expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file).once
+                expect(mock_file).to receive(:puts).with(expected_result).once
+                expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).once
+
+                AnnotateRoutes.do_annotations(position_in_routes: 'top')
+              end
             end
           end
 
           context 'When the file already contains annotation' do
-            let :route_file_content do
-              <<~EOS
-                #{magic_comment}
+            context 'When no option is specified' do
+              let :route_file_content do
+                <<~EOS
 
-                # == Route Map
-                #
-              EOS
+                  # == Route Map
+                  #
+                EOS
+              end
+
+              it 'should skip annotations if file does already contain annotation' do
+                expect(File).not_to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+                expect(mock_file).not_to receive(:puts)
+                expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_UNCHANGED).once
+
+                AnnotateRoutes.do_annotations
+              end
             end
+          end
+        end
 
-            it 'skips annotations' do
-              expect(File).not_to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
-              expect(mock_file).not_to receive(:puts)
-              expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_UNCHANGED).once
+        context 'When the file contains magic comments' do
+          MAGIC_COMMENTS.each do |magic_comment|
+            describe "magic comment: #{magic_comment.inspect}" do
+              let :route_file_content do
+                <<~EOS
+                  #{magic_comment}
+                  Something
+                EOS
+              end
 
-              AnnotateRoutes.do_annotations
+              context 'When the file does not contain annotation yet' do
+                context 'When the option "position_in_routes" is specified as "top"' do
+                  let :expected_result do
+                    <<~EOS
+                      #{magic_comment}
+
+                      # == Route Map
+                      #
+
+                      Something
+                    EOS
+                  end
+
+                  it 'leaves magic comment on top and adds an empty line between magic comment and annotation' do
+                    expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file).once
+                    expect(mock_file).to receive(:puts).with(expected_result).once
+                    expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).once
+
+                    AnnotateRoutes.do_annotations(position_in_routes: 'top')
+                  end
+                end
+
+                context 'When the option "position_in_routes" is specified as "bottom"' do
+                  let :expected_result do
+                    <<~EOS
+                      #{magic_comment}
+                      Something
+
+                      # == Route Map
+                      #
+                    EOS
+                  end
+
+                  it 'leaves magic comment on top and adds an empty line between magic comment and annotation' do
+                    expect(File).to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file).once
+                    expect(mock_file).to receive(:puts).with(expected_result).once
+                    expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_ANNOTATED).once
+
+                    AnnotateRoutes.do_annotations(position_in_routes: 'bottom')
+                  end
+                end
+              end
+
+              context 'When the file already contains annotation' do
+                let :route_file_content do
+                  <<~EOS
+                    #{magic_comment}
+
+                    # == Route Map
+                    #
+                  EOS
+                end
+
+                it 'skips annotations' do
+                  expect(File).not_to receive(:open).with(ROUTE_FILE, 'wb').and_yield(mock_file)
+                  expect(mock_file).not_to receive(:puts)
+                  expect(AnnotateRoutes).to receive(:puts).with(MESSAGE_UNCHANGED).once
+
+                  AnnotateRoutes.do_annotations
+                end
+              end
             end
           end
         end
