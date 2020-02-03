@@ -1,7 +1,6 @@
 require 'bundler'
 require 'rspec'
 require 'pry'
-require 'bundler/cli/install'
 require 'git'
 
 describe 'annotate Rails' do
@@ -78,10 +77,6 @@ describe 'annotate Rails' do
     }
   end
 
-  before do
-    # ensure bundle install
-  end
-
   after do
     git.reset_hard
   end
@@ -97,6 +92,8 @@ describe 'annotate Rails' do
     Bundler.with_clean_env do
       puts "app_path: #{app_path}"
       Dir.chdir app_path do
+        puts `bundle install`
+
         puts 'inside Dir.chdir'
         puts "Dir.pwd: #{Dir.pwd}"
         puts "__dir__: #{__dir__}"
