@@ -101,12 +101,17 @@ describe 'annotate Rails' do
 
         puts 'trying ** '
         puts `pwd`
-        puts `ls`
-        puts `ls db`
+        puts `ls -lah`
+        puts `ls -lah db`
         puts `bin/rails db:migrate`
         puts 'trying ** '
 
         puts `#{command}`
+
+        puts 'trying ** '
+        puts `ls -lah`
+        puts 'trying ** '
+        puts `ls -lah db`
 
         expect(git.diff.entries).to contain_exactly(
           an_object_having_attributes(task_model),
