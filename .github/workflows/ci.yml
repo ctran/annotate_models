@@ -24,6 +24,10 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
 
+      - name: Install sqlite
+        run: |
+          sudo apt-get install libsqlite3-dev
+
       - name: Update System
         run: |
           gem update --system --no-document
