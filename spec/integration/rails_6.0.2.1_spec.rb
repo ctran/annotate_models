@@ -3,7 +3,7 @@ require 'rspec'
 require 'pry'
 require 'git'
 
-describe 'annotate Rails' do
+describe 'Integration testing on Rails 6.0.2.1' do
   let(:app_name) { 'rails_6.0.2.1' }
 
   let(:project_path) { File.expand_path('../..', __dir__) }
