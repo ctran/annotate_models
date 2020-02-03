@@ -24,11 +24,17 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
 
-      - name: Bundle
+      - name: Update System
         run: |
           gem update --system
-          gem update bundler
+          gem update bundler --quiet
+
+      - name: Bundle install for Annotate models
+        run: |
           bundle install --jobs 4 --retry 3
+
+      - name: Bundle install for Rails app
+        run: |
           BUNDLE_GEMFILE=spec/integration/rails_6.0.2.1/Gemfile bundle install --jobs 4 --retry 3
 
       - name: Test
