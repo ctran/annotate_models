@@ -15,4 +15,3 @@
 /pkg/*
 /spec/debug.log
 .byebug_history
-/spec/integration/*/Gemfile.lock
