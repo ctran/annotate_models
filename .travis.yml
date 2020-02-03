@@ -12,6 +12,7 @@ before_install:
   - gem update --system --no-document --quiet
 
 install:
+  - apt-get install libsqlite3-dev
   - bundle install --jobs=3 --retry=3
   - bundle install --jobs=4 --retry=3 --gemfile=spec/integration/rails_6.0.2.1/Gemfile
 
