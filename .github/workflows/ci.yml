@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: ['2.4.x', '2.5.x', '2.6.x']
+        ruby: ['2.6.x']
 
     steps:
       - name: Checkout
@@ -26,8 +26,7 @@ jobs:
 
       - name: Update System
         run: |
-          gem update --system
-          gem update bundler --quiet
+          gem update --system --no-document
 
       - name: Bundle install for Annotate models
         run: |
