@@ -89,6 +89,8 @@ describe 'annotate Rails' do
     puts "__dir__: #{__dir__}"
     puts "__FILE__: #{__FILE__}"
 
+    pp ENV
+
     Bundler.with_clean_env do
       puts "app_path: #{app_path}"
       Dir.chdir app_path do
@@ -105,6 +107,8 @@ describe 'annotate Rails' do
         puts `ls -lah db`
         puts `bin/rails db:migrate`
         puts 'trying ** '
+
+        pp ENV
 
         puts `#{command}`
 
