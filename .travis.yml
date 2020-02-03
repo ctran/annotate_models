@@ -10,6 +10,10 @@ matrix:
   allow_failures:
   - rvm: ruby-head
 
+before_install:
+- yes | gem update --system
+- gem update bundler
+
 script:
 - bundle exec rubocop && bundle exec rspec
 
