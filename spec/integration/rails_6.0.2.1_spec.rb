@@ -101,7 +101,7 @@ describe 'annotate Rails' do
 
         expect(git.diff.any?).to be_falsy
 
-        `#{command}`
+        puts `#{command}`
 
         expect(git.diff.entries).to contain_exactly(
           an_object_having_attributes(task_model),
