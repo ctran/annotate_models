@@ -58,7 +58,7 @@ Also, if you pass the `-r` option, it'll annotate `routes.rb` with the output of
 
 In versions 2.7.X the annotate gem defaulted to annotating models if no arguments were passed in.
 The annotate gem by default would not allow for routes and models to be annotated together.
-A [change was added in #647](https:/github.com/ctran/annotate_models/pull/647).
+A [change was added in #647](https://github.com/ctran/annotate_models/pull/647).
 You [can read more here](https://github.com/ctran/annotate_models/issues/663).
 
 There are a few ways of fixing this:
