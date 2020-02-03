@@ -5,8 +5,7 @@ rvm:
   - ruby-head
 
 env:
-  - RAILS_ENV=development
-  - RACK_ENV=development
+  - RAILS_ENV=development RACK_ENV=development
 
 matrix:
   allow_failures:
