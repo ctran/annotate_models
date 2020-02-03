@@ -99,11 +99,11 @@ describe 'annotate Rails' do
 
         expect(git.diff.any?).to be_falsy
 
-        puts "trying ** "
-        puts "`pwd`"
-        puts "`ls`"
-        puts "`bin/rails db:migrate`"
-        puts "trying ** "
+        puts 'trying ** '
+        puts "#{`pwd`}"
+        puts "#{`ls`}"
+        puts "#{`bin/rails db:migrate`}"
+        puts 'trying ** '
 
         puts `#{command}`
 
