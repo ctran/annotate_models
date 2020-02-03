@@ -141,13 +141,18 @@ describe AnnotateRoutes do
       context 'When the file contains magic comments' do
         MAGIC_COMMENTS.each do |magic_comment|
           describe "magic comment: #{magic_comment.inspect}" do
-            let :rake_routes_result do
+            let :route_file_content do
               <<~EOS
                 #{magic_comment}
-                                                      Prefix Verb       URI Pattern                                               Controller#Action
-                                                   myaction1 GET        /url1(.:format)                                           mycontroller1#action
-                                                   myaction2 POST       /url2(.:format)                                           mycontroller2#action
-                                                   myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action
+              EOS
+            end
+
+            let :rake_routes_result do
+              <<-EOS
+                                      Prefix Verb       URI Pattern                                               Controller#Action
+                                   myaction1 GET        /url1(.:format)                                           mycontroller1#action
+                                   myaction2 POST       /url2(.:format)                                           mycontroller2#action
+                                   myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action
               EOS
             end
 
@@ -155,7 +160,6 @@ describe AnnotateRoutes do
               context 'When no option is passed' do
                 let :expected_result do
                   <<~EOS
-
                     #{magic_comment}
 
                     # == Route Map
@@ -179,7 +183,6 @@ describe AnnotateRoutes do
               context 'When the option "format_markdown" is passed' do
                 let :expected_result do
                   <<~EOS
-
                     #{magic_comment}
 
                     # ## Route Map
@@ -204,7 +207,6 @@ describe AnnotateRoutes do
               context 'When the options "wrapper_open" and "wrapper_close" are passed' do
                 let :expected_result do
                   <<~EOS
-
                     #{magic_comment}
 
                     # START
