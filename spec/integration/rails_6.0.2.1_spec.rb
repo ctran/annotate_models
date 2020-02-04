@@ -3,9 +3,8 @@ require 'rspec'
 require 'git'
 require_relative 'integration_helper'
 
-RSpec.describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.run_with_ruby_version?(__FILE__, RUBY_VERSION) do
+describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_run?(__FILE__, RUBY_VERSION) do
   let(:app_name) { 'rails_6.0.2.1' }
-  let(:min_ruby_version) { '>= 2.5.0' }
 
   let(:project_path) { File.expand_path('../..', __dir__) }
   let!(:app_path) { File.expand_path(app_name, __dir__) }
@@ -90,7 +89,7 @@ RSpec.describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.run
   end
 
   after do
-    # git.reset_hard
+    git.reset_hard
   end
 
   it 'annotate models' do
