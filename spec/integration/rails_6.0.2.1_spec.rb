@@ -1,9 +1,11 @@
 require 'bundler'
 require 'rspec'
 require 'git'
+require_relative 'integration_helper'
 
-RSpec.describe 'Integration testing on Rails 6.0.2.1' do
+RSpec.describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.run_with_ruby_version?(__FILE__, RUBY_VERSION) do
   let(:app_name) { 'rails_6.0.2.1' }
+  let(:min_ruby_version) { '>= 2.5.0' }
 
   let(:project_path) { File.expand_path('../..', __dir__) }
   let!(:app_path) { File.expand_path(app_name, __dir__) }
@@ -78,6 +80,7 @@ RSpec.describe 'Integration testing on Rails 6.0.2.1' do
   end
 
   before do
+    skip
     Bundler.with_clean_env do
       Dir.chdir app_path do
         puts `bundle install`
@@ -87,7 +90,7 @@ RSpec.describe 'Integration testing on Rails 6.0.2.1' do
   end
 
   after do
-    git.reset_hard
+    # git.reset_hard
   end
 
   it 'annotate models' do
