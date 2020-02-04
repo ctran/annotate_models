@@ -40,6 +40,7 @@ jobs:
       - name: Bundle install for Rails app
         run: |
           bundle install --jobs=4 --retry=3 --gemfile=spec/integration/rails_6.0.2.1/Gemfile
+          bundle install --jobs=4 --retry=3 --gemfile=spec/integration/rails_5.2.4.1/Gemfile
 
       - name: Run Tests
         run: bundle exec rspec
