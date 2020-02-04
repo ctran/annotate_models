@@ -1,8 +1,9 @@
 require 'bundler'
 require 'rspec'
 require 'git'
+require_relative 'integration_helper'
 
-RSpec.describe 'Integration testing on Rails 5.2.4.1' do
+describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_run?(__FILE__, RUBY_VERSION) do
   let(:app_name) { 'rails_5.2.4.1' }
 
   let(:project_path) { File.expand_path('../..', __dir__) }
@@ -80,6 +81,7 @@ RSpec.describe 'Integration testing on Rails 5.2.4.1' do
   before do
     Bundler.with_clean_env do
       Dir.chdir app_path do
+        puts `bundle install`
         puts `#{migration_command}`
       end
     end
