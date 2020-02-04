@@ -2,7 +2,7 @@ require 'bundler'
 require 'rspec'
 require 'git'
 
-describe 'Integration testing on Rails 6.0.2.1' do
+RSpec.describe 'Integration testing on Rails 6.0.2.1' do
   let(:app_name) { 'rails_6.0.2.1' }
 
   let(:project_path) { File.expand_path('../..', __dir__) }
@@ -11,6 +11,7 @@ describe 'Integration testing on Rails 6.0.2.1' do
   let!(:git) { Git.open(project_path) }
 
   let(:command) { 'bundle exec annotate --models' }
+  let(:migration_command) { 'bin/rails db:migrate' }
 
   let(:task_model) do
     patch = <<~PATCH
@@ -74,6 +75,12 @@ describe 'Integration testing on Rails 6.0.2.1' do
       path: include(path),
       patch: include(patch)
     }
+  end
+
+  before do
+    Dir.chdir app_path do
+      puts `#{migration_command}`
+    end
   end
 
   after do
