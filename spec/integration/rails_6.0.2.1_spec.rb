@@ -79,7 +79,6 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
   end
 
   before do
-    skip
     Bundler.with_clean_env do
       Dir.chdir app_path do
         puts `bundle install`
