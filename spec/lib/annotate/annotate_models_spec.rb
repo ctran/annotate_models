@@ -761,6 +761,49 @@ describe AnnotateModels do
               end
             end
           end
+
+          context 'with Globalize gem' do
+            let :translation_klass do
+              double('Post::Translation',
+                     to_s: 'Post::Translation',
+                     columns: [
+                       mock_column(:id, :integer, limit: 8),
+                       mock_column(:post_id, :integer, limit: 8),
+                       mock_column(:locale, :string, limit: 50),
+                       mock_column(:title, :string, limit: 50),
+                     ])
+            end
+
+            let :klass do
+              mock_class(:posts, primary_key, columns, indexes, foreign_keys).tap do |mock_klass|
+                allow(mock_klass).to receive(:translation_class).and_return(translation_klass)
+              end
+            end
+
+            let :columns do
+              [
+                mock_column(:id, :integer, limit: 8),
+                mock_column(:author_name, :string, limit: 50),
+              ]
+            end
+
+            let :expected_result do
+              <<~EOS
+                # Schema Info
+                #
+                # Table name: posts
+                #
+                #  id          :integer          not null, primary key
+                #  author_name :string(50)       not null
+                #  title       :string(50)       not null
+                #
+              EOS
+            end
+
+            it 'returns schema info' do
+              is_expected.to eq expected_result
+            end
+          end
         end
 
         context 'when the primary key is an array (using composite_primary_keys)' do
@@ -1138,39 +1181,6 @@ describe AnnotateModels do
         end
       end
     end
-  end
-
-  it 'should work with the Globalize gem' do
-    klass = mock_class(:posts,
-                       :id,
-                       [
-                         mock_column(:id, :integer, limit: 8),
-                         mock_column(:author_name, :string, limit: 50),
-                       ])
-
-    options = {
-      to_s: 'Post::Translation',
-      columns: [
-        mock_column(:id, :integer, limit: 8),
-        mock_column(:post_id, :integer, limit: 8),
-        mock_column(:locale, :string, limit: 50),
-        mock_column(:title, :string, limit: 50),
-      ]
-    }
-    translation_klass = double('Post::Translation', options)
-    allow(klass).to receive(:translation_class).and_return(translation_klass)
-
-    expected_schema_info = <<~EOS
-      # Schema Info
-      #
-      # Table name: posts
-      #
-      #  id          :integer          not null, primary key
-      #  author_name :string(50)       not null
-      #  title       :string(50)       not null
-      #
-    EOS
-    expect(AnnotateModels.get_schema_info(klass, 'Schema Info')).to eql(expected_schema_info)
   end
 
   describe '.set_defaults' do
