@@ -80,6 +80,7 @@ RSpec.describe 'Integration testing on Rails 5.2.4.1' do
   before do
     Bundler.with_clean_env do
       Dir.chdir app_path do
+        puts `bundle install`
         puts `#{migration_command}`
       end
     end
