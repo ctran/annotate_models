@@ -78,8 +78,10 @@ RSpec.describe 'Integration testing on Rails 6.0.2.1' do
   end
 
   before do
-    Dir.chdir app_path do
-      puts `#{migration_command}`
+    Bundler.with_clean_env do
+      Dir.chdir app_path do
+        puts `#{migration_command}`
+      end
     end
   end
 
