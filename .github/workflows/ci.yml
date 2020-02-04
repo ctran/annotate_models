@@ -12,8 +12,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        ruby: ['2.4.x', '2.5.x', '2.6.x']
+        ruby: ['2.5.x', '2.6.x']
 
     steps:
       - name: Checkout
@@ -24,11 +25,24 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
 
-      - name: Bundle
+      - name: Install sqlite
         run: |
-          gem update --system
-          gem update bundler
-          bundle install --jobs 4 --retry 3
+          sudo apt-get install libsqlite3-dev
 
-      - name: Test
-        run: bundle exec rubocop && bundle exec rspec
+      - name: Update System
+        run: |
+          gem update --system --no-document
+
+      - name: Bundle install for Annotate models
+        run: |
+          bundle install --jobs=4 --retry=3
+
+      - name: Bundle install for Rails app
+        run: |
+          bundle install --jobs=4 --retry=3 --gemfile=spec/integration/rails_6.0.2.1/Gemfile
+
+      - name: Run Tests
+        run: bundle exec rspec
+
+      - name: Rubocop
+        run: bundle exec rubocop
