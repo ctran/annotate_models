@@ -1,6 +1,5 @@
 require 'bundler'
 require 'rspec'
-require 'pry'
 require 'git'
 
 describe 'Integration testing on Rails 6.0.2.1' do
