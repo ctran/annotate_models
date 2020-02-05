@@ -400,7 +400,7 @@ describe AnnotateRoutes do
       end
     end
 
-    context 'When custome comments are above route map' do
+    context 'When custom comments are above route map' do
       let :route_file_content do
         <<~EOS
           # My comment
