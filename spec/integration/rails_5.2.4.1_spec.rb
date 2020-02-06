@@ -4,25 +4,23 @@ require 'git'
 require_relative 'integration_helper'
 
 describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_run?(__FILE__, RUBY_VERSION) do
-  let(:app_name) { 'rails_5.2.4.1' }
+  ::APP_NAME = 'rails_5.2.4.1'.freeze
+  ::PROJECT_PATH = File.expand_path('../..', __dir__)
+  ::APP_PATH = File.expand_path(APP_NAME, __dir__)
+  ::MIGRATION_COMMAND = 'bin/rails db:migrate'.freeze
 
-  let(:project_path) { File.expand_path('../..', __dir__) }
-  let!(:app_path) { File.expand_path(app_name, __dir__) }
+  let!(:git) { Git.open(PROJECT_PATH) }
 
-  let!(:git) { Git.open(project_path) }
-
-  let(:migration_command) { 'bin/rails db:migrate' }
-
-  before do
+  before(:all) do
     Bundler.with_clean_env do
-      Dir.chdir app_path do
+      Dir.chdir APP_PATH do
         puts `bundle install`
-        puts `#{migration_command}`
+        puts `#{MIGRATION_COMMAND}`
       end
     end
   end
 
-  after do
+  after(:each) do
     git.reset_hard
   end
 
@@ -95,7 +93,7 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
 
     it 'annotate models' do
       Bundler.with_clean_env do
-        Dir.chdir app_path do
+        Dir.chdir APP_PATH do
           expect(git.diff.any?).to be_falsy
 
           puts `#{command}`
@@ -145,14 +143,12 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
 
     it 'annotate routes.rb' do
       Bundler.with_clean_env do
-        Dir.chdir app_path do
+        Dir.chdir APP_PATH do
           expect(git.diff.any?).to be_falsy
 
           puts `#{command}`
 
-          expect(git.diff.entries).to include(
-                                          an_object_having_attributes(task_routes)
-                                      )
+          expect(git.diff.entries).to include(an_object_having_attributes(task_routes))
         end
       end
     end
