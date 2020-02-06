@@ -11,72 +11,7 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
 
   let!(:git) { Git.open(project_path) }
 
-  let(:command) { 'bundle exec annotate --models' }
   let(:migration_command) { 'bin/rails db:migrate' }
-
-  let(:task_model) do
-    patch = <<~PATCH
-      +# == Schema Information
-      +#
-      +# Table name: tasks
-      +#
-      +#  id         :integer          not null, primary key
-      +#  content    :string
-      +#  count      :integer          default("0")
-      +#  status     :boolean          default("0")
-      +#  created_at :datetime         not null
-      +#  updated_at :datetime         not null
-      +#
-    PATCH
-
-    path = 'app/models/task.rb'
-    {
-      path: include(path),
-      patch: include(patch)
-    }
-  end
-  let(:task_test) do
-    patch = <<~PATCH
-      +# == Schema Information
-      +#
-      +# Table name: tasks
-      +#
-      +#  id         :integer          not null, primary key
-      +#  content    :string
-      +#  count      :integer          default("0")
-      +#  status     :boolean          default("0")
-      +#  created_at :datetime         not null
-      +#  updated_at :datetime         not null
-      +#
-    PATCH
-
-    path = 'test/models/task_test.rb'
-    {
-      path: include(path),
-      patch: include(patch)
-    }
-  end
-  let(:task_fixture) do
-    patch = <<~PATCH
-      +# == Schema Information
-      +#
-      +# Table name: tasks
-      +#
-      +#  id         :integer          not null, primary key
-      +#  content    :string
-      +#  count      :integer          default("0")
-      +#  status     :boolean          default("0")
-      +#  created_at :datetime         not null
-      +#  updated_at :datetime         not null
-      +#
-    PATCH
-
-    path = 'test/fixtures/tasks.yml'
-    {
-      path: include(path),
-      patch: include(patch)
-    }
-  end
 
   before do
     Bundler.with_clean_env do
@@ -91,18 +26,86 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
     git.reset_hard
   end
 
-  it 'annotate models' do
-    Bundler.with_clean_env do
-      Dir.chdir app_path do
-        expect(git.diff.any?).to be_falsy
+  describe 'annotate --models' do
+    let(:command) { 'bundle exec annotate --models' }
 
-        puts `#{command}`
+    let(:task_model) do
+      patch = <<~PATCH
+      +# == Schema Information
+      +#
+      +# Table name: tasks
+      +#
+      +#  id         :integer          not null, primary key
+      +#  content    :string
+      +#  count      :integer          default("0")
+      +#  status     :boolean          default("0")
+      +#  created_at :datetime         not null
+      +#  updated_at :datetime         not null
+      +#
+      PATCH
 
-        expect(git.diff.entries).to contain_exactly(
-          an_object_having_attributes(task_model),
-          an_object_having_attributes(task_test),
-          an_object_having_attributes(task_fixture)
-        )
+      path = 'app/models/task.rb'
+      {
+          path: include(path),
+          patch: include(patch)
+      }
+    end
+    let(:task_test) do
+      patch = <<~PATCH
+      +# == Schema Information
+      +#
+      +# Table name: tasks
+      +#
+      +#  id         :integer          not null, primary key
+      +#  content    :string
+      +#  count      :integer          default("0")
+      +#  status     :boolean          default("0")
+      +#  created_at :datetime         not null
+      +#  updated_at :datetime         not null
+      +#
+      PATCH
+
+      path = 'test/models/task_test.rb'
+      {
+          path: include(path),
+          patch: include(patch)
+      }
+    end
+    let(:task_fixture) do
+      patch = <<~PATCH
+      +# == Schema Information
+      +#
+      +# Table name: tasks
+      +#
+      +#  id         :integer          not null, primary key
+      +#  content    :string
+      +#  count      :integer          default("0")
+      +#  status     :boolean          default("0")
+      +#  created_at :datetime         not null
+      +#  updated_at :datetime         not null
+      +#
+      PATCH
+
+      path = 'test/fixtures/tasks.yml'
+      {
+          path: include(path),
+          patch: include(patch)
+      }
+    end
+
+    it 'annotate models' do
+      Bundler.with_clean_env do
+        Dir.chdir app_path do
+          expect(git.diff.any?).to be_falsy
+
+          puts `#{command}`
+
+          expect(git.diff.entries).to contain_exactly(
+            an_object_having_attributes(task_model),
+            an_object_having_attributes(task_test),
+            an_object_having_attributes(task_fixture)
+          )
+        end
       end
     end
   end
