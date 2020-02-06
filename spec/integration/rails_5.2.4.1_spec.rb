@@ -148,7 +148,7 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
 
           puts `#{command}`
 
-          expect(git.diff.entries).to include(an_object_having_attributes(task_routes))
+          expect(git.diff.entries).to contain_exactly(an_object_having_attributes(task_routes))
         end
       end
     end
