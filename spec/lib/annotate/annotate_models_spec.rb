@@ -1505,6 +1505,39 @@ describe AnnotateModels do
                 end
               end
             end
+
+            context 'when "format_doc" and "with_comment" are specified in options' do
+              let :options do
+                { format_rdoc: true, with_comment: true }
+              end
+
+              context 'when columns are normal' do
+                let :columns do
+                  [
+                    mock_column(:id, :integer, comment: 'ID'),
+                    mock_column(:name, :string, limit: 50, comment: 'Name')
+                  ]
+                end
+
+                let :expected_result do
+                  <<~EOS
+                    # == Schema Information
+                    #
+                    # Table name: users
+                    #
+                    # *id(ID)*::     <tt>integer, not null, primary key</tt>
+                    # *name(Name)*:: <tt>string(50), not null</tt>
+                    #--
+                    # == Schema Information End
+                    #++
+                  EOS
+                end
+
+                it 'returns schema info in RDoc format' do
+                  is_expected.to eq expected_result
+                end
+              end
+            end
           end
         end
       end
@@ -1612,39 +1645,6 @@ describe AnnotateModels do
     context 'when header is "== Schema Information"' do
       let :header do
         AnnotateModels::PREFIX
-      end
-
-      context 'when "format_doc" and "with_comment" are specified in options' do
-        let :options do
-          { format_rdoc: true, with_comment: true }
-        end
-
-        context 'when columns are normal' do
-          let :columns do
-            [
-              mock_column(:id, :integer, comment: 'ID'),
-              mock_column(:name, :string, limit: 50, comment: 'Name')
-            ]
-          end
-
-          let :expected_result do
-            <<~EOS
-              # == Schema Information
-              #
-              # Table name: users
-              #
-              # *id(ID)*::     <tt>integer, not null, primary key</tt>
-              # *name(Name)*:: <tt>string(50), not null</tt>
-              #--
-              # == Schema Information End
-              #++
-            EOS
-          end
-
-          it 'returns schema info in RDoc format' do
-            is_expected.to eq expected_result
-          end
-        end
       end
 
       context 'when "format_markdown" and "with_comment" are specified in options' do
