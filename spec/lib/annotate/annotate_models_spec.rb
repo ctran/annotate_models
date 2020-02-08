@@ -939,6 +939,85 @@ describe AnnotateModels do
                 end
               end
             end
+
+            context 'when "hide_default_column_types" is specified in options' do
+              let :columns do
+                [
+                  mock_column(:profile, :json, default: {}),
+                  mock_column(:settings, :jsonb, default: {}),
+                  mock_column(:parameters, :hstore, default: {})
+                ]
+              end
+
+              context 'when "hide_default_column_types" is blank string' do
+                let :options do
+                  { hide_default_column_types: '' }
+                end
+
+                let :expected_result do
+                  <<~EOS
+                    # Schema Info
+                    #
+                    # Table name: users
+                    #
+                    #  profile    :json             not null
+                    #  settings   :jsonb            not null
+                    #  parameters :hstore           not null
+                    #
+                  EOS
+                end
+
+                it 'works with option "hide_default_column_types"' do
+                  is_expected.to eq expected_result
+                end
+              end
+
+              context 'when "hide_default_column_types" is "skip"' do
+                let :options do
+                  { hide_default_column_types: 'skip' }
+                end
+
+                let :expected_result do
+                  <<~EOS
+                    # Schema Info
+                    #
+                    # Table name: users
+                    #
+                    #  profile    :json             default({}), not null
+                    #  settings   :jsonb            default({}), not null
+                    #  parameters :hstore           default({}), not null
+                    #
+                  EOS
+                end
+
+                it 'works with option "hide_default_column_types"' do
+                  is_expected.to eq expected_result
+                end
+              end
+
+              context 'when "hide_default_column_types" is "json"' do
+                let :options do
+                  { hide_default_column_types: 'json' }
+                end
+
+                let :expected_result do
+                  <<~EOS
+                    # Schema Info
+                    #
+                    # Table name: users
+                    #
+                    #  profile    :json             not null
+                    #  settings   :jsonb            default({}), not null
+                    #  parameters :hstore           default({}), not null
+                    #
+                  EOS
+                end
+
+                it 'works with option "hide_limit_column_types"' do
+                  is_expected.to eq expected_result
+                end
+              end
+            end
           end
         end
       end
@@ -1392,85 +1471,6 @@ describe AnnotateModels do
       end
 
       context 'with options' do
-        context 'when "hide_default_column_types" is specified in options' do
-          let :columns do
-            [
-              mock_column(:profile, :json, default: {}),
-              mock_column(:settings, :jsonb, default: {}),
-              mock_column(:parameters, :hstore, default: {})
-            ]
-          end
-
-          context 'when "hide_default_column_types" is blank string' do
-            let :options do
-              { hide_default_column_types: '' }
-            end
-
-            let :expected_result do
-              <<~EOS
-                # Schema Info
-                #
-                # Table name: users
-                #
-                #  profile    :json             not null
-                #  settings   :jsonb            not null
-                #  parameters :hstore           not null
-                #
-              EOS
-            end
-
-            it 'works with option "hide_default_column_types"' do
-              is_expected.to eq expected_result
-            end
-          end
-
-          context 'when "hide_default_column_types" is "skip"' do
-            let :options do
-              { hide_default_column_types: 'skip' }
-            end
-
-            let :expected_result do
-              <<~EOS
-                # Schema Info
-                #
-                # Table name: users
-                #
-                #  profile    :json             default({}), not null
-                #  settings   :jsonb            default({}), not null
-                #  parameters :hstore           default({}), not null
-                #
-              EOS
-            end
-
-            it 'works with option "hide_default_column_types"' do
-              is_expected.to eq expected_result
-            end
-          end
-
-          context 'when "hide_default_column_types" is "json"' do
-            let :options do
-              { hide_default_column_types: 'json' }
-            end
-
-            let :expected_result do
-              <<~EOS
-                # Schema Info
-                #
-                # Table name: users
-                #
-                #  profile    :json             not null
-                #  settings   :jsonb            default({}), not null
-                #  parameters :hstore           default({}), not null
-                #
-              EOS
-            end
-
-            it 'works with option "hide_limit_column_types"' do
-              is_expected.to eq expected_result
-            end
-          end
-        end
-
         context 'when "classified_sort" is specified in options' do
           let :columns do
             [
