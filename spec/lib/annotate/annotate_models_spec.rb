@@ -1018,6 +1018,39 @@ describe AnnotateModels do
                 end
               end
             end
+
+            context 'when "classified_sort" is specified in options' do
+              let :columns do
+                [
+                  mock_column(:active, :boolean, limit: 1),
+                  mock_column(:name, :string, limit: 50),
+                  mock_column(:notes, :text, limit: 55)
+                ]
+              end
+
+              context 'when "classified_sort" is "yes"' do
+                let :options do
+                  { classified_sort: 'yes' }
+                end
+
+                let :expected_result do
+                  <<~EOS
+                    # Schema Info
+                    #
+                    # Table name: users
+                    #
+                    #  active :boolean          not null
+                    #  name   :string(50)       not null
+                    #  notes  :text(55)         not null
+                    #
+                  EOS
+                end
+
+                it 'works with option "classified_sort"' do
+                  is_expected.to eq expected_result
+                end
+              end
+            end
           end
         end
       end
@@ -1471,39 +1504,6 @@ describe AnnotateModels do
       end
 
       context 'with options' do
-        context 'when "classified_sort" is specified in options' do
-          let :columns do
-            [
-              mock_column(:active, :boolean, limit: 1),
-              mock_column(:name, :string, limit: 50),
-              mock_column(:notes, :text, limit: 55)
-            ]
-          end
-
-          context 'when "classified_sort" is "yes"' do
-            let :options do
-              { classified_sort: 'yes' }
-            end
-
-            let :expected_result do
-              <<~EOS
-                # Schema Info
-                #
-                # Table name: users
-                #
-                #  active :boolean          not null
-                #  name   :string(50)       not null
-                #  notes  :text(55)         not null
-                #
-              EOS
-            end
-
-            it 'works with option "classified_sort"' do
-              is_expected.to eq expected_result
-            end
-          end
-        end
-
         context 'when "with_comment" is specified in options' do
           context 'when "with_comment" is "yes"' do
             let :options do
