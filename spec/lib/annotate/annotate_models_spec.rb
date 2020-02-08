@@ -856,6 +856,89 @@ describe AnnotateModels do
                 end
               end
             end
+
+            context 'when "hide_limit_column_types" is specified in options' do
+              let :columns do
+                [
+                  mock_column(:id, :integer, limit: 8),
+                  mock_column(:active, :boolean, limit: 1),
+                  mock_column(:name, :string, limit: 50),
+                  mock_column(:notes, :text, limit: 55)
+                ]
+              end
+
+              context 'when "hide_limit_column_types" is blank string' do
+                let :options do
+                  { hide_limit_column_types: '' }
+                end
+
+                let :expected_result do
+                  <<~EOS
+                    # Schema Info
+                    #
+                    # Table name: users
+                    #
+                    #  id     :integer          not null, primary key
+                    #  active :boolean          not null
+                    #  name   :string(50)       not null
+                    #  notes  :text(55)         not null
+                    #
+                  EOS
+                end
+
+                it 'works with option "hide_limit_column_types"' do
+                  is_expected.to eq expected_result
+                end
+              end
+
+              context 'when "hide_limit_column_types" is "integer,boolean"' do
+                let :options do
+                  { hide_limit_column_types: 'integer,boolean' }
+                end
+
+                let :expected_result do
+                  <<~EOS
+                    # Schema Info
+                    #
+                    # Table name: users
+                    #
+                    #  id     :integer          not null, primary key
+                    #  active :boolean          not null
+                    #  name   :string(50)       not null
+                    #  notes  :text(55)         not null
+                    #
+                  EOS
+                end
+
+                it 'works with option "hide_limit_column_types"' do
+                  is_expected.to eq expected_result
+                end
+              end
+
+              context 'when "hide_limit_column_types" is "integer,boolean,string,text"' do
+                let :options do
+                  { hide_limit_column_types: 'integer,boolean,string,text' }
+                end
+
+                let :expected_result do
+                  <<~EOS
+                    # Schema Info
+                    #
+                    # Table name: users
+                    #
+                    #  id     :integer          not null, primary key
+                    #  active :boolean          not null
+                    #  name   :string           not null
+                    #  notes  :text             not null
+                    #
+                  EOS
+                end
+
+                it 'works with option "hide_limit_column_types"' do
+                  is_expected.to eq expected_result
+                end
+              end
+            end
           end
         end
       end
@@ -1309,89 +1392,6 @@ describe AnnotateModels do
       end
 
       context 'with options' do
-        context 'when "hide_limit_column_types" is specified in options' do
-          let :columns do
-            [
-              mock_column(:id, :integer, limit: 8),
-              mock_column(:active, :boolean, limit: 1),
-              mock_column(:name, :string, limit: 50),
-              mock_column(:notes, :text, limit: 55)
-            ]
-          end
-
-          context 'when "hide_limit_column_types" is blank string' do
-            let :options do
-              { hide_limit_column_types: '' }
-            end
-
-            let :expected_result do
-              <<~EOS
-                # Schema Info
-                #
-                # Table name: users
-                #
-                #  id     :integer          not null, primary key
-                #  active :boolean          not null
-                #  name   :string(50)       not null
-                #  notes  :text(55)         not null
-                #
-              EOS
-            end
-
-            it 'works with option "hide_limit_column_types"' do
-              is_expected.to eq expected_result
-            end
-          end
-
-          context 'when "hide_limit_column_types" is "integer,boolean"' do
-            let :options do
-              { hide_limit_column_types: 'integer,boolean' }
-            end
-
-            let :expected_result do
-              <<~EOS
-                # Schema Info
-                #
-                # Table name: users
-                #
-                #  id     :integer          not null, primary key
-                #  active :boolean          not null
-                #  name   :string(50)       not null
-                #  notes  :text(55)         not null
-                #
-              EOS
-            end
-
-            it 'works with option "hide_limit_column_types"' do
-              is_expected.to eq expected_result
-            end
-          end
-
-          context 'when "hide_limit_column_types" is "integer,boolean,string,text"' do
-            let :options do
-              { hide_limit_column_types: 'integer,boolean,string,text' }
-            end
-
-            let :expected_result do
-              <<~EOS
-                # Schema Info
-                #
-                # Table name: users
-                #
-                #  id     :integer          not null, primary key
-                #  active :boolean          not null
-                #  name   :string           not null
-                #  notes  :text             not null
-                #
-              EOS
-            end
-
-            it 'works with option "hide_limit_column_types"' do
-              is_expected.to eq expected_result
-            end
-          end
-        end
-
         context 'when "hide_default_column_types" is specified in options' do
           let :columns do
             [
