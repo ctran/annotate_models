@@ -177,7 +177,7 @@ describe AnnotateModels do
 
   describe '.get_schema_info' do
     subject do
-      AnnotateModels.get_schema_info(klass, header)
+      AnnotateModels.get_schema_info(klass, header, **options)
     end
 
     let :klass do
@@ -193,8 +193,8 @@ describe AnnotateModels do
     end
 
     context 'when option is not present' do
-      subject do
-        AnnotateModels.get_schema_info(klass, header)
+      let :options do
+        {}
       end
 
       context 'when header is "Schema Info"' do
@@ -476,8 +476,8 @@ describe AnnotateModels do
 
             context 'when indexes exist' do
               context 'when option "show_indexes" is true' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, show_indexes: true)
+                let :options do
+                  { show_indexes: true }
                 end
 
                 context 'when indexes are normal' do
@@ -677,8 +677,8 @@ describe AnnotateModels do
               end
 
               context 'when option "simple_indexes" is true' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, simple_indexes: true)
+                let :options do
+                  { simple_indexes: true }
                 end
 
                 context 'when one of indexes includes "orders" clause' do
@@ -766,8 +766,8 @@ describe AnnotateModels do
               end
 
               context 'when option "show_foreign_keys" is specified' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, show_foreign_keys: true)
+                let :options do
+                  { show_foreign_keys: true }
                 end
 
                 context 'when foreign_keys does not have option' do
@@ -829,8 +829,8 @@ describe AnnotateModels do
               end
 
               context 'when option "show_foreign_keys" and "show_complete_foreign_keys" are specified' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, show_foreign_keys: true, show_complete_foreign_keys: true)
+                let :options do
+                  { show_foreign_keys: true, show_complete_foreign_keys: true }
                 end
 
                 let :expected_result do
@@ -879,8 +879,8 @@ describe AnnotateModels do
             end
 
             context 'when option "format_rdoc" is true' do
-              subject do
-                AnnotateModels.get_schema_info(klass, header, format_rdoc: true)
+              let :options do
+                { format_rdoc: true }
               end
 
               let :expected_result do
@@ -903,8 +903,8 @@ describe AnnotateModels do
             end
 
             context 'when option "format_yard" is true' do
-              subject do
-                AnnotateModels.get_schema_info(klass, header, format_yard: true)
+              let :options do
+                { format_yard: true }
               end
 
               let :expected_result do
@@ -928,8 +928,8 @@ describe AnnotateModels do
 
             context 'when option "format_markdown" is true' do
               context 'when other option is not specified' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, format_markdown: true)
+                let :options do
+                  { format_markdown: true }
                 end
 
                 let :expected_result do
@@ -954,8 +954,8 @@ describe AnnotateModels do
               end
 
               context 'when option "show_indexes" is true' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, format_markdown: true, show_indexes: true)
+                let :options do
+                  { format_markdown: true, show_indexes: true }
                 end
 
                 context 'when indexes are normal' do
@@ -1149,8 +1149,8 @@ describe AnnotateModels do
               end
 
               context 'when option "show_foreign_keys" is true' do
-                subject do
-                  AnnotateModels.get_schema_info(klass, header, format_markdown: true, show_foreign_keys: true)
+                let :options do
+                  { format_markdown: true, show_foreign_keys: true }
                 end
 
                 let :columns do
@@ -1623,8 +1623,8 @@ describe AnnotateModels do
       end
 
       context 'when "format_doc" and "with_comment" are specified in options' do
-        subject do
-          AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_rdoc: true, with_comment: true)
+        let :options do
+          { format_rdoc: true, with_comment: true }
         end
 
         context 'when columns are normal' do
@@ -1656,8 +1656,8 @@ describe AnnotateModels do
       end
 
       context 'when "format_markdown" and "with_comment" are specified in options' do
-        subject do
-          AnnotateModels.get_schema_info(klass, AnnotateModels::PREFIX, format_markdown: true, with_comment: true)
+        let :options do
+          { format_markdown: true, with_comment: true }
         end
 
         context 'when columns have comments' do
