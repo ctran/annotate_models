@@ -674,6 +674,114 @@ describe AnnotateModels do
                 end
               end
             end
+
+            context 'when foreign keys exist' do
+              let :columns do
+                [
+                  mock_column(:id, :integer),
+                  mock_column(:foreign_thing_id, :integer)
+                ]
+              end
+
+              let :foreign_keys do
+                [
+                  mock_foreign_key('fk_rails_cf2568e89e', 'foreign_thing_id', 'foreign_things'),
+                  mock_foreign_key('custom_fk_name', 'other_thing_id', 'other_things'),
+                  mock_foreign_key('fk_rails_a70234b26c', 'third_thing_id', 'third_things')
+                ]
+              end
+
+              context 'when option "show_foreign_keys" is specified' do
+                subject do
+                  AnnotateModels.get_schema_info(klass, header, show_foreign_keys: true)
+                end
+
+                context 'when foreign_keys does not have option' do
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id               :integer          not null, primary key
+                      #  foreign_thing_id :integer          not null
+                      #
+                      # Foreign Keys
+                      #
+                      #  custom_fk_name  (other_thing_id => other_things.id)
+                      #  fk_rails_...    (foreign_thing_id => foreign_things.id)
+                      #  fk_rails_...    (third_thing_id => third_things.id)
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with foreign keys' do
+                    is_expected.to eq(expected_result)
+                  end
+                end
+
+                context 'when foreign_keys have option "on_delete" and "on_update"' do
+                  let :foreign_keys do
+                    [
+                      mock_foreign_key('fk_rails_02e851e3b7',
+                                       'foreign_thing_id',
+                                       'foreign_things',
+                                       'id',
+                                       on_delete: 'on_delete_value',
+                                       on_update: 'on_update_value')
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id               :integer          not null, primary key
+                      #  foreign_thing_id :integer          not null
+                      #
+                      # Foreign Keys
+                      #
+                      #  fk_rails_...  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with foreign keys' do
+                    is_expected.to eq(expected_result)
+                  end
+                end
+              end
+
+              context 'when option "show_foreign_keys" and "show_complete_foreign_keys" are specified' do
+                subject do
+                  AnnotateModels.get_schema_info(klass, header, show_foreign_keys: true, show_complete_foreign_keys: true)
+                end
+
+                let :expected_result do
+                  <<~EOS
+                    # Schema Info
+                    #
+                    # Table name: users
+                    #
+                    #  id               :integer          not null, primary key
+                    #  foreign_thing_id :integer          not null
+                    #
+                    # Foreign Keys
+                    #
+                    #  custom_fk_name       (other_thing_id => other_things.id)
+                    #  fk_rails_a70234b26c  (third_thing_id => third_things.id)
+                    #  fk_rails_cf2568e89e  (foreign_thing_id => foreign_things.id)
+                    #
+                  EOS
+                end
+
+                it 'returns schema info with foreign keys' do
+                  is_expected.to eq(expected_result)
+                end
+              end
+            end
           end
         end
       end
@@ -688,114 +796,6 @@ describe AnnotateModels do
         context 'when the primary_key is :id' do
           let :primary_key do
             :id
-          end
-
-          context 'when foreign keys exist' do
-            let :columns do
-              [
-                mock_column(:id, :integer),
-                mock_column(:foreign_thing_id, :integer)
-              ]
-            end
-
-            let :foreign_keys do
-              [
-                mock_foreign_key('fk_rails_cf2568e89e', 'foreign_thing_id', 'foreign_things'),
-                mock_foreign_key('custom_fk_name', 'other_thing_id', 'other_things'),
-                mock_foreign_key('fk_rails_a70234b26c', 'third_thing_id', 'third_things')
-              ]
-            end
-
-            context 'when option "show_foreign_keys" is specified' do
-              subject do
-                AnnotateModels.get_schema_info(klass, header, show_foreign_keys: true)
-              end
-
-              context 'when foreign_keys does not have option' do
-                let :expected_result do
-                  <<~EOS
-                    # Schema Info
-                    #
-                    # Table name: users
-                    #
-                    #  id               :integer          not null, primary key
-                    #  foreign_thing_id :integer          not null
-                    #
-                    # Foreign Keys
-                    #
-                    #  custom_fk_name  (other_thing_id => other_things.id)
-                    #  fk_rails_...    (foreign_thing_id => foreign_things.id)
-                    #  fk_rails_...    (third_thing_id => third_things.id)
-                    #
-                  EOS
-                end
-
-                it 'returns schema info with foreign keys' do
-                  is_expected.to eq(expected_result)
-                end
-              end
-
-              context 'when foreign_keys have option "on_delete" and "on_update"' do
-                let :foreign_keys do
-                  [
-                    mock_foreign_key('fk_rails_02e851e3b7',
-                                     'foreign_thing_id',
-                                     'foreign_things',
-                                     'id',
-                                     on_delete: 'on_delete_value',
-                                     on_update: 'on_update_value')
-                  ]
-                end
-
-                let :expected_result do
-                  <<~EOS
-                    # Schema Info
-                    #
-                    # Table name: users
-                    #
-                    #  id               :integer          not null, primary key
-                    #  foreign_thing_id :integer          not null
-                    #
-                    # Foreign Keys
-                    #
-                    #  fk_rails_...  (foreign_thing_id => foreign_things.id) ON DELETE => on_delete_value ON UPDATE => on_update_value
-                    #
-                  EOS
-                end
-
-                it 'returns schema info with foreign keys' do
-                  is_expected.to eq(expected_result)
-                end
-              end
-            end
-
-            context 'when option "show_foreign_keys" and "show_complete_foreign_keys" are specified' do
-              subject do
-                AnnotateModels.get_schema_info(klass, header, show_foreign_keys: true, show_complete_foreign_keys: true)
-              end
-
-              let :expected_result do
-                <<~EOS
-                  # Schema Info
-                  #
-                  # Table name: users
-                  #
-                  #  id               :integer          not null, primary key
-                  #  foreign_thing_id :integer          not null
-                  #
-                  # Foreign Keys
-                  #
-                  #  custom_fk_name       (other_thing_id => other_things.id)
-                  #  fk_rails_a70234b26c  (third_thing_id => third_things.id)
-                  #  fk_rails_cf2568e89e  (foreign_thing_id => foreign_things.id)
-                  #
-                EOS
-              end
-
-              it 'returns schema info with foreign keys' do
-                is_expected.to eq(expected_result)
-              end
-            end
           end
 
           context 'with Globalize gem' do
