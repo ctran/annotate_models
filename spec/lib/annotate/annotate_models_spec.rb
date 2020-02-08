@@ -601,6 +601,78 @@ describe AnnotateModels do
                   end
                 end
               end
+
+              context 'when option "simple_indexes" is true' do
+                subject do
+                  AnnotateModels.get_schema_info(klass, header, simple_indexes: true)
+                end
+
+                context 'when one of indexes includes "orders" clause' do
+                  let :columns do
+                    [
+                      mock_column(:id, :integer),
+                      mock_column(:foreign_thing_id, :integer)
+                    ]
+                  end
+
+                  let :indexes do
+                    [
+                      mock_index('index_rails_02e851e3b7', columns: ['id']),
+                      mock_index('index_rails_02e851e3b8',
+                                 columns: ['foreign_thing_id'],
+                                 orders: { 'foreign_thing_id' => :desc })
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id               :integer          not null, primary key
+                      #  foreign_thing_id :integer          not null
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with index information' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when one of indexes is in string form' do
+                  let :columns do
+                    [
+                      mock_column("id", :integer),
+                      mock_column("name", :string)
+                    ]
+                  end
+
+                  let :indexes do
+                    [
+                      mock_index('index_rails_02e851e3b7', columns: ['id']),
+                      mock_index('index_rails_02e851e3b8', columns: 'LOWER(name)')
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id   :integer          not null, primary key, indexed
+                      #  name :string           not null
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with index information' do
+                    is_expected.to eq expected_result
+                  end
+                end
+              end
             end
           end
         end
@@ -616,80 +688,6 @@ describe AnnotateModels do
         context 'when the primary_key is :id' do
           let :primary_key do
             :id
-          end
-
-          context 'when indexes exist' do
-            context 'when option "simple_indexes" is true' do
-              subject do
-                AnnotateModels.get_schema_info(klass, header, simple_indexes: true)
-              end
-
-              context 'when one of indexes includes "orders" clause' do # TODO
-                let :columns do
-                  [
-                    mock_column(:id, :integer),
-                    mock_column(:foreign_thing_id, :integer)
-                  ]
-                end
-
-                let :indexes do
-                  [
-                    mock_index('index_rails_02e851e3b7', columns: ['id']),
-                    mock_index('index_rails_02e851e3b8',
-                               columns: ['foreign_thing_id'],
-                               orders: { 'foreign_thing_id' => :desc })
-                  ]
-                end
-
-                let :expected_result do
-                  <<~EOS
-                    # Schema Info
-                    #
-                    # Table name: users
-                    #
-                    #  id               :integer          not null, primary key
-                    #  foreign_thing_id :integer          not null
-                    #
-                  EOS
-                end
-
-                it 'returns schema info with index information' do
-                  is_expected.to eq expected_result
-                end
-              end
-
-              context 'when one of indexes is in string form' do
-                let :columns do
-                  [
-                    mock_column("id", :integer),
-                    mock_column("name", :string)
-                  ]
-                end
-
-                let :indexes do
-                  [
-                    mock_index('index_rails_02e851e3b7', columns: ['id']),
-                    mock_index('index_rails_02e851e3b8', columns: 'LOWER(name)')
-                  ]
-                end
-
-                let :expected_result do
-                  <<~EOS
-                    # Schema Info
-                    #
-                    # Table name: users
-                    #
-                    #  id   :integer          not null, primary key, indexed
-                    #  name :string           not null
-                    #
-                  EOS
-                end
-
-                it 'returns schema info with index information' do
-                  is_expected.to eq expected_result
-                end
-              end
-            end
           end
 
           context 'when foreign keys exist' do
