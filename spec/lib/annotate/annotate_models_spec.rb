@@ -192,98 +192,110 @@ describe AnnotateModels do
       []
     end
 
+    context 'when option is not present' do
+      subject do
+        AnnotateModels.get_schema_info(klass, header)
+      end
+
+      context 'when header is "Schema Info"' do
+        let :header do
+          'Schema Info'
+        end
+
+        context 'when the primary key is not specified' do
+          let :primary_key do
+            nil
+          end
+
+          context 'when the columns are normal' do
+            let :columns do
+              [
+                mock_column(:id, :integer),
+                mock_column(:name, :string, limit: 50)
+              ]
+            end
+
+            let :expected_result do
+              <<~EOS
+                # Schema Info
+                #
+                # Table name: users
+                #
+                #  id   :integer          not null
+                #  name :string(50)       not null
+                #
+              EOS
+            end
+
+            it 'returns schema info' do
+              is_expected.to eq(expected_result)
+            end
+          end
+
+          context 'when an enum column exists' do
+            let :columns do
+              [
+                mock_column(:id, :integer),
+                mock_column(:name, :enum, limit: [:enum1, :enum2])
+              ]
+            end
+
+            let :expected_result do
+              <<~EOS
+                # Schema Info
+                #
+                # Table name: users
+                #
+                #  id   :integer          not null
+                #  name :enum             not null, (enum1, enum2)
+                #
+              EOS
+            end
+
+            it 'returns schema info' do
+              is_expected.to eq(expected_result)
+            end
+          end
+
+          context 'when unsigned columns exist' do
+            let :columns do
+              [
+                mock_column(:id, :integer),
+                mock_column(:integer, :integer, unsigned?: true),
+                mock_column(:bigint,  :integer, unsigned?: true, bigint?: true),
+                mock_column(:bigint,  :bigint,  unsigned?: true),
+                mock_column(:float,   :float,   unsigned?: true),
+                mock_column(:decimal, :decimal, unsigned?: true, precision: 10, scale: 2),
+              ]
+            end
+
+            let :expected_result do
+              <<~EOS
+                # Schema Info
+                #
+                # Table name: users
+                #
+                #  id      :integer          not null
+                #  integer :integer          unsigned, not null
+                #  bigint  :bigint           unsigned, not null
+                #  bigint  :bigint           unsigned, not null
+                #  float   :float            unsigned, not null
+                #  decimal :decimal(10, 2)   unsigned, not null
+                #
+              EOS
+            end
+
+            it 'returns schema info' do
+              is_expected.to eq(expected_result)
+            end
+          end
+        end
+      end
+    end
+
     context 'when header is "Schema Info"' do
       let :header do
         'Schema Info'
-      end
-
-      context 'when the primary key is not specified' do
-        let :primary_key do
-          nil
-        end
-
-        context 'when the columns are normal' do
-          let :columns do
-            [
-              mock_column(:id, :integer),
-              mock_column(:name, :string, limit: 50)
-            ]
-          end
-
-          let :expected_result do
-            <<~EOS
-              # Schema Info
-              #
-              # Table name: users
-              #
-              #  id   :integer          not null
-              #  name :string(50)       not null
-              #
-            EOS
-          end
-
-          it 'returns schema info' do
-            is_expected.to eq(expected_result)
-          end
-        end
-
-        context 'when an enum column exists' do
-          let :columns do
-            [
-              mock_column(:id, :integer),
-              mock_column(:name, :enum, limit: [:enum1, :enum2])
-            ]
-          end
-
-          let :expected_result do
-            <<~EOS
-              # Schema Info
-              #
-              # Table name: users
-              #
-              #  id   :integer          not null
-              #  name :enum             not null, (enum1, enum2)
-              #
-            EOS
-          end
-
-          it 'returns schema info' do
-            is_expected.to eq(expected_result)
-          end
-        end
-
-        context 'when unsigned columns exist' do
-          let :columns do
-            [
-              mock_column(:id, :integer),
-              mock_column(:integer, :integer, unsigned?: true),
-              mock_column(:bigint,  :integer, unsigned?: true, bigint?: true),
-              mock_column(:bigint,  :bigint,  unsigned?: true),
-              mock_column(:float,   :float,   unsigned?: true),
-              mock_column(:decimal, :decimal, unsigned?: true, precision: 10, scale: 2),
-            ]
-          end
-
-          let :expected_result do
-            <<~EOS
-              # Schema Info
-              #
-              # Table name: users
-              #
-              #  id      :integer          not null
-              #  integer :integer          unsigned, not null
-              #  bigint  :bigint           unsigned, not null
-              #  bigint  :bigint           unsigned, not null
-              #  float   :float            unsigned, not null
-              #  decimal :decimal(10, 2)   unsigned, not null
-              #
-            EOS
-          end
-
-          it 'returns schema info' do
-            is_expected.to eq(expected_result)
-          end
-        end
       end
 
       context 'when the primary key is specified' do
