@@ -1538,6 +1538,70 @@ describe AnnotateModels do
                 end
               end
             end
+
+            context 'when "format_markdown" and "with_comment" are specified in options' do
+              let :options do
+                { format_markdown: true, with_comment: true }
+              end
+
+              context 'when columns have comments' do
+                let :columns do
+                  [
+                    mock_column(:id, :integer, comment: 'ID'),
+                    mock_column(:name, :string, limit: 50, comment: 'Name')
+                  ]
+                end
+
+                let :expected_result do
+                  <<~EOS
+                    # == Schema Information
+                    #
+                    # Table name: `users`
+                    #
+                    # ### Columns
+                    #
+                    # Name              | Type               | Attributes
+                    # ----------------- | ------------------ | ---------------------------
+                    # **`id(ID)`**      | `integer`          | `not null, primary key`
+                    # **`name(Name)`**  | `string(50)`       | `not null`
+                    #
+                  EOS
+                end
+
+                it 'returns schema info in Markdown format' do
+                  is_expected.to eq expected_result
+                end
+              end
+
+              context 'when columns have multibyte comments' do
+                let :columns do
+                  [
+                    mock_column(:id, :integer, comment: 'ＩＤ'),
+                    mock_column(:name, :string, limit: 50, comment: 'ＮＡＭＥ')
+                  ]
+                end
+
+                let :expected_result do
+                  <<~EOS
+                    # == Schema Information
+                    #
+                    # Table name: `users`
+                    #
+                    # ### Columns
+                    #
+                    # Name                  | Type               | Attributes
+                    # --------------------- | ------------------ | ---------------------------
+                    # **`id(ＩＤ)`**        | `integer`          | `not null, primary key`
+                    # **`name(ＮＡＭＥ)`**  | `string(50)`       | `not null`
+                    #
+                  EOS
+                end
+
+                it 'returns schema info in Markdown format' do
+                  is_expected.to eq expected_result
+                end
+              end
+            end
           end
         end
       end
@@ -1628,86 +1692,6 @@ describe AnnotateModels do
 
         it 'returns an empty array' do
           is_expected.to eq([])
-        end
-      end
-    end
-  end
-
-  describe '.get_schema_info (with custom options)' do
-    let :klass do
-      mock_class(:users, :id, columns)
-    end
-
-    subject do
-      AnnotateModels.get_schema_info(klass, header, options)
-    end
-
-    context 'when header is "== Schema Information"' do
-      let :header do
-        AnnotateModels::PREFIX
-      end
-
-      context 'when "format_markdown" and "with_comment" are specified in options' do
-        let :options do
-          { format_markdown: true, with_comment: true }
-        end
-
-        context 'when columns have comments' do
-          let :columns do
-            [
-              mock_column(:id, :integer, comment: 'ID'),
-              mock_column(:name, :string, limit: 50, comment: 'Name')
-            ]
-          end
-
-          let :expected_result do
-            <<~EOS
-              # == Schema Information
-              #
-              # Table name: `users`
-              #
-              # ### Columns
-              #
-              # Name              | Type               | Attributes
-              # ----------------- | ------------------ | ---------------------------
-              # **`id(ID)`**      | `integer`          | `not null, primary key`
-              # **`name(Name)`**  | `string(50)`       | `not null`
-              #
-            EOS
-          end
-
-          it 'returns schema info in Markdown format' do
-            is_expected.to eq expected_result
-          end
-        end
-
-        context 'when columns have multibyte comments' do
-          let :columns do
-            [
-              mock_column(:id, :integer, comment: 'ＩＤ'),
-              mock_column(:name, :string, limit: 50, comment: 'ＮＡＭＥ')
-            ]
-          end
-
-          let :expected_result do
-            <<~EOS
-              # == Schema Information
-              #
-              # Table name: `users`
-              #
-              # ### Columns
-              #
-              # Name                  | Type               | Attributes
-              # --------------------- | ------------------ | ---------------------------
-              # **`id(ＩＤ)`**        | `integer`          | `not null, primary key`
-              # **`name(ＮＡＭＥ)`**  | `string(50)`       | `not null`
-              #
-            EOS
-          end
-
-          it 'returns schema info in Markdown format' do
-            is_expected.to eq expected_result
-          end
         end
       end
     end
