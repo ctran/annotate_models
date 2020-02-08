@@ -36,22 +36,22 @@ require 'byebug'
 
 def mock_index(name, params = {})
   double('IndexKeyDefinition',
-         name:          name,
-         columns:       params[:columns] || [],
-         unique:        params[:unique] || false,
-         orders:        params[:orders] || {},
-         where:         params[:where],
-         using:         params[:using])
+         name:    name,
+         columns: params[:columns] || [],
+         unique:  params[:unique] || false,
+         orders:  params[:orders] || {},
+         where:   params[:where],
+         using:   params[:using])
 end
 
 def mock_foreign_key(name, from_column, to_table, to_column = 'id', constraints = {})
   double('ForeignKeyDefinition',
-         name:         name,
-         column:       from_column,
-         to_table:     to_table,
-         primary_key:  to_column,
-         on_delete:    constraints[:on_delete],
-         on_update:    constraints[:on_update])
+         name:        name,
+         column:      from_column,
+         to_table:    to_table,
+         primary_key: to_column,
+         on_delete:   constraints[:on_delete],
+         on_update:   constraints[:on_update])
 end
 
 def mock_connection(indexes = [], foreign_keys = [])
@@ -63,13 +63,13 @@ end
 
 def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [])
   options = {
-    connection:       mock_connection(indexes, foreign_keys),
-    table_exists?:    true,
-    table_name:       table_name,
-    primary_key:      primary_key,
-    column_names:     columns.map { |col| col.name.to_s },
-    columns:          columns,
-    column_defaults:  Hash[columns.map { |col| [col.name, col.default] }],
+    connection:      mock_connection(indexes, foreign_keys),
+    table_exists?:   true,
+    table_name:      table_name,
+    primary_key:     primary_key,
+    column_names:    columns.map { |col| col.name.to_s },
+    columns:         columns,
+    column_defaults: Hash[columns.map { |col| [col.name, col.default] }],
     table_name_prefix: ''
   }
 
