@@ -427,6 +427,37 @@ describe AnnotateModels do
               end
             end
           end
+
+          context 'when the primary key is an array (using composite_primary_keys)' do
+            let :primary_key do
+              [:a_id, :b_id]
+            end
+
+            let :columns do
+              [
+                mock_column(:a_id, :integer),
+                mock_column(:b_id, :integer),
+                mock_column(:name, :string, limit: 50)
+              ]
+            end
+
+            let :expected_result do
+              <<~EOS
+                # Schema Info
+                #
+                # Table name: users
+                #
+                #  a_id :integer          not null, primary key
+                #  b_id :integer          not null, primary key
+                #  name :string(50)       not null
+                #
+              EOS
+            end
+
+            it 'returns schema info' do
+              is_expected.to eq(expected_result)
+            end
+          end
         end
       end
     end
@@ -825,45 +856,6 @@ describe AnnotateModels do
                 end
               end
             end
-          end
-        end
-      end
-    end
-
-    context 'when header is "Schema Info"' do
-      let :header do
-        'Schema Info'
-      end
-
-      context 'when the primary key is specified' do
-        context 'when the primary key is an array (using composite_primary_keys)' do
-          let :primary_key do
-            [:a_id, :b_id]
-          end
-
-          let :columns do
-            [
-              mock_column(:a_id, :integer),
-              mock_column(:b_id, :integer),
-              mock_column(:name, :string, limit: 50)
-            ]
-          end
-
-          let :expected_result do
-            <<~EOS
-              # Schema Info
-              #
-              # Table name: users
-              #
-              #  a_id :integer          not null, primary key
-              #  b_id :integer          not null, primary key
-              #  name :string(50)       not null
-              #
-            EOS
-          end
-
-          it 'returns schema info' do
-            is_expected.to eq(expected_result)
           end
         end
       end
