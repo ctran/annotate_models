@@ -68,13 +68,9 @@ module AnnotateModels
           end
         end
 
-        if options[:show_indexes] && klass.table_exists?
-          info << get_index_info(klass, options)
-        end
+        info << get_index_info(klass, options) if options[:show_indexes] && klass.table_exists?
 
-        if options[:show_foreign_keys] && klass.table_exists?
-          info << get_foreign_key_info(klass, options)
-        end
+        info << get_foreign_key_info(klass, options) if options[:show_foreign_keys] && klass.table_exists?
 
         info << get_schema_footer_text(klass, options)
       end
