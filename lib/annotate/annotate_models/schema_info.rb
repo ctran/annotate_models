@@ -39,7 +39,7 @@ module AnnotateModels
         bare_type_allowance = 16
 
         if options[:format_markdown]
-          info << sprintf( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
+          info << format( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
           info << "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
         end
 
@@ -54,7 +54,7 @@ module AnnotateModels
                      end
 
           if options[:format_rdoc]
-            info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+            info << format("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
           elsif options[:format_yard]
             info << sprintf("# @!attribute #{col_name}") + "\n"
             ruby_class = col.respond_to?(:array) && col.array ? "Array<#{map_col_type_to_ruby_classes(col_type)}>": map_col_type_to_ruby_classes(col_type)
@@ -62,7 +62,7 @@ module AnnotateModels
           elsif options[:format_markdown]
             name_remainder = max_size - col_name.length - non_ascii_length(col_name)
             type_remainder = (md_type_allowance - 2) - col_type.length
-            info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
+            info << (format("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
           else
             info << format_default(col_name, max_size, col_type, bare_type_allowance, attrs)
           end
@@ -269,7 +269,7 @@ module AnnotateModels
       end
 
       def final_index_string_in_markdown(index)
-        details = sprintf(
+        details = format(
           "%s%s%s",
           index_unique_info(index, :markdown),
           index_where_info(index, :markdown),
@@ -277,7 +277,7 @@ module AnnotateModels
         ).strip
         details = " (#{details})" unless details.blank?
 
-        sprintf(
+        format(
           "# * `%s`%s:\n#     * **`%s`**\n",
           index.name,
           details,
@@ -286,7 +286,7 @@ module AnnotateModels
       end
 
       def final_index_string(index, max_size)
-        sprintf(
+        format(
           "#  %-#{max_size}.#{max_size}s %s%s%s%s",
           index.name,
           "(#{index_columns_info(index).join(',')})",
@@ -355,9 +355,9 @@ module AnnotateModels
           constraints_info.strip!
 
           fk_info << if options[:format_markdown]
-                       sprintf("# * `%s`%s:\n#     * **`%s`**\n", format_name.call(fk), constraints_info.blank? ? '' : " (_#{constraints_info}_)", ref_info)
+                       format("# * `%s`%s:\n#     * **`%s`**\n", format_name.call(fk), constraints_info.blank? ? '' : " (_#{constraints_info}_)", ref_info)
                      else
-                       sprintf("#  %-#{max_size}.#{max_size}s %s %s", format_name.call(fk), "(#{ref_info})", constraints_info).rstrip + "\n"
+                       format("#  %-#{max_size}.#{max_size}s %s %s", format_name.call(fk), "(#{ref_info})", constraints_info).rstrip + "\n"
                      end
         end
 
@@ -376,7 +376,7 @@ module AnnotateModels
       end
 
       def format_default(col_name, max_size, col_type, bare_type_allowance, attrs)
-        sprintf("#  %s:%s %s", mb_chars_ljust(col_name, max_size), mb_chars_ljust(col_type, bare_type_allowance),  attrs.join(", ")).rstrip + "\n"
+        format("#  %s:%s %s", mb_chars_ljust(col_name, max_size), mb_chars_ljust(col_type, bare_type_allowance),  attrs.join(", ")).rstrip + "\n"
       end
 
       def mb_chars_ljust(string, length)
