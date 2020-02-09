@@ -1016,7 +1016,7 @@ describe AnnotateModels do
 
     it 'should skip columns with option[:ignore_columns] set' do
       output = AnnotateModels::SchemaInfo.generate(@klass, '== Schema Info',
-                                              :ignore_columns => '(id|updated_at|created_at)')
+                                                   :ignore_columns => '(id|updated_at|created_at)')
       expect(output.match(/id/)).to be_nil
     end
 
