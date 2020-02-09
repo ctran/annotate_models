@@ -339,6 +339,7 @@ module AnnotateModels
 
         format_name = lambda do |fk|
           return fk.options[:column] if fk.name.blank?
+
           options[:show_complete_foreign_keys] ? fk.name : fk.name.gsub(/(?<=^fk_rails_)[0-9a-f]{10}$/, '...')
         end
 
