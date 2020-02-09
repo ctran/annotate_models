@@ -39,8 +39,8 @@ module AnnotateModels
         bare_type_allowance = 16
 
         if options[:format_markdown]
-          info << format( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
-          info << "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
+          info << format("# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes')
+          info << "# #{ '-' * (max_size + md_names_overhead) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
         end
 
         cols = columns(klass, options)
