@@ -332,7 +332,7 @@ module AnnotateModels
                   end
 
         return '' unless klass.connection.respond_to?(:supports_foreign_keys?) &&
-          klass.connection.supports_foreign_keys? && klass.connection.respond_to?(:foreign_keys)
+                         klass.connection.supports_foreign_keys? && klass.connection.respond_to?(:foreign_keys)
 
         foreign_keys = klass.connection.foreign_keys(klass.table_name)
         return '' if foreign_keys.empty?
