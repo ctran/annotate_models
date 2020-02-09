@@ -256,7 +256,7 @@ module AnnotateModels
         indexes = retrieve_indexes_from_table(klass)
         return '' if indexes.empty?
 
-        max_size = indexes.collect{ |index| index.name.size }.max + 1
+        max_size = indexes.collect { |index| index.name.size }.max + 1
         indexes.sort_by(&:name).each do |index|
           index_info << if options[:format_markdown]
                           final_index_string_in_markdown(index)
