@@ -256,7 +256,7 @@ module AnnotateModels
         indexes = retrieve_indexes_from_table(klass)
         return '' if indexes.empty?
 
-        max_size = indexes.collect{|index| index.name.size}.max + 1
+        max_size = indexes.collect{ |index| index.name.size }.max + 1
         indexes.sort_by(&:name).each do |index|
           index_info << if options[:format_markdown]
                           final_index_string_in_markdown(index)
@@ -347,7 +347,7 @@ module AnnotateModels
         end
 
         max_size = foreign_keys.map(&format_name).map(&:size).max + 1
-        foreign_keys.sort_by {|fk| [format_name.call(fk), fk.column]}.each do |fk|
+        foreign_keys.sort_by { |fk| [format_name.call(fk), fk.column] }.each do |fk|
           ref_info = "#{fk.column} => #{fk.to_table}.#{fk.primary_key}"
           constraints_info = ''
           constraints_info += "ON DELETE => #{fk.on_delete} " if fk.on_delete
