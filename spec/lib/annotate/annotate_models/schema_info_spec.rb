@@ -92,7 +92,7 @@ describe AnnotateModels::SchemaInfo do
                 mock_column(:bigint,  :integer, unsigned?: true, bigint?: true),
                 mock_column(:bigint,  :bigint,  unsigned?: true),
                 mock_column(:float,   :float,   unsigned?: true),
-                mock_column(:decimal, :decimal, unsigned?: true, precision: 10, scale: 2),
+                mock_column(:decimal, :decimal, unsigned?: true, precision: 10, scale: 2)
               ]
             end
 
@@ -186,7 +186,7 @@ describe AnnotateModels::SchemaInfo do
                          mock_column(:id, :integer, limit: 8),
                          mock_column(:post_id, :integer, limit: 8),
                          mock_column(:locale, :string, limit: 50),
-                         mock_column(:title, :string, limit: 50),
+                         mock_column(:title, :string, limit: 50)
                        ])
               end
 
@@ -199,7 +199,7 @@ describe AnnotateModels::SchemaInfo do
               let :columns do
                 [
                   mock_column(:id, :integer, limit: 8),
-                  mock_column(:author_name, :string, limit: 50),
+                  mock_column(:author_name, :string, limit: 50)
                 ]
               end
 
