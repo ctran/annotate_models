@@ -1,11 +1,11 @@
 module AnnotateModels
   module SchemaInfo
     # Don't show default value for these column types
-    NO_DEFAULT_COL_TYPES = %w(json jsonb hstore).freeze
+    NO_DEFAULT_COL_TYPES = %w[json jsonb hstore].freeze
 
     # Don't show limit (#) on these column types
     # Example: show "integer" instead of "integer(4)"
-    NO_LIMIT_COL_TYPES = %w(integer bigint boolean).freeze
+    NO_LIMIT_COL_TYPES = %w[integer bigint boolean].freeze
 
     INDEX_CLAUSES = {
       unique: {

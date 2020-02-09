@@ -325,7 +325,7 @@ describe AnnotateModels::SchemaInfo do
                     [
                       mock_index('index_rails_02e851e3b7', columns: ['id']),
                       mock_index('index_rails_02e851e3b8',
-                                 columns: %w(firstname surname value),
+                                 columns: %w[firstname surname value],
                                  orders: { 'surname' => :asc, 'value' => :desc })
                     ]
                   end
@@ -368,7 +368,7 @@ describe AnnotateModels::SchemaInfo do
                     [
                       mock_index('index_rails_02e851e3b7', columns: ['id']),
                       mock_index('index_rails_02e851e3b8',
-                                 columns: %w(firstname surname),
+                                 columns: %w[firstname surname],
                                  where: 'value IS NOT NULL')
                     ]
                   end
@@ -411,7 +411,7 @@ describe AnnotateModels::SchemaInfo do
                     [
                       mock_index('index_rails_02e851e3b7', columns: ['id']),
                       mock_index('index_rails_02e851e3b8',
-                                 columns: %w(firstname surname),
+                                 columns: %w[firstname surname],
                                  using: 'hash')
                     ]
                   end
