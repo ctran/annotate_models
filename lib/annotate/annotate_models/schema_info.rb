@@ -1,5 +1,5 @@
 module AnnotateModels
-  module SchemaInfo
+  module SchemaInfo # rubocop:disable Metrics/ModuleLength
     # Don't show default value for these column types
     NO_DEFAULT_COL_TYPES = %w[json jsonb hstore].freeze
 
@@ -29,7 +29,7 @@ module AnnotateModels
       # to create a comment block containing a line for
       # each column. The line contains the column name,
       # the type (and length), and any optional attributes
-      def generate(klass, header, options = {})
+      def generate(klass, header, options = {}) # rubocop:disable Metrics/MethodLength
         info = "# #{header}\n"
         info << get_schema_header_text(klass, options)
 
@@ -47,7 +47,7 @@ module AnnotateModels
         end
 
         cols = columns(klass, options)
-        cols.each do |col|
+        cols.each do |col| # rubocop:disable Metrics/BlockLength
           col_type = get_col_type(col)
           attrs = get_attributes(col, col_type, klass, options)
           col_name = if with_comments?(klass, options) && col.comment
