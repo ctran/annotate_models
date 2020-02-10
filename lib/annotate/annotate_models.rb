@@ -1,5 +1,3 @@
-# rubocop:disable  Metrics/ModuleLength
-
 require 'bigdecimal'
 
 require 'annotate/constants'
