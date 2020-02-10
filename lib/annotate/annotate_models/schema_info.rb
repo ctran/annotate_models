@@ -373,7 +373,7 @@ module AnnotateModels
       end
 
       def format_default(col_name, max_size, col_type, bare_type_allowance, attrs)
-        format('#  %s:%s %s', mb_chars_ljust(col_name, max_size), mb_chars_ljust(col_type, bare_type_allowance),  attrs.join(', ')).rstrip + "\n"
+        format('#  %s:%s %s', mb_chars_ljust(col_name, max_size), mb_chars_ljust(col_type, bare_type_allowance), attrs.join(', ')).rstrip + "\n"
       end
 
       def mb_chars_ljust(string, length)
