@@ -411,7 +411,8 @@ module AnnotateModels
         cols = klass.columns
         cols += translated_columns(klass)
 
-        if ignore_columns = options[:ignore_columns]
+        ignore_columns = options[:ignore_columns]
+        if ignore_columns
           cols = cols.reject do |col|
             col.name.match(/#{ignore_columns}/)
           end
