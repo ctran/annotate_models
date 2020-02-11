@@ -57,6 +57,7 @@ module Annotate
     end
 
     options[:additional_file_patterns] ||= []
+    options[:additional_file_patterns] = options[:additional_file_patterns].split(',') if options[:additional_file_patterns].is_a?(String)
     options[:model_dir] = ['app/models'] if options[:model_dir].empty?
 
     options[:wrapper_open] ||= options[:wrapper]
