@@ -4,15 +4,15 @@ require 'git'
 require_relative 'integration_helper'
 
 describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_run?(__FILE__, RUBY_VERSION) do
-  ::APP_NAME = 'rails_6.0.2.1'.freeze
-  ::PROJECT_PATH = File.expand_path('../..', __dir__)
-  ::APP_PATH = File.expand_path(APP_NAME, __dir__)
+  ::RAILS_6_0_APP_NAME = 'rails_6.0.2.1'.freeze
+  ::RAILS_6_0_PROJECT_PATH = File.expand_path('../..', __dir__).freeze
+  ::RAILS_6_0_APP_PATH = File.expand_path(RAILS_6_0_APP_NAME, __dir__).freeze
 
-  let!(:git) { Git.open(PROJECT_PATH) }
+  let!(:git) { Git.open(RAILS_6_0_PROJECT_PATH) }
 
   before(:all) do
     Bundler.with_clean_env do
-      Dir.chdir APP_PATH do
+      Dir.chdir RAILS_6_0_APP_PATH do
         puts `bundle install`
         puts `bin/rails db:migrate`
       end
@@ -92,7 +92,7 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
 
     it 'annotate models' do
       Bundler.with_clean_env do
-        Dir.chdir APP_PATH do
+        Dir.chdir RAILS_6_0_APP_PATH do
           expect(git.diff.any?).to be_falsy
 
           puts `#{command}`
@@ -157,7 +157,7 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
 
     it 'annotate routes.rb' do
       Bundler.with_clean_env do
-        Dir.chdir APP_PATH do
+        Dir.chdir RAILS_6_0_APP_PATH do
           expect(git.diff.any?).to be_falsy
 
           puts `#{command}`
