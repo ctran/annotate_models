@@ -7,7 +7,6 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
   ::APP_NAME = 'rails_5.2.4.1'.freeze
   ::PROJECT_PATH = File.expand_path('../..', __dir__)
   ::APP_PATH = File.expand_path(APP_NAME, __dir__)
-  ::MIGRATION_COMMAND = 'bin/rails db:migrate'.freeze
 
   let!(:git) { Git.open(PROJECT_PATH) }
 
@@ -15,7 +14,7 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
     Bundler.with_clean_env do
       Dir.chdir APP_PATH do
         puts `bundle install`
-        puts `#{MIGRATION_COMMAND}`
+        puts `bin/rails db:migrate`
       end
     end
   end
