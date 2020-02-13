@@ -118,7 +118,7 @@ module AnnotateModels
       def with_comments?(klass, options)
         options[:with_comment] &&
           klass.columns.first.respond_to?(:comment) &&
-          klass.columns.any? { |col| !col.comment.nil? }
+          klass.columns.map(&:comment).any? { |comment| !comment.nil? }
       end
 
       def classified_sort(cols)
