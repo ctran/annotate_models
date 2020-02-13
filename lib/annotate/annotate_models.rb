@@ -506,6 +506,7 @@ module AnnotateModels
     #                           :before, :top, :after or :bottom. Default is :before.
     #
     def annotate_one_file(file_name, info_block, position, options = {})
+      pdb
       return false unless File.exist?(file_name)
       old_content = File.read(file_name)
       return false if old_content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
@@ -540,9 +541,9 @@ module AnnotateModels
         new_content = if %w(after bottom).include?(options[position].to_s)
                         magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
                       elsif magic_comments_block.empty?
-                        magic_comments_block + wrapped_info_block + "\n" + old_content.lstrip
+                        magic_comments_block + wrapped_info_block + old_content.lstrip
                       else
-                        magic_comments_block + "\n" + wrapped_info_block + "\n" + old_content.lstrip
+                        magic_comments_block + "\n" + wrapped_info_block + old_content.lstrip
                       end
       else
         # replace the old annotation with the new one
