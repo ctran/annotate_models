@@ -506,7 +506,6 @@ module AnnotateModels
     #                           :before, :top, :after or :bottom. Default is :before.
     #
     def annotate_one_file(file_name, info_block, position, options = {})
-      pdb
       return false unless File.exist?(file_name)
       old_content = File.read(file_name)
       return false if old_content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
