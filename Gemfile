@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '>= 2.2.0'
 
-gem 'activerecord', '>= 4.2.5', require: false
+gem 'activerecord', '>= 4.2.5', '< 6', require: false
 gem 'rake', require: false
 
 group :development do
@@ -31,11 +31,12 @@ group :development, :test do
 
   platforms :mri, :mingw do
     gem 'pry', require: false
-    gem 'pry-coolline', require: false
+    gem 'pry-byebug', require: false
   end
 end
 
 group :test do
   gem 'files', require: false
+  gem 'git', require: false
   gem 'wrong', require: false
 end
