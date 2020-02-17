@@ -2495,7 +2495,7 @@ describe AnnotateModels do
       it "should put annotation before class if :position == #{position}" do
         annotate_one_file position: position
         expect(File.read(@model_file_name))
-          .to eq("#{@schema_info}\n#{@file_content}")
+          .to eq("#{@schema_info}#{@file_content}")
       end
     end
 
@@ -2510,7 +2510,7 @@ describe AnnotateModels do
     it 'should wrap annotation if wrapper is specified' do
       annotate_one_file wrapper_open: 'START', wrapper_close: 'END'
       expect(File.read(@model_file_name))
-        .to eq("# START\n#{@schema_info}# END\n\n#{@file_content}")
+        .to eq("# START\n#{@schema_info}# END\n#{@file_content}")
     end
 
     describe 'with existing annotation' do
@@ -2551,7 +2551,7 @@ describe AnnotateModels do
                              ])
           @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
           annotate_one_file
-          expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
+          expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
         end
       end
     end
@@ -2565,12 +2565,12 @@ describe AnnotateModels do
 
       it 'should retain current position' do
         annotate_one_file
-        expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
+        expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
       end
 
       it 'should retain current position even when :position is changed to :after' do
         annotate_one_file position: :after
-        expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
+        expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
       end
 
       it 'should change position to :after when force: true' do
@@ -2598,7 +2598,7 @@ describe AnnotateModels do
 
       it 'should change position to :before when force: true' do
         annotate_one_file position: :before, force: true
-        expect(File.read(@model_file_name)).to eq("#{@schema_info}\n#{@file_content}")
+        expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
       end
     end
 
@@ -2622,7 +2622,7 @@ describe AnnotateModels do
                          ])
       schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info')
       AnnotateModels.annotate_one_file(model_file_name, schema_info, position: :before)
-      expect(File.read(model_file_name)).to eq("#{schema_info}\n#{file_content}")
+      expect(File.read(model_file_name)).to eq("#{schema_info}#{file_content}")
     end
 
     it 'should not touch magic comments' do
@@ -2652,7 +2652,7 @@ describe AnnotateModels do
         annotate_one_file position: :before
         schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
 
-        expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}\n#{content}")
+        expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}#{content}")
       end
     end
 
@@ -2664,7 +2664,7 @@ describe AnnotateModels do
 
         annotate_one_file position: :before
 
-        expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}\n#{content}")
+        expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}#{content}")
       end
     end
 
