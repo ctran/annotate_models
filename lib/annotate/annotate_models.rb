@@ -213,7 +213,7 @@ module AnnotateModels
     end
 
     def schema_default(klass, column)
-      quote(klass.columns.find { |x| x.name.to_s == column.name.to_s }.try(:default))
+      quote(klass.column_defaults[column.name])
     end
 
     def retrieve_indexes_from_table(klass)
