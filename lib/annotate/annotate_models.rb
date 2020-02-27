@@ -68,6 +68,9 @@ module AnnotateModels
     attr_writer :root_dir
 
     def skip_subdirectory_model_load
+      # This option is set in options[:skip_subdirectory_model_load]
+      # and stops the get_loaded_model method from loading a model from a subdir
+ 
       if @skip_subdirectory_model_load.blank?
         false
       else
