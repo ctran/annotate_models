@@ -70,7 +70,7 @@ module AnnotateModels
     def skip_subdirectory_model_load
       # This option is set in options[:skip_subdirectory_model_load]
       # and stops the get_loaded_model method from loading a model from a subdir
- 
+
       if @skip_subdirectory_model_load.blank?
         false
       else
@@ -599,7 +599,7 @@ module AnnotateModels
 
     # Retrieve loaded model class
     def get_loaded_model(model_path, file)
-      if !skip_subdirectory_model_load
+      unless skip_subdirectory_model_load
         loaded_model_class = get_loaded_model_by_path(model_path)
         return loaded_model_class if loaded_model_class
       end
