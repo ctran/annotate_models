@@ -34,8 +34,8 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
         +#
         +#  id         :integer          not null, primary key
         +#  content    :string
-        +#  count      :integer          default("0")
-        +#  status     :boolean          default("0")
+        +#  count      :integer          default(0)
+        +#  status     :boolean          default(FALSE)
         +#  created_at :datetime         not null
         +#  updated_at :datetime         not null
         +#
@@ -55,8 +55,8 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
         +#
         +#  id         :integer          not null, primary key
         +#  content    :string
-        +#  count      :integer          default("0")
-        +#  status     :boolean          default("0")
+        +#  count      :integer          default(0)
+        +#  status     :boolean          default(FALSE)
         +#  created_at :datetime         not null
         +#  updated_at :datetime         not null
         +#
@@ -76,8 +76,8 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
         +#
         +#  id         :integer          not null, primary key
         +#  content    :string
-        +#  count      :integer          default("0")
-        +#  status     :boolean          default("0")
+        +#  count      :integer          default(0)
+        +#  status     :boolean          default(FALSE)
         +#  created_at :datetime         not null
         +#  updated_at :datetime         not null
         +#
