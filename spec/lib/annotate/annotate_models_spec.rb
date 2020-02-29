@@ -351,39 +351,6 @@ describe AnnotateModels do
               end
             end
 
-            context 'when an integer column using ActiveRecord::Enum exists' do
-              let :columns do
-                [
-                  mock_column(:id, :integer),
-                  mock_column(:status, :integer, default: 0)
-                ]
-              end
-
-              before :each do
-                # column_defaults may be overritten when ActiveRecord::Enum is used, e.g:
-                # class User < ActiveRecord::Base
-                #   enum status: [ :disabled, :enabled ]
-                # end
-                allow(klass).to receive(:column_defaults).and_return('id' => nil, 'status' => 'disabled')
-              end
-
-              let :expected_result do
-                <<~EOS
-                  # Schema Info
-                  #
-                  # Table name: users
-                  #
-                  #  id     :integer          not null, primary key
-                  #  status :integer          default(0), not null
-                  #
-                EOS
-              end
-
-              it 'returns schema info with default values' do
-                is_expected.to eq(expected_result)
-              end
-            end
-
             context 'with Globalize gem' do
               let :translation_klass do
                 double('Post::Translation',
