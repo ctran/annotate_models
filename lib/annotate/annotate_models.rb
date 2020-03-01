@@ -631,7 +631,7 @@ module AnnotateModels
     def parse_options(options = {})
       self.model_dir = split_model_dir(options[:model_dir]) if options[:model_dir]
       self.root_dir = options[:root_dir] if options[:root_dir]
-      self.skip_subdirectory_model_load = options[:skip_subdirectory_model_load].present? ? options[:skip_subdirectory_model_load] : false
+      self.skip_subdirectory_model_load = options[:skip_subdirectory_model_load].present?
     end
 
     def split_model_dir(option_value)
