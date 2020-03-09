@@ -1,7 +1,7 @@
 PATH
   remote: ../../..
   specs:
-    annotate (3.1.0)
+    annotate (3.1.1)
       activerecord (>= 3.2, < 7.0)
       rake (>= 10.4, < 14.0)
 
