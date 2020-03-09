@@ -2743,5 +2743,18 @@ describe AnnotateModels do
     it 'skips attempt to annotate if no table exists for model' do
       is_expected.to eq nil
     end
+
+    context 'with a non-class' do
+      before do
+        NotAClass = 'foo'.freeze # rubocop:disable Naming/ConstantName
+        allow(AnnotateModels).to receive(:get_model_class).with('foo.rb') { NotAClass }
+      end
+
+      after { Object.send :remove_const, 'NotAClass' }
+
+      it "doesn't output an error" do
+        expect { subject }.not_to output.to_stderr
+      end
+    end
   end
 end
