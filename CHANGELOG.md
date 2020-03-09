@@ -1,3 +1,17 @@
+## 3.1.1
+Changes
+- Bump required ruby version to >= 2.4 [#772](https://github.com/ctran/annotate_models/pull/772)
+- [Revert #677] Fix column default annotations [#768](https://github.com/ctran/annotate_models/pull/768)
+
+Project Improvements
+- Refactor by adding AnnotateRoutes::Helpers [#770](https://github.com/ctran/annotate_models/pull/770) 
+- Bump puma from 4.3.1 to 4.3.3 in /spec/integration/rails_6.0.2.1 [#771](https://github.com/ctran/annotate_models/pull/771)
+- Bump puma from 3.12.2 to 4.3.3 in /spec/integration/rails_5.2.4.1 [#769](https://github.com/ctran/annotate_models/pull/769)
+- Bump nokogiri from 1.10.7 to 1.10.8 in /spec/integration/rails_5.2.4.1 [#766](https://github.com/ctran/annotate_models/pull/766)
+- Bump nokogiri from 1.10.7 to 1.10.8 in /spec/integration/rails_6.0.2.1 [#765](https://github.com/ctran/annotate_models/pull/765)
+- Refactor test cases of AnnotateRoutes [#760](https://github.com/ctran/annotate_models/pull/760)
+- Rename FactoryGirl -> FactoryBot comment [#759](https://github.com/ctran/annotate_models/pull/759)
+
 ## 3.1.0
 Changes
 - Fix new lines after comments for rubocop compatibility [#757](https://github.com/ctran/annotate_models/pull/757)
