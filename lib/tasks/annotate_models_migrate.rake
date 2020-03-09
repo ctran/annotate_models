@@ -23,11 +23,11 @@ module Annotate
     @@working = false
 
     def self.update_annotations
-      unless @@working || Annotate.skip_on_migration?
+      unless @@working || Annotate::Helpers.skip_on_migration?
         @@working = true
 
-        self.update_models if Annotate.include_models?
-        self.update_routes if Annotate.include_routes?
+        self.update_models if Annotate::Helpers.include_models?
+        self.update_routes if Annotate::Helpers.include_routes?
       end
     end
 

@@ -1,33 +1,37 @@
-sudo: false
 language: ruby
 rvm:
-- 2.2.10
-- 2.3.8
-- 2.4.6
-- 2.5.5
-- 2.6.0
-- 2.6.1
-- 2.6.2
-- 2.6.3
-- ruby-head
+  - 2.4.9
+  - 2.5.7
+  - 2.6.5
+  - ruby-head
+
+env:
+  - RAILS_ENV=development RACK_ENV=development
 
 matrix:
   allow_failures:
-  - rvm: ruby-head
+    - rvm: ruby-head
+
+addons:
+  apt_packages:
+    - libsqlite3-dev
 
 before_install:
-- gem update --system || (gem i "rubygems-update:~>2.7" --no-document && update_rubygems)
-- gem update bundler
+  - gem update --system --no-document --quiet
+
+install:
+  - bundle install --jobs=3 --retry=3
 
 script:
-- bundle exec rubocop && bundle exec rspec
+  - bundle exec rspec
+  - bundle exec rubocop
 
 jobs:
   include:
     - stage: gem release
       if: tag =~ ^v
       rvm: 2.6.0
-      script: echo "Deploying to rubygems.org ..."   
+      script: echo "Deploying to rubygems.org ..."
       deploy:
         provider: rubygems
         api_key: $RUBYGEMS_API_KEY

@@ -1,9 +1,9 @@
-# rubocop:disable  Metrics/ModuleLength
-
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'annotate/version'
 require 'annotate/annotate_models'
 require 'annotate/annotate_routes'
+require 'annotate/constants'
+require 'annotate/helpers'
 
 begin
   # ActiveSupport 3.x...
@@ -16,38 +16,6 @@ rescue StandardError
 end
 
 module Annotate
-  TRUE_RE = /^(true|t|yes|y|1)$/i
-
-  ##
-  # The set of available options to customize the behavior of Annotate.
-  #
-  POSITION_OPTIONS = [
-    :position_in_routes, :position_in_class, :position_in_test,
-    :position_in_fixture, :position_in_factory, :position,
-    :position_in_serializer
-  ].freeze
-  FLAG_OPTIONS = [
-    :show_indexes, :simple_indexes, :include_version, :exclude_tests,
-    :exclude_fixtures, :exclude_factories, :ignore_model_sub_dir,
-    :format_bare, :format_rdoc, :format_markdown, :sort, :force, :frozen,
-    :trace, :timestamp, :exclude_serializers, :classified_sort,
-    :show_foreign_keys, :show_complete_foreign_keys,
-    :exclude_scaffolds, :exclude_controllers, :exclude_helpers,
-    :exclude_sti_subclasses, :ignore_unknown_models, :with_comment
-  ].freeze
-  OTHER_OPTIONS = [
-    :ignore_columns, :skip_on_db_migrate, :wrapper_open, :wrapper_close,
-    :wrapper, :routes, :hide_limit_column_types, :hide_default_column_types,
-    :ignore_routes, :active_admin
-  ].freeze
-  PATH_OPTIONS = [
-    :require, :model_dir, :root_dir
-  ].freeze
-
-  def self.all_options
-    [POSITION_OPTIONS, FLAG_OPTIONS, PATH_OPTIONS, OTHER_OPTIONS]
-  end
-
   ##
   # Set default values that can be overridden via environment variables.
   #
@@ -55,9 +23,9 @@ module Annotate
     return if @has_set_defaults
     @has_set_defaults = true
 
-    options = HashWithIndifferentAccess.new(options)
+    options = ActiveSupport::HashWithIndifferentAccess.new(options)
 
-    all_options.flatten.each do |key|
+    Constants::ALL_ANNOTATE_OPTIONS.flatten.each do |key|
       if options.key?(key)
         default_value = if options[key].is_a?(Array)
                           options[key].join(',')
@@ -75,68 +43,42 @@ module Annotate
   # TODO: what is the difference between this and set_defaults?
   #
   def self.setup_options(options = {})
-    POSITION_OPTIONS.each do |key|
-      options[key] = fallback(ENV[key.to_s], ENV['position'], 'before')
+    Constants::POSITION_OPTIONS.each do |key|
+      options[key] = Annotate::Helpers.fallback(ENV[key.to_s], ENV['position'], 'before')
     end
-    FLAG_OPTIONS.each do |key|
-      options[key] = true?(ENV[key.to_s])
+    Constants::FLAG_OPTIONS.each do |key|
+      options[key] = Annotate::Helpers.true?(ENV[key.to_s])
     end
-    OTHER_OPTIONS.each do |key|
+    Constants::OTHER_OPTIONS.each do |key|
       options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s] : nil
     end
-    PATH_OPTIONS.each do |key|
+    Constants::PATH_OPTIONS.each do |key|
       options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s].split(',') : []
     end
 
+    options[:additional_file_patterns] ||= []
+    options[:additional_file_patterns] = options[:additional_file_patterns].split(',') if options[:additional_file_patterns].is_a?(String)
     options[:model_dir] = ['app/models'] if options[:model_dir].empty?
 
     options[:wrapper_open] ||= options[:wrapper]
     options[:wrapper_close] ||= options[:wrapper]
 
     # These were added in 2.7.0 but so this is to revert to old behavior by default
-    options[:exclude_scaffolds] = Annotate.true?(ENV.fetch('exclude_scaffolds', 'true'))
-    options[:exclude_controllers] = Annotate.true?(ENV.fetch('exclude_controllers', 'true'))
-    options[:exclude_helpers] = Annotate.true?(ENV.fetch('exclude_helpers', 'true'))
+    options[:exclude_scaffolds] = Annotate::Helpers.true?(ENV.fetch('exclude_scaffolds', 'true'))
+    options[:exclude_controllers] = Annotate::Helpers.true?(ENV.fetch('exclude_controllers', 'true'))
+    options[:exclude_helpers] = Annotate::Helpers.true?(ENV.fetch('exclude_helpers', 'true'))
 
     options
   end
 
-  def self.reset_options
-    all_options.flatten.each { |key| ENV[key.to_s] = nil }
-  end
-
-  def self.skip_on_migration?
-    ENV['ANNOTATE_SKIP_ON_DB_MIGRATE'] =~ TRUE_RE || ENV['skip_on_db_migrate'] =~ TRUE_RE
-  end
-
-  def self.include_routes?
-    ENV['routes'] =~ TRUE_RE
-  end
-
-  def self.include_models?
-    ENV['routes'] !~ TRUE_RE
-  end
-
-  def self.loaded_tasks=(val)
-    @loaded_tasks = val
-  end
-
-  def self.loaded_tasks
-    @loaded_tasks
-  end
-
   def self.load_tasks
-    return if loaded_tasks
-    self.loaded_tasks = true
+    return if @tasks_loaded
 
     Dir[File.join(File.dirname(__FILE__), 'tasks', '**/*.rake')].each do |rake|
       load rake
     end
-  end
 
-  def self.load_requires(options)
-    options[:require].count > 0 &&
-      options[:require].each { |path| require path }
+    @tasks_loaded = true
   end
 
   def self.eager_load(options)
@@ -192,13 +134,12 @@ module Annotate
     Rake::Task[:set_annotation_options].invoke
   end
 
-  def self.fallback(*args)
-    args.detect { |arg| !arg.blank? }
-  end
+  class << self
+    private
 
-  def self.true?(val)
-    return false if val.blank?
-    return false unless val =~ TRUE_RE
-    true
+    def load_requires(options)
+      options[:require].count > 0 &&
+        options[:require].each { |path| require path }
+    end
   end
 end

@@ -1,0 +1,44 @@
+name: CI
+on:
+  pull_request:
+    branches:
+      - '*'
+
+  push:
+    branches:
+      - '*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ['2.4.x', '2.5.x', '2.6.x']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Setup Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: Install sqlite
+        run: |
+          sudo apt-get install libsqlite3-dev
+
+      - name: Update System
+        run: |
+          gem update --system --no-document
+
+      - name: Bundle install for Annotate models
+        run: |
+          bundle install --jobs=4 --retry=3
+
+      - name: Run Tests
+        run: bundle exec rspec
+
+      - name: Rubocop
+        run: bundle exec rubocop
