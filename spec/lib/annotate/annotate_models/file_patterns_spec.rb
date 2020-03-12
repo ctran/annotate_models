@@ -119,10 +119,8 @@ describe AnnotateModels::FilePatterns do
     context 'when pattern_type is "admin"' do
       let(:pattern_type) { 'admin' }
 
-      it 'returns patterns of admin files' do
-        is_expected.to eq([
-          '/root/app/admin/%MODEL_NAME%.rb'
-        ])
+      it 'returns both singular and pluralized model names' do
+        is_expected.to eq(['/root/app/admin/%MODEL_NAME%.rb', '/root/app/admin/%PLURALIZED_MODEL_NAME%.rb'])
       end
     end
 
