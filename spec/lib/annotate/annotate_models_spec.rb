@@ -147,7 +147,8 @@ describe AnnotateModels do
     let(:options) do
       {
         root_dir: '/root',
-        model_dir: 'app/models,app/one,  app/two   ,,app/three'
+        model_dir: 'app/models,app/one,  app/two   ,,app/three',
+        skip_subdirectory_model_load: false
       }
     end
 
@@ -172,6 +173,41 @@ describe AnnotateModels do
 
       it 'separates option "model_dir" with commas and sets @model_dir as an array of string' do
         is_expected.to eq(['app/models', 'app/one', 'app/two', 'app/three'])
+      end
+    end
+
+    describe '@skip_subdirectory_model_load' do
+      subject do
+        AnnotateModels.instance_variable_get(:@skip_subdirectory_model_load)
+      end
+
+      context 'option is set to true' do
+        let(:options) do
+          {
+            root_dir: '/root',
+            model_dir: 'app/models,app/one,  app/two   ,,app/three',
+            skip_subdirectory_model_load: true
+          }
+        end
+
+        it 'sets skip_subdirectory_model_load to true' do
+          is_expected.to eq(true)
+        end
+      end
+
+      context 'option is set to false' do
+        let(:options) do
+          {
+            root_dir: '/root',
+            model_dir: 'app/models,app/one,  app/two   ,,app/three',
+            skip_subdirectory_model_load: false
+          }
+        end
+
+        it 'sets skip_subdirectory_model_load to false' do
+          is_expected.to eq(false)
+        end
+
       end
     end
   end
@@ -2086,6 +2122,21 @@ describe AnnotateModels do
         it 'finds valid model' do
           expect(klass.name).to eq('Foo')
           expect(klass_2.name).to eq('Bar::Foo')
+        end
+
+        it 'attempts to load the model path without expanding if skip_subdirectory_model_load is false' do
+          allow(AnnotateModels).to receive(:skip_subdirectory_model_load).and_return(false)
+          full_path = File.join(AnnotateModels.model_dir[0], filename_2)
+          expect(File).to_not receive(:expand_path).with(full_path)
+          AnnotateModels.get_model_class(full_path)
+        end
+
+        it 'does not attempt to load the model path without expanding if skip_subdirectory_model_load is true' do
+          $LOAD_PATH.unshift(AnnotateModels.model_dir[0])
+          allow(AnnotateModels).to receive(:skip_subdirectory_model_load).and_return(true)
+          full_path = File.join(AnnotateModels.model_dir[0], filename_2)
+          expect(File).to receive(:expand_path).with(full_path).and_call_original
+          AnnotateModels.get_model_class(full_path)
         end
       end
 
