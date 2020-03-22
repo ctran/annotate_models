@@ -251,10 +251,11 @@ module AnnotateModels
         col_type = get_col_type(col)
         attrs = get_attributes(col, col_type, klass, options)
         col_name = if with_comments?(klass, options) && col.comment
-                     "#{col.name}(#{col.comment})"
+                     "#{col.name}(#{col.comment.gsub(/\n/, "\\n")})"
                    else
                      col.name
                    end
+
         if options[:format_rdoc]
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
         elsif options[:format_yard]
