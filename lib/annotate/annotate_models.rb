@@ -504,6 +504,9 @@ module AnnotateModels
     #  :force<Symbol>:: whether to update the file even if it doesn't seem to need it.
     #  :position_in_*<Symbol>:: where to place the annotated section in fixture or model file,
     #                           :before, :top, :after or :bottom. Default is :before.
+    #  :format_rdoc<Boolean>:: whether to format annotations using RDoc syntax
+    #  :format_yard<Boolean>:: whether to format annotations using Yard syntax
+    #  :format_bare<Boolean>:: whether to format annotations using default, bare syntax
     #
     def annotate_one_file(file_name, info_block, position, options = {})
       return false unless File.exist?(file_name)
@@ -515,7 +518,7 @@ module AnnotateModels
       old_header = old_content.match(header_pattern).to_s
       new_header = info_block.match(header_pattern).to_s
 
-      column_pattern = /^#[\t ]+[\w\*\.`]+[\t ]+.+$/
+      column_pattern = column_pattern_for(format_from(options))
       old_columns = old_header && old_header.scan(column_pattern).sort
       new_columns = new_header && new_header.scan(column_pattern).sort
 
@@ -996,6 +999,40 @@ module AnnotateModels
         foreign_column_name
       ]
     end
+
+    ##
+    # The format of documentation to use based on the options
+    #
+    # @param [Hash] options
+    # @option options [Boolean] :format_rdoc
+    # @option options [Boolean] :format_yard
+    # @option options [Boolean] :format_bare
+    # @return [Symbol]
+    def format_from(options)
+      if options[:format_rdoc]
+        :rdoc
+      elsif options[:format_yard]
+        :yard
+      else
+        :bare
+      end
+    end
+
+    ##
+    # Regular expression pattern used to search for a column's annotation
+    #
+    # @param [Symbol] format
+    # @return [RegularExpression]
+    def column_pattern_for(format)
+      case format
+      when :yard then /^#[\t ]+@[!]?[\w]+[\s]+.*/
+      # Default behavior matches the column pattern used by`:bare`. Instead
+      # of explicitly matching `:bare` `else` is used as a fallback to match
+      # original functionality.
+      else /^#[\t ]+[\w\*\.`]+[\t ]+.+$/
+      end
+    end
+
   end
 
   class BadModelFileError < LoadError
