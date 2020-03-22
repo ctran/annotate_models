@@ -2515,6 +2515,93 @@ describe AnnotateModels do
           expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
         end
       end
+
+      context 'adding a new field' do
+        let(:class_name) { :users }
+        let(:primary_key) { :id }
+        let(:original_columns) do
+          [
+            mock_column(primary_key, :integer),
+            mock_column(:name, :string)
+          ]
+        end
+
+        before do
+          klass = mock_class(class_name, primary_key, original_columns)
+          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', options)
+          annotate_one_file(options)
+
+          # confirm we initialized annotaions in file before checking for changes
+          expect(@schema_info).not_to be_empty
+          expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+        end
+
+        context 'when option "format_bare" is true' do
+          let :options do
+            { format_bare: true }
+          end
+
+          it 'updates the fields list to include the new column' do
+            new_column_list = original_columns + [mock_column(:new_column, :string)]
+            klass = mock_class(class_name, primary_key, new_column_list)
+            @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', options)
+            annotate_one_file(options)
+
+            expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+          end
+        end
+
+        context 'when option "format_yard" is true' do
+          let :options do
+            { format_yard: true }
+          end
+
+          it 'updates the fields list to include the new column' do
+            new_column_list = original_columns + [mock_column(:new_column, :string)]
+            klass = mock_class(class_name, primary_key, new_column_list)
+            @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', options)
+            annotate_one_file(options)
+
+            expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+          end
+        end
+
+        context 'when option "format_rdoc" is true' do
+          let :options do
+            { format_rdoc: true }
+          end
+
+          it 'updates the fields list to include the new column' do
+            new_column_list = original_columns + [mock_column(:new_column, :string)]
+            klass = mock_class(class_name, primary_key, new_column_list)
+            @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', options)
+            annotate_one_file(options)
+
+            expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+          end
+        end
+
+        context 'when option "format_markdown" is true' do
+          let :options do
+            { format_markdown: true }
+          end
+
+          it 'updates the fields list to include the new column' do
+            # The new column name must be shorter than the existing columns
+            # becuase markdown formatting adds additional spacing. If the
+            # column name is long, the header row has space added triggering a
+            # difference even if we don't properly check the columns. By having
+            # a shorter column name we are testing our column list comparison
+            # and not an unintentional resizing.
+            new_column_list = original_columns + [mock_column(:a, :string)]
+            klass = mock_class(class_name, primary_key, new_column_list)
+            @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', options)
+            annotate_one_file(options)
+
+            expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+          end
+        end
+      end
     end
 
     describe 'with existing annotation => :before' do
