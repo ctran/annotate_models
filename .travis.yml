@@ -8,10 +8,6 @@ rvm:
 env:
   - RAILS_ENV=development RACK_ENV=development
 
-matrix:
-  allow_failures:
-    - rvm: ruby-head
-
 addons:
   apt_packages:
     - libsqlite3-dev
@@ -30,7 +26,7 @@ jobs:
   include:
     - stage: gem release
       if: tag =~ ^v
-      rvm: 2.6.0
+      rvm: 2.6.5
       script: echo "Deploying to rubygems.org ..."
       deploy:
         provider: rubygems
