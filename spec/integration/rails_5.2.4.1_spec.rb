@@ -152,4 +152,20 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
       end
     end
   end
+
+  describe 'rails g annotate:install' do
+    let(:command) { 'bin/rails g annotate:install' }
+    let(:rake_file_path) { 'lib/tasks/auto_annotate_models.rake' }
+
+    it 'generates the rake file' do
+      Bundler.with_clean_env do
+        Dir.chdir RAILS_5_2_APP_PATH do
+          full_path = File.expand_path(rake_file_path)
+          expect { `#{command}` }.to change { File.exist?(rake_file_path) }.from(false).to(true)
+
+          File.delete(full_path)
+        end
+      end
+    end
+  end
 end
