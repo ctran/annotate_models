@@ -38,5 +38,4 @@ end
 group :test do
   gem 'files', require: false
   gem 'git', require: false
-  gem 'wrong', require: false
 end

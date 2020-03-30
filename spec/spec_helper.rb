@@ -20,7 +20,6 @@ Bundler.setup
 
 require 'rake'
 require 'rspec'
-require 'wrong/adapters/rspec'
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '../lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
