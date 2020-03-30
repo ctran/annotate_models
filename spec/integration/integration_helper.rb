@@ -5,6 +5,8 @@ class IntegrationHelper
   }.freeze
 
   def self.able_to_run?(file_path, ruby_version)
+    return false unless ENV['INTEGRATION_TESTS']
+
     file_name = File.basename(file_path)
     rails_app = File.basename(file_name, '_spec.rb')
     ruby_dependency = MIN_RUBY_VERSIONS[rails_app]

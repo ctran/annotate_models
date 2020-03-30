@@ -1,16 +1,18 @@
-require 'coveralls'
-require 'codeclimate-test-reporter'
-require 'simplecov'
+if ENV['COVERAGE']
+  require 'coveralls'
+  require 'codeclimate-test-reporter'
+  require 'simplecov'
 
-SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
-  [
-    Coveralls::SimpleCov::Formatter,
-    SimpleCov::Formatter::HTMLFormatter,
-    CodeClimate::TestReporter::Formatter
-  ]
-)
+  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
+    [
+      Coveralls::SimpleCov::Formatter,
+      SimpleCov::Formatter::HTMLFormatter,
+      CodeClimate::TestReporter::Formatter
+    ]
+  )
 
-SimpleCov.start
+  SimpleCov.start
+end
 
 require 'rubygems'
 require 'bundler'
@@ -18,7 +20,6 @@ Bundler.setup
 
 require 'rake'
 require 'rspec'
-require 'wrong/adapters/rspec'
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '../lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
