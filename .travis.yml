@@ -3,7 +3,6 @@ rvm:
   - 2.4.9
   - 2.5.7
   - 2.6.5
-  - ruby-head
 
 env:
   - RAILS_ENV=development RACK_ENV=development
