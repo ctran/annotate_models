@@ -38,7 +38,7 @@ jobs:
           bundle install --jobs=4 --retry=3
 
       - name: Run Tests
-        run: bundle exec rspec
+        run: INTEGRATION_TESTS=1 bundle exec rspec
 
       - name: Rubocop
         run: bundle exec rubocop

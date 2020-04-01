@@ -5,7 +5,7 @@ rvm:
   - 2.6.5
 
 env:
-  - RAILS_ENV=development RACK_ENV=development
+  - RAILS_ENV=development RACK_ENV=development INTEGRATION_TESTS=1
 
 addons:
   apt_packages:
