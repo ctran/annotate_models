@@ -1,5 +1,3 @@
-# rubocop:disable  Metrics/ModuleLength
-
 # == Annotate Routes
 #
 # Based on:
