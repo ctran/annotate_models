@@ -22,7 +22,7 @@ module AnnotateRoutes
         # In old versions of Rake, the first line of output was the cwd.  Not so
         # much in newer ones.  We ditch that line if it exists, and if not, we
         # keep the line around.
-        routes_map.shift if routes_map.first =~ /^\(in \//
+        routes_map.shift if routes_map.first =~ %r{^\(in \/}
 
         # Skip routes which match given regex
         # Note: it matches the complete line (route_name, path, controller/action)
@@ -90,7 +90,7 @@ module AnnotateRoutes
       line.each_with_index.map do |elem, index|
         min_length = maxs.map { |arr| arr[index] }.max || 0
 
-        sprintf("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
+        format("%-#{min_length}.#{min_length}s", elem.tr('|', '-'))
       end.join(' | ')
     end
   end
