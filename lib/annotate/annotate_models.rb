@@ -249,47 +249,7 @@ module AnnotateModels
       cols = columns(klass, options)
       cols.each do |col|
         col_type = get_col_type(col)
-        attrs = []
-        attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || hide_default?(col_type, options)
-        attrs << 'unsigned' if col.respond_to?(:unsigned?) && col.unsigned?
-        attrs << 'not null' unless col.null
-        attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
-
-        if col_type == 'decimal'
-          col_type << "(#{col.precision}, #{col.scale})"
-        elsif !%w[spatial geometry geography].include?(col_type)
-          if col.limit && !options[:format_yard]
-            if col.limit.is_a? Array
-              attrs << "(#{col.limit.join(', ')})"
-            else
-              col_type << "(#{col.limit})" unless hide_limit?(col_type, options)
-            end
-          end
-        end
-
-        # Check out if we got an array column
-        attrs << 'is an Array' if col.respond_to?(:array) && col.array
-
-        # Check out if we got a geometric column
-        # and print the type and SRID
-        if col.respond_to?(:geometry_type)
-          attrs << "#{col.geometry_type}, #{col.srid}"
-        elsif col.respond_to?(:geometric_type) && col.geometric_type.present?
-          attrs << "#{col.geometric_type.to_s.downcase}, #{col.srid}"
-        end
-
-        # Check if the column has indices and print "indexed" if true
-        # If the index includes another column, print it too.
-        if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
-          indices = retrieve_indexes_from_table(klass)
-          if indices = indices.select { |ind| ind.columns.include? col.name }
-            indices.sort_by(&:name).each do |ind|
-              next if ind.columns.is_a?(String)
-              ind = ind.columns.reject! { |i| i == col.name }
-              attrs << (ind.empty? ? "indexed" : "indexed => [#{ind.join(", ")}]")
-            end
-          end
-        end
+        attrs = get_attributes(col, col_type, klass, options)
         col_name = if with_comments?(klass, options) && col.comment
                      "#{col.name}(#{col.comment})"
                    else
@@ -995,6 +955,55 @@ module AnnotateModels
         :locale,
         foreign_column_name
       ]
+    end
+
+    ##
+    # Get the list of attributes that should be included in the annotation for
+    # a given column.
+    def get_attributes(column, column_type, klass, options)
+      attrs = []
+      attrs << "default(#{schema_default(klass, column)})" unless column.default.nil? || hide_default?(column_type, options)
+      attrs << 'unsigned' if column.respond_to?(:unsigned?) && column.unsigned?
+      attrs << 'not null' unless column.null
+      attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(column.name.to_sym) : column.name.to_sym == klass.primary_key.to_sym)
+
+      if column_type == 'decimal'
+        column_type << "(#{column.precision}, #{column.scale})"
+      elsif !%w[spatial geometry geography].include?(column_type)
+        if column.limit && !options[:format_yard]
+          if column.limit.is_a? Array
+            attrs << "(#{column.limit.join(', ')})"
+          else
+            column_type << "(#{column.limit})" unless hide_limit?(column_type, options)
+          end
+        end
+      end
+
+      # Check out if we got an array columnumn
+      attrs << 'is an Array' if column.respond_to?(:array) && column.array
+
+      # Check out if we got a geometric columnumn
+      # and print the type and SRID
+      if column.respond_to?(:geometry_type)
+        attrs << "#{column.geometry_type}, #{column.srid}"
+      elsif column.respond_to?(:geometric_type) && column.geometric_type.present?
+        attrs << "#{column.geometric_type.to_s.downcase}, #{column.srid}"
+      end
+
+      # Check if the column has indices and print "indexed" if true
+      # If the index includes another column, print it too.
+      if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
+        indices = retrieve_indexes_from_table(klass)
+        if indices = indices.select { |ind| ind.columns.include? column.name }
+          indices.sort_by(&:name).each do |ind|
+            next if ind.columns.is_a?(String)
+            ind = ind.columns.reject! { |i| i == column.name }
+            attrs << (ind.empty? ? "indexed" : "indexed => [#{ind.join(", ")}]")
+          end
+        end
+      end
+
+      attrs
     end
   end
 
