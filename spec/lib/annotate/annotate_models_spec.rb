@@ -1096,6 +1096,33 @@ describe AnnotateModels do
                   end
                 end
 
+                context 'when columns have multiline comments' do
+                  let :columns do
+                    [
+                      mock_column(:id,         :integer, limit: 8,  comment: 'ID'),
+                      mock_column(:notes,      :text,    limit: 55, comment: "Notes.\nMay include things like notes."),
+                      mock_column(:no_comment, :text,    limit: 20, comment: nil)
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id(ID)                                       :integer          not null, primary key
+                      #  notes(Notes.\\nMay include things like notes.):text(55)         not null
+                      #  no_comment                                   :text(20)         not null
+                      #
+                    EOS
+                  end
+
+                  it 'works with option "with_comment"' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
                 context 'when geometry columns are included' do
                   let :columns do
                     [
