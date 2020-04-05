@@ -809,7 +809,7 @@ module AnnotateModels
       begin
         return false if /#{SKIP_ANNOTATION_PREFIX}.*/ =~ (File.exist?(file) ? File.read(file) : '')
         klass = get_model_class(file)
-        do_annotate = klass &&
+        do_annotate = klass.is_a?(Class) &&
           klass < ActiveRecord::Base &&
           (!options[:exclude_sti_subclasses] || !(klass.superclass < ActiveRecord::Base && klass.table_name == klass.superclass.table_name)) &&
           !klass.abstract_class? &&
