@@ -980,10 +980,10 @@ module AnnotateModels
         end
       end
 
-      # Check out if we got an array columnumn
+      # Check out if we got an array column
       attrs << 'is an Array' if column.respond_to?(:array) && column.array
 
-      # Check out if we got a geometric columnumn
+      # Check out if we got a geometric column
       # and print the type and SRID
       if column.respond_to?(:geometry_type)
         attrs << "#{column.geometry_type}, #{column.srid}"
