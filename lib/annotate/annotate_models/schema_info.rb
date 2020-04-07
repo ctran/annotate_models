@@ -47,7 +47,7 @@ module AnnotateModels
         end
 
         cols = columns(klass, options)
-        cols.each do |col| # rubocop:disable Metrics/BlockLength
+        cols.each do |col|
           col_type = get_col_type(col)
           attrs = get_attributes(col, col_type, klass, options)
           col_name = if with_comments?(klass, options) && col.comment
@@ -187,13 +187,11 @@ module AnnotateModels
         # If the index includes another column, print it too.
         if options[:simple_indexes] && klass.table_exists? # Check out if this column is indexed
           indices = retrieve_indexes_from_table(klass).select { |ind| ind.columns.include? column.name }
-          if indices
-            indices.sort_by(&:name).each do |ind|
-              next if ind.columns.is_a?(String)
+          indices&.sort_by(&:name)&.each do |ind|
+            next if ind.columns.is_a?(String)
 
-              ind = ind.columns.reject! { |i| i == column.name }
-              attrs << (ind.empty? ? 'indexed' : "indexed => [#{ind.join(', ')}]")
-            end
+            ind = ind.columns.reject! { |i| i == column.name }
+            attrs << (ind.empty? ? 'indexed' : "indexed => [#{ind.join(', ')}]")
           end
         end
 
