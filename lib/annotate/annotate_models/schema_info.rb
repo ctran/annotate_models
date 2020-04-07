@@ -121,6 +121,58 @@ module AnnotateModels
           klass.columns.map(&:comment).any? { |comment| !comment.nil? }
       end
 
+      def width(string)
+        string.chars.inject(0) { |acc, elem| acc + (elem.bytesize == 3 ? 2 : 1) }
+      end
+
+      def columns(klass, options)
+        cols = klass.columns
+        cols += translated_columns(klass)
+
+        ignore_columns = options[:ignore_columns]
+        if ignore_columns
+          cols = cols.reject do |col|
+            col.name.match(/#{ignore_columns}/)
+          end
+        end
+
+        cols = cols.sort_by(&:name) if options[:sort]
+        cols = classified_sort(cols) if options[:classified_sort]
+
+        cols
+      end
+
+      # Add columns managed by the globalize gem if this gem is being used.
+      def translated_columns(klass)
+        return [] unless klass.respond_to? :translation_class
+
+        ignored_cols = ignored_translation_table_colums(klass)
+        klass.translation_class.columns.reject do |col|
+          ignored_cols.include? col.name.to_sym
+        end
+      end
+
+      # These are the columns that the globalize gem needs to work but
+      # are not necessary for the models to be displayed as annotations.
+      def ignored_translation_table_colums(klass)
+        # Construct the foreign column name in the translations table
+        # eg. Model: Car, foreign column name: car_id
+        foreign_column_name = [
+          klass.translation_class.to_s
+               .gsub('::Translation', '').gsub('::', '_')
+               .downcase,
+          '_id'
+        ].join.to_sym
+
+        [
+          :id,
+          :created_at,
+          :updated_at,
+          :locale,
+          foreign_column_name
+        ]
+      end
+
       def classified_sort(cols)
         rest_cols = []
         timestamps = []
@@ -251,6 +303,40 @@ module AnnotateModels
         klass.connection.indexes(table_name_without_prefix)
       end
 
+      def map_col_type_to_ruby_classes(col_type)
+        case col_type
+        when 'integer'                                       then Integer.to_s
+        when 'float'                                         then Float.to_s
+        when 'decimal'                                       then BigDecimal.to_s
+        when 'datetime', 'timestamp', 'time'                 then Time.to_s
+        when 'date'                                          then Date.to_s
+        when 'text', 'string', 'binary', 'inet', 'uuid'      then String.to_s
+        when 'json', 'jsonb'                                 then Hash.to_s
+        when 'boolean'                                       then 'Boolean'
+        end
+      end
+
+      def non_ascii_length(string)
+        string.to_s.chars.reject(&:ascii_only?).length
+      end
+
+      def format_default(col_name, max_size, col_type, bare_type_allowance, attrs)
+        format('#  %s:%s %s',
+               mb_chars_ljust(col_name, max_size),
+               mb_chars_ljust(col_type, bare_type_allowance),
+               attrs.join(', ')).rstrip + "\n"
+      end
+
+      def mb_chars_ljust(string, length)
+        string = string.to_s
+        padding = length - width(string)
+        if padding.positive?
+          string + (' ' * padding)
+        else
+          string[0..(length - 1)]
+        end
+      end
+
       def get_index_info(klass, options = {})
         index_info = if options[:format_markdown]
                        "#\n# ### Indexes\n#\n"
@@ -301,8 +387,14 @@ module AnnotateModels
         ).rstrip + "\n"
       end
 
-      def index_unique_info(index, format = :default)
-        index.unique ? " #{INDEX_CLAUSES[:unique][format]}" : ''
+      def index_columns_info(index)
+        Array(index.columns).map do |col|
+          if index.try(:orders) && index.orders[col.to_s]
+            "#{col} #{index.orders[col.to_s].upcase}"
+          else
+            col.to_s.gsub("\r", '\r').gsub("\n", '\n')
+          end
+        end
       end
 
       def index_where_info(index, format = :default)
@@ -314,22 +406,16 @@ module AnnotateModels
         end
       end
 
+      def index_unique_info(index, format = :default)
+        index.unique ? " #{INDEX_CLAUSES[:unique][format]}" : ''
+      end
+
       def index_using_info(index, format = :default)
         value = index.try(:using) && index.using.try(:to_sym)
         if !value.blank? && value != :btree
           " #{INDEX_CLAUSES[:using][format]} #{value}"
         else
           ''
-        end
-      end
-
-      def index_columns_info(index)
-        Array(index.columns).map do |col|
-          if index.try(:orders) && index.orders[col.to_s]
-            "#{col} #{index.orders[col.to_s].upcase}"
-          else
-            col.to_s.gsub("\r", '\r').gsub("\n", '\n')
-          end
         end
       end
 
@@ -385,92 +471,6 @@ module AnnotateModels
         else
           info << "#\n"
         end
-      end
-
-      def format_default(col_name, max_size, col_type, bare_type_allowance, attrs)
-        format('#  %s:%s %s',
-               mb_chars_ljust(col_name, max_size),
-               mb_chars_ljust(col_type, bare_type_allowance),
-               attrs.join(', ')).rstrip + "\n"
-      end
-
-      def mb_chars_ljust(string, length)
-        string = string.to_s
-        padding = length - width(string)
-        if padding.positive?
-          string + (' ' * padding)
-        else
-          string[0..(length - 1)]
-        end
-      end
-
-      def width(string)
-        string.chars.inject(0) { |acc, elem| acc + (elem.bytesize == 3 ? 2 : 1) }
-      end
-
-      def non_ascii_length(string)
-        string.to_s.chars.reject(&:ascii_only?).length
-      end
-
-      def map_col_type_to_ruby_classes(col_type)
-        case col_type
-        when 'integer'                                       then Integer.to_s
-        when 'float'                                         then Float.to_s
-        when 'decimal'                                       then BigDecimal.to_s
-        when 'datetime', 'timestamp', 'time'                 then Time.to_s
-        when 'date'                                          then Date.to_s
-        when 'text', 'string', 'binary', 'inet', 'uuid'      then String.to_s
-        when 'json', 'jsonb'                                 then Hash.to_s
-        when 'boolean'                                       then 'Boolean'
-        end
-      end
-
-      def columns(klass, options)
-        cols = klass.columns
-        cols += translated_columns(klass)
-
-        ignore_columns = options[:ignore_columns]
-        if ignore_columns
-          cols = cols.reject do |col|
-            col.name.match(/#{ignore_columns}/)
-          end
-        end
-
-        cols = cols.sort_by(&:name) if options[:sort]
-        cols = classified_sort(cols) if options[:classified_sort]
-
-        cols
-      end
-
-      # Add columns managed by the globalize gem if this gem is being used.
-      def translated_columns(klass)
-        return [] unless klass.respond_to? :translation_class
-
-        ignored_cols = ignored_translation_table_colums(klass)
-        klass.translation_class.columns.reject do |col|
-          ignored_cols.include? col.name.to_sym
-        end
-      end
-
-      # These are the columns that the globalize gem needs to work but
-      # are not necessary for the models to be displayed as annotations.
-      def ignored_translation_table_colums(klass)
-        # Construct the foreign column name in the translations table
-        # eg. Model: Car, foreign column name: car_id
-        foreign_column_name = [
-          klass.translation_class.to_s
-               .gsub('::Translation', '').gsub('::', '_')
-               .downcase,
-          '_id'
-        ].join.to_sym
-
-        [
-          :id,
-          :created_at,
-          :updated_at,
-          :locale,
-          foreign_column_name
-        ]
       end
     end
   end
