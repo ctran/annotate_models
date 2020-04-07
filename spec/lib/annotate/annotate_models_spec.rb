@@ -207,7 +207,6 @@ describe AnnotateModels do
         it 'sets skip_subdirectory_model_load to false' do
           is_expected.to eq(false)
         end
-
       end
     end
   end
