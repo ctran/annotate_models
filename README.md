@@ -104,8 +104,8 @@ Into environment gems from Github checkout:
 
     git clone https://github.com/ctran/annotate_models.git annotate_models
     cd annotate_models
-    rake build
-    gem install pkg/annotate-*.gem
+    rake gem
+    gem install dist/annotate-*.gem
 
 ## Usage
 
