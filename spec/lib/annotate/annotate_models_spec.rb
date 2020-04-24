@@ -2074,7 +2074,40 @@ describe AnnotateModels do
 
         let :file_content_2 do
           <<-EOS
-            class Bar::Foo
+            class Bar::Foo < ActiveRecord::Base
+            end
+          EOS
+        end
+
+        let :klass_2 do
+          AnnotateModels.get_model_class(File.join(AnnotateModels.model_dir[0], filename_2))
+        end
+
+        it 'finds valid model' do
+          expect(klass.name).to eq('Foo')
+          expect(klass_2.name).to eq('Bar::Foo')
+        end
+      end
+
+      context 'the class name and base name clash' do
+        let :filename do
+          'foo.rb'
+        end
+
+        let :file_content do
+          <<-EOS
+            class Foo < ActiveRecord::Base
+            end
+          EOS
+        end
+
+        let :filename_2 do
+          'bar/foo.rb'
+        end
+
+        let :file_content_2 do
+          <<-EOS
+            class Bar::Foo < ActiveRecord::Base
             end
           EOS
         end
@@ -2108,7 +2141,7 @@ describe AnnotateModels do
         let :file_content_2 do
           <<~EOS
             class Voucher
-              class Foo
+              class Foo < ActiveRecord::Base
               end
             end
           EOS
