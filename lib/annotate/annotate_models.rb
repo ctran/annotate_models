@@ -67,6 +67,19 @@ module AnnotateModels
 
     attr_writer :root_dir
 
+    def skip_subdirectory_model_load
+      # This option is set in options[:skip_subdirectory_model_load]
+      # and stops the get_loaded_model method from loading a model from a subdir
+
+      if @skip_subdirectory_model_load.blank?
+        false
+      else
+        @skip_subdirectory_model_load
+      end
+    end
+
+    attr_writer :skip_subdirectory_model_load
+
     def get_patterns(options, pattern_types = [])
       current_patterns = []
       root_dir.each do |root_directory|
@@ -586,8 +599,10 @@ module AnnotateModels
 
     # Retrieve loaded model class
     def get_loaded_model(model_path, file)
-      loaded_model_class = get_loaded_model_by_path(model_path)
-      return loaded_model_class if loaded_model_class
+      unless skip_subdirectory_model_load
+        loaded_model_class = get_loaded_model_by_path(model_path)
+        return loaded_model_class if loaded_model_class
+      end
 
       # We cannot get loaded model when `model_path` is loaded by Rails
       # auto_load/eager_load paths. Try all possible model paths one by one.
@@ -616,6 +631,7 @@ module AnnotateModels
     def parse_options(options = {})
       self.model_dir = split_model_dir(options[:model_dir]) if options[:model_dir]
       self.root_dir = options[:root_dir] if options[:root_dir]
+      self.skip_subdirectory_model_load = options[:skip_subdirectory_model_load].present?
     end
 
     def split_model_dir(option_value)
