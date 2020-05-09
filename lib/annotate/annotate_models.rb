@@ -924,7 +924,7 @@ module AnnotateModels
     #   annotations
     def column_pattern_for(format_type)
       case format_type
-      when :markdown then /^#\s+\*{2}`\w+`\*{2}/
+      when :markdown then /^#\s+\*{2}`\w+`\*{2}(?:\s+\|\s`.*`)*$/
       when :rdoc then
         field_name_regex = /^#\s+\*\w+\*\:{2}/
         field_info_regex = /\s+\<tt\>.*\<\/tt\>$/

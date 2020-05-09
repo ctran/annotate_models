@@ -2729,13 +2729,6 @@ describe AnnotateModels do
           end
 
           it 'updates the fields list to include the new column' do
-            # The new column name must be shorter than the existing columns
-            # becuase markdown formatting adds additional spacing. If the
-            # column name is long, the header row has space added triggering a
-            # difference even if we don't properly check the columns. By having
-            # a shorter column name we are testing our column list comparison
-            # and not an unintentional resizing.
-            new_column_list = original_columns + [mock_column(:a, :string)]
             klass = mock_class(class_name, primary_key, new_column_list)
             @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', options)
             annotate_one_file(options)
