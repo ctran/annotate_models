@@ -379,7 +379,8 @@ module AnnotateModels
       old_header = old_content.match(header_pattern).to_s
       new_header = info_block.match(header_pattern).to_s
 
-      column_pattern = /^#[\t ]+[\w\*\.\`\@\!\:]+[\t ]+.+$/
+      annotation_format = format_from(options)
+      column_pattern = column_pattern_for(annotation_format)
       old_columns = old_header && old_header.scan(column_pattern).sort
       new_columns = new_header && new_header.scan(column_pattern).sort
 
@@ -911,6 +912,50 @@ module AnnotateModels
       end
 
       attrs
+    end
+
+    # Returns the regular expression for finding a column definition based on
+    # the format of the annotations being made
+    #
+    # == Returns:
+    # Regular expression
+    #
+    # @param [Symbol] symbol representation of the format being used for
+    #   annotations
+    def column_pattern_for(format_type)
+      case format_type
+      when :markdown then /^#\s+\*{2}`\w+`\*{2}/
+      when :rdoc then /^#\s+\*\w+\*\:{2}/
+      when :yard then /^#\s@!?(?:attribute|return)\s/
+      else # :bare/default
+        /^#[\t ]+[\w\*\.\`\@\!\:]+[\t ]+.+$/
+      end
+    end
+
+    # Determine the current format being used for making annotations based on the options.
+    #
+    # == Returns:
+    # Symbol representing the format being used. Options include:
+    #   :markdown
+    #   :rdoc
+    #   :yard
+    #   :bare - this is the default option
+    #
+    # === Options (opts)
+    #  :format_bare<Boolean>:: whether to format annotations using default, bare syntax
+    #  :format_markdown<Boolean>:: whether to format annotations using Markdown syntax
+    #  :format_rdoc<Boolean>:: whether to format annotations using RDoc syntax
+    #  :format_yard<Boolean>:: whether to format annotations using Yard syntax
+    def format_from(options)
+      if options[:format_markdown]
+        :markdown
+      elsif options[:format_rdoc]
+        :rdoc
+      elsif options[:format_yard]
+        :yard
+      else
+        :bare
+      end
     end
   end
 
