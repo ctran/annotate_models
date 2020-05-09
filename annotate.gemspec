@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.executables = ['annotate']
   s.extra_rdoc_files = ['README.md', 'CHANGELOG.md']
   s.files = `git ls-files -z LICENSE.txt *.md *.gemspec bin lib`.split("\x0")
-  s.homepage = 'http://github.com/ctran/annotate_models'
+  s.homepage = 'https://github.com/ctran/annotate_models'
   s.licenses = ['Ruby']
   s.require_paths = ['lib']
   s.rubygems_version = '2.1.11'
@@ -25,5 +25,8 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<rake>, '>= 10.4', '< 14.0')
   s.add_runtime_dependency(%q<activerecord>, ['>= 3.2', '< 7.0'])
 
-  s.metadata = { "github_repo" => "ssh://github.com/ctran/annotate_models" }
+  s.metadata = {
+    "bug_tracker_uri" => "https://github.com/ctran/annotate_models/issues/",
+    "source_code_uri" => "https://github.com/ctran/annotate_models.git"
+  }
 end
