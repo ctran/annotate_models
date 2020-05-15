@@ -59,7 +59,10 @@ module AnnotateModels
         when 'controller'
           [File.join(root_directory, CONTROLLER_DIR, '%PLURALIZED_MODEL_NAME%_controller.rb')]
         when 'admin'
-          [File.join(root_directory, ACTIVEADMIN_DIR, '%MODEL_NAME%.rb')]
+          [
+            File.join(root_directory, ACTIVEADMIN_DIR, '%MODEL_NAME%.rb'),
+            File.join(root_directory, ACTIVEADMIN_DIR, '%PLURALIZED_MODEL_NAME%.rb')
+          ]
         when 'helper'
           [File.join(root_directory, HELPER_DIR, '%PLURALIZED_MODEL_NAME%_helper.rb')]
         else
