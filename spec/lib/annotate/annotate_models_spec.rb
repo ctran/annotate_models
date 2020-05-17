@@ -2548,7 +2548,6 @@ describe AnnotateModels do
           { show_foreign_keys: true }.merge(format_option)
         end
 
-
         before do
           klass = mock_class(class_name,
                              primary_key,
