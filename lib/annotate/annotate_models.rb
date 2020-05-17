@@ -936,7 +936,7 @@ module AnnotateModels
 
         /#{attribute_regex}|#{return_regex}/
       else # :bare/default
-        /^#[\t ]+[\w\*\.\`\@\!\:]+[\t ]+.+$/
+        /^#\s+\w+\s?:\w+.*$/
       end
     end
 
