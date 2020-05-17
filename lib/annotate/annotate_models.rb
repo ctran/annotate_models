@@ -944,7 +944,12 @@ module AnnotateModels
     # == Returns:
     # Regular expression
     #
-    # @note Foreign key formatting only varies for markdown formatting
+    # Checks for annotation comments that could represent a foreign key
+    # constraint. Handles the different formats that are supported. Also
+    # handles the optiona to shorten foreign keys with "...".
+    #
+    # @note Foreign key formatting only varies for markdown formatting. All
+    #   other formats use the "bare" format.
     #
     # @param [Symbol] symbol representation of the format being used for
     #   annotations
@@ -953,8 +958,6 @@ module AnnotateModels
       when :markdown
         /^#\s+\*\s`[\w_]+(?:\.{3})?`\s.*$/
       else
-        # checks for foreign key which will be separated by underscores and can
-        # be shortened with "..."
         /^#\s+[\w_]+(?:\.{3})?\s+.*/
       end
     end
