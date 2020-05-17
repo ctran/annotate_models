@@ -9,12 +9,83 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
   ::RAILS_6_0_APP_PATH = File.expand_path(RAILS_6_0_APP_NAME, __dir__).freeze
 
   let!(:git) { Git.open(RAILS_6_0_PROJECT_PATH) }
+  let(:task_model) do
+    patch = <<~PATCH
+      +# == Schema Information
+      +#
+      +# Table name: tasks
+      +#
+      +#  id         :integer          not null, primary key
+      +#  content    :string
+      +#  count      :integer          default(0)
+      +#  status     :boolean          default(FALSE)
+      +#  created_at :datetime         not null
+      +#  updated_at :datetime         not null
+      +#
+    PATCH
+
+    path = 'app/models/task.rb'
+    {
+        path: include(path),
+        patch: include(patch)
+    }
+  end
+  let(:task_test) do
+    patch = <<~PATCH
+      +# == Schema Information
+      +#
+      +# Table name: tasks
+      +#
+      +#  id         :integer          not null, primary key
+      +#  content    :string
+      +#  count      :integer          default(0)
+      +#  status     :boolean          default(FALSE)
+      +#  created_at :datetime         not null
+      +#  updated_at :datetime         not null
+      +#
+    PATCH
+
+    path = 'test/models/task_test.rb'
+    {
+        path: include(path),
+        patch: include(patch)
+    }
+  end
+  let(:task_fixture) do
+    patch = <<~PATCH
+      +# == Schema Information
+      +#
+      +# Table name: tasks
+      +#
+      +#  id         :integer          not null, primary key
+      +#  content    :string
+      +#  count      :integer          default(0)
+      +#  status     :boolean          default(FALSE)
+      +#  created_at :datetime         not null
+      +#  updated_at :datetime         not null
+      +#
+    PATCH
+
+    path = 'test/fixtures/tasks.yml'
+    {
+        path: include(path),
+        patch: include(patch)
+    }
+  end
 
   before(:all) do
     Bundler.with_clean_env do
       Dir.chdir RAILS_6_0_APP_PATH do
         puts `bundle install`
         puts `bin/rails db:migrate`
+      end
+    end
+  end
+
+  around(:each) do |example|
+    Bundler.with_clean_env do
+      Dir.chdir RAILS_6_0_APP_PATH do
+        example.run
       end
     end
   end
@@ -26,84 +97,16 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
   describe 'annotate --models' do
     let(:command) { 'bundle exec annotate --models' }
 
-    let(:task_model) do
-      patch = <<~PATCH
-        +# == Schema Information
-        +#
-        +# Table name: tasks
-        +#
-        +#  id         :integer          not null, primary key
-        +#  content    :string
-        +#  count      :integer          default(0)
-        +#  status     :boolean          default(FALSE)
-        +#  created_at :datetime         not null
-        +#  updated_at :datetime         not null
-        +#
-      PATCH
-
-      path = 'app/models/task.rb'
-      {
-          path: include(path),
-          patch: include(patch)
-      }
-    end
-    let(:task_test) do
-      patch = <<~PATCH
-        +# == Schema Information
-        +#
-        +# Table name: tasks
-        +#
-        +#  id         :integer          not null, primary key
-        +#  content    :string
-        +#  count      :integer          default(0)
-        +#  status     :boolean          default(FALSE)
-        +#  created_at :datetime         not null
-        +#  updated_at :datetime         not null
-        +#
-      PATCH
-
-      path = 'test/models/task_test.rb'
-      {
-          path: include(path),
-          patch: include(patch)
-      }
-    end
-    let(:task_fixture) do
-      patch = <<~PATCH
-        +# == Schema Information
-        +#
-        +# Table name: tasks
-        +#
-        +#  id         :integer          not null, primary key
-        +#  content    :string
-        +#  count      :integer          default(0)
-        +#  status     :boolean          default(FALSE)
-        +#  created_at :datetime         not null
-        +#  updated_at :datetime         not null
-        +#
-      PATCH
-
-      path = 'test/fixtures/tasks.yml'
-      {
-          path: include(path),
-          patch: include(patch)
-      }
-    end
-
     it 'annotate models' do
-      Bundler.with_clean_env do
-        Dir.chdir RAILS_6_0_APP_PATH do
-          expect(git.diff.any?).to be_falsy
+      expect(git.diff.any?).to be_falsy
 
-          puts `#{command}`
+      puts `#{command}`
 
-          expect(git.diff.entries).to contain_exactly(
-                                          an_object_having_attributes(task_model),
-                                          an_object_having_attributes(task_test),
-                                          an_object_having_attributes(task_fixture)
-                                      )
-        end
-      end
+      expect(git.diff.entries).to contain_exactly(
+                                      an_object_having_attributes(task_model),
+                                      an_object_having_attributes(task_test),
+                                      an_object_having_attributes(task_fixture)
+                                  )
     end
   end
 
@@ -156,30 +159,41 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
     end
 
     it 'annotate routes.rb' do
-      Bundler.with_clean_env do
-        Dir.chdir RAILS_6_0_APP_PATH do
-          expect(git.diff.any?).to be_falsy
+      expect(git.diff.any?).to be_falsy
 
-          puts `#{command}`
+      puts `#{command}`
 
-          expect(git.diff.entries).to contain_exactly(an_object_having_attributes(task_routes))
-        end
-      end
+      expect(git.diff.entries).to contain_exactly(an_object_having_attributes(task_routes))
     end
   end
 
   describe 'rails g annotate:install' do
     let(:command) { 'bin/rails g annotate:install' }
     let(:rake_file_path) { 'lib/tasks/auto_annotate_models.rake' }
+    let(:full_path) { File.expand_path(rake_file_path) }
+
+    after(:each) do
+      File.delete(full_path)
+    end
 
     it 'generates the rake file' do
-      Bundler.with_clean_env do
-        Dir.chdir RAILS_6_0_APP_PATH do
-          full_path = File.expand_path(rake_file_path)
-          expect { `#{command}` }.to change { File.exist?(rake_file_path) }.from(false).to(true)
+      expect { `#{command}` }.to change { File.exist?(rake_file_path) }.from(false).to(true)
+    end
 
-          File.delete(full_path)
-        end
+    context 'with multi-db environment' do
+      let(:migrate_command) { 'bin/rails db:migrate:primary' }
+
+      it 'hooks database-specific commands and annotates models' do
+        expect(git.diff.any?).to be_falsy
+
+        system({ 'MULTI_DB' => 'true' }, command)
+        system({ 'MULTI_DB' => 'true' }, migrate_command)
+
+        expect(git.diff.entries).to contain_exactly(
+                                        an_object_having_attributes(task_model),
+                                        an_object_having_attributes(task_test),
+                                        an_object_having_attributes(task_fixture)
+                                    )
       end
     end
   end
