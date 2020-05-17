@@ -2526,43 +2526,83 @@ describe AnnotateModels do
 
     describe 'with existing annotation' do
       context 'of a foreign key' do
+        let(:class_name) { :users }
+        let(:primary_key) { :id }
+        let(:original_columns) do
+          [
+            mock_column(:id, :integer),
+            mock_column(:foreign_thing_id, :integer)
+          ]
+        end
+        let(:original_foreign_keys) do
+          [
+            mock_foreign_key('fk_rails_cf2568e89e',
+                             'foreign_thing_id',
+                             'foreign_things',
+                             'id',
+                             on_delete: :cascade)
+          ]
+        end
+
+        let(:options) do
+          { show_foreign_keys: true }.merge(format_option)
+        end
+
+
         before do
-          klass = mock_class(:users,
-                             :id,
-                             [
-                               mock_column(:id, :integer),
-                               mock_column(:foreign_thing_id, :integer)
-                             ],
+          klass = mock_class(class_name,
+                             primary_key,
+                             original_columns,
                              [],
-                             [
-                               mock_foreign_key('fk_rails_cf2568e89e',
-                                                'foreign_thing_id',
-                                                'foreign_things',
-                                                'id',
-                                                on_delete: :cascade)
-                             ])
-          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
+                             original_foreign_keys)
+          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', options)
           annotate_one_file
         end
 
-        it 'should update foreign key constraint' do
-          klass = mock_class(:users,
-                             :id,
-                             [
-                               mock_column(:id, :integer),
-                               mock_column(:foreign_thing_id, :integer)
-                             ],
-                             [],
-                             [
-                               mock_foreign_key('fk_rails_cf2568e89e',
-                                                'foreign_thing_id',
-                                                'foreign_things',
-                                                'id',
-                                                on_delete: :restrict)
-                             ])
-          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
-          annotate_one_file
-          expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+        context 'updating a constraint' do
+          let(:updated_foreign_keys) do
+            [
+              mock_foreign_key('fk_rails_cf2568e89e',
+                               'foreign_thing_id',
+                               'foreign_things',
+                               'id',
+                               on_delete: :restrict)
+            ]
+          end
+
+          context 'when option "format_bare" is true' do
+            let(:format_option) { { format_bare: true } }
+
+            it 'should update foreign key constraint' do
+              klass = mock_class(class_name,
+                                 primary_key,
+                                 original_columns,
+                                 [],
+                                 updated_foreign_keys)
+
+              @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', options)
+              annotate_one_file(options)
+
+              expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+            end
+          end
+
+          context 'when option "format_markdown" is true' do
+            let(:format_option) { { format_markdown: true } }
+
+            it 'should update foreign key constraint' do
+              klass = mock_class(class_name,
+                                 primary_key,
+                                 original_columns,
+                                 [],
+                                 updated_foreign_keys)
+
+              @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', options)
+              annotate_one_file(options)
+
+              expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+            end
+          end
         end
       end
 
