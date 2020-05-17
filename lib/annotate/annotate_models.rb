@@ -381,7 +381,7 @@ module AnnotateModels
 
       annotation_format = format_from(options)
       column_pattern =
-        /#{column_pattern_for(annotation_format)}|#{foreign_key_column_pattern(annotation_format)}/
+        /#{column_pattern_for(annotation_format)}|#{foreign_key_column_pattern_for(annotation_format)}/
       old_columns = old_header && old_header.scan(column_pattern).sort
       new_columns = new_header && new_header.scan(column_pattern).sort
 
@@ -948,14 +948,14 @@ module AnnotateModels
     #
     # @param [Symbol] symbol representation of the format being used for
     #   annotations
-    def foreign_key_column_pattern(format_type)
+    def foreign_key_column_pattern_for(format_type)
       case format_type
       when :markdown
         /^#\s+\*\s`[\w_]+(?:\.{3})?`\s.*$/
       else
         # checks for foreign key which will be separated by underscores and can
         # be shortened with "..."
-        /^#\s+[\w_]+(\.{3})?\s+.*/
+        /^#\s+[\w_]+(?:\.{3})?\s+.*/
       end
     end
 
