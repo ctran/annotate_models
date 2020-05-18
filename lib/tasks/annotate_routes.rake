@@ -1,6 +1,12 @@
+annotate_lib = File.expand_path(File.dirname(File.dirname(__FILE__)))
+
+unless ENV['is_cli']
+  task :set_annotation_options
+  task annotate_routes: :set_annotation_options
+end
+
 desc "Adds the route map to routes.rb"
 task :annotate_routes => :environment do
-  annotate_lib = File.expand_path(File.dirname(File.dirname(__FILE__)))
   require "#{annotate_lib}/annotate/annotate_routes"
 
   options={}
