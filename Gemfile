@@ -4,6 +4,7 @@ ruby '>= 2.2.0'
 
 gem 'activerecord', '>= 4.2.5', '< 6', require: false
 gem 'rake', require: false
+gem 'unicode-display_width'
 
 group :development do
   gem 'bump'
