@@ -2439,6 +2439,43 @@ describe AnnotateModels do
         expect(file_content_after_removal).to eq expected_result
       end
     end
+
+    context 'when annotation is before main content and there is a magic comment' do
+      let :filename do
+        'before_with_extra_comment.rb'
+      end
+
+      let :file_content do
+        <<~EOS
+          # frozen_string_literal: true
+
+          # == Schema Information
+          #
+          # Table name: foo
+          #
+          #  id                  :integer         not null, primary key
+          #  created_at          :datetime
+          #  updated_at          :datetime
+          #
+
+          class Foo < ActiveRecord::Base
+          end
+        EOS
+      end
+
+      let :expected_result do
+        <<~EOS
+          # frozen_string_literal: true
+
+          class Foo < ActiveRecord::Base
+          end
+        EOS
+      end
+
+      it 'removes annotation but not removes leading empty lines' do
+        expect(file_content_after_removal).to eq expected_result
+      end
+    end
   end
 
   describe '.resolve_filename' do

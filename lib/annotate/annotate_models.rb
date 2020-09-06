@@ -43,10 +43,21 @@ module AnnotateModels
 
   class << self
     def annotate_pattern(options = {})
-      if options[:wrapper_open]
-        return /(?:^(\n|\r\n)?# (?:#{options[:wrapper_open]}).*(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*)|^(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*/
-      end
-      /^(\n|\r\n)?# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?(\n|\r\n)(#.*(\n|\r\n))*(\n|\r\n)*/
+      nl = '(?:\n|\r\n)'
+      wrapper_pattern =
+        if options[:wrapper_open]
+          wrapper_open = options[:wrapper_open]
+          "(?:# (?:#{wrapper_open}).*#{nl}?)?"
+        else
+          ''
+        end
+      annotation_pattern = [
+        wrapper_pattern,
+        "# (?:#{COMPAT_PREFIX}|#{COMPAT_PREFIX_MD}).*?#{nl}",
+        "(?:#.*#{nl})*",
+        "#{nl}*"
+      ].join('')
+      /(?:#{annotation_pattern})|(?:^#{nl}?#{annotation_pattern}\z)/
     end
 
     def model_dir
