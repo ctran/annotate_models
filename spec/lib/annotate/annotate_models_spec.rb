@@ -1078,11 +1078,15 @@ describe AnnotateModels do
                       #
                       # Table name: users
                       #
-                      #  id(ID)         :integer          not null, primary key
-                      #  active(Active) :boolean          not null
-                      #  name(Name)     :string(50)       not null
-                      #  notes(Notes)   :text(55)         not null
-                      #  no_comment     :text(20)         not null
+                      #  id         :integer          not null, primary key
+                      #    ^ ID
+                      #  active     :boolean          not null
+                      #    ^ Active
+                      #  name       :string(50)       not null
+                      #    ^ Name
+                      #  notes      :text(55)         not null
+                      #    ^ Notes
+                      #  no_comment :text(20)         not null
                       #
                     EOS
                   end
@@ -1113,15 +1117,22 @@ describe AnnotateModels do
                       #
                       # Table name: users
                       #
-                      #  id(ＩＤ)                           :integer          not null, primary key
-                      #  active(ＡＣＴＩＶＥ)               :boolean          not null
-                      #  name(ＮＡＭＥ)                     :string(50)       not null
-                      #  notes(ＮＯＴＥＳ)                  :text(55)         not null
-                      #  cyrillic(Кириллица)                :text(30)         not null
-                      #  japanese(熊本大学　イタリア　宝島) :text(60)         not null
-                      #  arabic(لغة)                        :text(20)         not null
-                      #  no_comment                         :text(20)         not null
-                      #  location                           :geometry_collect not null
+                      #  id         :integer          not null, primary key
+                      #    ^ ＩＤ
+                      #  active     :boolean          not null
+                      #    ^ ＡＣＴＩＶＥ
+                      #  name       :string(50)       not null
+                      #    ^ ＮＡＭＥ
+                      #  notes      :text(55)         not null
+                      #    ^ ＮＯＴＥＳ
+                      #  cyrillic   :text(30)         not null
+                      #    ^ Кириллица
+                      #  japanese   :text(60)         not null
+                      #    ^ 熊本大学　イタリア　宝島
+                      #  arabic     :text(20)         not null
+                      #    ^ لغة
+                      #  no_comment :text(20)         not null
+                      #  location   :geometry_collect not null
                       #
                     EOS
                   end
@@ -1146,9 +1157,11 @@ describe AnnotateModels do
                       #
                       # Table name: users
                       #
-                      #  id(ID)                                       :integer          not null, primary key
-                      #  notes(Notes.\\nMay include things like notes.):text(55)         not null
-                      #  no_comment                                   :text(20)         not null
+                      #  id         :integer          not null, primary key
+                      #    ^ ID
+                      #  notes      :text(55)         not null
+                      #    ^ Notes.\\nMay include things like notes.
+                      #  no_comment :text(20)         not null
                       #
                     EOS
                   end
