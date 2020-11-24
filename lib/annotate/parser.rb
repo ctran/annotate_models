@@ -145,7 +145,7 @@ module Annotate
 
       option_parser.on('-r',
                        '--routes',
-                       "Annotate routes.rb with the output of 'rake routes'") do
+                       "Annotate routes.rb with the output of 'rails routes'") do
         env['routes'] = 'true'
       end
 
