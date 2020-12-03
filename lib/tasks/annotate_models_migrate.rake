@@ -16,6 +16,8 @@ if defined?(Rails::Application) && Rails.version.split('.').first.to_i >= 6
 end
 
 migration_tasks.each do |task|
+  next unless Rake::Task.task_defined?(task)
+
   Rake::Task[task].enhance do
     Rake::Task[Rake.application.top_level_tasks.last].enhance do
       annotation_options_task = if Rake::Task.task_defined?('app:set_annotation_options')
