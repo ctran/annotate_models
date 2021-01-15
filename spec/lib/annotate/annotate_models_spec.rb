@@ -389,8 +389,8 @@ describe AnnotateModels do
 
             context 'with Globalize gem' do
               let :translation_klass do
-                double('Post::Translation',
-                       to_s: 'Post::Translation',
+                double('Folder::Post::Translation',
+                       to_s: 'Folder::Post::Translation',
                        columns: [
                          mock_column(:id, :integer, limit: 8),
                          mock_column(:post_id, :integer, limit: 8),
