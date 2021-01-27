@@ -124,7 +124,11 @@ module AnnotateModels
 
       # Try to search the table without prefix
       table_name_without_prefix = table_name.to_s.sub(klass.table_name_prefix, '')
-      klass.connection.indexes(table_name_without_prefix)
+      if klass.connection.table_exists?(table_name_without_prefix)
+        klass.connection.indexes(table_name_without_prefix)
+      else
+        []
+      end
     end
 
     # Use the column information in an ActiveRecord class
