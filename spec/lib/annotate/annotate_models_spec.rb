@@ -41,22 +41,26 @@ describe AnnotateModels do
            on_update:    constraints[:on_update])
   end
 
-  def mock_connection(indexes = [], foreign_keys = [])
-    double('Conn',
-           indexes:      indexes,
-           foreign_keys: foreign_keys,
-           supports_foreign_keys?: true)
+  def mock_connection(options)
+    default_options = {
+      indexes:                [],
+      foreign_keys:           [],
+      supports_foreign_keys?: true,
+      table_comment:          nil
+    }
+
+    double('Conn', default_options.merge(options))
   end
 
-  def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [])
+  def mock_class(table_name, primary_key, columns, connection_options: {})
     options = {
-      connection:       mock_connection(indexes, foreign_keys),
-      table_exists?:    true,
-      table_name:       table_name,
-      primary_key:      primary_key,
-      column_names:     columns.map { |col| col.name.to_s },
-      columns:          columns,
-      column_defaults:  Hash[columns.map { |col| [col.name, col.default] }],
+      connection:        mock_connection(connection_options),
+      table_exists?:     true,
+      table_name:        table_name,
+      primary_key:       primary_key,
+      column_names:      columns.map { |col| col.name.to_s },
+      columns:           columns,
+      column_defaults:   Hash[columns.map { |col| [col.name, col.default] }],
       table_name_prefix: ''
     }
 
@@ -217,7 +221,14 @@ describe AnnotateModels do
     end
 
     let :klass do
-      mock_class(:users, primary_key, columns, indexes, foreign_keys)
+      mock_class(:users,
+                 primary_key,
+                 columns,
+                 connection_options: {
+                   indexes: indexes,
+                   foreign_keys: foreign_keys,
+                   table_comment: table_comment
+                 })
     end
 
     let :indexes do
@@ -226,6 +237,10 @@ describe AnnotateModels do
 
     let :foreign_keys do
       []
+    end
+
+    let :table_comment do
+      nil
     end
 
     context 'when option is not present' do
@@ -400,7 +415,13 @@ describe AnnotateModels do
               end
 
               let :klass do
-                mock_class(:posts, primary_key, columns, indexes, foreign_keys).tap do |mock_klass|
+                mock_class(:posts,
+                           primary_key,
+                           columns,
+                           connection_options: {
+                             indexes: indexes,
+                             foreign_keys: foreign_keys
+                           }).tap do |mock_klass|
                   allow(mock_klass).to receive(:translation_class).and_return(translation_klass)
                 end
               end
@@ -1059,6 +1080,33 @@ describe AnnotateModels do
               context 'when "with_comment" is "yes"' do
                 let :options do
                   { with_comment: 'yes' }
+                end
+
+                context 'when table have comments' do
+                  let :table_comment do
+                    'users table comment'
+                  end
+
+                  let :columns do
+                    [
+                      mock_column(:id, :integer, limit: 8),
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users(users table comment)
+                      #
+                      #  id :integer          not null, primary key
+                      #
+                    EOS
+                  end
+
+                  it 'works with option "with_comment"' do
+                    is_expected.to eq expected_result
+                  end
                 end
 
                 context 'when columns have comments' do
@@ -2566,14 +2614,16 @@ describe AnnotateModels do
                                mock_column(:id, :integer),
                                mock_column(:foreign_thing_id, :integer)
                              ],
-                             [],
-                             [
-                               mock_foreign_key('fk_rails_cf2568e89e',
-                                                'foreign_thing_id',
-                                                'foreign_things',
-                                                'id',
-                                                on_delete: :cascade)
-                             ])
+                             connection_options: {
+                               indexes: [],
+                               foreign_keys: [
+                                 mock_foreign_key('fk_rails_cf2568e89e',
+                                                  'foreign_thing_id',
+                                                  'foreign_things',
+                                                  'id',
+                                                  on_delete: :cascade)
+                               ]
+                             })
           @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
           annotate_one_file
         end
@@ -2585,14 +2635,16 @@ describe AnnotateModels do
                                mock_column(:id, :integer),
                                mock_column(:foreign_thing_id, :integer)
                              ],
-                             [],
-                             [
-                               mock_foreign_key('fk_rails_cf2568e89e',
-                                                'foreign_thing_id',
-                                                'foreign_things',
-                                                'id',
-                                                on_delete: :restrict)
-                             ])
+                             connection_options: {
+                               indexes: [],
+                               foreign_keys: [
+                                 mock_foreign_key('fk_rails_cf2568e89e',
+                                                  'foreign_thing_id',
+                                                  'foreign_things',
+                                                  'id',
+                                                  on_delete: :restrict)
+                               ]
+                             })
           @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
           annotate_one_file
           expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")

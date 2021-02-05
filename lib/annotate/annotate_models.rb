@@ -182,13 +182,16 @@ module AnnotateModels
     end
 
     def get_schema_header_text(klass, options = {})
+      table_comment = with_table_comments?(klass, options) ? "(#{klass.connection.table_comment(klass.table_name)})" : ''
+      table_name = klass.table_name.to_s + table_comment
+
       info = "#\n"
       if options[:format_markdown]
-        info << "# Table name: `#{klass.table_name}`\n"
+        info << "# Table name: `#{table_name}`\n"
         info << "#\n"
         info << "# ### Columns\n"
       else
-        info << "# Table name: #{klass.table_name}\n"
+        info << "# Table name: #{table_name}\n"
       end
       info << "#\n"
     end
@@ -760,6 +763,12 @@ module AnnotateModels
       options[:with_comment] &&
         klass.columns.first.respond_to?(:comment) &&
         klass.columns.any? { |col| !col.comment.nil? }
+    end
+
+    def with_table_comments?(klass, options)
+      options[:with_comment] &&
+        klass.connection.respond_to?(:table_comment) &&
+        klass.connection.table_comment(klass.table_name).present?
     end
 
     def max_schema_info_width(klass, options)
