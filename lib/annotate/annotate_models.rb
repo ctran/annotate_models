@@ -149,7 +149,7 @@ module AnnotateModels
       cols.each do |col|
         col_type = get_col_type(col)
         attrs = get_attributes(col, col_type, klass, options)
-        col_name = if with_comments?(klass, options) && col.comment
+        col_name = if with_column_comments?(klass, options) && col.comment
                      "#{col.name}(#{col.comment.gsub(/\n/, "\\n")})"
                    else
                      col.name
@@ -759,7 +759,7 @@ module AnnotateModels
 
     private
 
-    def with_comments?(klass, options)
+    def with_column_comments?(klass, options)
       options[:with_comment] &&
         klass.columns.first.respond_to?(:comment) &&
         klass.columns.any? { |col| !col.comment.nil? }
@@ -774,7 +774,7 @@ module AnnotateModels
     def max_schema_info_width(klass, options)
       cols = columns(klass, options)
 
-      if with_comments?(klass, options)
+      if with_column_comments?(klass, options)
         max_size = cols.map do |column|
           column.name.size + (column.comment ? width(column.comment) : 0)
         end.max || 0
