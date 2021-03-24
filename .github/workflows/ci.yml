@@ -24,6 +24,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
 
       - name: Install sqlite
         run: |
@@ -32,10 +33,6 @@ jobs:
       - name: Update System
         run: |
           gem update --system --no-document
-
-      - name: Bundle install for Annotate models
-        run: |
-          bundle install --jobs=4 --retry=3
 
       - name: Run Tests
         run: INTEGRATION_TESTS=1 bundle exec rspec
