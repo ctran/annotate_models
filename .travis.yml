@@ -7,6 +7,8 @@ rvm:
 env:
   - RAILS_ENV=development RACK_ENV=development INTEGRATION_TESTS=1
 
+cache: bundler
+
 addons:
   apt_packages:
     - libsqlite3-dev
