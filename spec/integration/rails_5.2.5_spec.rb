@@ -3,8 +3,8 @@ require 'rspec'
 require 'git'
 require_relative 'integration_helper'
 
-describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_run?(__FILE__, RUBY_VERSION) do
-  ::RAILS_5_2_APP_NAME = 'rails_5.2.4.1'.freeze
+describe 'Integration testing on Rails 5.2.5', if: IntegrationHelper.able_to_run?(__FILE__, RUBY_VERSION) do
+  ::RAILS_5_2_APP_NAME = 'rails_5.2.5'.freeze
   ::RAILS_5_2_PROJECT_PATH = File.expand_path('../..', __dir__).freeze
   ::RAILS_5_2_APP_PATH = File.expand_path(RAILS_5_2_APP_NAME, __dir__).freeze
 

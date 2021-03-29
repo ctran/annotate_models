@@ -1,6 +1,6 @@
 class IntegrationHelper
   MIN_RUBY_VERSIONS = {
-    'rails_5.2.4.1' => '>= 2.2.2',
+    'rails_5.2.5' => '>= 2.2.2',
     'rails_6.0.2.1' => '>= 2.5.0'
   }.freeze
 
