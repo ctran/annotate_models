@@ -74,7 +74,7 @@ describe 'Integration testing on Rails 6.1.3.1', if: IntegrationHelper.able_to_r
   end
 
   before(:all) do
-    Bundler.with_unbundled_env do
+    Bundler.with_clean_env do
       Dir.chdir RAILS_6_0_APP_PATH do
         puts `bundle install`
         puts `bin/rails db:migrate`
@@ -83,7 +83,7 @@ describe 'Integration testing on Rails 6.1.3.1', if: IntegrationHelper.able_to_r
   end
 
   around(:each) do |example|
-    Bundler.with_unbundled_env do
+    Bundler.with_clean_env do
       Dir.chdir RAILS_6_0_APP_PATH do
         example.run
       end
