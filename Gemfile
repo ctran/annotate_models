@@ -27,7 +27,7 @@ group :development, :test do
   gem 'coveralls'
 
   gem 'overcommit'
-  gem 'ruby_dep', '1.5.0'
+  gem 'ruby_dep', '1.5.0' unless RUBY_VERSION =~ /^3/
 
   platforms :mri, :mingw do
     gem 'pry', require: false
