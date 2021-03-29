@@ -45,7 +45,8 @@ describe AnnotateModels do
     double('Conn',
            indexes:      indexes,
            foreign_keys: foreign_keys,
-           supports_foreign_keys?: true)
+           supports_foreign_keys?: true,
+           table_exists?: true)
   end
 
   def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [])
@@ -520,7 +521,7 @@ describe AnnotateModels do
                   end
                 end
 
-                context 'when one of indexes includes orderd index key' do
+                context 'when one of indexes includes ordered index key' do
                   let :columns do
                     [
                       mock_column("id", :integer),
@@ -675,6 +676,20 @@ describe AnnotateModels do
 
                   it 'returns schema info without index information' do
                     is_expected.to eq expected_result
+                  end
+
+                  context 'when the unprefixed table name does not exist' do
+                    let :klass do
+                      mock_class(:users, primary_key, columns, indexes, foreign_keys).tap do |mock_klass|
+                        expect(mock_klass).to receive(:table_name_prefix).and_return('my_prefix_')
+                        expect(mock_klass.connection).to receive(:table_exists?).with('users').and_return(false)
+                        allow(mock_klass.connection).to receive(:indexes).with('users').and_raise('error fetching indexes on nonexistent table')
+                      end
+                    end
+
+                    it 'returns schema info without index information' do
+                      is_expected.to eq expected_result
+                    end
                   end
                 end
               end
