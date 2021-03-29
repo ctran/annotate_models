@@ -1,8 +1,8 @@
 language: ruby
 rvm:
-  - 2.4.9
-  - 2.5.7
-  - 2.6.5
+  - 2.6.6
+  - 2.7.2
+  - 3.0.0
 
 env:
   - RAILS_ENV=development RACK_ENV=development INTEGRATION_TESTS=1
