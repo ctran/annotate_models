@@ -104,12 +104,12 @@ describe 'Integration testing on Rails 6.1.3.1', if: IntegrationHelper.able_to_r
     end
 
     it 'annotate models' do
-      expect { subject }.to change { git.diff }.from(be_blank).to(be_present).
-        and(change { git.diff.entries }.from(be_blank).to(contain_exactly(
+      expect { subject }.to  \
+        change { git.diff.entries }.from(be_blank).to(contain_exactly(
           an_object_having_attributes(task_model),
           an_object_having_attributes(task_test),
           an_object_having_attributes(task_fixture)
-        )))
+        ))
     end
 
     context 'with multi-db environment' do
@@ -119,12 +119,12 @@ describe 'Integration testing on Rails 6.1.3.1', if: IntegrationHelper.able_to_r
       end
 
       it 'hooks database-specific commands and annotates models' do
-        expect { subject }.to change { git.diff }.from(be_blank).to(be_present).
-          and(change { git.diff.entries }.from(be_blank).to(contain_exactly(
+        expect { subject }.to \
+          change { git.diff.entries }.from(be_blank).to(contain_exactly(
             an_object_having_attributes(task_model),
             an_object_having_attributes(task_test),
             an_object_having_attributes(task_fixture)
-          )))
+          ))
       end
     end
   end
@@ -180,10 +180,10 @@ describe 'Integration testing on Rails 6.1.3.1', if: IntegrationHelper.able_to_r
     end
 
     it 'annotate routes' do
-      expect { subject }.to change { git.diff }.from(be_blank).to(be_present).
-        and(change { git.diff.entries }.from(be_blank).to(contain_exactly(
+      expect { subject }.to \
+        change { git.diff.entries }.from(be_blank).to(contain_exactly(
           an_object_having_attributes(task_routes)
-        )))
+        ))
     end
   end
 

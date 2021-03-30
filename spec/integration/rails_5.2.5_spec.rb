@@ -104,12 +104,12 @@ describe 'Integration testing on Rails 5.2.5', if: IntegrationHelper.able_to_run
     end
 
     it 'annotate models' do
-      expect { subject }.to change { git.diff }.from(be_blank).to(be_present).
-        and(change { git.diff.entries }.from(be_blank).to(contain_exactly(
+      expect { subject }.to \
+        change { git.diff.entries }.from(be_blank).to(contain_exactly(
           an_object_having_attributes(task_model),
           an_object_having_attributes(task_test),
           an_object_having_attributes(task_fixture)
-        )))
+        ))
     end
   end
 
@@ -148,15 +148,11 @@ describe 'Integration testing on Rails 5.2.5', if: IntegrationHelper.able_to_run
       `bundle exec annotate --routes`
     end
 
-    subject do
-      puts `#{command}`
-    end
-
     it 'annotate routes' do
-      expect { subject }.to change { git.diff }.from(be_blank).to(be_present).
-        and(change { git.diff.entries }.from(be_blank).to(contain_exactly(
+      expect { subject }.to \
+        change { git.diff.entries }.from(be_blank).to(contain_exactly(
           an_object_having_attributes(task_routes)
-        )))
+        ))
     end
   end
 
