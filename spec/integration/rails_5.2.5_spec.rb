@@ -13,19 +13,23 @@ describe 'Integration testing on Rails 5.2.5', if: IntegrationHelper.able_to_run
   before(:all) do
     Bundler.with_clean_env do
       Dir.chdir RAILS_5_2_APP_PATH do
-        puts `bundle install`
-        puts `bin/rails db:migrate`
+        `bundle install`
+        `bin/rails db:migrate`
       end
     end
   end
 
-  after(:each) do
+  around(:each) do |example|
+    Bundler.with_clean_env do
+      Dir.chdir RAILS_5_2_APP_PATH do
+        example.run
+      end
+    end
+
     git.reset_hard
   end
 
   describe 'annotate --models' do
-    let(:command) { 'bundle exec annotate --models' }
-
     let(:task_model) do
       patch = <<~PATCH
         +# == Schema Information
@@ -42,11 +46,13 @@ describe 'Integration testing on Rails 5.2.5', if: IntegrationHelper.able_to_run
       PATCH
 
       path = 'app/models/task.rb'
+
       {
           path: include(path),
           patch: include(patch)
       }
     end
+
     let(:task_test) do
       patch = <<~PATCH
         +# == Schema Information
@@ -63,11 +69,13 @@ describe 'Integration testing on Rails 5.2.5', if: IntegrationHelper.able_to_run
       PATCH
 
       path = 'test/models/task_test.rb'
+
       {
           path: include(path),
           patch: include(patch)
       }
     end
+
     let(:task_fixture) do
       patch = <<~PATCH
         +# == Schema Information
@@ -84,32 +92,28 @@ describe 'Integration testing on Rails 5.2.5', if: IntegrationHelper.able_to_run
       PATCH
 
       path = 'test/fixtures/tasks.yml'
+
       {
           path: include(path),
           patch: include(patch)
       }
     end
 
+    subject do
+      `bundle exec annotate --models`
+    end
+
     it 'annotate models' do
-      Bundler.with_clean_env do
-        Dir.chdir RAILS_5_2_APP_PATH do
-          expect(git.diff.any?).to be_falsy
-
-          puts `#{command}`
-
-          expect(git.diff.entries).to contain_exactly(
-                                          an_object_having_attributes(task_model),
-                                          an_object_having_attributes(task_test),
-                                          an_object_having_attributes(task_fixture)
-                                      )
-        end
-      end
+      expect { subject }.to change { git.diff }.from(be_blank).to(be_present).
+        and(change { git.diff.entries }.from(be_blank).to(contain_exactly(
+          an_object_having_attributes(task_model),
+          an_object_having_attributes(task_test),
+          an_object_having_attributes(task_fixture)
+        )))
     end
   end
 
   describe 'annotate --routes' do
-    let(:command) { 'bundle exec annotate --routes' }
-
     let(:task_routes) do
       task_routes_diff = <<-DIFF
 +# == Route Map
@@ -140,32 +144,36 @@ describe 'Integration testing on Rails 5.2.5', if: IntegrationHelper.able_to_run
       }
     end
 
-    it 'annotate routes.rb' do
-      Bundler.with_clean_env do
-        Dir.chdir RAILS_5_2_APP_PATH do
-          expect(git.diff.any?).to be_falsy
+    subject do
+      `bundle exec annotate --routes`
+    end
 
-          puts `#{command}`
+    subject do
+      puts `#{command}`
+    end
 
-          expect(git.diff.entries).to contain_exactly(an_object_having_attributes(task_routes))
-        end
-      end
+    it 'annotate routes' do
+      expect { subject }.to change { git.diff }.from(be_blank).to(be_present).
+        and(change { git.diff.entries }.from(be_blank).to(contain_exactly(
+          an_object_having_attributes(task_routes)
+        )))
     end
   end
 
   describe 'rails g annotate:install' do
-    let(:command) { 'bin/rails g annotate:install' }
     let(:rake_file_path) { 'lib/tasks/auto_annotate_models.rake' }
+    let(:rake_file_full_path) { File.expand_path(rake_file_path) }
+
+    subject do
+      `bin/rails g annotate:install`
+    end
+
+    after(:each) do
+      File.delete(rake_file_full_path)
+    end
 
     it 'generates the rake file' do
-      Bundler.with_clean_env do
-        Dir.chdir RAILS_5_2_APP_PATH do
-          full_path = File.expand_path(rake_file_path)
-          expect { `#{command}` }.to change { File.exist?(rake_file_path) }.from(false).to(true)
-
-          File.delete(full_path)
-        end
-      end
+      expect { subject }.to change { File.exist?(rake_file_path) }.from(false).to(true)
     end
   end
 end

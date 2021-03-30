@@ -9,75 +9,12 @@ describe 'Integration testing on Rails 6.1.3.1', if: IntegrationHelper.able_to_r
   ::RAILS_6_0_APP_PATH = File.expand_path(RAILS_6_0_APP_NAME, __dir__).freeze
 
   let!(:git) { Git.open(RAILS_6_0_PROJECT_PATH) }
-  let(:task_model) do
-    patch = <<~PATCH
-      +# == Schema Information
-      +#
-      +# Table name: tasks
-      +#
-      +#  id         :integer          not null, primary key
-      +#  content    :string
-      +#  count      :integer          default(0)
-      +#  status     :boolean          default(FALSE)
-      +#  created_at :datetime         not null
-      +#  updated_at :datetime         not null
-      +#
-    PATCH
-
-    path = 'app/models/task.rb'
-    {
-        path: include(path),
-        patch: include(patch)
-    }
-  end
-  let(:task_test) do
-    patch = <<~PATCH
-      +# == Schema Information
-      +#
-      +# Table name: tasks
-      +#
-      +#  id         :integer          not null, primary key
-      +#  content    :string
-      +#  count      :integer          default(0)
-      +#  status     :boolean          default(FALSE)
-      +#  created_at :datetime         not null
-      +#  updated_at :datetime         not null
-      +#
-    PATCH
-
-    path = 'test/models/task_test.rb'
-    {
-        path: include(path),
-        patch: include(patch)
-    }
-  end
-  let(:task_fixture) do
-    patch = <<~PATCH
-      +# == Schema Information
-      +#
-      +# Table name: tasks
-      +#
-      +#  id         :integer          not null, primary key
-      +#  content    :string
-      +#  count      :integer          default(0)
-      +#  status     :boolean          default(FALSE)
-      +#  created_at :datetime         not null
-      +#  updated_at :datetime         not null
-      +#
-    PATCH
-
-    path = 'test/fixtures/tasks.yml'
-    {
-        path: include(path),
-        patch: include(patch)
-    }
-  end
 
   before(:all) do
     Bundler.with_clean_env do
       Dir.chdir RAILS_6_0_APP_PATH do
-        puts `bundle install`
-        puts `bin/rails db:migrate`
+        `bundle install`
+        `bin/rails db:migrate`
       end
     end
   end
@@ -88,31 +25,111 @@ describe 'Integration testing on Rails 6.1.3.1', if: IntegrationHelper.able_to_r
         example.run
       end
     end
-  end
 
-  after(:each) do
     git.reset_hard
   end
 
   describe 'annotate --models' do
-    let(:command) { 'bundle exec annotate --models' }
+    let(:task_model) do
+      patch = <<~PATCH
+        +# == Schema Information
+        +#
+        +# Table name: tasks
+        +#
+        +#  id         :integer          not null, primary key
+        +#  content    :string
+        +#  count      :integer          default(0)
+        +#  status     :boolean          default(FALSE)
+        +#  created_at :datetime         not null
+        +#  updated_at :datetime         not null
+        +#
+      PATCH
+
+      path = 'app/models/task.rb'
+
+      {
+          path: include(path),
+          patch: include(patch)
+      }
+    end
+
+    let(:task_test) do
+      patch = <<~PATCH
+        +# == Schema Information
+        +#
+        +# Table name: tasks
+        +#
+        +#  id         :integer          not null, primary key
+        +#  content    :string
+        +#  count      :integer          default(0)
+        +#  status     :boolean          default(FALSE)
+        +#  created_at :datetime         not null
+        +#  updated_at :datetime         not null
+        +#
+      PATCH
+
+      path = 'test/models/task_test.rb'
+
+      {
+          path: include(path),
+          patch: include(patch)
+      }
+    end
+
+    let(:task_fixture) do
+      patch = <<~PATCH
+        +# == Schema Information
+        +#
+        +# Table name: tasks
+        +#
+        +#  id         :integer          not null, primary key
+        +#  content    :string
+        +#  count      :integer          default(0)
+        +#  status     :boolean          default(FALSE)
+        +#  created_at :datetime         not null
+        +#  updated_at :datetime         not null
+        +#
+      PATCH
+
+      path = 'test/fixtures/tasks.yml'
+
+      {
+          path: include(path),
+          patch: include(patch)
+      }
+    end
+
+    subject do
+      `bundle exec annotate --models`
+    end
 
     it 'annotate models' do
-      expect(git.diff.any?).to be_falsy
+      expect { subject }.to change { git.diff }.from(be_blank).to(be_present).
+        and(change { git.diff.entries }.from(be_blank).to(contain_exactly(
+          an_object_having_attributes(task_model),
+          an_object_having_attributes(task_test),
+          an_object_having_attributes(task_fixture)
+        )))
+    end
 
-      puts `#{command}`
+    context 'with multi-db environment' do
+      subject do
+        `bundle exec annotate --models`
+        `bin/rails db:migrate:primary`
+      end
 
-      expect(git.diff.entries).to contain_exactly(
-                                      an_object_having_attributes(task_model),
-                                      an_object_having_attributes(task_test),
-                                      an_object_having_attributes(task_fixture)
-                                  )
+      it 'hooks database-specific commands and annotates models' do
+        expect { subject }.to change { git.diff }.from(be_blank).to(be_present).
+          and(change { git.diff.entries }.from(be_blank).to(contain_exactly(
+            an_object_having_attributes(task_model),
+            an_object_having_attributes(task_test),
+            an_object_having_attributes(task_fixture)
+          )))
+      end
     end
   end
 
   describe 'annotate --routes' do
-    let(:command) { 'bundle exec annotate --routes' }
-
     let(:task_routes) do
       task_routes_diff = <<-DIFF
 +# == Route Map
@@ -158,43 +175,32 @@ describe 'Integration testing on Rails 6.1.3.1', if: IntegrationHelper.able_to_r
       }
     end
 
-    it 'annotate routes.rb' do
-      expect(git.diff.any?).to be_falsy
+    subject do
+      `bundle exec annotate --routes`
+    end
 
-      puts `#{command}`
-
-      expect(git.diff.entries).to contain_exactly(an_object_having_attributes(task_routes))
+    it 'annotate routes' do
+      expect { subject }.to change { git.diff }.from(be_blank).to(be_present).
+        and(change { git.diff.entries }.from(be_blank).to(contain_exactly(
+          an_object_having_attributes(task_routes)
+        )))
     end
   end
 
   describe 'rails g annotate:install' do
-    let(:command) { 'bin/rails g annotate:install' }
     let(:rake_file_path) { 'lib/tasks/auto_annotate_models.rake' }
-    let(:full_path) { File.expand_path(rake_file_path) }
+    let(:rake_file_full_path) { File.expand_path(rake_file_path) }
+
+    subject do
+      `bin/rails g annotate:install`
+    end
 
     after(:each) do
-      File.delete(full_path)
+      File.delete(rake_file_full_path)
     end
 
     it 'generates the rake file' do
-      expect { `#{command}` }.to change { File.exist?(rake_file_path) }.from(false).to(true)
-    end
-
-    context 'with multi-db environment' do
-      let(:migrate_command) { 'bin/rails db:migrate:primary' }
-
-      it 'hooks database-specific commands and annotates models' do
-        expect(git.diff.any?).to be_falsy
-
-        system({ 'MULTI_DB' => 'true' }, command)
-        system({ 'MULTI_DB' => 'true' }, migrate_command)
-
-        expect(git.diff.entries).to contain_exactly(
-                                        an_object_having_attributes(task_model),
-                                        an_object_having_attributes(task_test),
-                                        an_object_having_attributes(task_fixture)
-                                    )
-      end
+      expect { subject }.to change { File.exist?(rake_file_path) }.from(false).to(true)
     end
   end
 end
