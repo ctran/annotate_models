@@ -1,10 +1,14 @@
 require_relative './helpers'
 
+# This module provides methods for annotating config/routes.rb.
 module AnnotateRoutes
+  # This class processes result of `rake routes` and generate content enbeded in config/routes.rb.
   class HeaderGenerator
     PREFIX = '== Route Map'.freeze
     PREFIX_MD = '## Route Map'.freeze
     HEADER_ROW = ['Prefix', 'Verb', 'URI Pattern', 'Controller#Action'].freeze
+
+    include Helpers
 
     class << self
       def generate(options = {})
@@ -42,7 +46,7 @@ module AnnotateRoutes
     end
 
     def generate
-      magic_comments_map, contents_without_magic_comments = Helpers.extract_magic_comments_from_array(routes_map)
+      magic_comments_map, contents_without_magic_comments = extract_magic_comments_from_array(routes_map)
 
       out = []
 
