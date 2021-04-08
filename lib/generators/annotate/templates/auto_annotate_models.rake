@@ -48,6 +48,7 @@ if Rails.env.development?
       'force'                       => 'false',
       'frozen'                      => 'false',
       'classified_sort'             => 'true',
+      'classified_sort_fks_second'  => 'true',
       'trace'                       => 'false',
       'wrapper_open'                => nil,
       'wrapper_close'               => nil,

@@ -43,6 +43,7 @@ task annotate_models: :environment do
   options[:force] = Annotate::Helpers.true?(ENV['force'])
   options[:frozen] = Annotate::Helpers.true?(ENV['frozen'])
   options[:classified_sort] = Annotate::Helpers.true?(ENV['classified_sort'])
+  options[:classified_sort_fks_second] = Annotate::Helpers.true?(ENV['classified_sort_fks_second'])
   options[:trace] = Annotate::Helpers.true?(ENV['trace'])
   options[:wrapper_open] = Annotate::Helpers.fallback(ENV['wrapper_open'], ENV['wrapper'])
   options[:wrapper_close] = Annotate::Helpers.fallback(ENV['wrapper_close'], ENV['wrapper'])

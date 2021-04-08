@@ -15,7 +15,7 @@ module Annotate
       :show_indexes, :simple_indexes, :include_version, :exclude_tests,
       :exclude_fixtures, :exclude_factories, :ignore_model_sub_dir,
       :format_bare, :format_rdoc, :format_yard, :format_markdown, :sort, :force, :frozen,
-      :trace, :timestamp, :exclude_serializers, :classified_sort,
+      :trace, :timestamp, :exclude_serializers, :classified_sort, :classified_sort_fks_second,
       :show_foreign_keys, :show_complete_foreign_keys,
       :exclude_scaffolds, :exclude_controllers, :exclude_helpers,
       :exclude_sti_subclasses, :ignore_unknown_models, :with_comment

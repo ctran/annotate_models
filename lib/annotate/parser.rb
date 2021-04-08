@@ -223,6 +223,11 @@ module Annotate
         env['classified_sort'] = 'yes'
       end
 
+      option_parser.on('--classified-sort-fks-second',
+                      "Sort columns alphabetically, but first goes id, then foreign keys, then the rest columns, then the timestamp columns and then the association columns") do
+        env['classified_sort_fks_second'] = 'yes'
+      end
+
       option_parser.on('-R',
                        '--require path',
                        "Additional file to require before loading models, may be used multiple times") do |path|
