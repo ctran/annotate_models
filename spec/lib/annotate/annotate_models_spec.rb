@@ -56,6 +56,7 @@ describe AnnotateModels do
            supports_check_constraints?: true)
   end
 
+  # rubocop:disable Metrics/ParameterLists
   def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [], check_constraints = [])
     options = {
       connection:       mock_connection(indexes, foreign_keys, check_constraints),
@@ -70,6 +71,7 @@ describe AnnotateModels do
 
     double('An ActiveRecord class', options)
   end
+  # rubocop:enable Metrics/ParameterLists
 
   def mock_column(name, type, options = {})
     default_options = {
