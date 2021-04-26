@@ -1,7 +1,7 @@
 class IntegrationHelper
   MIN_RUBY_VERSIONS = {
     'rails_5.2.5' => '>= 2.2.2',
-    'rails_6.0.2.1' => '>= 2.5.0'
+    'rails_6.0.3.6' => '>= 2.5.0'
   }.freeze
 
   def self.able_to_run?(file_path, ruby_version)
