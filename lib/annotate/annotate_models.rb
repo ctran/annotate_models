@@ -608,7 +608,8 @@ module AnnotateModels
       # auto_load/eager_load paths. Try all possible model paths one by one.
       absolute_file = File.expand_path(file)
       model_paths =
-        $LOAD_PATH.select { |path| absolute_file.include?(path) }
+        $LOAD_PATH.map(&:to_s)
+                  .select { |path| absolute_file.include?(path) }
                   .map { |path| absolute_file.sub(path, '').sub(/\.rb$/, '').sub(/^\//, '') }
       model_paths
         .map { |path| get_loaded_model_by_path(path) }
