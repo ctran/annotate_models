@@ -98,7 +98,7 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
     let(:command) { 'bundle exec annotate --models' }
 
     it 'annotate models' do
-      expect(git.diff.any?).to be_falsy
+      expect(git.diff.any?).to be_falsy, "Unexpected diff: #{git.diff}"
 
       puts `#{command}`
 

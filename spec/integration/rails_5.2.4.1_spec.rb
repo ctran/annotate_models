@@ -93,7 +93,7 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
     it 'annotate models' do
       Bundler.with_clean_env do
         Dir.chdir RAILS_5_2_APP_PATH do
-          expect(git.diff.any?).to be_falsy
+          expect(git.diff.any?).to be_falsy, "Unexpected diff: #{git.diff}"
 
           puts `#{command}`
 
@@ -143,7 +143,7 @@ describe 'Integration testing on Rails 5.2.4.1', if: IntegrationHelper.able_to_r
     it 'annotate routes.rb' do
       Bundler.with_clean_env do
         Dir.chdir RAILS_5_2_APP_PATH do
-          expect(git.diff.any?).to be_falsy
+          expect(git.diff.any?).to be_falsy, "Unexpected diff: #{git.diff}"
 
           puts `#{command}`
 

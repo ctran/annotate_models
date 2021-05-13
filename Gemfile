@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
-ruby '>= 2.2.0'
+ruby '>= 2.4.0'
 
-gem 'activerecord', '>= 4.2.5', '< 6', require: false
+gem 'activerecord', '>= 5.0', '< 7', require: false
 gem 'rake', require: false
 
 group :development do
@@ -19,7 +19,7 @@ group :development, :test do
   gem 'guard-rspec', require: false
   gem 'rspec', require: false
 
-  gem 'rubocop', '~> 0.68.1', require: false unless RUBY_VERSION =~ /^1.8/
+  gem 'rubocop', '~> 0.68.1', require: false
   gem 'simplecov', require: false
   gem 'terminal-notifier-guard', require: false
 
