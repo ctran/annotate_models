@@ -1,5 +1,19 @@
-require_relative '../../spec_helper'
+require_relative '../../../spec_helper'
 require 'annotate/annotate_routes'
+
+MAGIC_COMMENTS = [
+  '# encoding: UTF-8',
+  '# coding: UTF-8',
+  '# -*- coding: UTF-8 -*-',
+  '#encoding: utf-8',
+  '# encoding: utf-8',
+  '# -*- encoding : utf-8 -*-',
+  "# encoding: utf-8\n# frozen_string_literal: true",
+  "# frozen_string_literal: true\n# encoding: utf-8",
+  '# frozen_string_literal: true',
+  '#frozen_string_literal: false',
+  '# -*- frozen_string_literal : true -*-'
+].freeze
 
 describe AnnotateRoutes do
   ROUTE_FILE = 'config/routes.rb'.freeze
@@ -8,20 +22,6 @@ describe AnnotateRoutes do
   MESSAGE_UNCHANGED = "#{ROUTE_FILE} was not changed.".freeze
   MESSAGE_NOT_FOUND = "#{ROUTE_FILE} could not be found.".freeze
   MESSAGE_REMOVED = "Annotations were removed from #{ROUTE_FILE}.".freeze
-
-  MAGIC_COMMENTS = [
-    '# encoding: UTF-8',
-    '# coding: UTF-8',
-    '# -*- coding: UTF-8 -*-',
-    '#encoding: utf-8',
-    '# encoding: utf-8',
-    '# -*- encoding : utf-8 -*-',
-    "# encoding: utf-8\n# frozen_string_literal: true",
-    "# frozen_string_literal: true\n# encoding: utf-8",
-    '# frozen_string_literal: true',
-    '#frozen_string_literal: false',
-    '# -*- frozen_string_literal : true -*-'
-  ].freeze
 
   let :stubs do
     {}
@@ -97,7 +97,7 @@ describe AnnotateRoutes do
 
                     # ## Route Map
                     #
-                    # Prefix    | Verb       | URI Pattern     | Controller#Action   
+                    # Prefix    | Verb       | URI Pattern     | Controller#Action#{'   '}
                     # --------- | ---------- | --------------- | --------------------
                     # myaction1 | GET        | /url1(.:format) | mycontroller1#action
                     # myaction2 | POST       | /url2(.:format) | mycontroller2#action
@@ -189,7 +189,7 @@ describe AnnotateRoutes do
 
                         # ## Route Map
                         #
-                        # Prefix    | Verb       | URI Pattern     | Controller#Action   
+                        # Prefix    | Verb       | URI Pattern     | Controller#Action#{'   '}
                         # --------- | ---------- | --------------- | --------------------
                         # myaction1 | GET        | /url1(.:format) | mycontroller1#action
                         # myaction2 | POST       | /url2(.:format) | mycontroller2#action

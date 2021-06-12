@@ -27,7 +27,7 @@ Gemspec/RequiredRubyVersion:
 # SupportedHashRocketStyles: key, separator, table
 # SupportedColonStyles: key, separator, table
 # SupportedLastArgumentHashStyles: always_inspect, always_ignore, ignore_implicit, ignore_explicit
-Layout/AlignHash:
+Layout/HashAlignment:
   Exclude:
     - 'lib/generators/annotate/templates/auto_annotate_models.rake'
     - 'spec/lib/annotate/annotate_models_spec.rb'
@@ -68,7 +68,7 @@ Layout/ExtraSpacing:
 # Cop supports --auto-correct.
 # Configuration parameters: IndentationWidth.
 # SupportedStyles: special_inside_parentheses, consistent, align_brackets
-Layout/IndentFirstArrayElement:
+Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
 # Offense count: 5
@@ -158,7 +158,7 @@ Lint/AssignmentInCondition:
     - 'lib/annotate/annotate_models.rb'
 
 # Offense count: 1
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Exclude:
     - 'bin/annotate'
 
@@ -237,7 +237,7 @@ Naming/MemoizedInstanceVariableName:
 # Offense count: 1
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
 # AllowedNames: io, id, to, by, on, in, at, ip, db
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Exclude:
     - 'Rakefile'
 
@@ -354,7 +354,7 @@ Style/InverseMethods:
     - 'Rakefile'
 
 # Offense count: 1
-Style/MethodMissingSuper:
+Lint/MissingSuper:
   Exclude:
     - 'lib/annotate/active_record_patch.rb'
 
@@ -522,7 +522,7 @@ Style/TrailingCommaInArrayLiteral:
 
 # Offense count: 2
 # Cop supports --auto-correct.
-Style/UnneededPercentQ:
+Style/RedundantPercentQ:
   Exclude:
     - 'annotate.gemspec'
 

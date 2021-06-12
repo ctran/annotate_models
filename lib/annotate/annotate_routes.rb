@@ -67,9 +67,10 @@ module AnnotateRoutes
     end
 
     def strip_on_removal(content, header_position)
-      if header_position == :before
+      case header_position
+      when :before
         content.shift while content.first == ''
-      elsif header_position == :after
+      when :after
         content.pop while content.last == ''
       end
 
