@@ -3,7 +3,7 @@ def exit_exception(e)
   exit e.status_code
 end
 
-# Note : this causes annoying psych warnings under Ruby 1.9.2-p180; to fix, upgrade to 1.9.3
+# NOTE: this causes annoying psych warnings under Ruby 1.9.2-p180; to fix, upgrade to 1.9.3
 begin
   require 'bundler'
   Bundler.setup(:default, :development)
@@ -162,7 +162,7 @@ namespace :integration do
       fixtures[Digest::MD5.hexdigest(File.read(fname))] = File.expand_path(fname)
     end
 
-    candidates.keys.each do |digest|
+    candidates.each_key do |digest|
       next unless fixtures.key?(digest)
       candidates[digest].each do |fname|
         # Double-check contents in case of hash collision...
