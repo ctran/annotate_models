@@ -30,6 +30,9 @@ jobs:
         run: |
           sudo apt-get install libsqlite3-dev
 
+      - name: Install dependencies
+        run: bundle install
+
       - name: Run Tests
         run: INTEGRATION_TESTS=1 bundle exec rspec
 
