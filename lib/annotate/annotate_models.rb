@@ -618,9 +618,7 @@ module AnnotateModels
 
     # Retrieve loaded model class by path to the file where it's supposed to be defined.
     def get_loaded_model_by_path(model_path)
-      klass = ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
-
-      klass if klass.is_a?(Class) && klass < ActiveRecord::Base
+      ActiveSupport::Inflector.constantize(ActiveSupport::Inflector.camelize(model_path))
     rescue StandardError, LoadError
       # Revert to the old way but it is not really robust
       ObjectSpace.each_object(::Class)
