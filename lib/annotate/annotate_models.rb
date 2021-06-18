@@ -846,9 +846,7 @@ module AnnotateModels
       # Construct the foreign column name in the translations table
       # eg. Model: Car, foreign column name: car_id
       foreign_column_name = [
-        klass.translation_class.to_s
-             .gsub('::Translation', '').gsub('::', '_')
-             .downcase,
+        klass.table_name.to_s.singularize,
         '_id'
       ].join.to_sym
 
