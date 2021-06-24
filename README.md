@@ -224,6 +224,7 @@ you can do so with a simple environment variable, instead of editing the
         -a, --active-admin               Annotate active_admin models
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
+        -c, --show-check-constraints     List the table's check constraints in the annotation
         -k, --show-foreign-keys          List the table's foreign key constraints in the annotation
             --ck, --complete-foreign-keys
                                          Complete foreign key names in the annotation

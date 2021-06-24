@@ -173,6 +173,12 @@ module Annotate
         env['include_version'] = 'yes'
       end
 
+      option_parser.on('-c',
+                       '--show-check-constraints',
+                       "List the table's check constraints in the annotation") do
+        env['show_check_constraints'] = 'yes'
+      end
+
       option_parser.on('-k',
                        '--show-foreign-keys',
                        "List the table's foreign key constraints in the annotation") do
