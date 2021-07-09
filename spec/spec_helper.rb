@@ -33,3 +33,7 @@ require 'annotate/parser'
 require 'annotate/helpers'
 require 'annotate/constants'
 require 'byebug'
+
+RSpec.configure do |config|
+  config.order = 'random'
+end
