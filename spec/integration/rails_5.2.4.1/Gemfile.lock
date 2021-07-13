@@ -49,7 +49,7 @@ GEM
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    addressable (2.7.0)
+    addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     archive-zip (0.12.0)
       io-like (~> 0.3.0)
