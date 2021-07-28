@@ -72,6 +72,46 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
         patch: include(patch)
     }
   end
+  let(:secondary_task_model) do
+    patch = <<~PATCH
+      +# == Schema Information
+      +#
+      +# Table name: tasks
+      +#
+      +#  id          :integer          not null, primary key
+      +#  completed   :boolean          not null
+      +#  description :string
+      +#  created_at  :datetime         not null
+      +#  updated_at  :datetime         not null
+      +#
+    PATCH
+
+    path = 'app/models/secondary_task.rb'
+    {
+        path: include(path),
+        patch: include(patch)
+    }
+  end
+  let(:secondary_task_fixture) do
+    patch = <<~PATCH
+      +# == Schema Information
+      +#
+      +# Table name: tasks
+      +#
+      +#  id          :integer          not null, primary key
+      +#  completed   :boolean          not null
+      +#  description :string
+      +#  created_at  :datetime         not null
+      +#  updated_at  :datetime         not null
+      +#
+    PATCH
+
+    path = 'test/fixtures/secondary_tasks.yml'
+    {
+        path: include(path),
+        patch: include(patch)
+    }
+  end
 
   before(:all) do
     Bundler.with_clean_env do
@@ -107,6 +147,21 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
                                       an_object_having_attributes(task_test),
                                       an_object_having_attributes(task_fixture)
                                   )
+    end
+
+    context 'with multi-db environment' do
+      let(:command) { 'bundle exec annotate --models app/models/secondary_task.rb' }
+
+      it 'does not annotate files based on table name when the model is from a secondary database' do
+        expect(git.diff.any?).to be_falsy
+
+        system({ 'MULTI_DB' => 'true' }, command)
+
+        expect(git.diff.entries).to contain_exactly(
+                                        an_object_having_attributes(secondary_task_model),
+                                        an_object_having_attributes(secondary_task_fixture)
+                                    )
+      end
     end
   end
 
@@ -181,7 +236,7 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
     end
 
     context 'with multi-db environment' do
-      let(:migrate_command) { 'bin/rails db:migrate:primary' }
+      let(:migrate_command) { 'bin/rails db:migrate' }
 
       it 'hooks database-specific commands and annotates models' do
         expect(git.diff.any?).to be_falsy
@@ -192,7 +247,9 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
         expect(git.diff.entries).to contain_exactly(
                                         an_object_having_attributes(task_model),
                                         an_object_having_attributes(task_test),
-                                        an_object_having_attributes(task_fixture)
+                                        an_object_having_attributes(task_fixture),
+                                        an_object_having_attributes(secondary_task_model),
+                                        an_object_having_attributes(secondary_task_fixture)
                                     )
       end
     end

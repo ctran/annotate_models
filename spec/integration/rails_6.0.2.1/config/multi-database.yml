@@ -16,6 +16,7 @@ development:
   secondary:
     <<: *default
     database: db/development-secondary.sqlite3
+    migrations_paths: db/secondary_migrate
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -27,6 +28,7 @@ test:
   secondary:
     <<: *default
     database: db/test-secondary.sqlite3
+    migrations_paths: db/secondary_migrate
 
 production:
   primary:
@@ -35,3 +37,4 @@ production:
   secondary:
     <<: *default
     database: db/production-secondary.sqlite3
+    migrations_paths: db/secondary_migrate
