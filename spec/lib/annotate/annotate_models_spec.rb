@@ -18,7 +18,9 @@ describe AnnotateModels do
     "# frozen_string_literal: true\n# encoding: utf-8",
     '# frozen_string_literal: true',
     '#frozen_string_literal: false',
-    '# -*- frozen_string_literal : true -*-'
+    '# -*- frozen_string_literal : true -*-',
+    '# typed: true',
+    '#typed: false'
   ].freeze
 
   def mock_index(name, params = {})
