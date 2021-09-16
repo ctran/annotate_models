@@ -199,8 +199,10 @@ module AnnotateModels
         info << "#--\n"
         info << "# #{END_MARK}\n"
         info << "#++\n"
+        info << "\n"
       else
         info << "#\n"
+        info << "\n"
       end
     end
 
