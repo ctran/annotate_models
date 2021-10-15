@@ -744,6 +744,8 @@ module AnnotateModels
           timestamps << c
         elsif c.name[-3, 3].eql?('_id')
           associations << c
+        elsif c.name[-5, 5].eql?('_type') && cols.any? { |col| col.name[-3, 3].eql?('_id') && col.name[0..-4].eql?(c.name[0..-6])  }
+          associations << c
         else
           rest_cols << c
         end
