@@ -414,7 +414,10 @@ module AnnotateModels
         new_content = old_content.sub(annotate_pattern(options), new_annotation)
       end
 
+      return false if new_content == old_content
+
       File.open(file_name, 'wb') { |f| f.puts new_content }
+
       true
     end
 
