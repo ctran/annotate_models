@@ -68,7 +68,8 @@ describe AnnotateModels do
       limit: nil,
       null: false,
       default: nil,
-      sql_type: type
+      sql_type: type,
+      comment: nil,
     }
 
     stubs = default_options.dup
@@ -2599,6 +2600,34 @@ describe AnnotateModels do
                              ])
           @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
           annotate_one_file
+          expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+        end
+      end
+
+      context 'of unicode comment' do
+        before do
+          @klass = mock_class(:users,
+                              :id,
+                              [
+                                mock_column(:id, :integer),
+                                mock_column(:name, :string, limit: 50, comment: '名前１')
+                              ])
+          @schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info', with_comment: true)
+          Annotate::Helpers.reset_options(Annotate::Constants::ALL_ANNOTATE_OPTIONS)
+
+          annotate_one_file
+        end
+
+        it 'should update' do
+          klass = mock_class(:users,
+                              :id,
+                              [
+                               mock_column(:id, :integer),
+                               mock_column(:name, :string, null: true, comment: '名前１')
+                              ])
+          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', with_comment: true)
+          annotate_one_file
+
           expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
         end
       end
