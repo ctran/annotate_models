@@ -4,16 +4,9 @@ require 'annotate/annotate_models'
 require 'annotate/annotate_routes'
 require 'annotate/constants'
 require 'annotate/helpers'
+require 'active_support/hash_with_indifferent_access'
+require 'active_support/core_ext/object/blank'
 
-begin
-  # ActiveSupport 3.x...
-  require 'active_support/hash_with_indifferent_access'
-  require 'active_support/core_ext/object/blank'
-rescue StandardError
-  # ActiveSupport 2.x...
-  require 'active_support/core_ext/hash/indifferent_access'
-  require 'active_support/core_ext/blank'
-end
 
 module Annotate
   ##

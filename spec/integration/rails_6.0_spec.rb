@@ -3,8 +3,8 @@ require 'rspec'
 require 'git'
 require_relative 'integration_helper'
 
-describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_run?(__FILE__, RUBY_VERSION) do
-  ::RAILS_6_0_APP_NAME = 'rails_6.0.2.1'.freeze
+describe 'Integration testing on Rails 6.0', if: IntegrationHelper.able_to_run?(__FILE__, RUBY_VERSION) do
+  ::RAILS_6_0_APP_NAME = 'rails_6.0'.freeze
   ::RAILS_6_0_PROJECT_PATH = File.expand_path('../..', __dir__).freeze
   ::RAILS_6_0_APP_PATH = File.expand_path(RAILS_6_0_APP_NAME, __dir__).freeze
 
@@ -74,7 +74,7 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
   end
 
   before(:all) do
-    Bundler.with_clean_env do
+    Bundler.with_unbundled_env do
       Dir.chdir RAILS_6_0_APP_PATH do
         puts `bundle install`
         puts `bin/rails db:migrate`
@@ -83,7 +83,7 @@ describe 'Integration testing on Rails 6.0.2.1', if: IntegrationHelper.able_to_r
   end
 
   around(:each) do |example|
-    Bundler.with_clean_env do
+    Bundler.with_unbundled_env do
       Dir.chdir RAILS_6_0_APP_PATH do
         example.run
       end
