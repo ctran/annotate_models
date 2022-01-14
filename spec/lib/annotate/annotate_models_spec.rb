@@ -1168,7 +1168,10 @@ describe AnnotateModels do
                                   limit: { srid: 4326, type: 'geometry' }),
                       mock_column(:location, :geography,
                                   geometric_type: 'Point', srid: 0,
-                                  limit: { srid: 0, type: 'geometry' })
+                                  limit: { srid: 0, type: 'geometry' }),
+                      mock_column(:non_srid, :geography,
+                                  geometric_type: 'Point',
+                                  limit: { type: 'geometry' })
                     ]
                   end
 
@@ -1182,6 +1185,7 @@ describe AnnotateModels do
                       #  active   :boolean          default(FALSE), not null
                       #  geometry :geometry         not null, geometry, 4326
                       #  location :geography        not null, point, 0
+                      #  non_srid :geography        not null, point
                       #
                     EOS
                   end
