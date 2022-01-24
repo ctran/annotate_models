@@ -28,3 +28,10 @@ task :remove_routes => :environment do
   options[:require] = ENV['require'] ? ENV['require'].split(',') : []
   AnnotateRoutes.remove_annotations(options)
 end
+
+desc "Prints out the rails routes structure"
+task routes: :environment do
+  require 'rails/commands/routes/routes_command'
+  routes = Rails::Command::RoutesCommand.new
+  routes.perform
+end
