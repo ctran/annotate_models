@@ -887,9 +887,9 @@ module AnnotateModels
       # Check out if we got a geometric column
       # and print the type and SRID
       if column.respond_to?(:geometry_type)
-        attrs << "#{column.geometry_type}, #{column.srid}"
+        attrs << [column.geometry_type, column.try(:srid)].compact.join(', ')
       elsif column.respond_to?(:geometric_type) && column.geometric_type.present?
-        attrs << "#{column.geometric_type.to_s.downcase}, #{column.srid}"
+        attrs << [column.geometric_type.to_s.downcase, column.try(:srid)].compact.join(', ')
       end
 
       # Check if the column has indices and print "indexed" if true
