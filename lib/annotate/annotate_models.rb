@@ -2,9 +2,10 @@
 
 require 'bigdecimal'
 
-module AnnotateModels
-  TRUE_RE = /^(true|t|yes|y|1)$/i
+require 'annotate/constants'
+require_relative 'annotate_models/file_patterns'
 
+module AnnotateModels
   # Annotate Models plugin use this header
   COMPAT_PREFIX    = '== Schema Info'.freeze
   COMPAT_PREFIX_MD = '## Schema Info'.freeze
@@ -15,50 +16,6 @@ module AnnotateModels
   SKIP_ANNOTATION_PREFIX = '# -\*- SkipSchemaAnnotations'.freeze
 
   MATCHED_TYPES = %w(test fixture factory serializer scaffold controller helper).freeze
-
-  # File.join for windows reverse bar compat?
-  # I dont use windows, can`t test
-  UNIT_TEST_DIR         = File.join('test', "unit")
-  MODEL_TEST_DIR        = File.join('test', "models") # since rails 4.0
-  SPEC_MODEL_DIR        = File.join('spec', "models")
-  FIXTURE_TEST_DIR      = File.join('test', "fixtures")
-  FIXTURE_SPEC_DIR      = File.join('spec', "fixtures")
-
-  # Other test files
-  CONTROLLER_TEST_DIR   = File.join('test', "controllers")
-  CONTROLLER_SPEC_DIR   = File.join('spec', "controllers")
-  REQUEST_SPEC_DIR      = File.join('spec', "requests")
-  ROUTING_SPEC_DIR      = File.join('spec', "routing")
-
-  # Object Daddy http://github.com/flogic/object_daddy/tree/master
-  EXEMPLARS_TEST_DIR    = File.join('test', "exemplars")
-  EXEMPLARS_SPEC_DIR    = File.join('spec', "exemplars")
-
-  # Machinist http://github.com/notahat/machinist
-  BLUEPRINTS_TEST_DIR   = File.join('test', "blueprints")
-  BLUEPRINTS_SPEC_DIR   = File.join('spec', "blueprints")
-
-  # Factory Girl http://github.com/thoughtbot/factory_girl
-  FACTORY_GIRL_TEST_DIR = File.join('test', "factories")
-  FACTORY_GIRL_SPEC_DIR = File.join('spec', "factories")
-
-  # Fabrication https://github.com/paulelliott/fabrication.git
-  FABRICATORS_TEST_DIR  = File.join('test', "fabricators")
-  FABRICATORS_SPEC_DIR  = File.join('spec', "fabricators")
-
-  # Serializers https://github.com/rails-api/active_model_serializers
-  SERIALIZERS_DIR       = File.join('app',  "serializers")
-  SERIALIZERS_TEST_DIR  = File.join('test', "serializers")
-  SERIALIZERS_SPEC_DIR  = File.join('spec', "serializers")
-
-  # Controller files
-  CONTROLLER_DIR        = File.join('app', "controllers")
-
-  # Active admin registry files
-  ACTIVEADMIN_DIR        = File.join('app', "admin")
-
-  # Helper files
-  HELPER_DIR            = File.join('app', "helpers")
 
   # Don't show limit (#) on these column types
   # Example: show "integer" instead of "integer(4)"
@@ -81,6 +38,8 @@ module AnnotateModels
       markdown: '_using_'
     }
   }.freeze
+
+  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/).freeze
 
   class << self
     def annotate_pattern(options = {})
@@ -108,83 +67,33 @@ module AnnotateModels
 
     attr_writer :root_dir
 
-    def test_files(root_directory)
-      [
-        File.join(root_directory, UNIT_TEST_DIR,  "%MODEL_NAME%_test.rb"),
-        File.join(root_directory, MODEL_TEST_DIR,  "%MODEL_NAME%_test.rb"),
-        File.join(root_directory, SPEC_MODEL_DIR, "%MODEL_NAME%_spec.rb")
-      ]
-    end
+    def skip_subdirectory_model_load
+      # This option is set in options[:skip_subdirectory_model_load]
+      # and stops the get_loaded_model method from loading a model from a subdir
 
-    def fixture_files(root_directory)
-      [
-        File.join(root_directory, FIXTURE_TEST_DIR, "%TABLE_NAME%.yml"),
-        File.join(root_directory, FIXTURE_SPEC_DIR, "%TABLE_NAME%.yml"),
-        File.join(root_directory, FIXTURE_TEST_DIR, "%PLURALIZED_MODEL_NAME%.yml"),
-        File.join(root_directory, FIXTURE_SPEC_DIR, "%PLURALIZED_MODEL_NAME%.yml")
-      ]
-    end
-
-    def scaffold_files(root_directory)
-      [
-        File.join(root_directory, CONTROLLER_TEST_DIR, "%PLURALIZED_MODEL_NAME%_controller_test.rb"),
-        File.join(root_directory, CONTROLLER_SPEC_DIR, "%PLURALIZED_MODEL_NAME%_controller_spec.rb"),
-        File.join(root_directory, REQUEST_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_spec.rb"),
-        File.join(root_directory, ROUTING_SPEC_DIR,    "%PLURALIZED_MODEL_NAME%_routing_spec.rb")
-      ]
-    end
-
-    def factory_files(root_directory)
-      [
-        File.join(root_directory, EXEMPLARS_TEST_DIR,     "%MODEL_NAME%_exemplar.rb"),
-        File.join(root_directory, EXEMPLARS_SPEC_DIR,     "%MODEL_NAME%_exemplar.rb"),
-        File.join(root_directory, BLUEPRINTS_TEST_DIR,    "%MODEL_NAME%_blueprint.rb"),
-        File.join(root_directory, BLUEPRINTS_SPEC_DIR,    "%MODEL_NAME%_blueprint.rb"),
-        File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
-        File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%MODEL_NAME%_factory.rb"),    # (old style)
-        File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%TABLE_NAME%.rb"),            # (new style)
-        File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%TABLE_NAME%.rb"),            # (new style)
-        File.join(root_directory, FACTORY_GIRL_TEST_DIR,  "%PLURALIZED_MODEL_NAME%.rb"), # (new style)
-        File.join(root_directory, FACTORY_GIRL_SPEC_DIR,  "%PLURALIZED_MODEL_NAME%.rb"), # (new style)
-        File.join(root_directory, FABRICATORS_TEST_DIR,   "%MODEL_NAME%_fabricator.rb"),
-        File.join(root_directory, FABRICATORS_SPEC_DIR,   "%MODEL_NAME%_fabricator.rb")
-      ]
-    end
-
-    def serialize_files(root_directory)
-      [
-        File.join(root_directory, SERIALIZERS_DIR,       "%MODEL_NAME%_serializer.rb"),
-        File.join(root_directory, SERIALIZERS_TEST_DIR,  "%MODEL_NAME%_serializer_spec.rb"),
-        File.join(root_directory, SERIALIZERS_SPEC_DIR,  "%MODEL_NAME%_serializer_spec.rb")
-      ]
-    end
-
-    def files_by_pattern(root_directory, pattern_type)
-      case pattern_type
-      when 'test'       then test_files(root_directory)
-      when 'fixture'    then fixture_files(root_directory)
-      when 'scaffold'   then scaffold_files(root_directory)
-      when 'factory'    then factory_files(root_directory)
-      when 'serializer' then serialize_files(root_directory)
-      when 'controller'
-        [File.join(root_directory, CONTROLLER_DIR, "%PLURALIZED_MODEL_NAME%_controller.rb")]
-      when 'admin'
-        [File.join(root_directory, ACTIVEADMIN_DIR, "%MODEL_NAME%.rb")]
-      when 'helper'
-        [File.join(root_directory, HELPER_DIR, "%PLURALIZED_MODEL_NAME%_helper.rb")]
+      if @skip_subdirectory_model_load.blank?
+        false
       else
-        []
+        @skip_subdirectory_model_load
       end
     end
 
-    def get_patterns(pattern_types = [])
+    attr_writer :skip_subdirectory_model_load
+
+    def get_patterns(options, pattern_types = [])
       current_patterns = []
       root_dir.each do |root_directory|
         Array(pattern_types).each do |pattern_type|
-          current_patterns += files_by_pattern(root_directory, pattern_type)
+          patterns = FilePatterns.generate(root_directory, pattern_type, options)
+
+          current_patterns += if pattern_type.to_sym == :additional_file_patterns
+                                patterns
+                              else
+                                patterns.map { |p| p.sub(/^[\/]*/, '') }
+                              end
         end
       end
-      current_patterns.map { |p| p.sub(/^[\/]*/, '') }
+      current_patterns
     end
 
     # Simple quoting for the default column value
@@ -236,68 +145,24 @@ module AnnotateModels
         info << "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
       end
 
-      cols = if ignore_columns = options[:ignore_columns]
-               klass.columns.reject do |col|
-                 col.name.match(/#{ignore_columns}/)
-               end
-             else
-               klass.columns
-             end
-
-      cols = cols.sort_by(&:name) if options[:sort]
-      cols = classified_sort(cols) if options[:classified_sort]
+      cols = columns(klass, options)
       cols.each do |col|
         col_type = get_col_type(col)
-        attrs = []
-        attrs << "default(#{schema_default(klass, col)})" unless col.default.nil? || hide_default?(col_type, options)
-        attrs << 'unsigned' if col.respond_to?(:unsigned?) && col.unsigned?
-        attrs << 'not null' unless col.null
-        attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(col.name.to_sym) : col.name.to_sym == klass.primary_key.to_sym)
-
-        if col_type == 'decimal'
-          col_type << "(#{col.precision}, #{col.scale})"
-        elsif col_type != 'spatial'
-          if col.limit
-            if col.limit.is_a? Array
-              attrs << "(#{col.limit.join(', ')})"
-            else
-              col_type << "(#{col.limit})" unless hide_limit?(col_type, options)
-            end
-          end
-        end
-
-        # Check out if we got an array column
-        attrs << 'is an Array' if col.respond_to?(:array) && col.array
-
-        # Check out if we got a geometric column
-        # and print the type and SRID
-        if col.respond_to?(:geometry_type)
-          attrs << "#{col.geometry_type}, #{col.srid}"
-        elsif col.respond_to?(:geometric_type) && col.geometric_type.present?
-          attrs << "#{col.geometric_type.to_s.downcase}, #{col.srid}"
-        end
-
-        # Check if the column has indices and print "indexed" if true
-        # If the index includes another column, print it too.
-        if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
-          indices = retrieve_indexes_from_table(klass)
-          if indices = indices.select { |ind| ind.columns.include? col.name }
-            indices.sort_by(&:name).each do |ind|
-              next if ind.columns.is_a?(String)
-              ind = ind.columns.reject! { |i| i == col.name }
-              attrs << (ind.empty? ? "indexed" : "indexed => [#{ind.join(", ")}]")
-            end
-          end
-        end
+        attrs = get_attributes(col, col_type, klass, options)
         col_name = if with_comments?(klass, options) && col.comment
-                     "#{col.name}(#{col.comment})"
+                     "#{col.name}(#{col.comment.gsub(/\n/, "\\n")})"
                    else
                      col.name
                    end
+
         if options[:format_rdoc]
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+        elsif options[:format_yard]
+          info << sprintf("# @!attribute #{col_name}") + "\n"
+          ruby_class = col.respond_to?(:array) && col.array ? "Array<#{map_col_type_to_ruby_classes(col_type)}>": map_col_type_to_ruby_classes(col_type)
+          info << sprintf("#   @return [#{ruby_class}]") + "\n"
         elsif options[:format_markdown]
-          name_remainder = max_size - col_name.length
+          name_remainder = max_size - col_name.length - non_ascii_length(col_name)
           type_remainder = (md_type_allowance - 2) - col_type.length
           info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
         else
@@ -464,7 +329,10 @@ module AnnotateModels
       foreign_keys = klass.connection.foreign_keys(klass.table_name)
       return '' if foreign_keys.empty?
 
-      format_name = ->(fk) { options[:show_complete_foreign_keys] ? fk.name : fk.name.gsub(/(?<=^fk_rails_)[0-9a-f]{10}$/, '...') }
+      format_name = lambda do |fk|
+        return fk.options[:column] if fk.name.blank?
+        options[:show_complete_foreign_keys] ? fk.name : fk.name.gsub(/(?<=^fk_rails_)[0-9a-f]{10}$/, '...')
+      end
 
       max_size = foreign_keys.map(&format_name).map(&:size).max + 1
       foreign_keys.sort_by {|fk| [format_name.call(fk), fk.column]}.each do |fk|
@@ -507,7 +375,7 @@ module AnnotateModels
       old_header = old_content.match(header_pattern).to_s
       new_header = info_block.match(header_pattern).to_s
 
-      column_pattern = /^#[\t ]+[\w\*`]+[\t ]+.+$/
+      column_pattern = /^#[\t ]+[\w\*\.`]+[\t ]+.+$/
       old_columns = old_header && old_header.scan(column_pattern).sort
       new_columns = new_header && new_header.scan(column_pattern).sort
 
@@ -526,15 +394,15 @@ module AnnotateModels
       # need to insert it in correct position
       if old_annotation.empty? || options[:force]
         magic_comments_block = magic_comments_as_string(old_content)
-        old_content.gsub!(magic_comment_matcher, '')
+        old_content.gsub!(MAGIC_COMMENT_MATCHER, '')
         old_content.sub!(annotate_pattern(options), '')
 
         new_content = if %w(after bottom).include?(options[position].to_s)
                         magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
                       elsif magic_comments_block.empty?
-                        magic_comments_block + wrapped_info_block + "\n" + old_content
+                        magic_comments_block + wrapped_info_block + old_content.lstrip
                       else
-                        magic_comments_block + "\n" + wrapped_info_block + "\n" + old_content
+                        magic_comments_block + "\n" + wrapped_info_block + old_content.lstrip
                       end
       else
         # replace the old annotation with the new one
@@ -550,12 +418,8 @@ module AnnotateModels
       true
     end
 
-    def magic_comment_matcher
-      Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/)
-    end
-
     def magic_comments_as_string(content)
-      magic_comments = content.scan(magic_comment_matcher).flatten.compact
+      magic_comments = content.scan(MAGIC_COMMENT_MATCHER).flatten.compact
 
       if magic_comments.any?
         magic_comments.join
@@ -581,8 +445,9 @@ module AnnotateModels
     end
 
     def matched_types(options)
-      types = MATCHED_TYPES
-      types << 'admin' if options[:active_admin] =~ TRUE_RE && !types.include?('admin')
+      types = MATCHED_TYPES.dup
+      types << 'admin' if options[:active_admin] =~ Annotate::Constants::TRUE_RE && !types.include?('admin')
+      types << 'additional_file_patterns' if options[:additional_file_patterns].present?
 
       types
     end
@@ -634,8 +499,11 @@ module AnnotateModels
           end
 
           next if options[exclusion_key]
-          get_patterns(key)
+
+          get_patterns(options, key)
             .map { |f| resolve_filename(f, model_name, table_name) }
+            .map { |f| expand_glob_into_files(f) }
+            .flatten
             .each do |f|
               if annotate_one_file(f, info, position_key, options_with_position(options, position_key))
                 annotated << f
@@ -731,14 +599,17 @@ module AnnotateModels
 
     # Retrieve loaded model class
     def get_loaded_model(model_path, file)
-      loaded_model_class = get_loaded_model_by_path(model_path)
-      return loaded_model_class if loaded_model_class
+      unless skip_subdirectory_model_load
+        loaded_model_class = get_loaded_model_by_path(model_path)
+        return loaded_model_class if loaded_model_class
+      end
 
       # We cannot get loaded model when `model_path` is loaded by Rails
       # auto_load/eager_load paths. Try all possible model paths one by one.
       absolute_file = File.expand_path(file)
       model_paths =
-        $LOAD_PATH.select { |path| absolute_file.include?(path) }
+        $LOAD_PATH.map(&:to_s)
+                  .select { |path| absolute_file.include?(path) }
                   .map { |path| absolute_file.sub(path, '').sub(/\.rb$/, '').sub(/^\//, '') }
       model_paths
         .map { |path| get_loaded_model_by_path(path) }
@@ -761,6 +632,7 @@ module AnnotateModels
     def parse_options(options = {})
       self.model_dir = split_model_dir(options[:model_dir]) if options[:model_dir]
       self.root_dir = options[:root_dir] if options[:root_dir]
+      self.skip_subdirectory_model_load = options[:skip_subdirectory_model_load].present?
     end
 
     def split_model_dir(option_value)
@@ -793,11 +665,15 @@ module AnnotateModels
       end
     end
 
+    def expand_glob_into_files(glob)
+      Dir.glob(glob)
+    end
+
     def annotate_model_file(annotated, file, header, options)
       begin
         return false if /#{SKIP_ANNOTATION_PREFIX}.*/ =~ (File.exist?(file) ? File.read(file) : '')
         klass = get_model_class(file)
-        do_annotate = klass &&
+        do_annotate = klass.is_a?(Class) &&
           klass < ActiveRecord::Base &&
           (!options[:exclude_sti_subclasses] || !(klass.superclass < ActiveRecord::Base && klass.table_name == klass.superclass.table_name)) &&
           !klass.abstract_class? &&
@@ -830,7 +706,7 @@ module AnnotateModels
             model_file_name = file
             deannotated_klass = true if remove_annotation_of_file(model_file_name, options)
 
-            get_patterns(matched_types(options))
+            get_patterns(options, matched_types(options))
               .map { |f| resolve_filename(f, model_name, table_name) }
               .each do |f|
                 if File.exist?(f)
@@ -886,13 +762,15 @@ module AnnotateModels
     end
 
     def max_schema_info_width(klass, options)
+      cols = columns(klass, options)
+
       if with_comments?(klass, options)
-        max_size = klass.columns.map do |column|
+        max_size = cols.map do |column|
           column.name.size + (column.comment ? width(column.comment) : 0)
         end.max || 0
         max_size += 2
       else
-        max_size = klass.column_names.map(&:size).max
+        max_size = cols.map(&:name).map(&:size).max
       end
       max_size += options[:format_rdoc] ? 5 : 1
 
@@ -904,7 +782,7 @@ module AnnotateModels
     end
 
     def width(string)
-      string.chars.inject(0) { |acc, elem| acc + (elem.bytesize == 1 ? 1 : 2) }
+      string.chars.inject(0) { |acc, elem| acc + (elem.bytesize == 3 ? 2 : 1) }
     end
 
     def mb_chars_ljust(string, length)
@@ -915,6 +793,119 @@ module AnnotateModels
       else
         string[0..length-1]
       end
+    end
+
+    def non_ascii_length(string)
+      string.to_s.chars.reject(&:ascii_only?).length
+    end
+
+    def map_col_type_to_ruby_classes(col_type)
+      case col_type
+      when 'integer'                                       then Integer.to_s
+      when 'float'                                         then Float.to_s
+      when 'decimal'                                       then BigDecimal.to_s
+      when 'datetime', 'timestamp', 'time'                 then Time.to_s
+      when 'date'                                          then Date.to_s
+      when 'text', 'string', 'binary', 'inet', 'uuid'      then String.to_s
+      when 'json', 'jsonb'                                 then Hash.to_s
+      when 'boolean'                                       then 'Boolean'
+      end
+    end
+
+    def columns(klass, options)
+      cols = klass.columns
+      cols += translated_columns(klass)
+
+      if ignore_columns = options[:ignore_columns]
+        cols = cols.reject do |col|
+          col.name.match(/#{ignore_columns}/)
+        end
+      end
+
+      cols = cols.sort_by(&:name) if options[:sort]
+      cols = classified_sort(cols) if options[:classified_sort]
+
+      cols
+    end
+
+    ##
+    # Add columns managed by the globalize gem if this gem is being used.
+    def translated_columns(klass)
+      return [] unless klass.respond_to? :translation_class
+
+      ignored_cols = ignored_translation_table_colums(klass)
+      klass.translation_class.columns.reject do |col|
+        ignored_cols.include? col.name.to_sym
+      end
+    end
+
+    ##
+    # These are the columns that the globalize gem needs to work but
+    # are not necessary for the models to be displayed as annotations.
+    def ignored_translation_table_colums(klass)
+      # Construct the foreign column name in the translations table
+      # eg. Model: Car, foreign column name: car_id
+      foreign_column_name = [
+        klass.table_name.to_s.singularize,
+        '_id'
+      ].join.to_sym
+
+      [
+        :id,
+        :created_at,
+        :updated_at,
+        :locale,
+        foreign_column_name
+      ]
+    end
+
+    ##
+    # Get the list of attributes that should be included in the annotation for
+    # a given column.
+    def get_attributes(column, column_type, klass, options)
+      attrs = []
+      attrs << "default(#{schema_default(klass, column)})" unless column.default.nil? || hide_default?(column_type, options)
+      attrs << 'unsigned' if column.respond_to?(:unsigned?) && column.unsigned?
+      attrs << 'not null' unless column.null
+      attrs << 'primary key' if klass.primary_key && (klass.primary_key.is_a?(Array) ? klass.primary_key.collect(&:to_sym).include?(column.name.to_sym) : column.name.to_sym == klass.primary_key.to_sym)
+
+      if column_type == 'decimal'
+        column_type << "(#{column.precision}, #{column.scale})"
+      elsif !%w[spatial geometry geography].include?(column_type)
+        if column.limit && !options[:format_yard]
+          if column.limit.is_a? Array
+            attrs << "(#{column.limit.join(', ')})"
+          else
+            column_type << "(#{column.limit})" unless hide_limit?(column_type, options)
+          end
+        end
+      end
+
+      # Check out if we got an array column
+      attrs << 'is an Array' if column.respond_to?(:array) && column.array
+
+      # Check out if we got a geometric column
+      # and print the type and SRID
+      if column.respond_to?(:geometry_type)
+        attrs << [column.geometry_type, column.try(:srid)].compact.join(', ')
+      elsif column.respond_to?(:geometric_type) && column.geometric_type.present?
+        attrs << [column.geometric_type.to_s.downcase, column.try(:srid)].compact.join(', ')
+      end
+
+      # Check if the column has indices and print "indexed" if true
+      # If the index includes another column, print it too.
+      if options[:simple_indexes] && klass.table_exists?# Check out if this column is indexed
+        indices = retrieve_indexes_from_table(klass)
+        if indices = indices.select { |ind| ind.columns.include? column.name }
+          indices.sort_by(&:name).each do |ind|
+            next if ind.columns.is_a?(String)
+            ind = ind.columns.reject! { |i| i == column.name }
+            attrs << (ind.empty? ? "indexed" : "indexed => [#{ind.join(", ")}]")
+          end
+        end
+      end
+
+      attrs
     end
   end
 

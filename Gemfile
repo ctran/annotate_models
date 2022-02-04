@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
-ruby '>= 2.2.0'
+ruby '>= 2.4.0'
 
-gem 'activerecord', '>= 4.2.5', require: false
+gem 'activerecord', '>= 4.2.5', '< 6', require: false
 gem 'rake', require: false
 
 group :development do
@@ -20,7 +20,10 @@ group :development, :test do
   gem 'rspec', require: false
 
   gem 'rubocop', '~> 0.68.1', require: false unless RUBY_VERSION =~ /^1.8/
-  gem 'simplecov', require: false
+  # gem 'rubocop', '~> 1.12', require: false
+  # gem 'rubocop-rake', require: false
+  # gem 'rubocop-rspec', require: false
+  # gem 'simplecov', require: false
   gem 'terminal-notifier-guard', require: false
 
   gem 'codeclimate-test-reporter'
@@ -31,11 +34,11 @@ group :development, :test do
 
   platforms :mri, :mingw do
     gem 'pry', require: false
-    gem 'pry-coolline', require: false
+    gem 'pry-byebug', require: false
   end
 end
 
 group :test do
   gem 'files', require: false
-  gem 'wrong', require: false
+  gem 'git', require: false
 end

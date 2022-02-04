@@ -1,0 +1,37 @@
+name: CI
+on:
+  pull_request:
+    branches:
+      - '*'
+
+  push:
+    branches:
+      - '*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ['2.4', '2.5', '2.6']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      - name: Install sqlite
+        run: |
+          sudo apt-get install libsqlite3-dev
+
+      - name: Run Tests
+        run: INTEGRATION_TESTS=1 bundle exec rspec
+
+      - name: Rubocop
+        run: bundle exec rubocop
