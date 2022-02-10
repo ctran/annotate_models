@@ -1,0 +1,34 @@
+## Authors
+
+- Original code by: Dave Thomas -- Pragmatic Programmers, LLC <http://agilewebdevelopment.com/plugins/annotate_models>
+- Overhauled by: Alex Chaffee <http://alexch.github.com> alex@stinky.com
+- Gemmed by: Cuong Tran <http://github.com/ctran> ctran@pragmaquest.com
+- Maintained by: Alex Chaffee and Cuong Tran
+- Homepage: http://github.com/ctran/annotate_models
+
+### With help from:
+
+- Jack Danger - http://github.com/JackDanger
+- Michael Bumann - http://github.com/bumi
+- Henrik Nyh - http://github.com/henrik
+- Marcos Piccinini - http://github.com/nofxx
+- Neal Clark - http://github.com/nclark
+- Jacqui Maher - http://github.com/jacqui
+- Nick Plante - http://github.com/zapnap - http://blog.zerosum.org
+- Pedro Visintin - http://github.com/peterpunk - http://www.pedrovisintin.com
+- Bob Potter - http://github.com/bpot
+- Gavin Montague - http://github.com/govan
+- Alexander Semyonov - http://github.com/rotuka
+- Nathan Brazil - http://github.com/bitaxis
+- Ian Duggan http://github.com/ijcd
+- Jon Frisby http://github.com/mrjoy
+- Tsutomu Kuroda
+- Kevin Moore
+- Philip Hallstrom
+- Brent Greeff
+- Paul Alexander
+- Dmitry Lihachev
+- qichunren
+- Guillermo Guerrero - http://github.com/ryanfox1985
+
+and many others that I may have forgotten to add.

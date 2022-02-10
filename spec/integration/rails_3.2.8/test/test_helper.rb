@@ -1,1 +1,0 @@
-../../../fixtures/rails_32_test_helper.rb

@@ -6,3 +6,8 @@ AllCops:
     - 'vendor/**/*'
     - 'spec/fixtures/**/*'
     - 'tmp/**/*'
+    - 'spec/integration/**/*'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*.rb'

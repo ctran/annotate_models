@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  content: MyString
+  count: 1
+  status: false
+
+two:
+  content: MyString
+  count: 1
+  status: false
