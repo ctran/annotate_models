@@ -7,7 +7,7 @@ on:
       - scratch/*
   pull_request:
   schedule:
-    - cron: '0 20 * * 7'
+    - cron: '0 9 * * MON'
 
 jobs:
   CodeQL-Build:
