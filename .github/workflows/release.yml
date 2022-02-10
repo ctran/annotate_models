@@ -3,6 +3,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - 'release/*'
 
 jobs:
   release:
@@ -13,9 +15,9 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Setup Ruby
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.x
+          ruby-version: '2.6'
 
       - name: Bundle
         run: |
@@ -23,14 +25,13 @@ jobs:
           gem update bundler
           bundle install --jobs 4 --retry 3
 
-      - name: Publish to GPR
+      - name: Publish to RubyGems
         run: |
           mkdir -p $HOME/.gem
           touch $HOME/.gem/credentials
           chmod 0600 $HOME/.gem/credentials
           printf -- "---\n:github: Bearer ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
           gem build *.gemspec
-          gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} *.gem
+          gem push  *.gem
         env:
-          GEM_HOST_API_KEY: ${{ secrets.GPR_AUTH_TOKEN }}
-          OWNER: ctran
+          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
