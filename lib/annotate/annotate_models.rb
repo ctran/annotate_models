@@ -480,7 +480,7 @@ module AnnotateModels
         klass.reset_column_information
         info = get_schema_info(klass, header, options)
         model_name = klass.name.underscore
-        table_name = klass.table_name
+        table_name = klass.table_name if klass.connection_specification_name == ActiveRecord::Base.name
         model_file_name = File.join(file)
         annotated = []
 
@@ -702,7 +702,7 @@ module AnnotateModels
           klass = get_model_class(file)
           if klass < ActiveRecord::Base && !klass.abstract_class?
             model_name = klass.name.underscore
-            table_name = klass.table_name
+            table_name = klass.table_name if klass.connection_specification_name == ActiveRecord::Base.name
             model_file_name = file
             deannotated_klass = true if remove_annotation_of_file(model_file_name, options)
 
