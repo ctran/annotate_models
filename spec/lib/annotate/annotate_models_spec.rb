@@ -49,9 +49,9 @@ describe AnnotateModels do
            table_comment: table_comment)
   end
 
-  def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [], table_comment = nil)
+  def mock_class(table_name, primary_key, columns, connection = mock_connection)
     options = {
-      connection:       mock_connection(indexes, foreign_keys, table_comment),
+      connection:       connection,
       table_exists?:    true,
       table_name:       table_name,
       primary_key:      primary_key,
@@ -218,7 +218,7 @@ describe AnnotateModels do
     end
 
     let :klass do
-      mock_class(:users, primary_key, columns, indexes, foreign_keys, table_comment)
+      mock_class(:users, primary_key, columns, mock_connection(indexes, foreign_keys, table_comment))
     end
 
     let :indexes do
@@ -405,7 +405,7 @@ describe AnnotateModels do
               end
 
               let :klass do
-                mock_class(:posts, primary_key, columns, indexes, foreign_keys).tap do |mock_klass|
+                mock_class(:posts, primary_key, columns, mock_connection(indexes, foreign_keys)).tap do |mock_klass|
                   allow(mock_klass).to receive(:translation_class).and_return(translation_klass)
                 end
               end
@@ -2664,14 +2664,14 @@ describe AnnotateModels do
                                mock_column(:id, :integer),
                                mock_column(:foreign_thing_id, :integer)
                              ],
-                             [],
-                             [
-                               mock_foreign_key('fk_rails_cf2568e89e',
-                                                'foreign_thing_id',
-                                                'foreign_things',
-                                                'id',
-                                                on_delete: :cascade)
-                             ])
+                             mock_connection([],
+                                             [
+                                               mock_foreign_key('fk_rails_cf2568e89e',
+                                                                'foreign_thing_id',
+                                                                'foreign_things',
+                                                                'id',
+                                                                on_delete: :cascade)
+                                             ]))
           @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
           annotate_one_file
         end
@@ -2683,14 +2683,16 @@ describe AnnotateModels do
                                mock_column(:id, :integer),
                                mock_column(:foreign_thing_id, :integer)
                              ],
-                             [],
-                             [
-                               mock_foreign_key('fk_rails_cf2568e89e',
-                                                'foreign_thing_id',
-                                                'foreign_things',
-                                                'id',
-                                                on_delete: :restrict)
-                             ])
+                             mock_connection(
+                               [],
+                               [
+                                 mock_foreign_key('fk_rails_cf2568e89e',
+                                                  'foreign_thing_id',
+                                                  'foreign_things',
+                                                  'id',
+                                                  on_delete: :restrict)
+                               ]
+                             ))
           @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
           annotate_one_file
           expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
