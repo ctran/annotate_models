@@ -1102,6 +1102,8 @@ describe AnnotateModels do
                       mock_column(:cyrillic,   :text,    limit: 30, comment: 'Кириллица'),
                       mock_column(:japanese,   :text,    limit: 60, comment: '熊本大学　イタリア　宝島'),
                       mock_column(:arabic,     :text,    limit: 20, comment: 'لغة'),
+                      mock_column(:symbol, :text, limit: 20, comment: '€℀ℰ⁋℉'),
+                      mock_column(:emoji, :text, limit: 30, comment: '🍺🍣🍀😀🦀🤖'),
                       mock_column(:no_comment, :text,    limit: 20, comment: nil),
                       mock_column(:location,   :geometry_collection, limit: nil, comment: nil)
                     ]
@@ -1120,6 +1122,8 @@ describe AnnotateModels do
                       #  cyrillic(Кириллица)                :text(30)         not null
                       #  japanese(熊本大学　イタリア　宝島) :text(60)         not null
                       #  arabic(لغة)                        :text(20)         not null
+                      #  symbol(€℀ℰ⁋℉)                      :text(20)         not null
+                      #  emoji(🍺🍣🍀😀🦀🤖)                :text(30)         not null
                       #  no_comment                         :text(20)         not null
                       #  location                           :geometry_collect not null
                       #

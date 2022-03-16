@@ -4,6 +4,7 @@ require 'bigdecimal'
 
 require 'annotate/constants'
 require_relative 'annotate_models/file_patterns'
+require "unicode/display_width"
 
 module AnnotateModels
   # Annotate Models plugin use this header
@@ -782,7 +783,7 @@ module AnnotateModels
     end
 
     def width(string)
-      string.chars.inject(0) { |acc, elem| acc + (elem.bytesize == 3 ? 2 : 1) }
+      Unicode::DisplayWidth.of(string, 1, 0x0a => 1)
     end
 
     def mb_chars_ljust(string, length)
