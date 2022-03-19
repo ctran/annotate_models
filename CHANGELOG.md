@@ -1,5 +1,9 @@
 Please see https://github.com/ctran/annotate_models/releases for changes between releases.
 
+## 4.0.0
+
+## 3.2.0
+
 ## 3.1.1
 Changes
 - Bump required ruby version to >= 2.4 [#772](https://github.com/ctran/annotate_models/pull/772)
