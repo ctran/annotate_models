@@ -69,7 +69,7 @@ describe AnnotateModels do
       null: false,
       default: nil,
       sql_type: type,
-      comment: nil,
+      comment: nil
     }
 
     stubs = default_options.dup
@@ -2620,11 +2620,11 @@ describe AnnotateModels do
 
         it 'should update' do
           klass = mock_class(:users,
-                              :id,
-                              [
+                             :id,
+                             [
                                mock_column(:id, :integer),
                                mock_column(:name, :string, null: true, comment: '名前１')
-                              ])
+                             ])
           @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', with_comment: true)
           annotate_one_file
 
