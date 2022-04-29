@@ -2601,6 +2601,26 @@ describe AnnotateModels do
           annotate_one_file
           expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
         end
+
+        it 'should update foreign key constraint with comment' do
+          klass = mock_class(:users,
+                             :id,
+                             [
+                               mock_column(:id, :integer),
+                               mock_column(:foreign_thing_id, :integer, comment: "foreign_thing_id")
+                             ],
+                             [],
+                             [
+                               mock_foreign_key('fk_rails_cf2568e89e',
+                                                'foreign_thing_id',
+                                                'foreign_things',
+                                                'id',
+                                                on_delete: :cascade)
+                             ])
+          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', with_comment: 'yes')
+          annotate_one_file
+          expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+        end
       end
     end
 
