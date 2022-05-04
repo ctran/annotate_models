@@ -787,7 +787,13 @@ describe AnnotateModels do
                   let :check_constraints do
                     [
                       mock_check_constraint('alive', 'age < 150'),
-                      mock_check_constraint('must_be_adult', 'age >= 18')
+                      mock_check_constraint('must_be_adult', 'age >= 18'),
+                      mock_check_constraint('multiline_test', <<~SQL)
+                        CASE
+                          WHEN (age >= 18) THEN (age <= 21)
+                          ELSE true
+                        END
+                      SQL
                     ]
                   end
 
@@ -802,8 +808,9 @@ describe AnnotateModels do
                       #
                       # Check Constraints
                       #
-                      #  alive          (age < 150)
-                      #  must_be_adult  (age >= 18)
+                      #  alive           (age < 150)
+                      #  multiline_test  (CASE WHEN (age >= 18) THEN (age <= 21) ELSE true END)
+                      #  must_be_adult   (age >= 18)
                       #
                     EOS
                   end
@@ -1581,7 +1588,13 @@ describe AnnotateModels do
                 context 'when check constraints are defined' do
                   let :check_constraints do
                     [
-                      mock_check_constraint('min_name_length', 'LENGTH(name) > 2')
+                      mock_check_constraint('min_name_length', 'LENGTH(name) > 2'),
+                      mock_check_constraint('multiline_test', <<~SQL)
+                        CASE
+                          WHEN (age >= 18) THEN (age <= 21)
+                          ELSE true
+                        END
+                      SQL
                     ]
                   end
 
@@ -1601,6 +1614,7 @@ describe AnnotateModels do
                       # ### Check Constraints
                       #
                       # * `min_name_length`: `(LENGTH(name) > 2)`
+                      # * `multiline_test`: `(CASE WHEN (age >= 18) THEN (age <= 21) ELSE true END)`
                       #
                     EOS
                   end
