@@ -371,10 +371,14 @@ module AnnotateModels
 
       max_size = check_constraints.map { |check_constraint| check_constraint.name.size }.max + 1
       check_constraints.sort_by(&:name).each do |check_constraint|
+        expression = check_constraint.expression ? "(#{check_constraint.expression.squish})" : nil
+
         cc_info << if options[:format_markdown]
-                     sprintf("# * `%s`: `(%s)`\n", check_constraint.name, check_constraint.expression.squish)
+                     cc_info_markdown = sprintf("# * `%s`", check_constraint.name)
+                     cc_info_markdown << sprintf(": `%s`", expression) if expression
+                     cc_info_markdown << "\n"
                    else
-                     sprintf("#  %-#{max_size}.#{max_size}s (%s)\n", check_constraint.name, check_constraint.expression.squish)
+                     sprintf("#  %-#{max_size}.#{max_size}s %s", check_constraint.name, expression).rstrip + "\n"
                    end
       end
 
