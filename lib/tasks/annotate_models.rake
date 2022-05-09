@@ -52,6 +52,7 @@ task annotate_models: :environment do
   options[:hide_default_column_types] = Annotate::Helpers.fallback(ENV['hide_default_column_types'], '')
   options[:with_comment] = Annotate::Helpers.true?(ENV['with_comment'])
   options[:ignore_unknown_models] = Annotate::Helpers.true?(ENV.fetch('ignore_unknown_models', 'false'))
+  options[:blank_line] = Annotate::Helpers.fallback(ENV['blank_line'])
 
   AnnotateModels.do_annotations(options)
 end

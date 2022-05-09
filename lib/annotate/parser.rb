@@ -59,6 +59,13 @@ module Annotate
         ENV['additional_file_patterns'] = additional_file_patterns
       end
 
+      option_parser.on('--bl',
+                       '--blank-line',
+                       'Add a blank line separator between the annotation and class definition') do
+        @options[:target_action] = :blank_line
+        ENV['blank_line'] = 'yes'
+      end
+
       option_parser.on('-d',
                        '--delete',
                        'Remove annotations from all model files or the routes.rb file') do
