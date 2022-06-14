@@ -18,20 +18,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: false
-
-      - name: Install sqlite
-        run: |
-          sudo apt-get install libsqlite3-dev
+          bundler-cache: true
 
       - name: Run Tests
-        run: INTEGRATION_TESTS=1 bundle exec rspec
+        run: bundle exec rspec
 
       - name: Rubocop
         run: bundle exec rubocop
