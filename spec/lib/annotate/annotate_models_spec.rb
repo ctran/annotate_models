@@ -19,7 +19,7 @@ describe AnnotateModels do
     '# frozen_string_literal: true',
     '#frozen_string_literal: false',
     '# -*- frozen_string_literal : true -*-'
-  ].freeze
+  ].freeze unless const_defined?(:MAGIC_COMMENTS)
 
   def mock_index(name, params = {})
     double('IndexKeyDefinition',

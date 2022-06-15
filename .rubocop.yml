@@ -1,12 +1,17 @@
 inherit_from:
   - .rubocop_todo.yml
 
+require:
+  - rubocop-rake
+  - rubocop-rspec
+
 AllCops:
   Exclude:
     - 'vendor/**/*'
     - 'spec/fixtures/**/*'
     - 'tmp/**/*'
     - 'spec/integration/**/*'
+  NewCops: enable
 
 Metrics/BlockLength:
   Exclude:
