@@ -14,11 +14,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ['2.4', '2.5', '2.6']
+        ruby: ['2.7']
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -26,12 +26,8 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
-      - name: Install sqlite
-        run: |
-          sudo apt-get install libsqlite3-dev
-
       - name: Run Tests
-        run: INTEGRATION_TESTS=1 bundle exec rspec
+        run: bundle exec rspec
 
       - name: Rubocop
         run: bundle exec rubocop
