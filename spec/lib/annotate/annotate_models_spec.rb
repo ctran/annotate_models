@@ -41,16 +41,17 @@ describe AnnotateModels do
            on_update:    constraints[:on_update])
   end
 
-  def mock_connection(indexes = [], foreign_keys = [])
+  def mock_connection(indexes = [], foreign_keys = [], table_comment = nil)
     double('Conn',
            indexes:      indexes,
            foreign_keys: foreign_keys,
-           supports_foreign_keys?: true)
+           supports_foreign_keys?: true,
+           table_comment: table_comment)
   end
 
-  def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [])
+  def mock_class(table_name, primary_key, columns, connection = mock_connection)
     options = {
-      connection:       mock_connection(indexes, foreign_keys),
+      connection:       connection,
       table_exists?:    true,
       table_name:       table_name,
       primary_key:      primary_key,
@@ -217,7 +218,7 @@ describe AnnotateModels do
     end
 
     let :klass do
-      mock_class(:users, primary_key, columns, indexes, foreign_keys)
+      mock_class(:users, primary_key, columns, mock_connection(indexes, foreign_keys, table_comment))
     end
 
     let :indexes do
@@ -225,6 +226,10 @@ describe AnnotateModels do
     end
 
     let :foreign_keys do
+      []
+    end
+
+    let :table_comment do
       []
     end
 
@@ -400,7 +405,7 @@ describe AnnotateModels do
               end
 
               let :klass do
-                mock_class(:posts, primary_key, columns, indexes, foreign_keys).tap do |mock_klass|
+                mock_class(:posts, primary_key, columns, mock_connection(indexes, foreign_keys)).tap do |mock_klass|
                   allow(mock_klass).to receive(:translation_class).and_return(translation_klass)
                 end
               end
@@ -1061,6 +1066,60 @@ describe AnnotateModels do
                   { with_comment: 'yes' }
                 end
 
+                context 'when table have comments' do
+                  let :table_comment do
+                    'users table comment'
+                  end
+
+                  let :columns do
+                    [
+                      mock_column(:id, :integer, limit: 8),
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users(users table comment)
+                      #
+                      #  id :integer          not null, primary key
+                      #
+                    EOS
+                  end
+
+                  it 'works with option "with_comment"' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when table have multiline comments' do
+                  let :table_comment do
+                    "Notes.\nUsers table comment"
+                  end
+
+                  let :columns do
+                    [
+                      mock_column(:id, :integer, limit: 8),
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users(Notes.\\nUsers table comment)
+                      #
+                      #  id :integer          not null, primary key
+                      #
+                    EOS
+                  end
+
+                  it 'works with option "with_comment"' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
                 context 'when columns have comments' do
                   let :columns do
                     [
@@ -1191,6 +1250,41 @@ describe AnnotateModels do
                   end
 
                   it 'works with option "with_comment"' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when both table and columns have comments' do
+                  let :table_comment do
+                    'users table comment'
+                  end
+
+                  let :columns do
+                    [
+                      mock_column(:id,         :integer, limit: 8,  comment: 'ID'),
+                      mock_column(:active,     :boolean, limit: 1,  comment: 'Active'),
+                      mock_column(:name,       :string,  limit: 50, comment: 'Name'),
+                      mock_column(:notes,      :text,    limit: 55, comment: 'Notes'),
+                      mock_column(:no_comment, :text,    limit: 20, comment: nil)
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users(users table comment)
+                      #
+                      #  id(ID)         :integer          not null, primary key
+                      #  active(Active) :boolean          not null
+                      #  name(Name)     :string(50)       not null
+                      #  notes(Notes)   :text(55)         not null
+                      #  no_comment     :text(20)         not null
+                      #
+                    EOS
+                  end
+
+                  it 'works with option "with_comment' do
                     is_expected.to eq expected_result
                   end
                 end
@@ -2570,14 +2664,14 @@ describe AnnotateModels do
                                mock_column(:id, :integer),
                                mock_column(:foreign_thing_id, :integer)
                              ],
-                             [],
-                             [
-                               mock_foreign_key('fk_rails_cf2568e89e',
-                                                'foreign_thing_id',
-                                                'foreign_things',
-                                                'id',
-                                                on_delete: :cascade)
-                             ])
+                             mock_connection([],
+                                             [
+                                               mock_foreign_key('fk_rails_cf2568e89e',
+                                                                'foreign_thing_id',
+                                                                'foreign_things',
+                                                                'id',
+                                                                on_delete: :cascade)
+                                             ]))
           @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
           annotate_one_file
         end
@@ -2589,14 +2683,16 @@ describe AnnotateModels do
                                mock_column(:id, :integer),
                                mock_column(:foreign_thing_id, :integer)
                              ],
-                             [],
-                             [
-                               mock_foreign_key('fk_rails_cf2568e89e',
-                                                'foreign_thing_id',
-                                                'foreign_things',
-                                                'id',
-                                                on_delete: :restrict)
-                             ])
+                             mock_connection(
+                               [],
+                               [
+                                 mock_foreign_key('fk_rails_cf2568e89e',
+                                                  'foreign_thing_id',
+                                                  'foreign_things',
+                                                  'id',
+                                                  on_delete: :restrict)
+                               ]
+                             ))
           @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
           annotate_one_file
           expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
