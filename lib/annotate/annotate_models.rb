@@ -40,6 +40,7 @@ module AnnotateModels
   }.freeze
 
   MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/).freeze
+  SORBET_COMMENT_MATCHER = Regexp.new(/(^#\s*typed:.*(?:\n|r\n))/).freeze
 
   class << self
     def annotate_pattern(options = {})
@@ -394,15 +395,17 @@ module AnnotateModels
       # need to insert it in correct position
       if old_annotation.empty? || options[:force]
         magic_comments_block = magic_comments_as_string(old_content)
+        sorbet_comments_block = sorbet_comments_as_string(old_content)
         old_content.gsub!(MAGIC_COMMENT_MATCHER, '')
+        old_content.gsub!(SORBET_COMMENT_MATCHER, '')
         old_content.sub!(annotate_pattern(options), '')
 
         new_content = if %w(after bottom).include?(options[position].to_s)
-                        magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
-                      elsif magic_comments_block.empty?
-                        magic_comments_block + wrapped_info_block + old_content.lstrip
+                        magic_comments_block + sorbet_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
+                      elsif magic_comments_block.blank?
+                        sorbet_comments_block + (sorbet_comments_block.blank? ? '' : "\n") + wrapped_info_block + old_content.lstrip
                       else
-                        magic_comments_block + "\n" + wrapped_info_block + old_content.lstrip
+                        magic_comments_block + sorbet_comments_block + "\n" + wrapped_info_block + old_content.lstrip
                       end
       else
         # replace the old annotation with the new one
@@ -423,6 +426,16 @@ module AnnotateModels
 
       if magic_comments.any?
         magic_comments.join
+      else
+        ''
+      end
+    end
+
+    def sorbet_comments_as_string(content)
+      sorbet_comments = content.scan(SORBET_COMMENT_MATCHER).flatten.compact
+
+      if sorbet_comments.any?
+        sorbet_comments.join
       else
         ''
       end
