@@ -23,6 +23,7 @@ describe AnnotateModels do
 
   SORBET_COMMENTS = [
     '# typed: true',
+    '#typed: false'
   ].freeze unless const_defined?(:SORBET_COMMENTS)
 
   def mock_index(name, params = {})
