@@ -21,6 +21,10 @@ describe AnnotateModels do
     '# -*- frozen_string_literal : true -*-'
   ].freeze unless const_defined?(:MAGIC_COMMENTS)
 
+  SORBET_COMMENTS = [
+    '# typed: true',
+  ].freeze unless const_defined?(:SORBET_COMMENTS)
+
   def mock_index(name, params = {})
     double('IndexKeyDefinition',
            name:          name,
@@ -2692,6 +2696,25 @@ describe AnnotateModels do
       end
     end
 
+    it 'should not touch sorbet comments' do
+      SORBET_COMMENTS.each do |sorbet_comment|
+        write_model 'user.rb', <<~EOS
+          #{sorbet_comment}
+          class User < ActiveRecord::Base
+          end
+        EOS
+
+        annotate_one_file position: :before
+
+        lines = sorbet_comment.split("\n")
+        File.open @model_file_name do |file|
+          lines.count.times do |index|
+            expect(file.readline).to eq "#{lines[index]}\n"
+          end
+        end
+      end
+    end
+
     it 'adds an empty line between magic comments and annotation (position :before)' do
       content = "class User < ActiveRecord::Base\nend\n"
       MAGIC_COMMENTS.each do |magic_comment|
@@ -2701,6 +2724,18 @@ describe AnnotateModels do
         schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
 
         expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}#{content}")
+      end
+    end
+
+    it 'adds an empty line between sorbet comments and annotation (position :before)' do
+      content = "class User < ActiveRecord::Base\nend\n"
+      SORBET_COMMENTS.each do |sorbet_comment|
+        model_file_name, = write_model 'user.rb', "#{sorbet_comment}\n#{content}"
+
+        annotate_one_file position: :before
+        schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+
+        expect(File.read(model_file_name)).to eq("#{sorbet_comment}\n\n#{schema_info}#{content}")
       end
     end
 
@@ -2716,6 +2751,18 @@ describe AnnotateModels do
       end
     end
 
+    it 'only keeps a single empty line around the annotation (position :before, sorbet typed)' do
+      content = "class User < ActiveRecord::Base\nend\n"
+      SORBET_COMMENTS.each do |sorbet_comment|
+        schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+        model_file_name, = write_model 'user.rb', "#{sorbet_comment}\n\n\n\n#{content}"
+
+        annotate_one_file position: :before
+
+        expect(File.read(model_file_name)).to eq("#{sorbet_comment}\n\n#{schema_info}#{content}")
+      end
+    end
+
     it 'does not change whitespace between magic comments and model file content (position :after)' do
       content = "class User < ActiveRecord::Base\nend\n"
       MAGIC_COMMENTS.each do |magic_comment|
@@ -2725,6 +2772,32 @@ describe AnnotateModels do
         schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
 
         expect(File.read(model_file_name)).to eq("#{magic_comment}\n#{content}\n#{schema_info}")
+      end
+    end
+
+    it 'does not change whitespace between sorbet comments and model file content (position :after)' do
+      content = "class User < ActiveRecord::Base\nend\n"
+      SORBET_COMMENTS.each do |sorbet_comment|
+        model_file_name, = write_model 'user.rb', "#{sorbet_comment}\n#{content}"
+
+        annotate_one_file position: :after
+        schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+
+        expect(File.read(model_file_name)).to eq("#{sorbet_comment}\n#{content}\n#{schema_info}")
+      end
+    end
+
+    it 'moves magic comments before sorbet directive(s)' do
+      content = "class User < ActiveRecord::Base\nend\n"
+      MAGIC_COMMENTS.each do |magic_comment|
+        SORBET_COMMENTS.each do |sorbet_comment|
+          model_file_name, = write_model 'user.rb', "#{sorbet_comment}\n#{magic_comment}\n#{content}"
+
+          annotate_one_file position: :after
+          schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+
+          expect(File.read(model_file_name)).to eq("#{magic_comment}\n#{sorbet_comment}\n#{content}\n#{schema_info}")
+        end
       end
     end
 
