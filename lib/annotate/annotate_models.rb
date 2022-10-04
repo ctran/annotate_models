@@ -611,6 +611,15 @@ module AnnotateModels
         $LOAD_PATH.map(&:to_s)
                   .select { |path| absolute_file.include?(path) }
                   .map { |path| absolute_file.sub(path, '').sub(/\.rb$/, '').sub(/^\//, '') }
+
+      # Handle Rails apps with collapsed model paths
+      model_paths = model_paths
+        .select do |model_path|
+          defined?(Rails) &&
+          Rails.autoloaders.main.collapse_dirs.any? &&
+          Rails.autoloaders.main.collapse_dirs.select { |path| path.match(model_path) }
+        end.map { |model_path| model_path.sub(/\/models/, '') }
+
       model_paths
         .map { |path| get_loaded_model_by_path(path) }
         .find { |loaded_model| !loaded_model.nil? }
