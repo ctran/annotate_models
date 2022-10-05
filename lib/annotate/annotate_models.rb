@@ -614,11 +614,11 @@ module AnnotateModels
 
       # Handle Rails apps with collapsed model paths
       model_paths = model_paths
-        .select do |model_path|
-          defined?(Rails) &&
-          Rails.autoloaders.main.collapse_dirs.any? &&
-          Rails.autoloaders.main.collapse_dirs.select { |path| path.match(model_path) }
-        end.map { |model_path| model_path.sub(/\/models/, '') }
+                    .select do |mpath|
+                      defined?(Rails) &&
+                      Rails.autoloaders.main.collapse_dirs.any? &&
+                      Rails.autoloaders.main.collapse_dirs.select { |path| path.match(mpath) }
+                    end.map { |mpath| mpath.sub(/\/models/, '') }
 
       model_paths
         .map { |path| get_loaded_model_by_path(path) }

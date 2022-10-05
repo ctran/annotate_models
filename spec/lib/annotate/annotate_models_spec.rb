@@ -1892,6 +1892,37 @@ describe AnnotateModels do
           expect(klass.name).to eq('Bar::FooInsideBar')
         end
       end
+
+      context 'when class Bar::Foo is defined in Rails collapsed directory' do
+        before do
+          Rails = double('Rails')
+          # rubocop:disable RSpec/MessageChain
+          allow(Rails).to receive_message_chain(:autoloaders, :main, :collapse_dirs) { Set.new(["bar/models"]) }
+          # rubocop:enable RSpec/MessageChain
+          $LOAD_PATH.unshift(dir)
+        end
+
+        let :dir do
+          AnnotateModels.model_dir[0]
+        end
+
+        let :filename do
+          'bar/models/foo.rb'
+        end
+
+        let :file_content do
+          <<~EOS
+            module Bar
+              class Foo < ActiveRecord::Base
+              end
+            end
+          EOS
+        end
+
+        it 'works' do
+          expect(klass.name).to eql('Bar::Foo')
+        end
+      end
     end
 
     context 'when class is defined inside module and class name is not capitalized normally' do
