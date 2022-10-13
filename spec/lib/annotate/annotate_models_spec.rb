@@ -2146,7 +2146,9 @@ describe AnnotateModels do
 
         let :file_content_2 do
           <<-EOS
-            class Bar::Foo < ActiveRecord::Base
+            module Bar
+              class Foo < ActiveRecord::Base
+              end
             end
           EOS
         end
