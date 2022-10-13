@@ -178,6 +178,10 @@ module AnnotateModels
         info << get_foreign_key_info(klass, options)
       end
 
+      if options[:show_check_constraints] && klass.table_exists?
+        info << get_check_constraint_info(klass, options)
+      end
+
       info << get_schema_footer_text(klass, options)
     end
 
@@ -350,6 +354,31 @@ module AnnotateModels
       end
 
       fk_info
+    end
+
+    def get_check_constraint_info(klass, options = {})
+      cc_info = if options[:format_markdown]
+                  "#\n# ### Check Constraints\n#\n"
+                else
+                  "#\n# Check Constraints\n#\n"
+                end
+
+      return '' unless klass.connection.respond_to?(:supports_check_constraints?) &&
+        klass.connection.supports_check_constraints? && klass.connection.respond_to?(:check_constraints)
+
+      check_constraints = klass.connection.check_constraints(klass.table_name)
+      return '' if check_constraints.empty?
+
+      max_size = check_constraints.map { |check_constraint| check_constraint.name.size }.max + 1
+      check_constraints.sort_by(&:name).each do |check_constraint|
+        cc_info << if options[:format_markdown]
+                     sprintf("# * `%s`: `(%s)`\n", check_constraint.name, check_constraint.expression.squish)
+                   else
+                     sprintf("#  %-#{max_size}.#{max_size}s (%s)\n", check_constraint.name, check_constraint.expression.squish)
+                   end
+      end
+
+      cc_info
     end
 
     # Add a schema block to a file. If the file already contains
