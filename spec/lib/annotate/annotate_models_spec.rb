@@ -1195,6 +1195,146 @@ describe AnnotateModels do
                   end
                 end
               end
+
+              context 'when "with_comment_column" is specified in options' do
+                let :options do
+                  { with_comment_column: 'yes' }
+                end
+
+                context 'when columns have comments' do
+                  let :columns do
+                    [
+                      mock_column(:id,         :integer, limit: 8,  comment: 'ID'),
+                      mock_column(:active,     :boolean, limit: 1,  comment: 'Active'),
+                      mock_column(:name,       :string,  limit: 50, comment: 'Name'),
+                      mock_column(:notes,      :text,    limit: 55, comment: 'Notes'),
+                      mock_column(:no_comment, :text,    limit: 20, comment: nil)
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id         :integer          not null, primary key   ID
+                      #  active     :boolean          not null                Active
+                      #  name       :string(50)       not null                Name
+                      #  notes      :text(55)         not null                Notes
+                      #  no_comment :text(20)         not null
+                      #
+                    EOS
+                  end
+
+                  it 'works with option "with_comment_column"' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when columns have multibyte comments' do
+                  let :columns do
+                    [
+                      mock_column(:id,         :integer, limit: 8,  comment: 'ＩＤ'),
+                      mock_column(:active,     :boolean, limit: 1,  comment: 'ＡＣＴＩＶＥ'),
+                      mock_column(:name,       :string,  limit: 50, comment: 'ＮＡＭＥ'),
+                      mock_column(:notes,      :text,    limit: 55, comment: 'ＮＯＴＥＳ'),
+                      mock_column(:cyrillic,   :text,    limit: 30, comment: 'Кириллица'),
+                      mock_column(:japanese,   :text,    limit: 60, comment: '熊本大学　イタリア　宝島'),
+                      mock_column(:arabic,     :text,    limit: 20, comment: 'لغة'),
+                      mock_column(:no_comment, :text,    limit: 20, comment: nil),
+                      mock_column(:location,   :geometry_collection, limit: nil, comment: nil)
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id         :integer          not null, primary key   ＩＤ
+                      #  active     :boolean          not null                ＡＣＴＩＶＥ
+                      #  name       :string(50)       not null                ＮＡＭＥ
+                      #  notes      :text(55)         not null                ＮＯＴＥＳ
+                      #  cyrillic   :text(30)         not null                Кириллица
+                      #  japanese   :text(60)         not null                熊本大学　イタリア　宝島
+                      #  arabic     :text(20)         not null                لغة
+                      #  no_comment :text(20)         not null
+                      #  location   :geometry_collect not null
+                      #
+                    EOS
+                  end
+
+                  it 'works with option "with_comment_column"' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when columns have multiline comments' do
+                  let :columns do
+                    [
+                      mock_column(:id,         :integer, limit: 8,  comment: 'ID'),
+                      mock_column(:notes,      :text,    limit: 55, comment: "Notes.\nMay include things like notes."),
+                      mock_column(:no_comment, :text,    limit: 20, comment: nil)
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id         :integer          not null, primary key   ID
+                      #  notes      :text(55)         not null                Notes.\\nMay include things like notes.
+                      #  no_comment :text(20)         not null
+                      #
+                    EOS
+                  end
+
+                  it 'works with option "with_comment_column"' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when geometry columns are included' do
+                  let :columns do
+                    [
+                      mock_column(:id,       :integer,  limit: 8),
+                      mock_column(:active,   :boolean,  default: false, null: false),
+                      mock_column(:geometry, :geometry,
+                                  geometric_type: 'Geometry', srid: 4326,
+                                  limit: { srid: 4326, type: 'geometry' }),
+                      mock_column(:location, :geography,
+                                  geometric_type: 'Point', srid: 0,
+                                  limit: { srid: 0, type: 'geometry' }),
+                      mock_column(:non_srid, :geography,
+                                  geometric_type: 'Point',
+                                  limit: { type: 'geometry' })
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id       :integer          not null, primary key
+                      #  active   :boolean          default(FALSE), not null
+                      #  geometry :geometry         not null, geometry, 4326
+                      #  location :geography        not null, point, 0
+                      #  non_srid :geography        not null, point
+                      #
+                    EOS
+                  end
+
+                  it 'works with option "with_comment_column"' do
+                    is_expected.to eq expected_result
+                  end
+                end
+              end
             end
           end
         end

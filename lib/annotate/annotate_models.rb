@@ -142,19 +142,36 @@ module AnnotateModels
 
       if options[:format_markdown]
         info << sprintf( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
-        
         info << "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
       end
 
       cols = columns(klass, options)
-      cols.each do |col|
+      with_comments = with_comments?(klass, options)
+      with_comments_column = with_comments_column?(klass, options)
+
+      # Precalculate Values
+      cols_meta = cols.map do |col|
+        col_comment = with_comments || with_comments_column ? col.comment&.gsub(/\n/, "\\n") : nil
         col_type = get_col_type(col)
         attrs = get_attributes(col, col_type, klass, options)
-        col_name = if with_comments?(klass, options) && col.comment
-                     "#{col.name}(#{col.comment.gsub(/\n/, "\\n")})"
+        col_name = if with_comments && col_comment
+                     "#{col.name}(#{col_comment})"
                    else
                      col.name
                    end
+        simple_formatted_attrs = attrs.join(", ")
+        [col.name, { col_type: col_type, attrs: attrs, col_name: col_name, simple_formatted_attrs: simple_formatted_attrs, col_comment: col_comment }]
+      end.to_h
+
+      # Output annotation
+      bare_max_attrs_length = cols_meta.map { |_, m| m[:simple_formatted_attrs].length }.max
+
+      cols.each do |col|
+        col_type = cols_meta[col.name][:col_type]
+        attrs = cols_meta[col.name][:attrs]
+        col_name = cols_meta[col.name][:col_name]
+        simple_formatted_attrs = cols_meta[col.name][:simple_formatted_attrs]
+        col_comment = cols_meta[col.name][:col_comment]
 
         if options[:format_rdoc]
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
@@ -166,8 +183,10 @@ module AnnotateModels
           name_remainder = max_size - col_name.length - non_ascii_length(col_name)
           type_remainder = (md_type_allowance - 2) - col_type.length
           info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
+        elsif with_comments_column
+          info << format_default(col_name, max_size, col_type, bare_type_allowance, simple_formatted_attrs, bare_max_attrs_length, col_comment)
         else
-          info << format_default(col_name, max_size, col_type, bare_type_allowance, attrs)
+          info << format_default(col_name, max_size, col_type, bare_type_allowance, simple_formatted_attrs)
         end
       end
 
@@ -762,6 +781,12 @@ module AnnotateModels
         klass.columns.any? { |col| !col.comment.nil? }
     end
 
+    def with_comments_column?(klass, options)
+      options[:with_comment_column] &&
+        klass.columns.first.respond_to?(:comment) &&
+        klass.columns.any? { |col| !col.comment.nil? }
+    end
+
     def max_schema_info_width(klass, options)
       cols = columns(klass, options)
 
@@ -778,8 +803,14 @@ module AnnotateModels
       max_size
     end
 
-    def format_default(col_name, max_size, col_type, bare_type_allowance, attrs)
-      sprintf("#  %s:%s %s", mb_chars_ljust(col_name, max_size), mb_chars_ljust(col_type, bare_type_allowance),  attrs.join(", ")).rstrip + "\n"
+    def format_default(col_name, max_size, col_type, bare_type_allowance, simple_formatted_attrs, bare_max_attrs_length = 0, col_comment = nil)
+      sprintf(
+        "#  %s:%s %s   %s",
+        mb_chars_ljust(col_name, max_size),
+        mb_chars_ljust(col_type, bare_type_allowance),
+        mb_chars_ljust(simple_formatted_attrs, bare_max_attrs_length),
+        col_comment
+      ).rstrip + "\n"
     end
 
     def width(string)
