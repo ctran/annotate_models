@@ -554,7 +554,7 @@ module Annotate # rubocop:disable Metrics/ModuleLength
       let(:option) { '--with-comment-column' }
       let(:env_key) { 'with_comment_column' }
       let(:set_value) { 'true' }
-      fit 'sets the ENV variable' do
+      it 'sets the ENV variable' do
         expect(ENV).to receive(:[]=).with(env_key, set_value)
         Parser.parse([option])
       end
