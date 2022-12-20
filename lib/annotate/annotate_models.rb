@@ -579,7 +579,7 @@ module AnnotateModels
     # Check for namespaced models in subdirectories as well as models
     # in subdirectories without namespacing.
     def get_model_class(file)
-      model_path = file.gsub(/\.rb$/, '')
+      model_path = file.gsub(/\.rb$/, '').gsub(/_decorator/, '')
       model_dir.each { |dir| model_path = model_path.gsub(/^#{dir}/, '').gsub(/^\//, '') }
       begin
         get_loaded_model(model_path, file) || raise(BadModelFileError.new)
