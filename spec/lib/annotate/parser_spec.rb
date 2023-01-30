@@ -174,6 +174,22 @@ module Annotate # rubocop:disable Metrics/ModuleLength
       end
     end
 
+    %w[--pa --position-in-additional-file-patterns].each do |option|
+      describe option do
+        let(:env_key) { 'position_in_additional_file_patterns' }
+
+        Parser::ANNOTATION_POSITIONS.each do |position|
+          context "when specifying #{position}" do
+            it "sets the ENV variable to #{position}" do
+              allow(ENV).to receive(:[]=)
+              Parser.parse([option, position])
+              expect(ENV).to have_received(:[]=).with(env_key, position)
+            end
+          end
+        end
+      end
+    end
+
     %w[--w --wrapper].each do |option|
       describe option do
         let(:env_key) { 'wrapper' }
