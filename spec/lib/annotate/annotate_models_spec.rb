@@ -153,7 +153,11 @@ describe AnnotateModels do
     end
 
     before :each do
-      AnnotateModels.send(:parse_options, options)
+      AnnotateModels.parse_options(options)
+    end
+
+    after :each do
+      AnnotateModels.parse_options({ skip_subdirectory_model_load: false })
     end
 
     describe '@root_dir' do
@@ -1647,6 +1651,10 @@ describe AnnotateModels do
       Annotate::Helpers.true?(ENV['show_complete_foreign_keys'])
     end
 
+    after :each do
+      ENV.delete('show_complete_foreign_keys')
+    end
+
     context 'when default value of "show_complete_foreign_keys" is not set' do
       it 'returns false' do
         is_expected.to be(false)
@@ -1658,13 +1666,13 @@ describe AnnotateModels do
         Annotate.set_defaults('show_complete_foreign_keys' => 'true')
       end
 
+      after do
+        Annotate.instance_variable_set('@has_set_defaults', false)
+      end
+
       it 'returns true' do
         is_expected.to be(true)
       end
-    end
-
-    after :each do
-      ENV.delete('show_complete_foreign_keys')
     end
   end
 
@@ -1815,8 +1823,14 @@ describe AnnotateModels do
   end
 
   describe '.get_model_class' do
-    before :all do
-      AnnotateModels.model_dir = Dir.mktmpdir('annotate_models')
+    before :each do
+      @model_dir = Dir.mktmpdir('annotate_models')
+      AnnotateModels.model_dir = @model_dir
+      create(filename, file_content)
+    end
+
+    after :each do
+      FileUtils.remove_dir(@model_dir, true)
     end
 
     # TODO: use 'files' gem instead
@@ -1827,10 +1841,6 @@ describe AnnotateModels do
           f.puts(file_content)
         end
       end
-    end
-
-    before :each do
-      create(filename, file_content)
     end
 
     let :klass do
@@ -2113,7 +2123,9 @@ describe AnnotateModels do
 
         let :file_content_2 do
           <<-EOS
-            class Bar::Foo < ActiveRecord::Base
+            module Bar
+              class Foo < ActiveRecord::Base
+              end
             end
           EOS
         end
@@ -2146,7 +2158,9 @@ describe AnnotateModels do
 
         let :file_content_2 do
           <<-EOS
-            class Bar::Foo < ActiveRecord::Base
+            module Bar
+              class Foo < ActiveRecord::Base
+              end
             end
           EOS
         end
@@ -2163,6 +2177,7 @@ describe AnnotateModels do
         it 'attempts to load the model path without expanding if skip_subdirectory_model_load is false' do
           allow(AnnotateModels).to receive(:skip_subdirectory_model_load).and_return(false)
           full_path = File.join(AnnotateModels.model_dir[0], filename_2)
+          Kernel.load(full_path)
           expect(File).to_not receive(:expand_path).with(full_path)
           AnnotateModels.get_model_class(full_path)
         end
@@ -2171,6 +2186,7 @@ describe AnnotateModels do
           $LOAD_PATH.unshift(AnnotateModels.model_dir[0])
           allow(AnnotateModels).to receive(:skip_subdirectory_model_load).and_return(true)
           full_path = File.join(AnnotateModels.model_dir[0], filename_2)
+          Kernel.load(full_path)
           expect(File).to receive(:expand_path).with(full_path).and_call_original
           AnnotateModels.get_model_class(full_path)
         end
@@ -2216,6 +2232,10 @@ describe AnnotateModels do
   describe '.remove_annotation_of_file' do
     subject do
       AnnotateModels.remove_annotation_of_file(path)
+    end
+
+    after :each do
+      FileUtils.remove_dir(tmpdir, true)
     end
 
     let :tmpdir do
@@ -2502,7 +2522,7 @@ describe AnnotateModels do
   end
 
   describe 'annotating a file' do
-    before do
+    before :each do
       @model_dir = Dir.mktmpdir('annotate_models')
       (@model_file_name, @file_content) = write_model 'user.rb', <<~EOS
         class User < ActiveRecord::Base
@@ -2519,6 +2539,10 @@ describe AnnotateModels do
       Annotate::Helpers.reset_options(Annotate::Constants::ALL_ANNOTATE_OPTIONS)
     end
 
+    after :each do
+      FileUtils.remove_dir(@model_dir, true)
+    end
+
     def write_model(file_name, file_content)
       fname = File.join(@model_dir, file_name)
       FileUtils.mkdir_p(File.dirname(fname))
@@ -2531,7 +2555,7 @@ describe AnnotateModels do
       Annotate.set_defaults(options)
       options = Annotate.setup_options(options)
       AnnotateModels.annotate_one_file(@model_file_name, @schema_info, :position_in_class, options)
-
+    ensure
       # Wipe settings so the next call will pick up new values...
       Annotate.instance_variable_set('@has_set_defaults', false)
       Annotate::Constants::POSITION_OPTIONS.each { |key| ENV[key.to_s] = '' }
