@@ -48,7 +48,7 @@ module Annotate
       end
     end
 
-    def add_options_to_parser(option_parser) # rubocop:disable Metrics/MethodLength
+    def add_options_to_parser(option_parser) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       has_set_position = {}
 
       option_parser.banner = 'Usage: annotate [options] [model_file]*'

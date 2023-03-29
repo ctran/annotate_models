@@ -405,7 +405,7 @@ describe AnnotateModels do
               end
             end
 
-            context 'with Globalize gem' do
+            context 'with Globalize gem' do # rubocop:disable RSpec/MultipleMemoizedHelpers
               let :translation_klass do
                 double('Folder::Post::Translation',
                        to_s: 'Folder::Post::Translation',

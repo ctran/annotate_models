@@ -131,7 +131,7 @@ module AnnotateModels
     # to create a comment block containing a line for
     # each column. The line contains the column name,
     # the type (and length), and any optional attributes
-    def get_schema_info(klass, header, options = {})
+    def get_schema_info(klass, header, options = {}) # rubocop:disable Metrics/MethodLength
       info = "# #{header}\n"
       info << get_schema_header_text(klass, options)
 
