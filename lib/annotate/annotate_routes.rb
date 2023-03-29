@@ -36,12 +36,10 @@ module AnnotateRoutes
           else
             puts "#{routes_file} was not changed."
           end
+        elsif rewrite_contents(existing_text, new_text)
+          puts "#{routes_file} was annotated."
         else
-          if rewrite_contents(existing_text, new_text)
-            puts "#{routes_file} was annotated."
-          else
-            puts "#{routes_file} was not changed."
-          end
+          puts "#{routes_file} was not changed."
         end
       else
         puts "#{routes_file} could not be found."
