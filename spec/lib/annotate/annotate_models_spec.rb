@@ -41,16 +41,25 @@ describe AnnotateModels do
            on_update:    constraints[:on_update])
   end
 
-  def mock_connection(indexes = [], foreign_keys = [])
+  def mock_check_constraint(name, expression)
+    double('CheckConstraintDefinition',
+           name:       name,
+           expression: expression)
+  end
+
+  def mock_connection(indexes = [], foreign_keys = [], check_constraints = [])
     double('Conn',
            indexes:      indexes,
            foreign_keys: foreign_keys,
-           supports_foreign_keys?: true)
+           check_constraints: check_constraints,
+           supports_foreign_keys?: true,
+           supports_check_constraints?: true)
   end
 
-  def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [])
+  # rubocop:disable Metrics/ParameterLists
+  def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [], check_constraints = [])
     options = {
-      connection:       mock_connection(indexes, foreign_keys),
+      connection:       mock_connection(indexes, foreign_keys, check_constraints),
       table_exists?:    true,
       table_name:       table_name,
       primary_key:      primary_key,
@@ -62,6 +71,7 @@ describe AnnotateModels do
 
     double('An ActiveRecord class', options)
   end
+  # rubocop:enable Metrics/ParameterLists
 
   def mock_column(name, type, options = {})
     default_options = {
@@ -221,7 +231,7 @@ describe AnnotateModels do
     end
 
     let :klass do
-      mock_class(:users, primary_key, columns, indexes, foreign_keys)
+      mock_class(:users, primary_key, columns, indexes, foreign_keys, check_constraints)
     end
 
     let :indexes do
@@ -229,6 +239,10 @@ describe AnnotateModels do
     end
 
     let :foreign_keys do
+      []
+    end
+
+    let :check_constraints do
       []
     end
 
@@ -391,7 +405,7 @@ describe AnnotateModels do
               end
             end
 
-            context 'with Globalize gem' do
+            context 'with Globalize gem' do # rubocop:disable RSpec/MultipleMemoizedHelpers
               let :translation_klass do
                 double('Folder::Post::Translation',
                        to_s: 'Folder::Post::Translation',
@@ -750,6 +764,82 @@ describe AnnotateModels do
                   end
 
                   it 'returns schema info with index information' do
+                    is_expected.to eq expected_result
+                  end
+                end
+              end
+            end
+
+            context 'when check constraints exist' do
+              let :columns do
+                [
+                  mock_column(:id, :integer),
+                  mock_column(:age, :integer)
+                ]
+              end
+
+              context 'when option "show_check_constraints" is true' do
+                let :options do
+                  { show_check_constraints: true }
+                end
+
+                context 'when check constraints are defined' do
+                  let :check_constraints do
+                    [
+                      mock_check_constraint('alive', 'age < 150'),
+                      mock_check_constraint('must_be_adult', 'age >= 18'),
+                      mock_check_constraint('missing_expression', nil),
+                      mock_check_constraint('multiline_test', <<~SQL)
+                        CASE
+                          WHEN (age >= 18) THEN (age <= 21)
+                          ELSE true
+                        END
+                      SQL
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id  :integer          not null, primary key
+                      #  age :integer          not null
+                      #
+                      # Check Constraints
+                      #
+                      #  alive               (age < 150)
+                      #  missing_expression
+                      #  multiline_test      (CASE WHEN (age >= 18) THEN (age <= 21) ELSE true END)
+                      #  must_be_adult       (age >= 18)
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with check constraint information' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when check constraint is not defined' do
+                  let :check_constraints do
+                    []
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id  :integer          not null, primary key
+                      #  age :integer          not null
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info without check constraint information' do
                     is_expected.to eq expected_result
                   end
                 end
@@ -1487,6 +1577,53 @@ describe AnnotateModels do
                   end
 
                   it 'returns schema info with index information in Markdown format' do
+                    is_expected.to eq expected_result
+                  end
+                end
+              end
+
+              context 'when option "show_check_constraints" is true' do
+                let :options do
+                  { format_markdown: true, show_check_constraints: true }
+                end
+
+                context 'when check constraints are defined' do
+                  let :check_constraints do
+                    [
+                      mock_check_constraint('min_name_length', 'LENGTH(name) > 2'),
+                      mock_check_constraint('missing_expression', nil),
+                      mock_check_constraint('multiline_test', <<~SQL)
+                        CASE
+                          WHEN (age >= 18) THEN (age <= 21)
+                          ELSE true
+                        END
+                      SQL
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # == Schema Information
+                      #
+                      # Table name: `users`
+                      #
+                      # ### Columns
+                      #
+                      # Name        | Type               | Attributes
+                      # ----------- | ------------------ | ---------------------------
+                      # **`id`**    | `integer`          | `not null, primary key`
+                      # **`name`**  | `string(50)`       | `not null`
+                      #
+                      # ### Check Constraints
+                      #
+                      # * `min_name_length`: `(LENGTH(name) > 2)`
+                      # * `missing_expression`
+                      # * `multiline_test`: `(CASE WHEN (age >= 18) THEN (age <= 21) ELSE true END)`
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with check constraint information in Markdown format' do
                     is_expected.to eq expected_result
                   end
                 end

@@ -18,6 +18,7 @@ task annotate_models: :environment do
   options[:position_in_factory] = Annotate::Helpers.fallback(ENV['position_in_factory'], ENV['position'])
   options[:position_in_test] = Annotate::Helpers.fallback(ENV['position_in_test'], ENV['position'])
   options[:position_in_serializer] = Annotate::Helpers.fallback(ENV['position_in_serializer'], ENV['position'])
+  options[:show_check_constraints] = Annotate::Helpers.true?(ENV['show_check_constraints'])
   options[:show_foreign_keys] = Annotate::Helpers.true?(ENV['show_foreign_keys'])
   options[:show_complete_foreign_keys] = Annotate::Helpers.true?(ENV['show_complete_foreign_keys'])
   options[:show_indexes] = Annotate::Helpers.true?(ENV['show_indexes'])
