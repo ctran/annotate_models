@@ -53,7 +53,8 @@ describe AnnotateModels do
            foreign_keys: foreign_keys,
            check_constraints: check_constraints,
            supports_foreign_keys?: true,
-           supports_check_constraints?: true)
+           supports_check_constraints?: true,
+           table_exists?: true)
   end
 
   # rubocop:disable Metrics/ParameterLists
@@ -538,7 +539,7 @@ describe AnnotateModels do
                   end
                 end
 
-                context 'when one of indexes includes orderd index key' do
+                context 'when one of indexes includes ordered index key' do
                   let :columns do
                     [
                       mock_column("id", :integer),
@@ -694,6 +695,24 @@ describe AnnotateModels do
                   it 'returns schema info without index information' do
                     is_expected.to eq expected_result
                   end
+
+                  # rubocop:disable RSpec/NestedGroups
+                  context 'when the unprefixed table name does not exist' do
+                    let :klass do
+                      mock_class(:users, primary_key, columns, indexes, foreign_keys).tap do |mock_klass|
+                        allow(mock_klass).to receive(:table_name_prefix).and_return('my_prefix_')
+                        allow(mock_klass.connection).to receive(:table_exists?).with('users').and_return(false)
+                        allow(mock_klass.connection).to receive(:indexes).with('users').and_raise('error fetching indexes on nonexistent table')
+                      end
+                    end
+
+                    it 'returns schema info without index information' do
+                      is_expected.to eq expected_result
+                      expect(klass).to have_received(:table_name_prefix).at_least(:once)
+                      expect(klass.connection).to have_received(:table_exists?).with('users')
+                    end
+                  end
+                  # rubocop:enable RSpec/NestedGroups
                 end
               end
 
