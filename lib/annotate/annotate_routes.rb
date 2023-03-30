@@ -29,8 +29,7 @@ module AnnotateRoutes
         content, header_position = Helpers.strip_annotations(existing_text)
         new_content = annotate_routes(HeaderGenerator.generate(options), content, header_position, options)
         new_text = new_content.join("\n")
-
-        if rewrite_contents(existing_text, new_text)
+        if rewrite_contents(existing_text, new_text, options[:frozen])
           puts "#{routes_file} was annotated."
         else
           puts "#{routes_file} was not changed."
@@ -82,11 +81,11 @@ module AnnotateRoutes
       content
     end
 
-    def rewrite_contents(existing_text, new_text)
+    def rewrite_contents(existing_text, new_text, frozen)
       content_changed = (existing_text != new_text)
 
       if content_changed
-        abort "annotate error. #{routes_file} needs to be updated, but annotate was run with `--frozen`." if options[:frozen]        
+        abort "annotate error. #{routes_file} needs to be updated, but annotate was run with `--frozen`." if frozen        
         File.open(routes_file, 'wb') { |f| f.puts(new_text) }
       end
       
