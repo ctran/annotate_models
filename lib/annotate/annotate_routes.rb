@@ -45,7 +45,7 @@ module AnnotateRoutes
         content, header_position = Helpers.strip_annotations(existing_text)
         new_content = strip_on_removal(content, header_position)
         new_text = new_content.join("\n")
-        if rewrite_contents(existing_text, new_text)
+        if rewrite_contents(existing_text, new_text, _options[:frozen])
           puts "Annotations were removed from #{routes_file}."
         else
           puts "#{routes_file} was not changed (Annotation did not exist)."
