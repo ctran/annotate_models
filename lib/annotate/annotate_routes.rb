@@ -30,13 +30,7 @@ module AnnotateRoutes
         new_content = annotate_routes(HeaderGenerator.generate(options), content, header_position, options)
         new_text = new_content.join("\n")
 
-        if options[:frozen]
-          if needs_rewrite_contents?(existing_text, new_text)
-            abort "annotate error. #{routes_file} needs to be updated, but annotate was run with `--frozen`."
-          else
-            puts "#{routes_file} was not changed."
-          end
-        elsif rewrite_contents(existing_text, new_text)
+        if rewrite_contents(existing_text, new_text)
           puts "#{routes_file} was annotated."
         else
           puts "#{routes_file} was not changed."
@@ -89,16 +83,14 @@ module AnnotateRoutes
     end
 
     def rewrite_contents(existing_text, new_text)
-      if needs_rewrite_contents?(existing_text, new_text)
-        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-        true
-      else
-        false
-      end
-    end
+      content_changed = (existing_text != new_text)
 
-    def needs_rewrite_contents?(existing_text, new_text)
-      existing_text != new_text
+      if content_changed
+        abort "annotate error. #{routes_file} needs to be updated, but annotate was run with `--frozen`." if options[:frozen]        
+        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
+      end
+      
+      content_changed
     end
 
     def annotate_routes(header, content, header_position, options = {})
