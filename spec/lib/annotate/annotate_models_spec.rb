@@ -2877,25 +2877,6 @@ describe AnnotateModels do
       end
     end
 
-    it 'should not touch sorbet comments' do
-      SORBET_COMMENTS.each do |sorbet_comment|
-        write_model 'user.rb', <<~EOS
-          #{sorbet_comment}
-          class User < ActiveRecord::Base
-          end
-        EOS
-
-        annotate_one_file position: :before
-
-        lines = sorbet_comment.split("\n")
-        File.open @model_file_name do |file|
-          lines.count.times do |index|
-            expect(file.readline).to eq "#{lines[index]}\n"
-          end
-        end
-      end
-    end
-
     it 'adds an empty line between magic comments and annotation (position :before)' do
       content = "class User < ActiveRecord::Base\nend\n"
       MAGIC_COMMENTS.each do |magic_comment|
@@ -2905,18 +2886,6 @@ describe AnnotateModels do
         schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
 
         expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}#{content}")
-      end
-    end
-
-    it 'adds an empty line between sorbet comments and annotation (position :before)' do
-      content = "class User < ActiveRecord::Base\nend\n"
-      SORBET_COMMENTS.each do |sorbet_comment|
-        model_file_name, = write_model 'user.rb', "#{sorbet_comment}\n#{content}"
-
-        annotate_one_file position: :before
-        schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
-
-        expect(File.read(model_file_name)).to eq("#{sorbet_comment}\n\n#{schema_info}#{content}")
       end
     end
 
@@ -2932,18 +2901,6 @@ describe AnnotateModels do
       end
     end
 
-    it 'only keeps a single empty line around the annotation (position :before, sorbet typed)' do
-      content = "class User < ActiveRecord::Base\nend\n"
-      SORBET_COMMENTS.each do |sorbet_comment|
-        schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
-        model_file_name, = write_model 'user.rb', "#{sorbet_comment}\n\n\n\n#{content}"
-
-        annotate_one_file position: :before
-
-        expect(File.read(model_file_name)).to eq("#{sorbet_comment}\n\n#{schema_info}#{content}")
-      end
-    end
-
     it 'does not change whitespace between magic comments and model file content (position :after)' do
       content = "class User < ActiveRecord::Base\nend\n"
       MAGIC_COMMENTS.each do |magic_comment|
@@ -2956,28 +2913,92 @@ describe AnnotateModels do
       end
     end
 
-    it 'does not change whitespace between sorbet comments and model file content (position :after)' do
-      content = "class User < ActiveRecord::Base\nend\n"
-      SORBET_COMMENTS.each do |sorbet_comment|
-        model_file_name, = write_model 'user.rb', "#{sorbet_comment}\n#{content}"
+    describe "with sorbet comments" do
 
-        annotate_one_file position: :after
-        schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+      describe 'with existing annotation before and blank line after schema info' do
+        before do
+          content = "class User < ActiveRecord::Base\nend\n"
+          @sorbet_comment = SORBET_COMMENTS.sample
+          model_file_name, = write_model 'user.rb', "#{@sorbet_comment}\n#{content}"
+          annotate_one_file blank_line: true, position: :before
+          schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+          expect(File.read(model_file_name)).to eq("#{@sorbet_comment}\n\n#{schema_info}\n#{content}")
+          another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer)]), '== Schema Info')
+          @schema_info = another_schema_info
+        end
 
-        expect(File.read(model_file_name)).to eq("#{sorbet_comment}\n#{content}\n#{schema_info}")
+        it 'should retain current position' do
+          annotate_one_file
+          expect(File.read(@model_file_name)).to eq("#{@sorbet_comment}\n\n#{@schema_info}\n#{@file_content}")
+        end
       end
-    end
 
-    it 'moves magic comments before sorbet directive(s)' do
-      content = "class User < ActiveRecord::Base\nend\n"
-      MAGIC_COMMENTS.each do |magic_comment|
+      it 'should not touch sorbet comments' do
         SORBET_COMMENTS.each do |sorbet_comment|
-          model_file_name, = write_model 'user.rb', "#{sorbet_comment}\n#{magic_comment}\n#{content}"
+          write_model 'user.rb', <<~EOS
+            #{sorbet_comment}
+            class User < ActiveRecord::Base
+            end
+          EOS
+
+          annotate_one_file position: :before
+
+          lines = sorbet_comment.split("\n")
+          File.open @model_file_name do |file|
+            lines.count.times do |index|
+              expect(file.readline).to eq "#{lines[index]}\n"
+            end
+          end
+        end
+      end
+
+      it 'adds an empty line between sorbet comments and annotation (position :before)' do
+        content = "class User < ActiveRecord::Base\nend\n"
+        SORBET_COMMENTS.each do |sorbet_comment|
+          model_file_name, = write_model 'user.rb', "#{sorbet_comment}\n#{content}"
+
+          annotate_one_file position: :before
+          schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+
+          expect(File.read(model_file_name)).to eq("#{sorbet_comment}\n\n#{schema_info}#{content}")
+        end
+      end
+
+      it 'only keeps a single empty line around the annotation (position :before)' do
+        content = "class User < ActiveRecord::Base\nend\n"
+        SORBET_COMMENTS.each do |sorbet_comment|
+          schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+          model_file_name, = write_model 'user.rb', "#{sorbet_comment}\n\n\n\n#{content}"
+
+          annotate_one_file position: :before
+
+          expect(File.read(model_file_name)).to eq("#{sorbet_comment}\n\n#{schema_info}#{content}")
+        end
+      end
+
+      it 'moves magic comments before sorbet directive(s)' do
+        content = "class User < ActiveRecord::Base\nend\n"
+        MAGIC_COMMENTS.each do |magic_comment|
+          SORBET_COMMENTS.each do |sorbet_comment|
+            model_file_name, = write_model 'user.rb', "#{sorbet_comment}\n#{magic_comment}\n#{content}"
+
+            annotate_one_file position: :after
+            schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+
+            expect(File.read(model_file_name)).to eq("#{magic_comment}\n#{sorbet_comment}\n#{content}\n#{schema_info}")
+          end
+        end
+      end
+
+      it 'does not change whitespace between sorbet comments and model file content (position :after)' do
+        content = "class User < ActiveRecord::Base\nend\n"
+        SORBET_COMMENTS.each do |sorbet_comment|
+          model_file_name, = write_model 'user.rb', "#{sorbet_comment}\n#{content}"
 
           annotate_one_file position: :after
           schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
 
-          expect(File.read(model_file_name)).to eq("#{magic_comment}\n#{sorbet_comment}\n#{content}\n#{schema_info}")
+          expect(File.read(model_file_name)).to eq("#{sorbet_comment}\n#{content}\n#{schema_info}")
         end
       end
     end
@@ -3042,6 +3063,34 @@ describe AnnotateModels do
       it "should NOT abort with same annotation when frozen: true " do
         annotate_one_file
         expect { annotate_one_file frozen: true }.not_to raise_error
+      end
+    end
+
+    describe 'with blank line separator enabled' do
+      context "when there are no magic comments" do
+        it 'should add a blank line between the annotation and the class definition' do
+          content = "class User < ActiveRecord::Base\nend\n"
+          schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+          model_file_name, = write_model 'user.rb', content.to_s
+
+          annotate_one_file blank_line: true
+
+          expect(File.read(model_file_name)).to eq("#{schema_info}\n#{content}")
+        end
+      end
+
+      context "when there is a magic comment" do
+        it 'should add a blank line between the annotation and the class definition' do
+          content = "class User < ActiveRecord::Base\nend\n"
+          schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+          MAGIC_COMMENTS.each do |magic_comment|
+            model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
+
+            annotate_one_file blank_line: true
+
+            expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}\n#{content}")
+          end
+        end
       end
     end
   end
