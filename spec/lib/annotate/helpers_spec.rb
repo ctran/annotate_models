@@ -5,7 +5,7 @@ RSpec.describe Annotate::Helpers do
     subject { described_class.skip_on_migration? }
 
     before do
-      allow(ENV).to receive(:[]).and_return(nil)
+      allow(ENV).to receive(:fetch).with(anything, nil).and_return(nil)
     end
 
     it { is_expected.to be_falsy }
@@ -15,7 +15,7 @@ RSpec.describe Annotate::Helpers do
       let(:env_value) { '1' }
 
       before do
-        allow(ENV).to receive(:[]).with(key).and_return(env_value)
+        allow(ENV).to receive(:fetch).with(key, nil).and_return(env_value)
       end
 
       it { is_expected.to be_truthy }
@@ -26,7 +26,7 @@ RSpec.describe Annotate::Helpers do
       let(:env_value) { '1' }
 
       before do
-        allow(ENV).to receive(:[]).with(key).and_return(env_value)
+        allow(ENV).to receive(:fetch).with(key, nil).and_return(env_value)
       end
 
       it { is_expected.to be_truthy }
@@ -37,7 +37,7 @@ RSpec.describe Annotate::Helpers do
     subject { described_class.include_routes? }
 
     before do
-      allow(ENV).to receive(:[]).and_return(nil)
+      allow(ENV).to receive(:fetch).with(anything, nil).and_return(nil)
     end
 
     it { is_expected.to be_falsy }
@@ -47,7 +47,7 @@ RSpec.describe Annotate::Helpers do
       let(:env_value) { '1' }
 
       before do
-        allow(ENV).to receive(:[]).with(key).and_return(env_value)
+        allow(ENV).to receive(:fetch).with(key, nil).and_return(env_value)
       end
 
       it { is_expected.to be_truthy }
@@ -68,7 +68,7 @@ RSpec.describe Annotate::Helpers do
       let(:env_value) { '1' }
 
       before do
-        allow(ENV).to receive(:[]).with(key).and_return(env_value)
+        allow(ENV).to receive(:fetch).with(key, nil).and_return(env_value)
       end
 
       it { is_expected.to be_truthy }

@@ -155,7 +155,7 @@ module AnnotateModels
       with_comments_column = with_comments_column?(klass, options)
 
       # Precalculate Values
-      cols_meta = cols.map do |col|
+      cols_meta = cols.to_h do |col|
         col_comment = with_comments || with_comments_column ? col.comment&.gsub(/\n/, "\\n") : nil
         col_type = get_col_type(col)
         attrs = get_attributes(col, col_type, klass, options)
@@ -166,7 +166,7 @@ module AnnotateModels
                    end
         simple_formatted_attrs = attrs.join(", ")
         [col.name, { col_type: col_type, attrs: attrs, col_name: col_name, simple_formatted_attrs: simple_formatted_attrs, col_comment: col_comment }]
-      end.to_h
+      end
 
       # Output annotation
       bare_max_attrs_length = cols_meta.map { |_, m| m[:simple_formatted_attrs].length }.max
@@ -179,15 +179,15 @@ module AnnotateModels
         col_comment = cols_meta[col.name][:col_comment]
 
         if options[:format_rdoc]
-          info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+          info << (sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n")
         elsif options[:format_yard]
-          info << sprintf("# @!attribute #{col_name}") + "\n"
+          info << (sprintf("# @!attribute #{col_name}") + "\n")
           ruby_class = col.respond_to?(:array) && col.array ? "Array<#{map_col_type_to_ruby_classes(col_type)}>": map_col_type_to_ruby_classes(col_type)
-          info << sprintf("#   @return [#{ruby_class}]") + "\n"
+          info << (sprintf("#   @return [#{ruby_class}]") + "\n")
         elsif options[:format_markdown]
           name_remainder = max_size - col_name.length - non_ascii_length(col_name)
           type_remainder = (md_type_allowance - 2) - col_type.length
-          info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
+          info << ((sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n")
         elsif with_comments_column
           info << format_default(col_name, max_size, col_type, bare_type_allowance, simple_formatted_attrs, bare_max_attrs_length, col_comment)
         else

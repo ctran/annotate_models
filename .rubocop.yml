@@ -13,6 +13,9 @@ AllCops:
     - 'spec/integration/**/*'
   NewCops: enable
 
+Lint/FormatParameterMismatch:
+  Enabled: false
+
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'

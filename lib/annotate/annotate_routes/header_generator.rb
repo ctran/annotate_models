@@ -29,7 +29,7 @@ module AnnotateRoutes
         # Skip routes which match given regex
         # Note: it matches the complete line (route_name, path, controller/action)
         if regexp_for_ignoring_routes
-          result.reject { |line| line =~ regexp_for_ignoring_routes }
+          result.grep_v(regexp_for_ignoring_routes)
         else
           result
         end
@@ -53,9 +53,9 @@ module AnnotateRoutes
 
       out << comment(options[:wrapper_open]) if options[:wrapper_open]
 
-      out << comment(markdown? ? PREFIX_MD : PREFIX) + timestamp_if_required
+      out << (comment(markdown? ? PREFIX_MD : PREFIX) + timestamp_if_required)
       out << comment
-      return out if contents_without_magic_comments.size.zero?
+      return out if contents_without_magic_comments.empty?
 
       maxs = [HEADER_ROW.map(&:size)] + contents_without_magic_comments[1..-1].map { |line| line.split.map(&:size) }
 
