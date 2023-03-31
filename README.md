@@ -2,11 +2,9 @@
 
 [![Gem Version](https://badge.fury.io/rb/annotate.svg)](http://badge.fury.io/rb/annotate)
 [![Downloads count](https://img.shields.io/gem/dt/annotate.svg?style=flat)](https://rubygems.org/gems/annotate)
-[![Build status](https://travis-ci.org/ctran/annotate_models.svg?branch=develop)](https://travis-ci.org/ctran/annotate_models)
 [![CI Status](https://github.com/ctran/annotate_models/workflows/CI/badge.svg)](https://github.com/ctran/annotate_models/actions?workflow=CI)
 [![Coveralls](https://coveralls.io/repos/ctran/annotate_models/badge.svg?branch=develop)](https://coveralls.io/r/ctran/annotate_models?branch=develop)
 [![Maintenability](https://codeclimate.com/github/ctran/annotate_models/badges/gpa.svg)](https://codeclimate.com/github/ctran/annotate_models)
-[![Inline docs](http://inch-ci.org/github/ctran/annotate_models.svg?branch=develop)](http://inch-ci.org/github/ctran/annotate_models)
 
 Add a comment summarizing the current schema to the top or bottom of each of your...
 
@@ -224,6 +222,7 @@ you can do so with a simple environment variable, instead of editing the
         -a, --active-admin               Annotate active_admin models
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
+        -c, --show-check-constraints     List the table's check constraints in the annotation
         -k, --show-foreign-keys          List the table's foreign key constraints in the annotation
             --ck, --complete-foreign-keys
                                          Complete foreign key names in the annotation

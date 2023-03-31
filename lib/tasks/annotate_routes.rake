@@ -14,6 +14,7 @@ task :annotate_routes => :environment do
   options[:position_in_routes] = Annotate::Helpers.fallback(ENV['position_in_routes'], ENV['position'])
   options[:ignore_routes] = Annotate::Helpers.fallback(ENV['ignore_routes'],  nil)
   options[:require] = ENV['require'] ? ENV['require'].split(',') : []
+  options[:frozen] = Annotate::Helpers.true?(ENV['frozen'])
   options[:wrapper_open] = Annotate::Helpers.fallback(ENV['wrapper_open'], ENV['wrapper'])
   options[:wrapper_close] = Annotate::Helpers.fallback(ENV['wrapper_close'], ENV['wrapper'])
   AnnotateRoutes.do_annotations(options)
