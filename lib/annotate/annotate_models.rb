@@ -239,7 +239,7 @@ module AnnotateModels
         'bigint'
       else
         (col.type || col.sql_type).to_s
-      end
+      end.dup
     end
 
     def index_columns_info(index)
