@@ -1,3 +1,4 @@
+require 'active_record'
 require_relative './helpers'
 
 module AnnotateRoutes
@@ -16,7 +17,7 @@ module AnnotateRoutes
       private
 
       def routes_map(options)
-        command = Rails.version.first.to_i > 5 ? `rails routes` : `rake routes`
+        command = ActiveRecord.version.to_s.first.to_i > 5 ? `rails routes` : `rake routes`
         result = command.chomp("\n").split(/\n/, -1)
 
         # In old versions of Rake, the first line of output was the cwd.  Not so
