@@ -556,6 +556,71 @@ describe AnnotateRoutes do
         end
       end
     end
+
+    describe 'frozen option' do
+      let :aborted_message do
+        "annotate error. #{ROUTE_FILE} needs to be updated, but annotate was run with `--frozen`."
+      end
+
+      let :rake_routes_result do
+        <<-EOS
+                                Prefix Verb       URI Pattern                                               Controller#Action
+                             myaction1 GET        /url1(.:format)                                           mycontroller1#action
+                             myaction2 POST       /url2(.:format)                                           mycontroller2#action
+                             myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action
+        EOS
+      end
+
+      before :each do
+        expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true).once
+        expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content).once
+
+        expect(AnnotateRoutes::HeaderGenerator).to receive(:`).with('rake routes').and_return(rake_routes_result).once
+      end
+
+      context 'when annotation does not exists' do
+        let :route_file_content do
+          ''
+        end
+
+        it 'aborts' do
+          expect { AnnotateRoutes.do_annotations(frozen: true) }.to raise_error SystemExit, aborted_message
+        end
+      end
+
+      context 'when annotation exists but is not updated' do
+        let :route_file_content do
+          <<~EOS
+            # == Route Map
+            #
+            #                                 Prefix Verb       URI Pattern                                               Controller#Action
+            #                              myaction2 POST       /url2(.:format)                                           mycontroller2#action
+            #                              myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action
+          EOS
+        end
+
+        it 'aborts' do
+          expect { AnnotateRoutes.do_annotations(frozen: true) }.to raise_error SystemExit, aborted_message
+        end
+      end
+
+      context 'when annotation exists and is already updated' do
+        let :route_file_content do
+          <<~EOS
+            # == Route Map
+            #
+            #                                 Prefix Verb       URI Pattern                                               Controller#Action
+            #                              myaction1 GET        /url1(.:format)                                           mycontroller1#action
+            #                              myaction2 POST       /url2(.:format)                                           mycontroller2#action
+            #                              myaction3 DELETE|GET /url3(.:format)                                           mycontroller3#action
+          EOS
+        end
+
+        it 'does NOT abort' do
+          expect { AnnotateRoutes.do_annotations(frozen: true) }.not_to raise_error
+        end
+      end
+    end
   end
 
   describe '.remove_annotations' do

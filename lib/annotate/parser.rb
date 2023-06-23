@@ -48,7 +48,7 @@ module Annotate
       end
     end
 
-    def add_options_to_parser(option_parser) # rubocop:disable Metrics/MethodLength
+    def add_options_to_parser(option_parser) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       has_set_position = {}
 
       option_parser.banner = 'Usage: annotate [options] [model_file]*'
@@ -171,6 +171,12 @@ module Annotate
                        '--show-migration',
                        'Include the migration version number in the annotation') do
         env['include_version'] = 'yes'
+      end
+
+      option_parser.on('-c',
+                       '--show-check-constraints',
+                       "List the table's check constraints in the annotation") do
+        env['show_check_constraints'] = 'yes'
       end
 
       option_parser.on('-k',

@@ -18,7 +18,8 @@ module Annotate
       :trace, :timestamp, :exclude_serializers, :classified_sort,
       :show_foreign_keys, :show_complete_foreign_keys,
       :exclude_scaffolds, :exclude_controllers, :exclude_helpers,
-      :exclude_sti_subclasses, :ignore_unknown_models, :with_comment, :with_comment_column
+      :exclude_sti_subclasses, :ignore_unknown_models, :with_comment, :with_comment_column,
+      :show_check_constraints
     ].freeze
 
     OTHER_OPTIONS = [
