@@ -841,6 +841,7 @@ module AnnotateModels
       max_size
     end
 
+    # rubocop:disable Metrics/ParameterLists
     def format_default(col_name, max_size, col_type, bare_type_allowance, simple_formatted_attrs, bare_max_attrs_length = 0, col_comment = nil)
       sprintf(
         "#  %s:%s %s   %s",
