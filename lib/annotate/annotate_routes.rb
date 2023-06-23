@@ -29,8 +29,7 @@ module AnnotateRoutes
         content, header_position = Helpers.strip_annotations(existing_text)
         new_content = annotate_routes(HeaderGenerator.generate(options), content, header_position, options)
         new_text = new_content.join("\n")
-
-        if rewrite_contents(existing_text, new_text)
+        if rewrite_contents(existing_text, new_text, options[:frozen])
           puts "#{routes_file} was annotated."
         else
           puts "#{routes_file} was not changed."
@@ -40,13 +39,13 @@ module AnnotateRoutes
       end
     end
 
-    def remove_annotations(_options={})
+    def remove_annotations(options={})
       if routes_file_exist?
         existing_text = File.read(routes_file)
         content, header_position = Helpers.strip_annotations(existing_text)
         new_content = strip_on_removal(content, header_position)
         new_text = new_content.join("\n")
-        if rewrite_contents(existing_text, new_text)
+        if rewrite_contents(existing_text, new_text, options[:frozen])
           puts "Annotations were removed from #{routes_file}."
         else
           puts "#{routes_file} was not changed (Annotation did not exist)."
@@ -82,13 +81,15 @@ module AnnotateRoutes
       content
     end
 
-    def rewrite_contents(existing_text, new_text)
-      if existing_text == new_text
-        false
-      else
+    def rewrite_contents(existing_text, new_text, frozen)
+      content_changed = (existing_text != new_text)
+
+      if content_changed
+        abort "annotate error. #{routes_file} needs to be updated, but annotate was run with `--frozen`." if frozen
         File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-        true
       end
+
+      content_changed
     end
 
     def annotate_routes(header, content, header_position, options = {})

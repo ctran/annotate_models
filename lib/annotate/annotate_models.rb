@@ -124,14 +124,18 @@ module AnnotateModels
 
       # Try to search the table without prefix
       table_name_without_prefix = table_name.to_s.sub(klass.table_name_prefix, '')
-      klass.connection.indexes(table_name_without_prefix)
+      if klass.connection.table_exists?(table_name_without_prefix)
+        klass.connection.indexes(table_name_without_prefix)
+      else
+        []
+      end
     end
 
     # Use the column information in an ActiveRecord class
     # to create a comment block containing a line for
     # each column. The line contains the column name,
     # the type (and length), and any optional attributes
-    def get_schema_info(klass, header, options = {})
+    def get_schema_info(klass, header, options = {}) # rubocop:disable Metrics/MethodLength
       info = "# #{header}\n"
       info << get_schema_header_text(klass, options)
 
@@ -177,6 +181,10 @@ module AnnotateModels
 
       if options[:show_foreign_keys] && klass.table_exists?
         info << get_foreign_key_info(klass, options)
+      end
+
+      if options[:show_check_constraints] && klass.table_exists?
+        info << get_check_constraint_info(klass, options)
       end
 
       info << get_schema_footer_text(klass, options)
@@ -232,7 +240,7 @@ module AnnotateModels
         'bigint'
       else
         (col.type || col.sql_type).to_s
-      end
+      end.dup
     end
 
     def index_columns_info(index)
@@ -351,6 +359,35 @@ module AnnotateModels
       end
 
       fk_info
+    end
+
+    def get_check_constraint_info(klass, options = {})
+      cc_info = if options[:format_markdown]
+                  "#\n# ### Check Constraints\n#\n"
+                else
+                  "#\n# Check Constraints\n#\n"
+                end
+
+      return '' unless klass.connection.respond_to?(:supports_check_constraints?) &&
+        klass.connection.supports_check_constraints? && klass.connection.respond_to?(:check_constraints)
+
+      check_constraints = klass.connection.check_constraints(klass.table_name)
+      return '' if check_constraints.empty?
+
+      max_size = check_constraints.map { |check_constraint| check_constraint.name.size }.max + 1
+      check_constraints.sort_by(&:name).each do |check_constraint|
+        expression = check_constraint.expression ? "(#{check_constraint.expression.squish})" : nil
+
+        cc_info << if options[:format_markdown]
+                     cc_info_markdown = sprintf("# * `%s`", check_constraint.name)
+                     cc_info_markdown << sprintf(": `%s`", expression) if expression
+                     cc_info_markdown << "\n"
+                   else
+                     sprintf("#  %-#{max_size}.#{max_size}s %s", check_constraint.name, expression).rstrip + "\n"
+                   end
+      end
+
+      cc_info
     end
 
     # Add a schema block to a file. If the file already contains

@@ -41,16 +41,26 @@ describe AnnotateModels do
            on_update:    constraints[:on_update])
   end
 
-  def mock_connection(indexes = [], foreign_keys = [])
+  def mock_check_constraint(name, expression)
+    double('CheckConstraintDefinition',
+           name:       name,
+           expression: expression)
+  end
+
+  def mock_connection(indexes = [], foreign_keys = [], check_constraints = [])
     double('Conn',
            indexes:      indexes,
            foreign_keys: foreign_keys,
-           supports_foreign_keys?: true)
+           check_constraints: check_constraints,
+           supports_foreign_keys?: true,
+           supports_check_constraints?: true,
+           table_exists?: true)
   end
 
-  def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [])
+  # rubocop:disable Metrics/ParameterLists
+  def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [], check_constraints = [])
     options = {
-      connection:       mock_connection(indexes, foreign_keys),
+      connection:       mock_connection(indexes, foreign_keys, check_constraints),
       table_exists?:    true,
       table_name:       table_name,
       primary_key:      primary_key,
@@ -62,6 +72,7 @@ describe AnnotateModels do
 
     double('An ActiveRecord class', options)
   end
+  # rubocop:enable Metrics/ParameterLists
 
   def mock_column(name, type, options = {})
     default_options = {
@@ -153,7 +164,11 @@ describe AnnotateModels do
     end
 
     before :each do
-      AnnotateModels.send(:parse_options, options)
+      AnnotateModels.parse_options(options)
+    end
+
+    after :each do
+      AnnotateModels.parse_options({ skip_subdirectory_model_load: false })
     end
 
     describe '@root_dir' do
@@ -217,7 +232,7 @@ describe AnnotateModels do
     end
 
     let :klass do
-      mock_class(:users, primary_key, columns, indexes, foreign_keys)
+      mock_class(:users, primary_key, columns, indexes, foreign_keys, check_constraints)
     end
 
     let :indexes do
@@ -225,6 +240,10 @@ describe AnnotateModels do
     end
 
     let :foreign_keys do
+      []
+    end
+
+    let :check_constraints do
       []
     end
 
@@ -387,7 +406,7 @@ describe AnnotateModels do
               end
             end
 
-            context 'with Globalize gem' do
+            context 'with Globalize gem' do # rubocop:disable RSpec/MultipleMemoizedHelpers
               let :translation_klass do
                 double('Folder::Post::Translation',
                        to_s: 'Folder::Post::Translation',
@@ -520,7 +539,7 @@ describe AnnotateModels do
                   end
                 end
 
-                context 'when one of indexes includes orderd index key' do
+                context 'when one of indexes includes ordered index key' do
                   let :columns do
                     [
                       mock_column("id", :integer),
@@ -676,6 +695,24 @@ describe AnnotateModels do
                   it 'returns schema info without index information' do
                     is_expected.to eq expected_result
                   end
+
+                  # rubocop:disable RSpec/NestedGroups
+                  context 'when the unprefixed table name does not exist' do
+                    let :klass do
+                      mock_class(:users, primary_key, columns, indexes, foreign_keys).tap do |mock_klass|
+                        allow(mock_klass).to receive(:table_name_prefix).and_return('my_prefix_')
+                        allow(mock_klass.connection).to receive(:table_exists?).with('users').and_return(false)
+                        allow(mock_klass.connection).to receive(:indexes).with('users').and_raise('error fetching indexes on nonexistent table')
+                      end
+                    end
+
+                    it 'returns schema info without index information' do
+                      is_expected.to eq expected_result
+                      expect(klass).to have_received(:table_name_prefix).at_least(:once)
+                      expect(klass.connection).to have_received(:table_exists?).with('users')
+                    end
+                  end
+                  # rubocop:enable RSpec/NestedGroups
                 end
               end
 
@@ -746,6 +783,82 @@ describe AnnotateModels do
                   end
 
                   it 'returns schema info with index information' do
+                    is_expected.to eq expected_result
+                  end
+                end
+              end
+            end
+
+            context 'when check constraints exist' do
+              let :columns do
+                [
+                  mock_column(:id, :integer),
+                  mock_column(:age, :integer)
+                ]
+              end
+
+              context 'when option "show_check_constraints" is true' do
+                let :options do
+                  { show_check_constraints: true }
+                end
+
+                context 'when check constraints are defined' do
+                  let :check_constraints do
+                    [
+                      mock_check_constraint('alive', 'age < 150'),
+                      mock_check_constraint('must_be_adult', 'age >= 18'),
+                      mock_check_constraint('missing_expression', nil),
+                      mock_check_constraint('multiline_test', <<~SQL)
+                        CASE
+                          WHEN (age >= 18) THEN (age <= 21)
+                          ELSE true
+                        END
+                      SQL
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id  :integer          not null, primary key
+                      #  age :integer          not null
+                      #
+                      # Check Constraints
+                      #
+                      #  alive               (age < 150)
+                      #  missing_expression
+                      #  multiline_test      (CASE WHEN (age >= 18) THEN (age <= 21) ELSE true END)
+                      #  must_be_adult       (age >= 18)
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with check constraint information' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when check constraint is not defined' do
+                  let :check_constraints do
+                    []
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id  :integer          not null, primary key
+                      #  age :integer          not null
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info without check constraint information' do
                     is_expected.to eq expected_result
                   end
                 end
@@ -1488,6 +1601,53 @@ describe AnnotateModels do
                 end
               end
 
+              context 'when option "show_check_constraints" is true' do
+                let :options do
+                  { format_markdown: true, show_check_constraints: true }
+                end
+
+                context 'when check constraints are defined' do
+                  let :check_constraints do
+                    [
+                      mock_check_constraint('min_name_length', 'LENGTH(name) > 2'),
+                      mock_check_constraint('missing_expression', nil),
+                      mock_check_constraint('multiline_test', <<~SQL)
+                        CASE
+                          WHEN (age >= 18) THEN (age <= 21)
+                          ELSE true
+                        END
+                      SQL
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # == Schema Information
+                      #
+                      # Table name: `users`
+                      #
+                      # ### Columns
+                      #
+                      # Name        | Type               | Attributes
+                      # ----------- | ------------------ | ---------------------------
+                      # **`id`**    | `integer`          | `not null, primary key`
+                      # **`name`**  | `string(50)`       | `not null`
+                      #
+                      # ### Check Constraints
+                      #
+                      # * `min_name_length`: `(LENGTH(name) > 2)`
+                      # * `missing_expression`
+                      # * `multiline_test`: `(CASE WHEN (age >= 18) THEN (age <= 21) ELSE true END)`
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with check constraint information in Markdown format' do
+                    is_expected.to eq expected_result
+                  end
+                end
+              end
+
               context 'when option "show_foreign_keys" is true' do
                 let :options do
                   { format_markdown: true, show_foreign_keys: true }
@@ -1647,6 +1807,10 @@ describe AnnotateModels do
       Annotate::Helpers.true?(ENV['show_complete_foreign_keys'])
     end
 
+    after :each do
+      ENV.delete('show_complete_foreign_keys')
+    end
+
     context 'when default value of "show_complete_foreign_keys" is not set' do
       it 'returns false' do
         is_expected.to be(false)
@@ -1658,13 +1822,13 @@ describe AnnotateModels do
         Annotate.set_defaults('show_complete_foreign_keys' => 'true')
       end
 
+      after do
+        Annotate.instance_variable_set('@has_set_defaults', false)
+      end
+
       it 'returns true' do
         is_expected.to be(true)
       end
-    end
-
-    after :each do
-      ENV.delete('show_complete_foreign_keys')
     end
   end
 
@@ -1815,8 +1979,14 @@ describe AnnotateModels do
   end
 
   describe '.get_model_class' do
-    before :all do
-      AnnotateModels.model_dir = Dir.mktmpdir('annotate_models')
+    before :each do
+      @model_dir = Dir.mktmpdir('annotate_models')
+      AnnotateModels.model_dir = @model_dir
+      create(filename, file_content)
+    end
+
+    after :each do
+      FileUtils.remove_dir(@model_dir, true)
     end
 
     # TODO: use 'files' gem instead
@@ -1827,10 +1997,6 @@ describe AnnotateModels do
           f.puts(file_content)
         end
       end
-    end
-
-    before :each do
-      create(filename, file_content)
     end
 
     let :klass do
@@ -2113,7 +2279,9 @@ describe AnnotateModels do
 
         let :file_content_2 do
           <<-EOS
-            class Bar::Foo < ActiveRecord::Base
+            module Bar
+              class Foo < ActiveRecord::Base
+              end
             end
           EOS
         end
@@ -2146,7 +2314,9 @@ describe AnnotateModels do
 
         let :file_content_2 do
           <<-EOS
-            class Bar::Foo < ActiveRecord::Base
+            module Bar
+              class Foo < ActiveRecord::Base
+              end
             end
           EOS
         end
@@ -2163,6 +2333,7 @@ describe AnnotateModels do
         it 'attempts to load the model path without expanding if skip_subdirectory_model_load is false' do
           allow(AnnotateModels).to receive(:skip_subdirectory_model_load).and_return(false)
           full_path = File.join(AnnotateModels.model_dir[0], filename_2)
+          Kernel.load(full_path)
           expect(File).to_not receive(:expand_path).with(full_path)
           AnnotateModels.get_model_class(full_path)
         end
@@ -2171,6 +2342,7 @@ describe AnnotateModels do
           $LOAD_PATH.unshift(AnnotateModels.model_dir[0])
           allow(AnnotateModels).to receive(:skip_subdirectory_model_load).and_return(true)
           full_path = File.join(AnnotateModels.model_dir[0], filename_2)
+          Kernel.load(full_path)
           expect(File).to receive(:expand_path).with(full_path).and_call_original
           AnnotateModels.get_model_class(full_path)
         end
@@ -2216,6 +2388,10 @@ describe AnnotateModels do
   describe '.remove_annotation_of_file' do
     subject do
       AnnotateModels.remove_annotation_of_file(path)
+    end
+
+    after :each do
+      FileUtils.remove_dir(tmpdir, true)
     end
 
     let :tmpdir do
@@ -2502,7 +2678,7 @@ describe AnnotateModels do
   end
 
   describe 'annotating a file' do
-    before do
+    before :each do
       @model_dir = Dir.mktmpdir('annotate_models')
       (@model_file_name, @file_content) = write_model 'user.rb', <<~EOS
         class User < ActiveRecord::Base
@@ -2519,6 +2695,10 @@ describe AnnotateModels do
       Annotate::Helpers.reset_options(Annotate::Constants::ALL_ANNOTATE_OPTIONS)
     end
 
+    after :each do
+      FileUtils.remove_dir(@model_dir, true)
+    end
+
     def write_model(file_name, file_content)
       fname = File.join(@model_dir, file_name)
       FileUtils.mkdir_p(File.dirname(fname))
@@ -2531,7 +2711,7 @@ describe AnnotateModels do
       Annotate.set_defaults(options)
       options = Annotate.setup_options(options)
       AnnotateModels.annotate_one_file(@model_file_name, @schema_info, :position_in_class, options)
-
+    ensure
       # Wipe settings so the next call will pick up new values...
       Annotate.instance_variable_set('@has_set_defaults', false)
       Annotate::Constants::POSITION_OPTIONS.each { |key| ENV[key.to_s] = '' }
