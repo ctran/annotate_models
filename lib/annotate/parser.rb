@@ -304,6 +304,11 @@ module Annotate
                        "include database comments in model annotations") do
         env['with_comment'] = 'true'
       end
+
+      option_parser.on('--with-comment-column',
+                       "include database comments in model annotations, as its own column, after all others") do
+        env['with_comment_column'] = 'true'
+      end
     end
   end
 end
