@@ -250,6 +250,7 @@ you can do so with a simple environment variable, instead of editing the
                                          don't show default for given column types, separated by commas (e.g. `json,jsonb,hstore`)
             --ignore-unknown-models      don't display warnings for bad model files
             --with-comment               include database comments in model annotations
+            --with-comment-column        include database comments in model annotations, as its own column, after all others
 
 ### Option: `additional_file_patterns`
 
