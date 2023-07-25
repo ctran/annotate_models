@@ -197,24 +197,25 @@ you can do so with a simple environment variable, instead of editing the
 ## Options
 
     Usage: annotate [options] [model_file]*
-            --additional-file-patterns   Additional file paths or globs to annotate, separated by commas (e.g. `/foo/bar/%model_name%/*.rb,/baz/%model_name%.rb`)
+            --additional-file-patterns path1,path2,path3
+                                        Additional file paths or globs to annotate, separated by commas (e.g. `/foo/bar/%model_name%/*.rb,/baz/%model_name%.rb`)
         -d, --delete                     Remove annotations from all model files or the routes.rb file
         -p [before|top|after|bottom],    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)
             --position
             --pc, --position-in-class [before|top|after|bottom]
-                                         Place the annotations at the top (before) or the bottom (after) of the model file
+                                        Place the annotations at the top (before) or the bottom (after) of the model file
             --pf, --position-in-factory [before|top|after|bottom]
-                                         Place the annotations at the top (before) or the bottom (after) of any factory files
+                                        Place the annotations at the top (before) or the bottom (after) of any factory files
             --px, --position-in-fixture [before|top|after|bottom]
-                                         Place the annotations at the top (before) or the bottom (after) of any fixture files
+                                        Place the annotations at the top (before) or the bottom (after) of any fixture files
             --pt, --position-in-test [before|top|after|bottom]
-                                         Place the annotations at the top (before) or the bottom (after) of any test files
+                                        Place the annotations at the top (before) or the bottom (after) of any test files
             --pr, --position-in-routes [before|top|after|bottom]
-                                         Place the annotations at the top (before) or the bottom (after) of the routes.rb file
+                                        Place the annotations at the top (before) or the bottom (after) of the routes.rb file
             --ps, --position-in-serializer [before|top|after|bottom]
-                                         Place the annotations at the top (before) or the bottom (after) of the serializer files
+                                        Place the annotations at the top (before) or the bottom (after) of the serializer files
             --w, --wrapper STR           Wrap annotation with the text passed as parameter.
-                                         If --w option is used, the same text will be used as opening and closing
+                                        If --w option is used, the same text will be used as opening and closing
             --wo, --wrapper-open STR     Annotation wrapper opening.
             --wc, --wrapper-close STR    Annotation wrapper closing
         -r, --routes                     Annotate routes.rb with the output of 'rake routes'
@@ -222,10 +223,9 @@ you can do so with a simple environment variable, instead of editing the
         -a, --active-admin               Annotate active_admin models
         -v, --version                    Show the current version of this gem
         -m, --show-migration             Include the migration version number in the annotation
-        -c, --show-check-constraints     List the table's check constraints in the annotation
         -k, --show-foreign-keys          List the table's foreign key constraints in the annotation
             --ck, --complete-foreign-keys
-                                         Complete foreign key names in the annotation
+                                        Complete foreign key names in the annotation
         -i, --show-indexes               List the table's database indexes in the annotation
         -s, --simple-indexes             Concat the column's related indexes in the annotation
             --model-dir dir              Annotate model files stored in dir rather than app/models, separate multiple dirs with commas
@@ -236,21 +236,20 @@ you can do so with a simple environment variable, instead of editing the
         -R, --require path               Additional file to require before loading models, may be used multiple times
         -e [tests,fixtures,factories,serializers],
             --exclude                    Do not annotate fixtures, test files, factories, and/or serializers
-        -f [bare|rdoc|yard|markdown],    Render Schema Infomation as plain/RDoc/YARD/Markdown
+        -f [bare|rdoc|yard|markdown],    Render Schema Infomation as plain/RDoc/Yard/Markdown
             --format
             --force                      Force new annotations even if there are no changes.
             --frozen                     Do not allow to change annotations. Exits non-zero if there are going to be changes to files.
             --timestamp                  Include timestamp in (routes) annotation
             --trace                      If unable to annotate a file, print the full stack trace, not just the exception message.
-        -I, --ignore-columns REGEX       don't annotate columns that match a given REGEX (e.g. `annotate -I '^(id|updated_at|created_at)'`)
-            --ignore-routes REGEX        don't annotate routes that match a given REGEX (e.g. `annotate -I '(mobile|resque|pghero)'`)_
+        -I, --ignore-columns REGEX       don't annotate columns that match a given REGEX (i.e., `annotate -I '^(id|updated_at|created_at)'`
+            --ignore-routes REGEX        don't annotate routes that match a given REGEX (i.e., `annotate -I '(mobile|resque|pghero)'`
             --hide-limit-column-types VALUES
-                                         don't show limit for given column types, separated by commas (e.g. `integer,boolean,text`)
+                                        don't show limit for given column types, separated by commas (i.e., `integer,boolean,text`)
             --hide-default-column-types VALUES
-                                         don't show default for given column types, separated by commas (e.g. `json,jsonb,hstore`)
+                                        don't show default for given column types, separated by commas (i.e., `json,jsonb,hstore`)
             --ignore-unknown-models      don't display warnings for bad model files
             --with-comment               include database comments in model annotations
-            --with-comment-column        include database comments in model annotations, as its own column, after all others
 
 ### Option: `additional_file_patterns`
 
