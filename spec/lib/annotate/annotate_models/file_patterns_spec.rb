@@ -61,6 +61,8 @@ describe AnnotateModels::FilePatterns do
           '/root/spec/factories/%TABLE_NAME%.rb',
           '/root/test/factories/%PLURALIZED_MODEL_NAME%.rb',
           '/root/spec/factories/%PLURALIZED_MODEL_NAME%.rb',
+          '/root/test/factories/%PLURALIZED_MODEL_NAME%_factory.rb',
+          '/root/spec/factories/%PLURALIZED_MODEL_NAME%_factory.rb',
           '/root/test/fabricators/%MODEL_NAME%_fabricator.rb',
           '/root/spec/fabricators/%MODEL_NAME%_fabricator.rb'
         ])

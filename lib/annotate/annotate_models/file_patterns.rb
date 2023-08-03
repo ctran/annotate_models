@@ -104,12 +104,14 @@ module AnnotateModels
           File.join(root_directory, EXEMPLARS_SPEC_DIR,   '%MODEL_NAME%_exemplar.rb'),
           File.join(root_directory, BLUEPRINTS_TEST_DIR,  '%MODEL_NAME%_blueprint.rb'),
           File.join(root_directory, BLUEPRINTS_SPEC_DIR,  '%MODEL_NAME%_blueprint.rb'),
-          File.join(root_directory, FACTORY_BOT_TEST_DIR, '%MODEL_NAME%_factory.rb'),    # (old style)
-          File.join(root_directory, FACTORY_BOT_SPEC_DIR, '%MODEL_NAME%_factory.rb'),    # (old style)
-          File.join(root_directory, FACTORY_BOT_TEST_DIR, '%TABLE_NAME%.rb'),            # (new style)
-          File.join(root_directory, FACTORY_BOT_SPEC_DIR, '%TABLE_NAME%.rb'),            # (new style)
-          File.join(root_directory, FACTORY_BOT_TEST_DIR, '%PLURALIZED_MODEL_NAME%.rb'), # (new style)
-          File.join(root_directory, FACTORY_BOT_SPEC_DIR, '%PLURALIZED_MODEL_NAME%.rb'), # (new style)
+          File.join(root_directory, FACTORY_BOT_TEST_DIR, '%MODEL_NAME%_factory.rb'),            # (old style)
+          File.join(root_directory, FACTORY_BOT_SPEC_DIR, '%MODEL_NAME%_factory.rb'),            # (old style)
+          File.join(root_directory, FACTORY_BOT_TEST_DIR, '%TABLE_NAME%.rb'),                    # (new style)
+          File.join(root_directory, FACTORY_BOT_SPEC_DIR, '%TABLE_NAME%.rb'),                    # (new style)
+          File.join(root_directory, FACTORY_BOT_TEST_DIR, '%PLURALIZED_MODEL_NAME%.rb'),         # (new style)
+          File.join(root_directory, FACTORY_BOT_SPEC_DIR, '%PLURALIZED_MODEL_NAME%.rb'),         # (new style)
+          File.join(root_directory, FACTORY_BOT_TEST_DIR, '%PLURALIZED_MODEL_NAME%_factory.rb'), # (new style)
+          File.join(root_directory, FACTORY_BOT_SPEC_DIR, '%PLURALIZED_MODEL_NAME%_factory.rb'), # (new style)
           File.join(root_directory, FABRICATORS_TEST_DIR, '%MODEL_NAME%_fabricator.rb'),
           File.join(root_directory, FABRICATORS_SPEC_DIR, '%MODEL_NAME%_fabricator.rb')
         ]
