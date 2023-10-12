@@ -295,7 +295,7 @@ adding this to your `.yardopts` file:
 
 Be sure to add this to your `Gemfile` as well:
 
-    gem 'kramdown', groups => [:development], require => false
+    gem 'kramdown', :groups => [:development], :require => false
 
 ## WARNING
 
