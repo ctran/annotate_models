@@ -9,7 +9,7 @@ describe 'Annotate annotate_models rake task and Annotate.set_defaults' do # rub
 
   let(:annotate_models_argument) do
     argument = nil
-    expect(AnnotateModels).to have_received(:do_annotations) { |arg| argument = arg }
+    allow(AnnotateModels).to receive(:do_annotations) { |arg| argument = arg }
     Rake::Task['annotate_models'].invoke
     argument
   end
