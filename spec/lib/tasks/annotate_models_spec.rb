@@ -7,12 +7,17 @@ describe 'Annotate annotate_models rake task and Annotate.set_defaults' do # rub
     Rake.load_rakefile('tasks/annotate_models.rake')
   end
 
+  after do
+    Annotate.instance_variable_set('@has_set_defaults', false)
+  end
+
   let(:annotate_models_argument) do
     argument = nil
     allow(AnnotateModels).to receive(:do_annotations) { |arg| argument = arg }
     Rake::Task['annotate_models'].invoke
     argument
   end
+  
 
   describe 'with_comment_column' do
     subject { annotate_models_argument[:with_comment_column] }
