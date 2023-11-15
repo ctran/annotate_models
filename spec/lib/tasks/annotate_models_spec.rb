@@ -17,7 +17,6 @@ describe 'Annotate annotate_models rake task and Annotate.set_defaults' do # rub
     Rake::Task['annotate_models'].invoke
     argument
   end
-  
 
   describe 'with_comment_column' do
     subject { annotate_models_argument[:with_comment_column] }
