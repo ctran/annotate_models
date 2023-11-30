@@ -1,5 +1,10 @@
 Please see https://github.com/ctran/annotate_models/releases for changes between releases.
 
+## 4.0.0
+Changes
+- Minimum supported rails version is now 5.0
+- Fixed rails 6 warning on `rake routes` deprecation
+
 ## 3.1.1
 Changes
 - Bump required ruby version to >= 2.4 [#772](https://github.com/ctran/annotate_models/pull/772)

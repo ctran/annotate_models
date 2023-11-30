@@ -49,7 +49,7 @@ when using `SpatialAdapter`, `PostgisAdapter` or `PostGISAdapter`:
 #  path            :geometry        line_string, 4326
 ```
 
-Also, if you pass the `-r` option, it'll annotate `routes.rb` with the output of `rake routes`.
+Also, if you pass the `-r` option, it'll annotate `routes.rb` with the output of `rails routes`.
 
 
 ## Upgrading to 3.X and annotate models not working?
@@ -217,7 +217,7 @@ you can do so with a simple environment variable, instead of editing the
                                          If --w option is used, the same text will be used as opening and closing
             --wo, --wrapper-open STR     Annotation wrapper opening.
             --wc, --wrapper-close STR    Annotation wrapper closing
-        -r, --routes                     Annotate routes.rb with the output of 'rake routes'
+        -r, --routes                     Annotate routes.rb with the output of 'rails routes'
             --models                     Annotate ActiveRecord models
         -a, --active-admin               Annotate active_admin models
         -v, --version                    Show the current version of this gem

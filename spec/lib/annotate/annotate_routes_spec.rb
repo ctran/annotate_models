@@ -49,11 +49,11 @@ describe AnnotateRoutes do
         expect(File).to receive(:exist?).with(ROUTE_FILE).and_return(true).once
         expect(File).to receive(:read).with(ROUTE_FILE).and_return(route_file_content).once
 
-        expect(AnnotateRoutes::HeaderGenerator).to receive(:`).with('rake routes').and_return(rake_routes_result).once
+        expect(AnnotateRoutes::HeaderGenerator).to receive(:`).with('rails routes').and_return(rake_routes_result).once
       end
 
-      context 'When the result of `rake routes` is present' do
-        context 'When the result of `rake routes` does not contain Rake version' do
+      context 'When the result of `rails routes` is present' do
+        context 'When the result of `rails routes` does not contain Rake version' do
           context 'When the file does not contain magic comment' do
             let :rake_routes_result do
               <<-EOS
@@ -236,7 +236,7 @@ describe AnnotateRoutes do
           end
         end
 
-        context 'When the result of `rake routes` contains Rake version' do
+        context 'When the result of `rails routes` contains Rake version' do
           context 'with older Rake versions' do
             let :rake_routes_result do
               <<~EOS.chomp
@@ -394,7 +394,7 @@ describe AnnotateRoutes do
         end
       end
 
-      context 'When the result of `rake routes` is blank' do
+      context 'When the result of `rails routes` is blank' do
         let :rake_routes_result do
           ''
         end
