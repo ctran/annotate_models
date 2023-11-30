@@ -47,20 +47,21 @@ describe AnnotateModels do
            expression: expression)
   end
 
-  def mock_connection(indexes = [], foreign_keys = [], check_constraints = [])
+  def mock_connection(table_comment, indexes = [], foreign_keys = [], check_constraints = [])
     double('Conn',
            indexes:      indexes,
            foreign_keys: foreign_keys,
            check_constraints: check_constraints,
            supports_foreign_keys?: true,
            supports_check_constraints?: true,
-           table_exists?: true)
+           table_exists?: true,
+           table_comment: table_comment)
   end
 
   # rubocop:disable Metrics/ParameterLists
-  def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [], check_constraints = [])
+  def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [], check_constraints = [], table_comments: {})
     options = {
-      connection:       mock_connection(indexes, foreign_keys, check_constraints),
+      connection:       mock_connection(table_comments[table_name], indexes, foreign_keys, check_constraints),
       table_exists?:    true,
       table_name:       table_name,
       primary_key:      primary_key,
@@ -1201,6 +1202,41 @@ describe AnnotateModels do
                   end
 
                   it 'works with option "with_comment"' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when table have comment' do
+                  let :klass do
+                    mock_class(:users, primary_key, columns, indexes, foreign_keys, check_constraints, table_comments: { users: 'Users' })
+                  end
+
+                  let :columns do
+                    [
+                      mock_column(:id,         :integer, limit: 8,  comment: 'ID'),
+                      mock_column(:active,     :boolean, limit: 1,  comment: 'Active'),
+                      mock_column(:name,       :string,  limit: 50, comment: 'Name'),
+                      mock_column(:notes,      :text,    limit: 55, comment: 'Notes'),
+                      mock_column(:no_comment, :text,    limit: 20, comment: nil)
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users(Users)
+                      #
+                      #  id(ID)         :integer          not null, primary key
+                      #  active(Active) :boolean          not null
+                      #  name(Name)     :string(50)       not null
+                      #  notes(Notes)   :text(55)         not null
+                      #  no_comment     :text(20)         not null
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info in Markdown format' do
                     is_expected.to eq expected_result
                   end
                 end
