@@ -25,6 +25,15 @@ module Annotate # rubocop:disable Metrics/ModuleLength
       end
     end
 
+    %w[--bl --blank-line].each do |option|
+      describe option do
+        it 'adds a blank line separator between the annotation and class definition' do
+          result = Parser.parse([option])
+          expect(result).to include(target_action: :blank_line)
+        end
+      end
+    end
+
     %w[-d --delete].each do |option|
       describe option do
         it 'sets target_action to :remove_annotations' do
