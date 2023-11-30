@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
 
-ruby '>= 2.4.0'
+ruby '>= 2.7.6'
 
 gem 'activerecord', '>= 4.2.5', '< 6', require: false
-gem 'rake', require: false
+gem 'rake', '>= 13.0.6'
 
 group :development do
   gem 'bump'

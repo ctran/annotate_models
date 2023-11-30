@@ -1,0 +1,12 @@
+{
+  "packages": [
+    "ruby",
+    "bundler"
+  ],
+  "shell": {
+    "init_hook": "bundle install"
+  },
+  "nixpkgs": {
+    "commit": "52e3e80afff4b16ccb7c52e9f0f5220552f03d04"
+  }
+}
