@@ -3110,6 +3110,34 @@ describe AnnotateModels do
         expect { annotate_one_file frozen: true }.not_to raise_error
       end
     end
+
+    describe 'with blank line separator enabled' do
+      context "when there are no magic comments" do
+        it 'should add a blank line between the annotation and the class definition' do
+          content = "class User < ActiveRecord::Base\nend\n"
+          schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+          model_file_name, = write_model 'user.rb', "#{content}"
+
+          annotate_one_file blank_line: true
+
+          expect(File.read(model_file_name)).to eq("#{schema_info}\n#{content}")
+        end
+      end
+
+      context "when there is a magic comment" do
+        it 'should add a blank line between the annotation and the class definition' do
+          content = "class User < ActiveRecord::Base\nend\n"
+          schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
+          MAGIC_COMMENTS.each do |magic_comment|
+            model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
+
+            annotate_one_file blank_line: true
+
+            expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}\n#{content}")
+          end
+        end
+      end
+    end
   end
 
   describe '.annotate_model_file' do

@@ -454,13 +454,14 @@ module AnnotateModels
         magic_comments_block = magic_comments_as_string(old_content)
         old_content.gsub!(MAGIC_COMMENT_MATCHER, '')
         old_content.sub!(annotate_pattern(options), '')
+        blank_line_separator = options[:blank_line] ? "\n" : ''
 
         new_content = if %w(after bottom).include?(options[position].to_s)
                         magic_comments_block + (old_content.rstrip + "\n\n" + wrapped_info_block)
                       elsif magic_comments_block.empty?
-                        magic_comments_block + wrapped_info_block + old_content.lstrip
+                        magic_comments_block + wrapped_info_block + blank_line_separator + old_content.lstrip
                       else
-                        magic_comments_block + "\n" + wrapped_info_block + old_content.lstrip
+                        magic_comments_block + "\n" + wrapped_info_block + blank_line_separator + old_content.lstrip
                       end
       else
         # replace the old annotation with the new one

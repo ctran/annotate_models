@@ -198,6 +198,7 @@ you can do so with a simple environment variable, instead of editing the
 
     Usage: annotate [options] [model_file]*
             --additional-file-patterns   Additional file paths or globs to annotate, separated by commas (e.g. `/foo/bar/%model_name%/*.rb,/baz/%model_name%.rb`)
+            --bl, --blank-line           Add a blank line separator before of after the annotation
         -d, --delete                     Remove annotations from all model files or the routes.rb file
         -p [before|top|after|bottom],    Place the annotations at the top (before) or the bottom (after) of the model/test/fixture/factory/route/serializer file(s)
             --position

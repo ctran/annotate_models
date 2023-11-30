@@ -54,6 +54,7 @@ task annotate_models: :environment do
   options[:with_comment] = Annotate::Helpers.true?(ENV['with_comment'])
   options[:with_comment_column] = Annotate::Helpers.true?(ENV['with_comment_column'])
   options[:ignore_unknown_models] = Annotate::Helpers.true?(ENV.fetch('ignore_unknown_models', 'false'))
+  options[:blank_line] = Annotate::Helpers.fallback(ENV['blank_line'])
 
   AnnotateModels.do_annotations(options)
 end
