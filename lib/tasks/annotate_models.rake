@@ -12,6 +12,7 @@ task annotate_models: :environment do
 
   options = {is_rake: true}
   ENV['position'] = options[:position] = Annotate::Helpers.fallback(ENV['position'], 'before')
+  options[:active_admin] = Annotate::Helpers.true?(ENV['active_admin'])
   options[:additional_file_patterns] = ENV['additional_file_patterns'] ? ENV['additional_file_patterns'].split(',') : []
   options[:position_in_class] = Annotate::Helpers.fallback(ENV['position_in_class'], ENV['position'])
   options[:position_in_fixture] = Annotate::Helpers.fallback(ENV['position_in_fixture'], ENV['position'])
