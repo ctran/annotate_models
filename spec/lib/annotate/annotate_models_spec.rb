@@ -79,7 +79,8 @@ describe AnnotateModels do
       limit: nil,
       null: false,
       default: nil,
-      sql_type: type
+      sql_type: type,
+      comment: nil
     }
 
     stubs = default_options.dup
@@ -3045,6 +3046,58 @@ describe AnnotateModels do
         schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
 
         expect(File.read(model_file_name)).to eq("#{magic_comment}\n#{content}\n#{schema_info}")
+      end
+    end
+
+    describe 'if a table has a commented column' do
+      it 'should be added the column with comment' do
+        annotation_options = { with_comment: true, position: :before }
+        klass = mock_class(:'users',
+                           :id,
+                           [
+                             mock_column(:id, :integer),
+                             mock_column(:name, :string, comment: 'commented column')
+                           ])
+        schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', annotation_options)
+        AnnotateModels.annotate_one_file(@model_file_name, schema_info, :position_in_class, annotation_options)
+        expect(File.read(@model_file_name)).to include('commented column')
+      end
+
+      context 'and the model already has annotation and the commented column is updated to non-null' do
+        before do
+          @annotation_options = { with_comment: true, position: :before }
+          klass = mock_class(:'users',
+                             :id,
+                             [
+                               mock_column(:id, :integer),
+                               mock_column(:name, :string, comment: 'commented column', null: true)
+                             ])
+          schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', @annotation_options)
+          AnnotateModels.annotate_one_file(@model_file_name, schema_info, :position_in_class, @annotation_options)
+        end
+
+        it 'should be added non-null option in the commented column' do
+          klass = mock_class(:'users',
+                             :id,
+                             [
+                               mock_column(:id, :integer),
+                               mock_column(:name, :string, comment: 'commented column', null: false)
+                             ])
+          schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', @annotation_options)
+          expect do
+            AnnotateModels.annotate_one_file(
+              @model_file_name,
+              schema_info,
+              :position_in_class,
+              @annotation_options
+            )
+          end
+            .to(
+              change { File.read(@model_file_name) }
+                .from(include("name(commented column) :string\n"))
+                .to(include("name(commented column) :string           not null\n"))
+            )
+        end
       end
     end
 
