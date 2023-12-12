@@ -18,15 +18,14 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/ctran/annotate_models'
   s.licenses = ['Ruby']
   s.require_paths = ['lib']
-  s.rubygems_version = '2.1.11'
   s.summary = 'Annotates Rails Models, routes, fixtures, and others based on the database schema.'
 
-  s.specification_version = 4 if s.respond_to? :specification_version
   s.add_runtime_dependency(%q<rake>, '>= 10.4', '< 14.0')
   s.add_runtime_dependency(%q<activerecord>, ['>= 3.2', '< 8.0'])
 
   s.metadata = {
     "bug_tracker_uri" => "https://github.com/ctran/annotate_models/issues/",
-    "source_code_uri" => "https://github.com/ctran/annotate_models.git"
+    "source_code_uri" => "https://github.com/ctran/annotate_models.git",
+    'rubygems_mfa_required' => 'true'
   }
 end

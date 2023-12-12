@@ -24,7 +24,7 @@ options_result = Annotate::Parser.parse(ARGV)
 exit if options_result[:exit]
 
 options = Annotate.setup_options(
-  is_rake: ENV['is_rake'] && !ENV['is_rake'].empty?
+  is_rake: ENV.fetch('is_rake', nil) && !ENV['is_rake'].empty?
 )
 Annotate.eager_load(options) if Annotate::Helpers.include_models?
 

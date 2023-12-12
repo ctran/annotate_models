@@ -72,8 +72,8 @@ module Annotate # rubocop:disable Metrics/ModuleLength
           options = other_commands + position_command
 
           Parser.parse(options)
-          expect(ENV['position_in_class']).to eq('top')
-          expect(ENV['position']).to eq('bottom')
+          expect(ENV.fetch('position_in_class', nil)).to eq('top')
+          expect(ENV.fetch('position', nil)).to eq('bottom')
         end
       end
     end

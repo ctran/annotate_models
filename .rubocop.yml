@@ -12,7 +12,15 @@ AllCops:
     - 'tmp/**/*'
     - 'spec/integration/**/*'
   NewCops: enable
+  TargetRubyVersion: 2.7
+
+Lint/FormatParameterMismatch:
+  Enabled: false
 
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'
+
+Metrics/ClassLength:
+  Exclude:
+    - 'lib/annotate/annotate_models.rb'
