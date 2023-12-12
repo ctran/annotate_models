@@ -18,8 +18,8 @@
 # Released under the same license as Ruby. No Support. No Warranty.
 #
 
-require_relative './annotate_routes/helpers'
-require_relative './annotate_routes/header_generator'
+require_relative 'annotate_routes/helpers'
+require_relative 'annotate_routes/header_generator'
 
 module AnnotateRoutes
   class << self
@@ -95,7 +95,7 @@ module AnnotateRoutes
     def annotate_routes(header, content, header_position, options = {})
       magic_comments_map, content = Helpers.extract_magic_comments_from_array(content)
       if %w(before top).include?(options[:position_in_routes])
-        header = header << '' if content.first != ''
+        header <<= '' if content.first != ''
         magic_comments_map << '' if magic_comments_map.any?
         new_content = magic_comments_map + header + content
       else

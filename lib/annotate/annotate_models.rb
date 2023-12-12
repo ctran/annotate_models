@@ -39,7 +39,7 @@ module AnnotateModels
     }
   }.freeze
 
-  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/).freeze
+  MAGIC_COMMENT_MATCHER = /(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/.freeze
 
   class << self
     def annotate_pattern(options = {})
@@ -156,7 +156,7 @@ module AnnotateModels
 
       # Precalculate Values
       cols_meta = cols.to_h do |col|
-        col_comment = with_comments || with_comments_column ? col.comment&.gsub(/\n/, "\\n") : nil
+        col_comment = with_comments || with_comments_column ? col.comment&.gsub("\n", "\\n") : nil
         col_type = get_col_type(col)
         attrs = get_attributes(col, col_type, klass, options)
         col_name = if with_comments && col_comment
@@ -694,7 +694,7 @@ module AnnotateModels
     end
 
     def split_model_dir(option_value)
-      option_value = option_value.is_a?(Array) ? option_value : option_value.split(',')
+      option_value = option_value.split(',') unless option_value.is_a?(Array)
       option_value.map(&:strip).reject(&:empty?)
     end
 
