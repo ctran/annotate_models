@@ -422,6 +422,10 @@ module AnnotateModels
     #  :force<Symbol>:: whether to update the file even if it doesn't seem to need it.
     #  :position_in_*<Symbol>:: where to place the annotated section in fixture or model file,
     #                           :before, :top, :after or :bottom. Default is :before.
+    #  :format_bare<Boolean>:: whether to format annotations using default, bare syntax
+    #  :format_markdown<Boolean>:: whether to format annotations using Markdown syntax
+    #  :format_rdoc<Boolean>:: whether to format annotations using RDoc syntax
+    #  :format_yard<Boolean>:: whether to format annotations using Yard syntax
     #
     def annotate_one_file(file_name, info_block, position, options = {})
       return false unless File.exist?(file_name)
@@ -433,7 +437,9 @@ module AnnotateModels
       old_header = old_content.match(header_pattern).to_s
       new_header = info_block.match(header_pattern).to_s
 
-      column_pattern = /^#[\t ]+[\w\*\.`]+[\t ]+.+$/
+      annotation_format = format_from(options)
+      column_pattern =
+        /#{column_pattern_for(annotation_format)}|#{foreign_key_column_pattern_for(annotation_format)}/
       old_columns = old_header && old_header.scan(column_pattern).sort
       new_columns = new_header && new_header.scan(column_pattern).sort
 
@@ -977,6 +983,79 @@ module AnnotateModels
       end
 
       attrs
+    end
+
+    # Returns the regular expression for finding a column definition based on
+    # the format of the annotations being made
+    #
+    # == Returns:
+    # Regular expression
+    #
+    # @param [Symbol] symbol representation of the format being used for
+    #   annotations
+    def column_pattern_for(format_type)
+      case format_type
+      when :markdown then /^#\s+\*{2}`\w+`\*{2}(?:\s+\|\s`.*`)*$/
+      when :rdoc then
+        field_name_regex = /^#\s+\*\w+\*\:{2}/
+        field_info_regex = /\s+\<tt\>.*\<\/tt\>$/
+
+        /#{field_name_regex}#{field_info_regex}/
+      when :yard
+        attribute_regex = /^#\s@!attribute\s\w+$/
+        return_regex = /^#\s+@return\s+\[\w+\]$/
+
+        /#{attribute_regex}|#{return_regex}/
+      else # :bare/default
+        /^#\s+\w+\s?:\w+.*$/
+      end
+    end
+
+    # == Returns:
+    # Regular expression
+    #
+    # Checks for annotation comments that could represent a foreign key
+    # constraint. Handles the different formats that are supported. Also
+    # handles the optiona to shorten foreign keys with "...".
+    #
+    # @note Foreign key formatting only varies for markdown formatting. All
+    #   other formats use the "bare" format.
+    #
+    # @param [Symbol] symbol representation of the format being used for
+    #   annotations
+    def foreign_key_column_pattern_for(format_type)
+      case format_type
+      when :markdown
+        /^#\s+\*\s`[\w_]+(?:\.{3})?`\s.*$/
+      else
+        /^#\s+[\w_]+(?:\.{3})?\s+.*/
+      end
+    end
+
+    # Determine the current format being used for making annotations based on the options.
+    #
+    # == Returns:
+    # Symbol representing the format being used. Options include:
+    #   :markdown
+    #   :rdoc
+    #   :yard
+    #   :bare - this is the default option
+    #
+    # === Options (opts)
+    #  :format_bare<Boolean>:: whether to format annotations using default, bare syntax
+    #  :format_markdown<Boolean>:: whether to format annotations using Markdown syntax
+    #  :format_rdoc<Boolean>:: whether to format annotations using RDoc syntax
+    #  :format_yard<Boolean>:: whether to format annotations using Yard syntax
+    def format_from(options)
+      if options[:format_markdown]
+        :markdown
+      elsif options[:format_rdoc]
+        :rdoc
+      elsif options[:format_yard]
+        :yard
+      else
+        :bare
+      end
     end
   end
 
