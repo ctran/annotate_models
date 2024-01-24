@@ -58,16 +58,16 @@ describe AnnotateModels do
   end
 
   # rubocop:disable Metrics/ParameterLists
-  def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [], check_constraints = [])
+  def mock_class(table_name, primary_key, columns, indexes = [], foreign_keys = [], check_constraints = [], table_name_prefix = '')
     options = {
       connection:       mock_connection(indexes, foreign_keys, check_constraints),
       table_exists?:    true,
-      table_name:       table_name,
+      table_name:       "#{table_name_prefix}#{table_name}",
       primary_key:      primary_key,
       column_names:     columns.map { |col| col.name.to_s },
       columns:          columns,
       column_defaults:  Hash[columns.map { |col| [col.name, col.default] }],
-      table_name_prefix: ''
+      table_name_prefix: table_name_prefix
     }
 
     double('An ActiveRecord class', options)
@@ -695,24 +695,6 @@ describe AnnotateModels do
                   it 'returns schema info without index information' do
                     is_expected.to eq expected_result
                   end
-
-                  # rubocop:disable RSpec/NestedGroups
-                  context 'when the unprefixed table name does not exist' do
-                    let :klass do
-                      mock_class(:users, primary_key, columns, indexes, foreign_keys).tap do |mock_klass|
-                        allow(mock_klass).to receive(:table_name_prefix).and_return('my_prefix_')
-                        allow(mock_klass.connection).to receive(:table_exists?).with('users').and_return(false)
-                        allow(mock_klass.connection).to receive(:indexes).with('users').and_raise('error fetching indexes on nonexistent table')
-                      end
-                    end
-
-                    it 'returns schema info without index information' do
-                      is_expected.to eq expected_result
-                      expect(klass).to have_received(:table_name_prefix).at_least(:once)
-                      expect(klass.connection).to have_received(:table_exists?).with('users')
-                    end
-                  end
-                  # rubocop:enable RSpec/NestedGroups
                 end
               end
 
@@ -1934,6 +1916,252 @@ describe AnnotateModels do
                 it 'returns schema info in Markdown format' do
                   is_expected.to eq expected_result
                 end
+              end
+            end
+          end
+        end
+      end
+    end
+
+    context 'with table prefix' do 
+      let :table_name_prefix do
+        'prefixed_'
+      end
+      let :klass do
+        mock_class(:users, primary_key, columns, indexes, foreign_keys, check_constraints, table_name_prefix)
+      end
+
+      context 'when option is not present' do
+        let :options do
+          {}
+        end
+  
+        context 'when header is "Schema Info"' do
+          let :header do
+            'Schema Info'
+          end
+  
+          context 'when the primary key is not specified' do
+            let :primary_key do
+              nil
+            end
+  
+            context 'when the columns are normal' do
+              let :columns do
+                [
+                  mock_column(:id, :integer),
+                  mock_column(:name, :string, limit: 50)
+                ]
+              end
+  
+              let :expected_result do
+                <<~EOS
+                  # Schema Info
+                  #
+                  # Table name: prefixed_users
+                  #
+                  #  id   :integer          not null
+                  #  name :string(50)       not null
+                  #
+                EOS
+              end
+  
+              it 'returns schema info' do
+                is_expected.to eq(expected_result)
+              end
+            end
+  
+            context 'when an enum column exists' do
+              let :columns do
+                [
+                  mock_column(:id, :integer),
+                  mock_column(:name, :enum, limit: [:enum1, :enum2])
+                ]
+              end
+  
+              let :expected_result do
+                <<~EOS
+                  # Schema Info
+                  #
+                  # Table name: prefixed_users
+                  #
+                  #  id   :integer          not null
+                  #  name :enum             not null, (enum1, enum2)
+                  #
+                EOS
+              end
+  
+              it 'returns schema info' do
+                is_expected.to eq(expected_result)
+              end
+            end
+  
+            context 'when unsigned columns exist' do
+              let :columns do
+                [
+                  mock_column(:id, :integer),
+                  mock_column(:integer, :integer, unsigned?: true),
+                  mock_column(:bigint,  :integer, unsigned?: true, bigint?: true),
+                  mock_column(:bigint,  :bigint,  unsigned?: true),
+                  mock_column(:float,   :float,   unsigned?: true),
+                  mock_column(:decimal, :decimal, unsigned?: true, precision: 10, scale: 2),
+                ]
+              end
+  
+              let :expected_result do
+                <<~EOS
+                  # Schema Info
+                  #
+                  # Table name: prefixed_users
+                  #
+                  #  id      :integer          not null
+                  #  integer :integer          unsigned, not null
+                  #  bigint  :bigint           unsigned, not null
+                  #  bigint  :bigint           unsigned, not null
+                  #  float   :float            unsigned, not null
+                  #  decimal :decimal(10, 2)   unsigned, not null
+                  #
+                EOS
+              end
+  
+              it 'returns schema info' do
+                is_expected.to eq(expected_result)
+              end
+            end
+          end
+  
+          context 'when the primary key is specified' do
+            context 'when the primary_key is :id' do
+              let :primary_key do
+                :id
+              end
+  
+              context 'when columns are normal' do
+                let :columns do
+                  [
+                    mock_column(:id, :integer, limit: 8),
+                    mock_column(:name, :string, limit: 50),
+                    mock_column(:notes, :text, limit: 55)
+                  ]
+                end
+  
+                let :expected_result do
+                  <<~EOS
+                    # Schema Info
+                    #
+                    # Table name: prefixed_users
+                    #
+                    #  id    :integer          not null, primary key
+                    #  name  :string(50)       not null
+                    #  notes :text(55)         not null
+                    #
+                  EOS
+                end
+  
+                it 'returns schema info' do
+                  is_expected.to eq(expected_result)
+                end
+              end
+  
+              context 'when columns have default values' do
+                let :columns do
+                  [
+                    mock_column(:id, :integer),
+                    mock_column(:size, :integer, default: 20),
+                    mock_column(:flag, :boolean, default: false)
+                  ]
+                end
+  
+                let :expected_result do
+                  <<~EOS
+                    # Schema Info
+                    #
+                    # Table name: prefixed_users
+                    #
+                    #  id   :integer          not null, primary key
+                    #  size :integer          default(20), not null
+                    #  flag :boolean          default(FALSE), not null
+                    #
+                  EOS
+                end
+  
+                it 'returns schema info with default values' do
+                  is_expected.to eq(expected_result)
+                end
+              end
+  
+              context 'with Globalize gem' do # rubocop:disable RSpec/MultipleMemoizedHelpers
+                let :translation_klass do
+                  double('Folder::Post::Translation',
+                         to_s: 'Folder::Post::Translation',
+                         columns: [
+                           mock_column(:id, :integer, limit: 8),
+                           mock_column(:post_id, :integer, limit: 8),
+                           mock_column(:locale, :string, limit: 50),
+                           mock_column(:title, :string, limit: 50),
+                         ])
+                end
+  
+                let :klass do
+                  mock_class(:posts, primary_key, columns, indexes, foreign_keys, nil, table_name_prefix).tap do |mock_klass|
+                    allow(mock_klass).to receive(:translation_class).and_return(translation_klass)
+                  end
+                end
+  
+                let :columns do
+                  [
+                    mock_column(:id, :integer, limit: 8),
+                    mock_column(:author_name, :string, limit: 50),
+                  ]
+                end
+  
+                let :expected_result do
+                  <<~EOS
+                    # Schema Info
+                    #
+                    # Table name: prefixed_posts
+                    #
+                    #  id          :integer          not null, primary key
+                    #  author_name :string(50)       not null
+                    #  title       :string(50)       not null
+                    #
+                  EOS
+                end
+  
+                it 'returns schema info' do
+                  is_expected.to eq expected_result
+                end
+              end
+            end
+  
+            context 'when the primary key is an array (using composite_primary_keys)' do
+              let :primary_key do
+                [:a_id, :b_id]
+              end
+  
+              let :columns do
+                [
+                  mock_column(:a_id, :integer),
+                  mock_column(:b_id, :integer),
+                  mock_column(:name, :string, limit: 50)
+                ]
+              end
+  
+              let :expected_result do
+                <<~EOS
+                  # Schema Info
+                  #
+                  # Table name: prefixed_users
+                  #
+                  #  a_id :integer          not null, primary key
+                  #  b_id :integer          not null, primary key
+                  #  name :string(50)       not null
+                  #
+                EOS
+              end
+  
+              it 'returns schema info' do
+                is_expected.to eq(expected_result)
               end
             end
           end
