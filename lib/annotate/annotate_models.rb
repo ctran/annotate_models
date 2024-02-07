@@ -39,7 +39,7 @@ module AnnotateModels
     }
   }.freeze
 
-  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/).freeze
+  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))|(^#\s*typed:.+(?:\n|\r\n))|(^# -\*- typed\s*:.+-\*-(?:\n|\r\n))|(^#\s*warn_indent:.+(?:\n|\r\n))|(^# -\*- warn_indent\s*:.+-\*-(?:\n|\r\n))/).freeze
 
   class << self
     def annotate_pattern(options = {})
