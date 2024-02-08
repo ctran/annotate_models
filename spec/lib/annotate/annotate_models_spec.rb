@@ -3,7 +3,7 @@ require_relative '../../spec_helper'
 require 'annotate/annotate_models'
 require 'annotate/active_record_patch'
 require 'active_support/core_ext/string'
-require 'files'
+require 'pathname'
 require 'tmpdir'
 
 describe AnnotateModels do
@@ -2014,18 +2014,16 @@ describe AnnotateModels do
 
     context 'when `model_dir` is valid' do
       let(:model_dir) do
-        Files do
-          file 'foo.rb'
-          dir 'bar' do
-            file 'baz.rb'
-            dir 'qux' do
-              file 'quux.rb'
-            end
-          end
-          dir 'concerns' do
-            file 'corge.rb'
-          end
-        end
+        dir = Pathname(Dir.mktmpdir('annotate_models'))
+        dir.join('bar').mkdir
+        dir.join('bar', 'qux').mkdir
+        dir.join('concerns').mkdir
+
+        dir.join('foo.rb').write('')
+        dir.join('bar', 'baz.rb').write('')
+        dir.join('bar', 'qux', 'quux.rb').write('')
+        dir.join('concerns', 'corge.rb').write('')
+        dir
       end
 
       context 'when the model files are not specified' do
