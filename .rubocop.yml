@@ -11,6 +11,7 @@ AllCops:
     - 'spec/fixtures/**/*'
     - 'tmp/**/*'
     - 'spec/integration/**/*'
+    - 'Guardfile'
   NewCops: enable
 
 Metrics/BlockLength:
