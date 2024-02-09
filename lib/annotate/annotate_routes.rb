@@ -18,102 +18,28 @@
 # Released under the same license as Ruby. No Support. No Warranty.
 #
 
-require_relative './annotate_routes/helpers'
-require_relative './annotate_routes/header_generator'
+require_relative './annotate_routes/annotation_processor'
+require_relative './annotate_routes/removal_processor'
 
+# This module provides methods for annotating config/routes.rb.
 module AnnotateRoutes
   class << self
+    # @param options [Hash]
+    # @return [String]
     def do_annotations(options = {})
-      if routes_file_exist?
-        existing_text = File.read(routes_file)
-        content, header_position = Helpers.strip_annotations(existing_text)
-        new_content = annotate_routes(HeaderGenerator.generate(options), content, header_position, options)
-        new_text = new_content.join("\n")
-        if rewrite_contents(existing_text, new_text, options[:frozen])
-          puts "#{routes_file} was annotated."
-        else
-          puts "#{routes_file} was not changed."
-        end
-      else
-        puts "#{routes_file} could not be found."
+      routes_file = File.join('config', 'routes.rb')
+      AnnotationProcessor.execute(options, routes_file).tap do |result|
+        puts result
       end
     end
 
-    def remove_annotations(options={})
-      if routes_file_exist?
-        existing_text = File.read(routes_file)
-        content, header_position = Helpers.strip_annotations(existing_text)
-        new_content = strip_on_removal(content, header_position)
-        new_text = new_content.join("\n")
-        if rewrite_contents(existing_text, new_text, options[:frozen])
-          puts "Annotations were removed from #{routes_file}."
-        else
-          puts "#{routes_file} was not changed (Annotation did not exist)."
-        end
-      else
-        puts "#{routes_file} could not be found."
+    # @param options [Hash]
+    # @return [String]
+    def remove_annotations(options = {})
+      routes_file = File.join('config', 'routes.rb')
+      RemovalProcessor.execute(options, routes_file).tap do |result|
+        puts result
       end
-    end
-
-    private
-
-    def routes_file_exist?
-      File.exist?(routes_file)
-    end
-
-    def routes_file
-      @routes_rb ||= File.join('config', 'routes.rb')
-    end
-
-    def strip_on_removal(content, header_position)
-      if header_position == :before
-        content.shift while content.first == ''
-      elsif header_position == :after
-        content.pop while content.last == ''
-      end
-
-      # Make sure we end on a trailing newline.
-      content << '' unless content.last == ''
-
-      # TODO: If the user buried it in the middle, we should probably see about
-      # TODO: preserving a single line of space between the content above and
-      # TODO: below...
-      content
-    end
-
-    def rewrite_contents(existing_text, new_text, frozen)
-      content_changed = (existing_text != new_text)
-
-      if content_changed
-        abort "annotate error. #{routes_file} needs to be updated, but annotate was run with `--frozen`." if frozen
-        File.open(routes_file, 'wb') { |f| f.puts(new_text) }
-      end
-
-      content_changed
-    end
-
-    def annotate_routes(header, content, header_position, options = {})
-      magic_comments_map, content = Helpers.extract_magic_comments_from_array(content)
-      if %w(before top).include?(options[:position_in_routes])
-        header = header << '' if content.first != ''
-        magic_comments_map << '' if magic_comments_map.any?
-        new_content = magic_comments_map + header + content
-      else
-        # Ensure we have adequate trailing newlines at the end of the file to
-        # ensure a blank line separating the content from the annotation.
-        content << '' unless content.last == ''
-
-        # We're moving something from the top of the file to the bottom, so ditch
-        # the spacer we put in the first time around.
-        content.shift if header_position == :before && content.first == ''
-
-        new_content = magic_comments_map + content + header
-      end
-
-      # Make sure we end on a trailing newline.
-      new_content << '' unless new_content.last == ''
-
-      new_content
     end
   end
 end
