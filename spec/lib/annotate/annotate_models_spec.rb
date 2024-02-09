@@ -1139,8 +1139,12 @@ describe AnnotateModels do
               let :columns do
                 [
                   mock_column(:active, :boolean, limit: 1),
+                  mock_column(:polyassoc_id, :integer, limit: 8),
+                  mock_column(:polyassoc_type, :string, limit: 50),
+                  mock_column(:association_id, :integer, limit: 8),
                   mock_column(:name, :string, limit: 50),
-                  mock_column(:notes, :text, limit: 55)
+                  mock_column(:notes, :text, limit: 55),
+                  mock_column(:nonassoc_type, :string, limit: 50),
                 ]
               end
 
@@ -1155,9 +1159,13 @@ describe AnnotateModels do
                     #
                     # Table name: users
                     #
-                    #  active :boolean          not null
-                    #  name   :string(50)       not null
-                    #  notes  :text(55)         not null
+                    #  active         :boolean          not null
+                    #  name           :string(50)       not null
+                    #  nonassoc_type  :string(50)       not null
+                    #  notes          :text(55)         not null
+                    #  association_id :integer          not null
+                    #  polyassoc_id   :integer          not null
+                    #  polyassoc_type :string(50)       not null
                     #
                   EOS
                 end
