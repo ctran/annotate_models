@@ -2922,6 +2922,35 @@ describe AnnotateModels do
           expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
         end
       end
+
+      context 'of commented columns' do
+        before do
+          klass = mock_class(:users,
+                             :id,
+                             [
+                               mock_column(:id, :integer, comment: 'primary key'),
+                               mock_column(:name, :string, comment: 'with comment')
+                             ],
+                             [],
+                             [])
+          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', with_comment: true)
+          annotate_one_file
+        end
+
+        it 'should update a commented column' do
+          klass = mock_class(:users,
+                             :id,
+                             [
+                               mock_column(:id, :integer, comment: 'primary key'),
+                               mock_column(:name, :text, comment: 'ｗｉｔｈ ｍｕｌｔｉｂｙｔｅ ｃｏｍｍｅｎｔ')
+                             ],
+                             [],
+                             [])
+          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', with_comment: true)
+          annotate_one_file
+          expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+        end
+      end
     end
 
     describe 'with existing annotation => :before' do
