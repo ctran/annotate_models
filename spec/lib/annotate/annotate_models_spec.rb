@@ -1625,7 +1625,7 @@ describe AnnotateModels do
                   end
                 end
 
-                context 'when one of indexes includes orderd index key' do
+                context 'when one of indexes includes ordered index key' do
                   let :indexes do
                     [
                       mock_index('index_rails_02e851e3b7', columns: ['id']),

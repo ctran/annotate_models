@@ -184,7 +184,7 @@ See https://github.com/ctran/annotate_models/releases/tag/v2.7.0
     you don't.) Also includes a mode for "tinkering" by hand with a scenario,
     and won't let you run it through rspect if the repo is in a dirty state. 
     Added appropriate rake tasks to help with all of this.
-- Routes can now be appended, pre-pended, or removed -- and do sane things in all cases.
+- Routes can now be appended, prepended, or removed -- and do sane things in all cases.
 - Expose all `position_*` variables as CLI params.
 - Make `ENV ['position']` work as a default for all the `ENV ['position_*']` variables.
 - Make rake tasks more resilient to unusual circumstances / code loading behavior.

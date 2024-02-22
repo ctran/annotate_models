@@ -904,7 +904,7 @@ module AnnotateModels
     def translated_columns(klass)
       return [] unless klass.respond_to? :translation_class
 
-      ignored_cols = ignored_translation_table_colums(klass)
+      ignored_cols = ignored_translation_table_columns(klass)
       klass.translation_class.columns.reject do |col|
         ignored_cols.include? col.name.to_sym
       end
@@ -913,7 +913,7 @@ module AnnotateModels
     ##
     # These are the columns that the globalize gem needs to work but
     # are not necessary for the models to be displayed as annotations.
-    def ignored_translation_table_colums(klass)
+    def ignored_translation_table_columns(klass)
       # Construct the foreign column name in the translations table
       # eg. Model: Car, foreign column name: car_id
       foreign_column_name = [
