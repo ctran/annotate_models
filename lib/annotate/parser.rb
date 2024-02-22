@@ -250,7 +250,7 @@ module Annotate
       option_parser.on('-f',
                        '--format [bare|rdoc|yard|markdown]',
                        FORMAT_TYPES,
-                       'Render Schema Infomation as plain/RDoc/Yard/Markdown') do |format_type|
+                       'Render Schema Information as plain/RDoc/Yard/Markdown') do |format_type|
         env["format_#{format_type}"] = 'yes'
       end
 

@@ -236,7 +236,7 @@ you can do so with a simple environment variable, instead of editing the
         -R, --require path               Additional file to require before loading models, may be used multiple times
         -e [tests,fixtures,factories,serializers],
             --exclude                    Do not annotate fixtures, test files, factories, and/or serializers
-        -f [bare|rdoc|yard|markdown],    Render Schema Infomation as plain/RDoc/YARD/Markdown
+        -f [bare|rdoc|yard|markdown],    Render Schema Information as plain/RDoc/YARD/Markdown
             --format
             --force                      Force new annotations even if there are no changes.
             --frozen                     Do not allow to change annotations. Exits non-zero if there are going to be changes to files.

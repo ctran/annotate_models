@@ -4,7 +4,7 @@
 #  * bundler binstubs: 'bin/rspec'
 #  * spring: 'bin/rsspec' (This will use spring if running and you have
 #                          installed the spring binstubs per the docs)
-#  * zeus: 'zeus rspec' (requires the server to be started separetly)
+#  * zeus: 'zeus rspec' (requires the server to be started separately)
 #  * 'just' rspec: 'rspec'
 guard :rspec, cmd: 'bundle exec rspec' do
   watch(%r{^spec/.+_spec\.rb$})
