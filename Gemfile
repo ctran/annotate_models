@@ -1,14 +1,14 @@
 source 'https://rubygems.org'
 
-ruby '>= 2.4.0'
+ruby '>= 3.3.0'
 
-gem 'activerecord', '>= 4.2.5', '< 6', require: false
+gem 'activerecord', '>= 7.1', require: false
 gem 'rake', require: false
+gem 'activerecord-multi-tenant', git: 'https://github.com/citusdata/activerecord-multi-tenant.git', require: false
 
 group :development do
   gem 'bump'
   gem 'mg', require: false
-  gem 'travis', require: false
   platforms :mri, :mingw do
     gem 'yard', require: false
   end
@@ -19,9 +19,9 @@ group :development, :test do
   gem 'guard-rspec', require: false
   gem 'rspec', require: false
 
-  gem 'rubocop', '~> 1.12.0', require: false
+  gem 'rubocop', require: false
   gem 'rubocop-rake', require: false
-  gem 'rubocop-rspec', '~> 2.2.0', require: false
+  gem 'rubocop-rspec', require: false
   gem 'simplecov', require: false
   gem 'terminal-notifier-guard', require: false
 
@@ -29,7 +29,6 @@ group :development, :test do
   gem 'coveralls'
 
   gem 'overcommit'
-  gem 'ruby_dep', '1.5.0'
 
   platforms :mri, :mingw do
     gem 'pry', require: false
