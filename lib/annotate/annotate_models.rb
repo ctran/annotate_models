@@ -364,7 +364,12 @@ module AnnotateModels
       end
 
       max_size = foreign_keys.map(&format_name).map(&:size).max + 1
-      foreign_keys.sort_by {|fk| [format_name.call(fk), fk.column]}.each do |fk|
+
+puts foreign_keys.inspect
+
+      foreign_keys.sort_by { |fk|
+        [format_name.call(fk), ( fk.column.class == Array ? fk.column.join( ", " ) : fk.column ) ]
+      }.each do |fk|
         ref_info = "#{fk.column} => #{fk.to_table}.#{fk.primary_key}"
         constraints_info = ''
         constraints_info += "ON DELETE => #{fk.on_delete} " if fk.on_delete
