@@ -21,6 +21,13 @@ Bundler.setup
 require 'rake'
 require 'rspec'
 
+#  Crappy monkey patch so files gem doesn't fail.
+class File
+  def self.exists?(file)
+    File.exist?(file)
+  end
+end
+
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '../lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 
