@@ -345,6 +345,12 @@ module AnnotateModels
       excludes.include?(col_type)
     end
 
+    #  The fk columns might be composite keys, so format them into
+    #  a string for the annotation
+    def stringify_fk_columns( columns )
+      columns.class == Array ? columns.join( ", " ) : columns
+    end
+
     def get_foreign_key_info(klass, options = {})
       fk_info = if options[:format_markdown]
                   "#\n# ### Foreign Keys\n#\n"
@@ -365,12 +371,10 @@ module AnnotateModels
 
       max_size = foreign_keys.map(&format_name).map(&:size).max + 1
 
-puts foreign_keys.inspect
-
       foreign_keys.sort_by { |fk|
-        [format_name.call(fk), ( fk.column.class == Array ? fk.column.join( ", " ) : fk.column ) ]
+        [format_name.call(fk), stringify_fk_columns( fk.column ) ]
       }.each do |fk|
-        ref_info = "#{fk.column} => #{fk.to_table}.#{fk.primary_key}"
+        ref_info = "#{stringify_fk_columns( fk.column )} => #{fk.to_table}.#{fk.primary_key}"
         constraints_info = ''
         constraints_info += "ON DELETE => #{fk.on_delete} " if fk.on_delete
         constraints_info += "ON UPDATE => #{fk.on_update} " if fk.on_update
