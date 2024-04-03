@@ -5,6 +5,7 @@
 [![CI Status](https://github.com/ctran/annotate_models/workflows/CI/badge.svg)](https://github.com/ctran/annotate_models/actions?workflow=CI)
 [![Coveralls](https://coveralls.io/repos/ctran/annotate_models/badge.svg?branch=develop)](https://coveralls.io/r/ctran/annotate_models?branch=develop)
 [![Maintenability](https://codeclimate.com/github/ctran/annotate_models/badges/gpa.svg)](https://codeclimate.com/github/ctran/annotate_models)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fctran%2Fannotate_models.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fctran%2Fannotate_models?ref=badge_shield)
 
 Add a comment summarizing the current schema to the top or bottom of each of your...
 
@@ -325,6 +326,9 @@ extra carefully, and consider using one.
 ## License
 
 Released under the same license as Ruby. No Support. No Warranty.
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fctran%2Fannotate_models.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fctran%2Fannotate_models?ref=badge_large)
 
 ## Authors
 
