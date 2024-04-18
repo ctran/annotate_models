@@ -124,6 +124,10 @@ To annotate just your models:
 
     annotate --models
 
+To annotate a specific model:
+
+    annotate --models <path/to/model/file>
+
 To annotate routes.rb:
 
     annotate --routes
