@@ -142,12 +142,17 @@ module AnnotateModels
       max_size = max_schema_info_width(klass, options)
       md_names_overhead = 6
       md_type_allowance = 18
+      md_attributes_allowance = 45
       bare_type_allowance = 16
 
       if options[:format_markdown]
-        info << sprintf( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
-
-        info << "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
+        if options[:with_comment_column]
+          info << sprintf( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %-#{md_attributes_allowance}.#{md_attributes_allowance}s | %s\n", 'Name', 'Type', 'Attributes', 'Comments' )
+          info << "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{'-' * md_attributes_allowance} | #{ '-' * 27 }\n"
+        else
+          info << sprintf( "# %-#{max_size + md_names_overhead}.#{max_size + md_names_overhead}s | %-#{md_type_allowance}.#{md_type_allowance}s | %s\n", 'Name', 'Type', 'Attributes' )
+          info << "# #{ '-' * ( max_size + md_names_overhead ) } | #{'-' * md_type_allowance} | #{ '-' * 27 }\n"
+        end
       end
 
       cols = columns(klass, options)
@@ -165,7 +170,11 @@ module AnnotateModels
                      col.name
                    end
         simple_formatted_attrs = attrs.join(", ")
-        [col.name, { col_type: col_type, attrs: attrs, col_name: col_name, simple_formatted_attrs: simple_formatted_attrs, col_comment: col_comment }]
+        col_enum_values = nil
+        if klass.respond_to?(:enumerized_attributes)
+          col_enum_values = klass.enumerized_attributes[col.name]&.values
+        end
+        [col.name, { col_type: col_type, attrs: attrs, col_name: col_name, simple_formatted_attrs: simple_formatted_attrs, col_comment: col_comment, col_enum_values: col_enum_values }]
       end.to_h
 
       # Output annotation
@@ -177,6 +186,7 @@ module AnnotateModels
         col_name = cols_meta[col.name][:col_name]
         simple_formatted_attrs = cols_meta[col.name][:simple_formatted_attrs]
         col_comment = cols_meta[col.name][:col_comment]
+        col_enum_values = cols_meta[col.name][:col_enum_values]
 
         if options[:format_rdoc]
           info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
@@ -187,7 +197,16 @@ module AnnotateModels
         elsif options[:format_markdown]
           name_remainder = max_size - col_name.length - non_ascii_length(col_name)
           type_remainder = (md_type_allowance - 2) - col_type.length
-          info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
+          if options[:with_comment_column]
+            attrs_string = attrs.join(", ").rstrip
+            attrs_remainder = (md_attributes_allowance - 2) - attrs_string.length
+            if col_enum_values.present?
+              col_comment = "#{col_comment} Enum: `#{col_enum_values.join("`, `")}`".strip
+            end
+            info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`%#{attrs_remainder}s | %s", col_name, " ", col_type, " ", attrs_string, " ", col_comment)).gsub('``', '  ').rstrip + "\n"
+          else
+            info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
+          end
         elsif with_comments_column
           info << format_default(col_name, max_size, col_type, bare_type_allowance, simple_formatted_attrs, bare_max_attrs_length, col_comment)
         else
@@ -546,6 +565,15 @@ module AnnotateModels
           annotated << model_file_name
         end
 
+        if options[:export_file].present?
+          export_options = options.clone
+          export_options[:format_bare] = options[:export_file_format] == "bare"
+          export_options[:format_markdown] = options[:export_file_format] == "markdown"
+          export_info = get_schema_info(klass, header, export_options)
+          schemaless_table_name = table_name.split('.').last
+          @annotated_exports[schemaless_table_name] = export_info
+        end
+
         matched_types(options).each do |key|
           exclusion_key = "exclude_#{key.pluralize}".to_sym
           position_key = "position_in_#{key}".to_sym
@@ -711,6 +739,11 @@ module AnnotateModels
         header << "\n# Schema version: #{version}"
       end
 
+      @annotated_exports = {}
+      if options[:export_file].present? && File.exist?(options[:export_file])
+        File.truncate(options[:export_file], 0)
+      end
+
       annotated = []
       get_model_files(options).each do |path, filename|
         annotate_model_file(annotated, File.join(path, filename), header, options)
@@ -720,6 +753,23 @@ module AnnotateModels
         puts 'Model files unchanged.'
       else
         puts "Annotated (#{annotated.length}): #{annotated.join(', ')}"
+
+        if options[:export_file].present?
+          # apply post-processing to the exported content:
+          #   - remove the "Schema info" headers
+          #   - remove leading comment chars (#) since the exported file is not a ruby file
+          @annotated_exports.sort.each do |_table_name, export_info|
+            File.open(options[:export_file], "ab") do |f|
+              if options[:export_file_format] == "markdown"
+                # for markdown, format the table name line with an H1 header style
+                f.puts export_info.gsub(header, "").gsub(/^#\s/, "").gsub(/Table name:/, "# Table:")
+              else
+                f.puts export_info.gsub(header, "").gsub(/^#\s/, "")
+              end
+            end
+          end
+          puts "Exported to file: #{options[:export_file]}"
+        end
       end
     end
 

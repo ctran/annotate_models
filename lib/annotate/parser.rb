@@ -18,6 +18,7 @@ module Annotate
     FILE_TYPE_POSITIONS = %w[position_in_class position_in_factory position_in_fixture position_in_test position_in_routes position_in_serializer].freeze
     EXCLUSION_LIST = %w[tests fixtures factories serializers].freeze
     FORMAT_TYPES = %w[bare rdoc yard markdown].freeze
+    EXPORT_FILE_FORMAT_TYPES = %w[markdown bare].freeze
 
     def initialize(args, env)
       @args = args
@@ -308,6 +309,16 @@ module Annotate
       option_parser.on('--with-comment-column',
                        "include database comments in model annotations, as its own column, after all others") do
         env['with_comment_column'] = 'true'
+      end
+
+      option_parser.on("--export-file FILE",
+                       "Export schema infomation to a single file") do |export_file|
+        env["export_file"] = export_file
+      end
+
+      option_parser.on("--export-file-format FORMAT [markdown|bare]", EXPORT_FILE_FORMAT_TYPES,
+                       'Export schema infomation as markdown or plain text') do |export_file_format|
+        env["export_file_format"] = export_file_format
       end
     end
   end

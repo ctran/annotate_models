@@ -55,6 +55,9 @@ module Annotate
     Constants::PATH_OPTIONS.each do |key|
       options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s].split(',') : []
     end
+    Constants::EXPORT_FILE_OPTIONS.each do |key|
+      options[key] = !ENV[key.to_s].blank? ? ENV[key.to_s] : nil
+    end
 
     options[:additional_file_patterns] ||= []
     options[:additional_file_patterns] = options[:additional_file_patterns].split(',') if options[:additional_file_patterns].is_a?(String)

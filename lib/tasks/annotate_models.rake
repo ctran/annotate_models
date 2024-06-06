@@ -54,6 +54,8 @@ task annotate_models: :environment do
   options[:with_comment] = Annotate::Helpers.true?(ENV['with_comment'])
   options[:with_comment_column] = Annotate::Helpers.true?(ENV['with_comment_column'])
   options[:ignore_unknown_models] = Annotate::Helpers.true?(ENV.fetch('ignore_unknown_models', 'false'))
+  options[:export_file] = ENV.fetch('export_file', nil)
+  options[:export_file_format] = ENV.fetch('export_file_format', 'markdown')
 
   AnnotateModels.do_annotations(options)
 end

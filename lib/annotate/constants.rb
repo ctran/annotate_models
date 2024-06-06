@@ -32,8 +32,12 @@ module Annotate
       :require, :model_dir, :root_dir
     ].freeze
 
+    EXPORT_FILE_OPTIONS = [
+      :export_file, :export_file_format
+    ].freeze
+
     ALL_ANNOTATE_OPTIONS = [
-      POSITION_OPTIONS, FLAG_OPTIONS, OTHER_OPTIONS, PATH_OPTIONS
+      POSITION_OPTIONS, FLAG_OPTIONS, OTHER_OPTIONS, PATH_OPTIONS, EXPORT_FILE_OPTIONS
     ].freeze
   end
 end
