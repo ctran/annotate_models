@@ -469,7 +469,8 @@ module AnnotateModels
         space_match = old_annotation.match(/\A(?<start>\s*).*?\n(?<end>\s*)\z/m)
         new_annotation = space_match[:start] + wrapped_info_block + space_match[:end]
 
-        new_content = old_content.sub(annotate_pattern(options), new_annotation)
+        # use the block version of sub to avoid interpreting special characters
+        new_content = old_content.sub(annotate_pattern(options)) { |_match| new_annotation }
       end
 
       File.open(file_name, 'wb') { |f| f.puts new_content }

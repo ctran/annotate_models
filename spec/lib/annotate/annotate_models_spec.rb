@@ -2922,6 +2922,63 @@ describe AnnotateModels do
           expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
         end
       end
+
+      context 'of an index' do
+        before do
+          klass = mock_class(:users,
+                             :id,
+                             [
+                               mock_column(:id, :integer),
+                               mock_column(:foreign_thing_id, :integer)
+                             ],
+                             [
+                               mock_index('index_rails_02e851e3b7', columns: ['id']),
+                               mock_index('index_rails_02e851e3b8', columns: ['foreign_thing_id'])
+                             ])
+          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_indexes: true)
+          annotate_one_file
+        end
+
+        it 'should update index' do
+          klass = mock_class(:users,
+                             :id,
+                             [
+                               mock_column(:id, :integer),
+                               mock_column(:foreign_thing_id, :integer),
+                               mock_column(:another_column, :integer)
+                             ],
+                             [
+                               mock_index('index_rails_02e851e3b7', columns: ['id']),
+                               mock_index('index_rails_02e851e3b8', columns: ['foreign_thing_id']),
+                               mock_index('index_rails_02e851e3b9',
+                                          columns: ['another_column'],
+                                          where: "another_column IS NOT NULL")
+                             ])
+          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_indexes: true)
+          annotate_one_file
+          expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+        end
+
+        it 'should update index without escaping backslashes' do
+          klass = mock_class(:users,
+                             :id,
+                             [
+                               mock_column(:id, :integer),
+                               mock_column(:foreign_thing_id, :integer),
+                               mock_column(:another_column, :text)
+                             ],
+                             [
+                               mock_index('index_rails_02e851e3b7', columns: ['id']),
+                               mock_index('index_rails_02e851e3b8', columns: ['foreign_thing_id']),
+                               mock_index('index_rails_02e851e3b9',
+                                          columns: ['another_column'],
+                                          where: "another_column LIKE '\\\\%'")
+                             ])
+          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_indexes: true)
+          annotate_one_file
+          expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+        end
+      end
     end
 
     describe 'with existing annotation => :before' do
