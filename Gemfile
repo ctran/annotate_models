@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
-ruby '>= 2.4.0'
+ruby '>= 2.4.0', '<= 3.3.5'
 
-gem 'activerecord', '>= 4.2.5', '< 6', require: false
+gem 'activerecord', '>= 4.2.5', '<= 8.0.0', require: false
 gem 'rake', require: false
 
 group :development do
@@ -29,7 +29,6 @@ group :development, :test do
   gem 'coveralls'
 
   gem 'overcommit'
-  gem 'ruby_dep', '1.5.0'
 
   platforms :mri, :mingw do
     gem 'pry', require: false
@@ -38,6 +37,6 @@ group :development, :test do
 end
 
 group :test do
-  gem 'files', require: false
+  gem "files", git: "https://github.com/rodrigotoledo/files"
   gem 'git', require: false
 end
