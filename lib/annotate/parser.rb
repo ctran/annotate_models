@@ -15,7 +15,7 @@ module Annotate
     }.freeze
 
     ANNOTATION_POSITIONS = %w[before top after bottom].freeze
-    FILE_TYPE_POSITIONS = %w[position_in_class position_in_factory position_in_fixture position_in_test position_in_routes position_in_serializer].freeze
+    FILE_TYPE_POSITIONS = %w[position_in_class position_in_factory position_in_fixture position_in_test position_in_routes position_in_serializer position_in_additional_file_patterns].freeze
     EXCLUSION_LIST = %w[tests fixtures factories serializers].freeze
     FORMAT_TYPES = %w[bare rdoc yard markdown].freeze
 
@@ -124,6 +124,14 @@ module Annotate
         has_set_position['position_in_serializer'] = true
       end
 
+      option_parser.on('--pa',
+                       '--position-in-additional-file-patterns [before|top|after|bottom]',
+                       ANNOTATION_POSITIONS,
+                       'Place the annotations at the top (before) or the bottom (after) of files that match additional patterns') do |position_in_additional_file_patterns|
+        env['position_in_additional_file_patterns'] = position_in_additional_file_patterns
+        has_set_position['position_in_additional_file_patterns'] = true
+      end
+
       option_parser.on('--w',
                        '--wrapper STR',
                        'Wrap annotation with the text passed as parameter.',
@@ -145,7 +153,7 @@ module Annotate
 
       option_parser.on('-r',
                        '--routes',
-                       "Annotate routes.rb with the output of 'rake routes'") do
+                       "Annotate routes.rb with the output of 'rake/rails routes'") do
         env['routes'] = 'true'
       end
 

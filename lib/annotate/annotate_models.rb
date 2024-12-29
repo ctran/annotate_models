@@ -39,7 +39,7 @@ module AnnotateModels
     }
   }.freeze
 
-  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/).freeze
+  MAGIC_COMMENT_MATCHER = /(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/.freeze
 
   class << self
     def annotate_pattern(options = {})
@@ -155,8 +155,8 @@ module AnnotateModels
       with_comments_column = with_comments_column?(klass, options)
 
       # Precalculate Values
-      cols_meta = cols.map do |col|
-        col_comment = with_comments || with_comments_column ? col.comment&.gsub(/\n/, "\\n") : nil
+      cols_meta = cols.to_h do |col|
+        col_comment = with_comments || with_comments_column ? col.comment&.gsub("\n", "\\n") : nil
         col_type = get_col_type(col)
         attrs = get_attributes(col, col_type, klass, options)
         col_name = if with_comments && col_comment
@@ -166,7 +166,7 @@ module AnnotateModels
                    end
         simple_formatted_attrs = attrs.join(", ")
         [col.name, { col_type: col_type, attrs: attrs, col_name: col_name, simple_formatted_attrs: simple_formatted_attrs, col_comment: col_comment }]
-      end.to_h
+      end
 
       # Output annotation
       bare_max_attrs_length = cols_meta.map { |_, m| m[:simple_formatted_attrs].length }.max
@@ -179,15 +179,15 @@ module AnnotateModels
         col_comment = cols_meta[col.name][:col_comment]
 
         if options[:format_rdoc]
-          info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+          info << (sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n")
         elsif options[:format_yard]
-          info << sprintf("# @!attribute #{col_name}") + "\n"
+          info << (sprintf("# @!attribute #{col_name}") + "\n")
           ruby_class = col.respond_to?(:array) && col.array ? "Array<#{map_col_type_to_ruby_classes(col_type)}>": map_col_type_to_ruby_classes(col_type)
-          info << sprintf("#   @return [#{ruby_class}]") + "\n"
+          info << (sprintf("#   @return [#{ruby_class}]") + "\n")
         elsif options[:format_markdown]
           name_remainder = max_size - col_name.length - non_ascii_length(col_name)
           type_remainder = (md_type_allowance - 2) - col_type.length
-          info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
+          info << ((sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n")
         elsif with_comments_column
           info << format_default(col_name, max_size, col_type, bare_type_allowance, simple_formatted_attrs, bare_max_attrs_length, col_comment)
         else
@@ -433,7 +433,7 @@ module AnnotateModels
       old_header = old_content.match(header_pattern).to_s
       new_header = info_block.match(header_pattern).to_s
 
-      column_pattern = /^#[\t ]+[\w\*\.`]+[\t ]+.+$/
+      column_pattern = /^#[\t ]+[^\t ]+[\t ]+.+$/
       old_columns = old_header && old_header.scan(column_pattern).sort
       new_columns = new_header && new_header.scan(column_pattern).sort
 
@@ -521,6 +521,7 @@ module AnnotateModels
     #  :position_in_fixture<Symbol>:: where to place the annotated section in fixture file
     #  :position_in_factory<Symbol>:: where to place the annotated section in factory file
     #  :position_in_serializer<Symbol>:: where to place the annotated section in serializer file
+    #  :position_in_additional_file_patterns<Symbol>:: where to place the annotated section in files that match additional patterns
     #  :exclude_tests<Symbol>:: whether to skip modification of test/spec files
     #  :exclude_fixtures<Symbol>:: whether to skip modification of fixture files
     #  :exclude_factories<Symbol>:: whether to skip modification of factory files
@@ -669,6 +670,15 @@ module AnnotateModels
         $LOAD_PATH.map(&:to_s)
                   .select { |path| absolute_file.include?(path) }
                   .map { |path| absolute_file.sub(path, '').sub(/\.rb$/, '').sub(/^\//, '') }
+
+      # Handle Rails apps with collapsed model paths
+      model_paths = model_paths
+                    .select do |mpath|
+                      defined?(Rails) &&
+                      Rails.autoloaders.main.collapse_dirs.any? &&
+                      Rails.autoloaders.main.collapse_dirs.select { |path| path.match(mpath) }
+                    end.map { |mpath| mpath.sub(/\/models/, '') }
+
       model_paths
         .map { |path| get_loaded_model_by_path(path) }
         .find { |loaded_model| !loaded_model.nil? }
@@ -694,7 +704,7 @@ module AnnotateModels
     end
 
     def split_model_dir(option_value)
-      option_value = option_value.is_a?(Array) ? option_value : option_value.split(',')
+      option_value = option_value.split(',') unless option_value.is_a?(Array)
       option_value.map(&:strip).reject(&:empty?)
     end
 

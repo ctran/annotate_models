@@ -14,17 +14,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ['2.7']
+        ruby: ['2.7.6']
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+          bundler-cache: false
+
+      - name: Update RubyGems and install dependencies
+        run: |
+          gem update --system 3.3.22
+          bundle config set --local force_ruby_platform true
+          bundle install --jobs 4 --retry 3
 
       - name: Run Tests
         run: bundle exec rspec

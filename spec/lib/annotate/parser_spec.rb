@@ -72,8 +72,8 @@ module Annotate # rubocop:disable Metrics/ModuleLength
           options = other_commands + position_command
 
           Parser.parse(options)
-          expect(ENV['position_in_class']).to eq('top')
-          expect(ENV['position']).to eq('bottom')
+          expect(ENV.fetch('position_in_class', nil)).to eq('top')
+          expect(ENV.fetch('position', nil)).to eq('bottom')
         end
       end
     end
@@ -161,6 +161,22 @@ module Annotate # rubocop:disable Metrics/ModuleLength
     %w[--ps --position-in-serializer].each do |option|
       describe option do
         let(:env_key) { 'position_in_serializer' }
+
+        Parser::ANNOTATION_POSITIONS.each do |position|
+          context "when specifying #{position}" do
+            it "sets the ENV variable to #{position}" do
+              allow(ENV).to receive(:[]=)
+              Parser.parse([option, position])
+              expect(ENV).to have_received(:[]=).with(env_key, position)
+            end
+          end
+        end
+      end
+    end
+
+    %w[--pa --position-in-additional-file-patterns].each do |option|
+      describe option do
+        let(:env_key) { 'position_in_additional_file_patterns' }
 
         Parser::ANNOTATION_POSITIONS.each do |position|
           context "when specifying #{position}" do

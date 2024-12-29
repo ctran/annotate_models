@@ -10,13 +10,13 @@ task :annotate_routes => :environment do
   require "#{annotate_lib}/annotate/annotate_routes"
 
   options={}
-  ENV['position'] = options[:position] = Annotate::Helpers.fallback(ENV['position'], 'before')
-  options[:position_in_routes] = Annotate::Helpers.fallback(ENV['position_in_routes'], ENV['position'])
-  options[:ignore_routes] = Annotate::Helpers.fallback(ENV['ignore_routes'],  nil)
+  ENV['position'] = options[:position] = Annotate::Helpers.fallback(ENV.fetch('position', nil), 'before')
+  options[:position_in_routes] = Annotate::Helpers.fallback(ENV.fetch('position_in_routes', nil), ENV.fetch('position', nil))
+  options[:ignore_routes] = Annotate::Helpers.fallback(ENV.fetch('ignore_routes', nil),  nil)
   options[:require] = ENV['require'] ? ENV['require'].split(',') : []
-  options[:frozen] = Annotate::Helpers.true?(ENV['frozen'])
-  options[:wrapper_open] = Annotate::Helpers.fallback(ENV['wrapper_open'], ENV['wrapper'])
-  options[:wrapper_close] = Annotate::Helpers.fallback(ENV['wrapper_close'], ENV['wrapper'])
+  options[:frozen] = Annotate::Helpers.true?(ENV.fetch('frozen', nil))
+  options[:wrapper_open] = Annotate::Helpers.fallback(ENV.fetch('wrapper_open', nil), ENV.fetch('wrapper', nil))
+  options[:wrapper_close] = Annotate::Helpers.fallback(ENV.fetch('wrapper_close', nil), ENV.fetch('wrapper', nil))
   AnnotateRoutes.do_annotations(options)
 end
 

@@ -3,7 +3,6 @@ require_relative '../../spec_helper'
 require 'annotate/annotate_models'
 require 'annotate/active_record_patch'
 require 'active_support/core_ext/string'
-require 'files'
 require 'tmpdir'
 
 describe AnnotateModels do
@@ -206,7 +205,7 @@ describe AnnotateModels do
         end
 
         it 'sets skip_subdirectory_model_load to true' do
-          is_expected.to eq(true)
+          is_expected.to be(true)
         end
       end
 
@@ -220,7 +219,7 @@ describe AnnotateModels do
         end
 
         it 'sets skip_subdirectory_model_load to false' do
-          is_expected.to eq(false)
+          is_expected.to be(false)
         end
       end
     end
@@ -1944,7 +1943,7 @@ describe AnnotateModels do
 
   describe '.set_defaults' do
     subject do
-      Annotate::Helpers.true?(ENV['show_complete_foreign_keys'])
+      Annotate::Helpers.true?(ENV.fetch('show_complete_foreign_keys', nil))
     end
 
     after :each do
@@ -2014,18 +2013,15 @@ describe AnnotateModels do
 
     context 'when `model_dir` is valid' do
       let(:model_dir) do
-        Files do
-          file 'foo.rb'
-          dir 'bar' do
-            file 'baz.rb'
-            dir 'qux' do
-              file 'quux.rb'
-            end
-          end
-          dir 'concerns' do
-            file 'corge.rb'
-          end
-        end
+        dir = Dir.mktmpdir
+        FileUtils.touch(File.join(dir, 'foo.rb'))
+        FileUtils.mkdir_p(File.join(dir, 'bar'))
+        FileUtils.touch(File.join(dir, 'bar', 'baz.rb'))
+        FileUtils.mkdir_p(File.join(dir, 'bar', 'qux'))
+        FileUtils.touch(File.join(dir, 'bar', 'qux', 'quux.rb'))
+        FileUtils.mkdir_p(File.join(dir, 'concerns'))
+        FileUtils.touch(File.join(dir, 'concerns', 'corge.rb'))
+        dir
       end
 
       context 'when the model files are not specified' do
@@ -2196,6 +2192,37 @@ describe AnnotateModels do
 
         it 'works' do
           expect(klass.name).to eq('Bar::FooInsideBar')
+        end
+      end
+
+      context 'when class Bar::Foo is defined in Rails collapsed directory' do
+        before do
+          Rails = double('Rails')
+          # rubocop:disable RSpec/MessageChain
+          allow(Rails).to receive_message_chain(:autoloaders, :main, :collapse_dirs) { Set.new(["bar/models"]) }
+          # rubocop:enable RSpec/MessageChain
+          $LOAD_PATH.unshift(dir)
+        end
+
+        let :dir do
+          AnnotateModels.model_dir[0]
+        end
+
+        let :filename do
+          'bar/models/foo.rb'
+        end
+
+        let :file_content do
+          <<~EOS
+            module Bar
+              class Foo < ActiveRecord::Base
+              end
+            end
+          EOS
+        end
+
+        it 'works' do
+          expect(klass.name).to eql('Bar::Foo')
         end
       end
     end
@@ -2842,7 +2869,7 @@ describe AnnotateModels do
     def write_model(file_name, file_content)
       fname = File.join(@model_dir, file_name)
       FileUtils.mkdir_p(File.dirname(fname))
-      File.open(fname, 'wb') { |f| f.write file_content }
+      File.binwrite(fname, file_content)
 
       [fname, file_content]
     end
@@ -2918,6 +2945,34 @@ describe AnnotateModels do
                                                 on_delete: :restrict)
                              ])
           @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
+          annotate_one_file
+          expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
+        end
+      end
+
+      context 'of multibyte comments' do
+        before do
+          klass = mock_class(:users,
+                             :id,
+                             [
+                               mock_column(:id, :integer, comment: 'ID'),
+                             ],
+                             [],
+                             [])
+          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', with_comment: true)
+          annotate_one_file
+        end
+
+        it 'should update columns' do
+          klass = mock_class(:users,
+                             :id,
+                             [
+                               mock_column(:id, :integer, comment: 'ID'),
+                               mock_column(:active, :boolean, limit: 1, comment: 'ＡＣＴＩＶＥ'),
+                             ],
+                             [],
+                             [])
+          @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', with_comment: true)
           annotate_one_file
           expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
         end
@@ -3093,11 +3148,11 @@ describe AnnotateModels do
     end
 
     describe 'frozen option' do
-      it "should abort without existing annotation when frozen: true " do
+      it "should abort without existing annotation when frozen: true" do
         expect { annotate_one_file frozen: true }.to raise_error SystemExit, /user.rb needs to be updated, but annotate was run with `--frozen`./
       end
 
-      it "should abort with different annotation when frozen: true " do
+      it "should abort with different annotation when frozen: true" do
         annotate_one_file
         another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer)]), '== Schema Info')
         @schema_info = another_schema_info
@@ -3105,7 +3160,7 @@ describe AnnotateModels do
         expect { annotate_one_file frozen: true }.to raise_error SystemExit, /user.rb needs to be updated, but annotate was run with `--frozen`./
       end
 
-      it "should NOT abort with same annotation when frozen: true " do
+      it "should NOT abort with same annotation when frozen: true" do
         annotate_one_file
         expect { annotate_one_file frozen: true }.not_to raise_error
       end
@@ -3126,7 +3181,7 @@ describe AnnotateModels do
     after { Object.send :remove_const, 'Foo' }
 
     it 'skips attempt to annotate if no table exists for model' do
-      is_expected.to eq nil
+      is_expected.to be_nil
     end
 
     context 'with a non-class' do
