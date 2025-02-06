@@ -1,3 +1,7 @@
+# This Gem is no longer maintained
+
+**Consider [annotaterb](https://github.com/drwl/annotaterb)** for an actively maintained alternative.
+
 ## Annotate (aka AnnotateModels)
 
 [![Gem Version](https://badge.fury.io/rb/annotate.svg)](http://badge.fury.io/rb/annotate)
