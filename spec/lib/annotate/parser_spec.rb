@@ -20,7 +20,7 @@ module Annotate # rubocop:disable Metrics/ModuleLength
           paths = 'foo/bar,baz'
           allow(ENV).to receive(:[]=)
           Parser.parse([option, paths])
-          expect(ENV).to have_received(:[]=).with('additional_file_patterns', ['foo/bar', 'baz'])
+          expect(ENV).to have_received(:[]=).with('additional_file_patterns', 'foo/bar,baz')
         end
       end
     end
