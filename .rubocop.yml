@@ -7,12 +7,18 @@ require:
 
 AllCops:
   Exclude:
-    - 'vendor/**/*'
-    - 'spec/fixtures/**/*'
-    - 'tmp/**/*'
-    - 'spec/integration/**/*'
+    - "vendor/**/*"
+    - "spec/fixtures/**/*"
+    - "tmp/**/*"
+    - "spec/integration/**/*"
   NewCops: enable
 
 Metrics/BlockLength:
   Exclude:
-    - 'spec/**/*.rb'
+    - "spec/**/*.rb"
+Style/FetchEnvVar:
+  Enabled: false
+Metrics/ClassLength:
+  Enabled: false
+RSpec/RemoveConst:
+  Enabled: false

@@ -102,20 +102,20 @@ RSpec.describe Annotate::Helpers do
 
   describe '.fallback' do
     subject { described_class.fallback(*args) }
-    let(:args) { [arg_1, arg_2] }
+    let(:args) { [blank_arg, boolean_arg] }
 
-    let(:arg_1) { '' } # is considered blank
-    let(:arg_2) { 'yes' }
+    let(:blank_arg) { '' } # is considered blank
+    let(:boolean_arg) { 'yes' }
 
     it 'returns the first non-blank argument' do
-      is_expected.to eq(arg_2)
+      is_expected.to eq(boolean_arg)
     end
 
     context 'when the first argument is non-blank' do
-      let(:arg_1) { 'yes' }
-      let(:arg_2) { 'no' }
+      let(:blank_arg) { 'yes' }
+      let(:boolean_arg) { 'no' }
 
-      it { is_expected.to eq(arg_1) }
+      it { is_expected.to eq(blank_arg) }
     end
   end
 

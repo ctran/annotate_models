@@ -2,7 +2,7 @@ require 'optparse'
 
 module Annotate
   # Class for handling command line arguments
-  class Parser # rubocop:disable Metrics/ClassLength
+  class Parser
     def self.parse(args, env = {})
       new(args, env).parse
     end

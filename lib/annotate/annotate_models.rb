@@ -39,7 +39,7 @@ module AnnotateModels
     }
   }.freeze
 
-  MAGIC_COMMENT_MATCHER = Regexp.new(/(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/).freeze
+  MAGIC_COMMENT_MATCHER = /(^#\s*encoding:.*(?:\n|r\n))|(^# coding:.*(?:\n|\r\n))|(^# -\*- coding:.*(?:\n|\r\n))|(^# -\*- encoding\s?:.*(?:\n|\r\n))|(^#\s*frozen_string_literal:.+(?:\n|\r\n))|(^# -\*- frozen_string_literal\s*:.+-\*-(?:\n|\r\n))/
 
   class << self
     def annotate_pattern(options = {})
@@ -155,8 +155,8 @@ module AnnotateModels
       with_comments_column = with_comments_column?(klass, options)
 
       # Precalculate Values
-      cols_meta = cols.map do |col|
-        col_comment = with_comments || with_comments_column ? col.comment&.gsub(/\n/, "\\n") : nil
+      cols_meta = cols.to_h do |col|
+        col_comment = with_comments || with_comments_column ? col.comment&.gsub("\n", "\\n") : nil
         col_type = get_col_type(col)
         attrs = get_attributes(col, col_type, klass, options)
         col_name = if with_comments && col_comment
@@ -166,7 +166,7 @@ module AnnotateModels
                    end
         simple_formatted_attrs = attrs.join(", ")
         [col.name, { col_type: col_type, attrs: attrs, col_name: col_name, simple_formatted_attrs: simple_formatted_attrs, col_comment: col_comment }]
-      end.to_h
+      end
 
       # Output annotation
       bare_max_attrs_length = cols_meta.map { |_, m| m[:simple_formatted_attrs].length }.max
@@ -179,15 +179,15 @@ module AnnotateModels
         col_comment = cols_meta[col.name][:col_comment]
 
         if options[:format_rdoc]
-          info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+          info << (sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n")
         elsif options[:format_yard]
-          info << sprintf("# @!attribute #{col_name}") + "\n"
+          info << ("# @!attribute #{col_name}" + "\n")
           ruby_class = col.respond_to?(:array) && col.array ? "Array<#{map_col_type_to_ruby_classes(col_type)}>": map_col_type_to_ruby_classes(col_type)
-          info << sprintf("#   @return [#{ruby_class}]") + "\n"
+          info << ("#   @return [#{ruby_class}]" + "\n")
         elsif options[:format_markdown]
           name_remainder = max_size - col_name.length - non_ascii_length(col_name)
           type_remainder = (md_type_allowance - 2) - col_type.length
-          info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
+          info << ((sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n")
         elsif with_comments_column
           info << format_default(col_name, max_size, col_type, bare_type_allowance, simple_formatted_attrs, bare_max_attrs_length, col_comment)
         else
@@ -423,7 +423,7 @@ module AnnotateModels
     #  :position_in_*<Symbol>:: where to place the annotated section in fixture or model file,
     #                           :before, :top, :after or :bottom. Default is :before.
     #
-    def annotate_one_file(file_name, info_block, position, options = {})
+    def annotate_one_file?(file_name, info_block, position, options = {})
       return false unless File.exist?(file_name)
       old_content = File.read(file_name)
       return false if old_content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
@@ -486,7 +486,7 @@ module AnnotateModels
       end
     end
 
-    def remove_annotation_of_file(file_name, options = {})
+    def remove_annotation_of_file?(file_name, options = {})
       if File.exist?(file_name)
         content = File.read(file_name)
         return false if content =~ /#{SKIP_ANNOTATION_PREFIX}.*\n/
@@ -542,7 +542,7 @@ module AnnotateModels
         model_file_name = File.join(file)
         annotated = []
 
-        if annotate_one_file(model_file_name, info, :position_in_class, options_with_position(options, :position_in_class))
+        if annotate_one_file?(model_file_name, info, :position_in_class, options_with_position(options, :position_in_class))
           annotated << model_file_name
         end
 
@@ -563,7 +563,7 @@ module AnnotateModels
             .map { |f| expand_glob_into_files(f) }
             .flatten
             .each do |f|
-              if annotate_one_file(f, info, position_key, options_with_position(options, position_key))
+              if annotate_one_file?(f, info, position_key, options_with_position(options, position_key))
                 annotated << f
               end
             end
@@ -694,7 +694,7 @@ module AnnotateModels
     end
 
     def split_model_dir(option_value)
-      option_value = option_value.is_a?(Array) ? option_value : option_value.split(',')
+      option_value = option_value.split(',') unless option_value.is_a?(Array)
       option_value.map(&:strip).reject(&:empty?)
     end
 
@@ -762,13 +762,13 @@ module AnnotateModels
             model_name = klass.name.underscore
             table_name = klass.table_name
             model_file_name = file
-            deannotated_klass = true if remove_annotation_of_file(model_file_name, options)
+            deannotated_klass = true if remove_annotation_of_file?(model_file_name, options)
 
             get_patterns(options, matched_types(options))
               .map { |f| resolve_filename(f, model_name, table_name) }
               .each do |f|
                 if File.exist?(f)
-                  remove_annotation_of_file(f, options)
+                  remove_annotation_of_file?(f, options)
                   deannotated_klass = true
                 end
               end

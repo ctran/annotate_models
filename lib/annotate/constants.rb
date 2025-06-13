@@ -1,6 +1,6 @@
 module Annotate
   module Constants
-    TRUE_RE = /^(true|t|yes|y|1)$/i.freeze
+    TRUE_RE = /^(true|t|yes|y|1)$/i
 
     ##
     # The set of available options to customize the behavior of Annotate.

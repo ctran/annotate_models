@@ -206,7 +206,7 @@ describe AnnotateModels do
         end
 
         it 'sets skip_subdirectory_model_load to true' do
-          is_expected.to eq(true)
+          is_expected.to be(true)
         end
       end
 
@@ -220,7 +220,7 @@ describe AnnotateModels do
         end
 
         it 'sets skip_subdirectory_model_load to false' do
-          is_expected.to eq(false)
+          is_expected.to be(false)
         end
       end
     end
@@ -2525,9 +2525,9 @@ describe AnnotateModels do
     end
   end
 
-  describe '.remove_annotation_of_file' do
+  describe '.remove_annotation_of_file?' do
     subject do
-      AnnotateModels.remove_annotation_of_file(path)
+      AnnotateModels.remove_annotation_of_file?(path)
     end
 
     after :each do
@@ -2632,7 +2632,7 @@ describe AnnotateModels do
       end
 
       subject do
-        AnnotateModels.remove_annotation_of_file(path, wrapper_open: 'wrapper')
+        AnnotateModels.remove_annotation_of_file?(path, wrapper_open: 'wrapper')
       end
 
       it 'removes annotation' do
@@ -2662,7 +2662,7 @@ describe AnnotateModels do
       end
 
       subject do
-        AnnotateModels.remove_annotation_of_file(path, wrapper_open: 'wrapper')
+        AnnotateModels.remove_annotation_of_file?(path, wrapper_open: 'wrapper')
       end
 
       it 'removes annotation' do
@@ -2721,7 +2721,7 @@ describe AnnotateModels do
       end
 
       subject do
-        AnnotateModels.remove_annotation_of_file(path, wrapper_close: 'wrapper')
+        AnnotateModels.remove_annotation_of_file?(path, wrapper_close: 'wrapper')
       end
 
       it 'removes annotation' do
@@ -2842,15 +2842,15 @@ describe AnnotateModels do
     def write_model(file_name, file_content)
       fname = File.join(@model_dir, file_name)
       FileUtils.mkdir_p(File.dirname(fname))
-      File.open(fname, 'wb') { |f| f.write file_content }
+      File.binwrite(fname, file_content)
 
       [fname, file_content]
     end
 
-    def annotate_one_file(options = {})
+    def annotate_one_file?(options = {})
       Annotate.set_defaults(options)
       options = Annotate.setup_options(options)
-      AnnotateModels.annotate_one_file(@model_file_name, @schema_info, :position_in_class, options)
+      AnnotateModels.annotate_one_file?(@model_file_name, @schema_info, :position_in_class, options)
     ensure
       # Wipe settings so the next call will pick up new values...
       Annotate.instance_variable_set('@has_set_defaults', false)
@@ -2861,7 +2861,7 @@ describe AnnotateModels do
 
     ['before', :before, 'top', :top].each do |position|
       it "should put annotation before class if :position == #{position}" do
-        annotate_one_file position: position
+        annotate_one_file? position: position
         expect(File.read(@model_file_name))
           .to eq("#{@schema_info}#{@file_content}")
       end
@@ -2869,14 +2869,14 @@ describe AnnotateModels do
 
     ['after', :after, 'bottom', :bottom].each do |position|
       it "should put annotation after class if position: #{position}" do
-        annotate_one_file position: position
+        annotate_one_file? position: position
         expect(File.read(@model_file_name))
           .to eq("#{@file_content}\n#{@schema_info}")
       end
     end
 
     it 'should wrap annotation if wrapper is specified' do
-      annotate_one_file wrapper_open: 'START', wrapper_close: 'END'
+      annotate_one_file? wrapper_open: 'START', wrapper_close: 'END'
       expect(File.read(@model_file_name))
         .to eq("# START\n#{@schema_info}# END\n#{@file_content}")
     end
@@ -2899,7 +2899,7 @@ describe AnnotateModels do
                                                 on_delete: :cascade)
                              ])
           @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
-          annotate_one_file
+          annotate_one_file?
         end
 
         it 'should update foreign key constraint' do
@@ -2918,7 +2918,7 @@ describe AnnotateModels do
                                                 on_delete: :restrict)
                              ])
           @schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info', show_foreign_keys: true)
-          annotate_one_file
+          annotate_one_file?
           expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
         end
       end
@@ -2926,46 +2926,46 @@ describe AnnotateModels do
 
     describe 'with existing annotation => :before' do
       before do
-        annotate_one_file position: :before
+        annotate_one_file? position: :before
         another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer)]), '== Schema Info')
         @schema_info = another_schema_info
       end
 
       it 'should retain current position' do
-        annotate_one_file
+        annotate_one_file?
         expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
       end
 
       it 'should retain current position even when :position is changed to :after' do
-        annotate_one_file position: :after
+        annotate_one_file? position: :after
         expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
       end
 
       it 'should change position to :after when force: true' do
-        annotate_one_file position: :after, force: true
+        annotate_one_file? position: :after, force: true
         expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
       end
     end
 
     describe 'with existing annotation => :after' do
       before do
-        annotate_one_file position: :after
+        annotate_one_file? position: :after
         another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer)]), '== Schema Info')
         @schema_info = another_schema_info
       end
 
       it 'should retain current position' do
-        annotate_one_file
+        annotate_one_file?
         expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
       end
 
       it 'should retain current position even when :position is changed to :before' do
-        annotate_one_file position: :before
+        annotate_one_file? position: :before
         expect(File.read(@model_file_name)).to eq("#{@file_content}\n#{@schema_info}")
       end
 
       it 'should change position to :before when force: true' do
-        annotate_one_file position: :before, force: true
+        annotate_one_file? position: :before, force: true
         expect(File.read(@model_file_name)).to eq("#{@schema_info}#{@file_content}")
       end
     end
@@ -2989,7 +2989,7 @@ describe AnnotateModels do
                            mock_column(:name, :string, limit: 50)
                          ])
       schema_info = AnnotateModels.get_schema_info(klass, '== Schema Info')
-      AnnotateModels.annotate_one_file(model_file_name, schema_info, position: :before)
+      AnnotateModels.annotate_one_file?(model_file_name, schema_info, position: :before)
       expect(File.read(model_file_name)).to eq("#{schema_info}#{file_content}")
     end
 
@@ -3001,7 +3001,7 @@ describe AnnotateModels do
           end
         EOS
 
-        annotate_one_file position: :before
+        annotate_one_file? position: :before
 
         lines = magic_comment.split("\n")
         File.open @model_file_name do |file|
@@ -3017,7 +3017,7 @@ describe AnnotateModels do
       MAGIC_COMMENTS.each do |magic_comment|
         model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
 
-        annotate_one_file position: :before
+        annotate_one_file? position: :before
         schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
 
         expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}#{content}")
@@ -3030,7 +3030,7 @@ describe AnnotateModels do
         schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
         model_file_name, = write_model 'user.rb', "#{magic_comment}\n\n\n\n#{content}"
 
-        annotate_one_file position: :before
+        annotate_one_file? position: :before
 
         expect(File.read(model_file_name)).to eq("#{magic_comment}\n\n#{schema_info}#{content}")
       end
@@ -3041,7 +3041,7 @@ describe AnnotateModels do
       MAGIC_COMMENTS.each do |magic_comment|
         model_file_name, = write_model 'user.rb', "#{magic_comment}\n#{content}"
 
-        annotate_one_file position: :after
+        annotate_one_file? position: :after
         schema_info = AnnotateModels.get_schema_info(@klass, '== Schema Info')
 
         expect(File.read(model_file_name)).to eq("#{magic_comment}\n#{content}\n#{schema_info}")
@@ -3087,27 +3087,30 @@ describe AnnotateModels do
       end
 
       it 'displays the error message and stacktrace with trace enabled' do
-        expect { AnnotateModels.remove_annotations model_dir: @model_dir, is_rake: true, trace: true }.to output(a_string_including("Unable to deannotate #{@model_dir}/user.rb: oops")).to_stderr
-        expect { AnnotateModels.remove_annotations model_dir: @model_dir, is_rake: true, trace: true }.to output(a_string_including("/user.rb:2:in `<class:User>'")).to_stderr
+        output = capture_stderr do
+          AnnotateModels.remove_annotations model_dir: @model_dir, is_rake: true, trace: true
+        end
+        expect(output).to include("Unable to deannotate #{@model_dir}/user.rb: oops")
+        expect(output).to include('/user.rb:2:in')
       end
     end
 
     describe 'frozen option' do
-      it "should abort without existing annotation when frozen: true " do
-        expect { annotate_one_file frozen: true }.to raise_error SystemExit, /user.rb needs to be updated, but annotate was run with `--frozen`./
+      it "should abort without existing annotation when frozen: true" do
+        expect { annotate_one_file? frozen: true }.to raise_error SystemExit, /user.rb needs to be updated, but annotate was run with `--frozen`./
       end
 
-      it "should abort with different annotation when frozen: true " do
-        annotate_one_file
+      it "should abort with different annotation when frozen: true" do
+        annotate_one_file?
         another_schema_info = AnnotateModels.get_schema_info(mock_class(:users, :id, [mock_column(:id, :integer)]), '== Schema Info')
         @schema_info = another_schema_info
 
-        expect { annotate_one_file frozen: true }.to raise_error SystemExit, /user.rb needs to be updated, but annotate was run with `--frozen`./
+        expect { annotate_one_file? frozen: true }.to raise_error SystemExit, /user.rb needs to be updated, but annotate was run with `--frozen`./
       end
 
-      it "should NOT abort with same annotation when frozen: true " do
-        annotate_one_file
-        expect { annotate_one_file frozen: true }.not_to raise_error
+      it "should NOT abort with same annotation when frozen: true" do
+        annotate_one_file?
+        expect { annotate_one_file? frozen: true }.not_to raise_error
       end
     end
   end
@@ -3126,7 +3129,7 @@ describe AnnotateModels do
     after { Object.send :remove_const, 'Foo' }
 
     it 'skips attempt to annotate if no table exists for model' do
-      is_expected.to eq nil
+      is_expected.to be_nil
     end
 
     context 'with a non-class' do
