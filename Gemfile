@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '>= 2.4.0'
 
-gem 'activerecord', '>= 4.2.5', '< 6', require: false
+gem 'activerecord', '>= 4.2.5', '< 9', require: false
 gem 'rake', require: false
 
 group :development do
@@ -30,7 +30,7 @@ group :development, :test do
   gem 'coveralls'
 
   gem 'overcommit'
-  gem 'ruby_dep', '1.5.0'
+  # gem 'ruby_dep', '1.5.0'
 
   platforms :mri, :mingw do
     gem 'pry', require: false
