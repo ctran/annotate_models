@@ -36,6 +36,10 @@ module AnnotateModels
     using: {
       default: 'USING',
       markdown: '_using_'
+    },
+    comment: {
+      default: 'COMMENT',
+      markdown: '_comment_'
     }
   }.freeze
 
@@ -295,12 +299,22 @@ module AnnotateModels
       end
     end
 
+    def index_comment_info(index, format = :default)
+      value = index.try(:comment).try(:to_s)
+      if value.blank?
+        ''
+      else
+        " #{INDEX_CLAUSES[:comment][format]} #{value}"
+      end
+    end
+
     def final_index_string_in_markdown(index)
       details = sprintf(
-        "%s%s%s",
+        "%s%s%s%s",
         index_unique_info(index, :markdown),
         index_where_info(index, :markdown),
-        index_using_info(index, :markdown)
+        index_using_info(index, :markdown),
+        index_comment_info(index, :markdown)
       ).strip
       details = " (#{details})" unless details.blank?
 
@@ -314,12 +328,13 @@ module AnnotateModels
 
     def final_index_string(index, max_size)
       sprintf(
-        "#  %-#{max_size}.#{max_size}s %s%s%s%s",
+        "#  %-#{max_size}.#{max_size}s %s%s%s%s%s",
         index.name,
         "(#{index_columns_info(index).join(',')})",
         index_unique_info(index),
         index_where_info(index),
-        index_using_info(index)
+        index_using_info(index),
+        index_comment_info(index)
       ).rstrip + "\n"
     end
 

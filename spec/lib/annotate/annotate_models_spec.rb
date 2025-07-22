@@ -28,7 +28,8 @@ describe AnnotateModels do
            unique:        params[:unique] || false,
            orders:        params[:orders] || {},
            where:         params[:where],
-           using:         params[:using])
+           using:         params[:using],
+           comment:       params[:comment])
   end
 
   def mock_foreign_key(name, from_column, to_table, to_column = 'id', constraints = {})
@@ -530,6 +531,43 @@ describe AnnotateModels do
                       #
                       #  index_rails_02e851e3b7  (id)
                       #  index_rails_02e851e3b8  (foreign_thing_id)
+                      #
+                    EOS
+                  end
+
+                  it 'returns schema info with index information' do
+                    is_expected.to eq expected_result
+                  end
+                end
+
+                context 'when an index has a comment' do
+                  let :columns do
+                    [
+                      mock_column(:id, :integer),
+                      mock_column(:foreign_thing_id, :integer)
+                    ]
+                  end
+
+                  let :indexes do
+                    [
+                      mock_index('index_rails_02e851e3b9', columns: ['id']),
+                      mock_index('index_rails_02e851e3ba', columns: ['foreign_thing_id'], comment: 'This is a comment')
+                    ]
+                  end
+
+                  let :expected_result do
+                    <<~EOS
+                      # Schema Info
+                      #
+                      # Table name: users
+                      #
+                      #  id               :integer          not null, primary key
+                      #  foreign_thing_id :integer          not null
+                      #
+                      # Indexes
+                      #
+                      #  index_rails_02e851e3b9  (id)
+                      #  index_rails_02e851e3ba  (foreign_thing_id) COMMENT This is a comment
                       #
                     EOS
                   end
