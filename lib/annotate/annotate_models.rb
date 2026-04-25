@@ -3,6 +3,7 @@
 require 'bigdecimal'
 
 require 'annotate/constants'
+require 'annotate/sti_columns'
 require_relative 'annotate_models/file_patterns'
 
 module AnnotateModels
@@ -171,27 +172,43 @@ module AnnotateModels
       # Output annotation
       bare_max_attrs_length = cols_meta.map { |_, m| m[:simple_formatted_attrs].length }.max
 
-      cols.each do |col|
-        col_type = cols_meta[col.name][:col_type]
-        attrs = cols_meta[col.name][:attrs]
-        col_name = cols_meta[col.name][:col_name]
-        simple_formatted_attrs = cols_meta[col.name][:simple_formatted_attrs]
-        col_comment = cols_meta[col.name][:col_comment]
+      if options[:group_sti_columns]
+        grouped_cols = Annotate::StiColumns.partition(klass, cols)
+      else
+        grouped_cols = [[nil, cols]]
+      end
 
-        if options[:format_rdoc]
-          info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
-        elsif options[:format_yard]
-          info << sprintf("# @!attribute #{col_name}") + "\n"
-          ruby_class = col.respond_to?(:array) && col.array ? "Array<#{map_col_type_to_ruby_classes(col_type)}>": map_col_type_to_ruby_classes(col_type)
-          info << sprintf("#   @return [#{ruby_class}]") + "\n"
-        elsif options[:format_markdown]
-          name_remainder = max_size - col_name.length - non_ascii_length(col_name)
-          type_remainder = (md_type_allowance - 2) - col_type.length
-          info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
-        elsif with_comments_column
-          info << format_default(col_name, max_size, col_type, bare_type_allowance, simple_formatted_attrs, bare_max_attrs_length, col_comment)
-        else
-          info << format_default(col_name, max_size, col_type, bare_type_allowance, simple_formatted_attrs)
+      grouped_cols.each do |group_label, group_columns|
+        if group_label
+          if options[:format_markdown]
+            info << "#\n# ### #{group_label}\n#\n"
+          else
+            info << "#\n# -- #{group_label} --\n#\n"
+          end
+        end
+
+        group_columns.each do |col|
+          col_type = cols_meta[col.name][:col_type]
+          attrs = cols_meta[col.name][:attrs]
+          col_name = cols_meta[col.name][:col_name]
+          simple_formatted_attrs = cols_meta[col.name][:simple_formatted_attrs]
+          col_comment = cols_meta[col.name][:col_comment]
+
+          if options[:format_rdoc]
+            info << sprintf("# %-#{max_size}.#{max_size}s<tt>%s</tt>", "*#{col_name}*::", attrs.unshift(col_type).join(", ")).rstrip + "\n"
+          elsif options[:format_yard]
+            info << sprintf("# @!attribute #{col_name}") + "\n"
+            ruby_class = col.respond_to?(:array) && col.array ? "Array<#{map_col_type_to_ruby_classes(col_type)}>": map_col_type_to_ruby_classes(col_type)
+            info << sprintf("#   @return [#{ruby_class}]") + "\n"
+          elsif options[:format_markdown]
+            name_remainder = max_size - col_name.length - non_ascii_length(col_name)
+            type_remainder = (md_type_allowance - 2) - col_type.length
+            info << (sprintf("# **`%s`**%#{name_remainder}s | `%s`%#{type_remainder}s | `%s`", col_name, " ", col_type, " ", attrs.join(", ").rstrip)).gsub('``', '  ').rstrip + "\n"
+          elsif with_comments_column
+            info << format_default(col_name, max_size, col_type, bare_type_allowance, simple_formatted_attrs, bare_max_attrs_length, col_comment)
+          else
+            info << format_default(col_name, max_size, col_type, bare_type_allowance, simple_formatted_attrs)
+          end
         end
       end
 
@@ -733,7 +750,7 @@ module AnnotateModels
         klass = get_model_class(file)
         do_annotate = klass.is_a?(Class) &&
           klass < ActiveRecord::Base &&
-          (!options[:exclude_sti_subclasses] || !(klass.superclass < ActiveRecord::Base && klass.table_name == klass.superclass.table_name)) &&
+          (!options[:exclude_sti_subclasses] || !Annotate::StiColumns.subclass?(klass)) &&
           !klass.abstract_class? &&
           klass.table_exists?
 

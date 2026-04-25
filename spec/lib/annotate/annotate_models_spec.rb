@@ -1942,6 +1942,143 @@ describe AnnotateModels do
     end
   end
 
+  describe '.get_schema_info with group_sti_columns' do
+    let(:all_columns) do
+      [
+        mock_column(:id, :integer),
+        mock_column(:type, :string, limit: 255),
+        mock_column(:name, :string, limit: 100),
+        mock_column(:num_doors, :integer),
+        mock_column(:payload_capacity, :integer)
+      ]
+    end
+
+    def build_sti_base(columns, name: 'Vehicle')
+      klass = mock_class(:vehicles, :id, columns)
+      allow(klass).to receive(:superclass).and_return(ActiveRecord::Base)
+      allow(klass).to receive(:<).with(ActiveRecord::Base).and_return(true)
+      allow(klass).to receive(:name).and_return(name)
+      allow(klass).to receive(:inheritance_column).and_return('type')
+      allow(klass).to receive(:subclasses).and_return([])
+
+      # Introspection
+      allow(klass).to receive(:validators).and_return([
+        double('Validator', attributes: [:name])
+      ])
+      allow(klass).to receive(:reflect_on_all_associations).with(:belongs_to).and_return([])
+      allow(klass).to receive(:defined_enums).and_return({})
+      allow(klass).to receive(:stored_attributes).and_return({})
+
+      klass
+    end
+
+    def build_sti_subclass(parent, columns, name:, owned_validator_attrs: [])
+      klass = mock_class(:vehicles, :id, columns)
+      allow(klass).to receive(:superclass).and_return(parent)
+      allow(klass).to receive(:<).with(ActiveRecord::Base).and_return(true)
+      allow(klass).to receive(:name).and_return(name)
+      allow(klass).to receive(:inheritance_column).and_return('type')
+      allow(klass).to receive(:subclasses).and_return([])
+
+      # Make parent look like an AR subclass for sti_subclass? check
+      allow(parent).to receive(:<).with(ActiveRecord::Base).and_return(true)
+
+      # Introspection: parent validators + own
+      own_validators = owned_validator_attrs.map { |attr| double('Validator', attributes: [attr]) }
+      allow(klass).to receive(:validators).and_return(parent.validators + own_validators)
+      allow(klass).to receive(:reflect_on_all_associations).with(:belongs_to).and_return([])
+      allow(klass).to receive(:defined_enums).and_return({})
+      allow(klass).to receive(:stored_attributes).and_return({})
+
+      klass
+    end
+
+    context 'when annotating an STI subclass' do
+      it 'groups columns with section headers' do
+        vehicle = build_sti_base(all_columns)
+        car = build_sti_subclass(vehicle, all_columns, name: 'Car',
+                                 owned_validator_attrs: [:num_doors])
+        allow(vehicle).to receive(:subclasses).and_return([car])
+
+        result = AnnotateModels.get_schema_info(car, 'Schema Info', group_sti_columns: true)
+
+        expect(result).to include('# -- Vehicle columns --')
+        expect(result).to include('# -- Car columns --')
+        expect(result).to include('#  num_doors')
+
+        # Verify num_doors appears after Car header
+        car_section = result.index('# -- Car columns --')
+        num_doors_pos = result.index('#  num_doors')
+        expect(num_doors_pos).to be > car_section
+      end
+    end
+
+    context 'when annotating an STI base class' do
+      it 'groups columns by owning subclass' do
+        vehicle = build_sti_base(all_columns)
+        car = build_sti_subclass(vehicle, all_columns, name: 'Car',
+                                 owned_validator_attrs: [:num_doors])
+        truck = build_sti_subclass(vehicle, all_columns, name: 'Truck',
+                                   owned_validator_attrs: [:payload_capacity])
+        allow(vehicle).to receive(:subclasses).and_return([car, truck])
+
+        result = AnnotateModels.get_schema_info(vehicle, 'Schema Info', group_sti_columns: true)
+
+        expect(result).to include('# -- Vehicle columns --')
+        expect(result).to include('# -- Car columns --')
+        expect(result).to include('# -- Truck columns --')
+
+        # Base columns should be in Vehicle section
+        vehicle_section = result.index('# -- Vehicle columns --')
+        car_section = result.index('# -- Car columns --')
+        id_pos = result.index('#  id')
+        expect(id_pos).to be > vehicle_section
+        expect(id_pos).to be < car_section
+      end
+    end
+
+    context 'when using markdown format' do
+      it 'uses markdown headers for section labels' do
+        vehicle = build_sti_base(all_columns)
+        car = build_sti_subclass(vehicle, all_columns, name: 'Car',
+                                 owned_validator_attrs: [:num_doors])
+        allow(vehicle).to receive(:subclasses).and_return([car])
+
+        result = AnnotateModels.get_schema_info(car, 'Schema Info',
+                                                group_sti_columns: true, format_markdown: true)
+
+        expect(result).to include('# ### Vehicle columns')
+        expect(result).to include('# ### Car columns')
+      end
+    end
+
+    context 'when group_sti_columns is false' do
+      it 'does not add section headers' do
+        result = AnnotateModels.get_schema_info(
+          mock_class(:users, :id, [mock_column(:id, :integer), mock_column(:name, :string, limit: 50)]),
+          'Schema Info',
+          group_sti_columns: false
+        )
+
+        expect(result).not_to include('-- ')
+      end
+    end
+
+    context 'when model is not STI' do
+      it 'does not add section headers' do
+        klass = mock_class(:users, :id, [mock_column(:id, :integer), mock_column(:name, :string, limit: 50)])
+        allow(klass).to receive(:superclass).and_return(ActiveRecord::Base)
+        allow(klass).to receive(:column_names).and_return(%w[id name])
+        allow(klass).to receive(:inheritance_column).and_return('type')
+        allow(klass).to receive(:subclasses).and_return([])
+
+        result = AnnotateModels.get_schema_info(klass, 'Schema Info', group_sti_columns: true)
+
+        expect(result).not_to include('-- ')
+      end
+    end
+  end
+
   describe '.set_defaults' do
     subject do
       Annotate::Helpers.true?(ENV['show_complete_foreign_keys'])
@@ -2580,6 +2717,46 @@ describe AnnotateModels do
       end
 
       it 'removes annotation' do
+        expect(file_content_after_removal).to eq expected_result
+      end
+    end
+
+    context 'when annotation contains STI group headers' do
+      let :filename do
+        'sti_grouped.rb'
+      end
+
+      let :file_content do
+        <<~EOS
+          # == Schema Information
+          #
+          # Table name: vehicles
+          #
+          #
+          # -- Vehicle columns --
+          #
+          #  id         :bigint           not null, primary key
+          #  type       :string
+          #  name       :string           not null
+          #
+          # -- Car columns --
+          #
+          #  num_doors  :integer
+          #
+
+          class Car < Vehicle
+          end
+        EOS
+      end
+
+      let :expected_result do
+        <<~EOS
+          class Car < Vehicle
+          end
+        EOS
+      end
+
+      it 'removes annotation including group headers' do
         expect(file_content_after_removal).to eq expected_result
       end
     end

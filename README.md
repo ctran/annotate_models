@@ -251,6 +251,7 @@ you can do so with a simple environment variable, instead of editing the
             --ignore-unknown-models      don't display warnings for bad model files
             --with-comment               include database comments in model annotations
             --with-comment-column        include database comments in model annotations, as its own column, after all others
+            --group-sti-columns          group annotation columns by STI class ownership
 
 ### Option: `additional_file_patterns`
 
