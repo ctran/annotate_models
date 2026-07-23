@@ -34,6 +34,16 @@ require 'annotate/helpers'
 require 'annotate/constants'
 require 'byebug'
 
+# The `files` gem (test-only) still calls the `File.exists?` alias, which was
+# removed in Ruby 3.2+. Restore it for the test run only.
+class File
+  unless respond_to?(:exists?)
+    def self.exists?(path)
+      exist?(path)
+    end
+  end
+end
+
 RSpec.configure do |config|
   config.order = 'random'
   config.filter_run_when_matching :focus
