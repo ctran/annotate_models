@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ['2.7']
+        ruby: ['2.7', '4.0']
 
     steps:
       - name: Checkout
@@ -30,4 +30,5 @@ jobs:
         run: bundle exec rspec
 
       - name: Rubocop
+        if: matrix.ruby == '2.7'
         run: bundle exec rubocop
