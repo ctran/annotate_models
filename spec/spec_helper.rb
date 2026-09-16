@@ -34,6 +34,15 @@ require 'annotate/helpers'
 require 'annotate/constants'
 require 'byebug'
 
+# The test-only `files` gem still calls `File.exists?`, removed in newer Ruby.
+class File
+  unless respond_to?(:exists?)
+    def self.exists?(path)
+      exist?(path)
+    end
+  end
+end
+
 RSpec.configure do |config|
   config.order = 'random'
   config.filter_run_when_matching :focus

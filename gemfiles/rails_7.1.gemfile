@@ -1,0 +1,19 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+gem 'activerecord', '~> 7.1.0', require: false
+gem 'rake', require: false
+
+group :development, :test do
+  gem 'byebug'
+  gem 'rspec', require: false
+  gem 'simplecov', require: false
+end
+
+group :test do
+  gem 'files', require: false
+  gem 'git', require: false
+end
+
+gemspec path: '..'

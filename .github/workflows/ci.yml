@@ -11,10 +11,29 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    name: "Ruby ${{ matrix.ruby }} / ${{ matrix.gemfile }}"
     strategy:
       fail-fast: false
       matrix:
         ruby: ['2.7']
+        gemfile: ['Gemfile']
+        include:
+          - { ruby: '3.1', gemfile: 'gemfiles/rails_6.1.gemfile' }
+          - { ruby: '3.3', gemfile: 'gemfiles/rails_6.1.gemfile' }
+          - { ruby: '3.3', gemfile: 'gemfiles/rails_7.0.gemfile' }
+          - { ruby: '3.3', gemfile: 'gemfiles/rails_7.1.gemfile' }
+          - { ruby: '3.3', gemfile: 'gemfiles/rails_7.2.gemfile' }
+          - { ruby: '3.3', gemfile: 'gemfiles/rails_8.0.gemfile' }
+          - { ruby: '3.3', gemfile: 'gemfiles/rails_8.1.gemfile' }
+          - { ruby: '3.4', gemfile: 'gemfiles/rails_7.2.gemfile' }
+          - { ruby: '3.4', gemfile: 'gemfiles/rails_8.0.gemfile' }
+          - { ruby: '3.4', gemfile: 'gemfiles/rails_8.1.gemfile' }
+          - { ruby: '4.0', gemfile: 'gemfiles/rails_7.2.gemfile' }
+          - { ruby: '4.0', gemfile: 'gemfiles/rails_8.0.gemfile' }
+          - { ruby: '4.0', gemfile: 'gemfiles/rails_8.1.gemfile' }
+
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/${{ matrix.gemfile }}
 
     steps:
       - name: Checkout
@@ -30,4 +49,5 @@ jobs:
         run: bundle exec rspec
 
       - name: Rubocop
+        if: matrix.gemfile == 'Gemfile'
         run: bundle exec rubocop

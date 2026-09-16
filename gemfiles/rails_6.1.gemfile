@@ -1,0 +1,21 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+gem 'activerecord', '~> 6.1.0', require: false
+# activesupport < 7.1 relies on concurrent-ruby requiring logger, dropped in 1.3.5.
+gem 'concurrent-ruby', '< 1.3.5', require: false
+gem 'rake', require: false
+
+group :development, :test do
+  gem 'byebug'
+  gem 'rspec', require: false
+  gem 'simplecov', require: false
+end
+
+group :test do
+  gem 'files', require: false
+  gem 'git', require: false
+end
+
+gemspec path: '..'

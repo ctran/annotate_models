@@ -15,3 +15,5 @@
 /pkg/*
 /spec/debug.log
 .byebug_history
+
+gemfiles/*.gemfile.lock
