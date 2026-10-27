@@ -16,9 +16,10 @@
 # Uncomment the following lines to make the configuration take effect.
 
 PreCommit:
- RuboCop:
-   enabled: true
-   on_warn: fail # Treat all warnings as failures
+  RuboCop:
+    enabled: true
+    on_warn: fail
+    command: ['bundle', 'exec', 'rubocop']
 
 PrePush:
   RSpec:

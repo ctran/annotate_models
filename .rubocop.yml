@@ -13,6 +13,12 @@ AllCops:
     - 'spec/integration/**/*'
   NewCops: enable
 
+Capybara:
+  Enabled: false
+
+Capybara/RSpec:
+  Enabled: false
+
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'

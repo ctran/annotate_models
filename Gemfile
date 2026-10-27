@@ -2,13 +2,12 @@ source 'https://rubygems.org'
 
 ruby '>= 2.4.0'
 
-gem 'activerecord', '>= 4.2.5', '< 6', require: false
+gem 'activerecord', '>= 4.2.5', '< 8.2', require: false
 gem 'rake', require: false
 
 group :development do
   gem 'bump'
   gem 'mg', require: false
-  gem 'travis', require: false
   platforms :mri, :mingw do
     gem 'yard', require: false
   end
@@ -19,9 +18,10 @@ group :development, :test do
   gem 'guard-rspec', require: false
   gem 'rspec', require: false
 
-  gem 'rubocop', '~> 1.12.0', require: false
+  gem 'rubocop', '~> 1.50.0', require: false
+  gem 'rubocop-ast', '~> 1.28.0', require: false
   gem 'rubocop-rake', require: false
-  gem 'rubocop-rspec', '~> 2.2.0', require: false
+  gem 'rubocop-rspec', '~> 2.20.0', require: false
   gem 'simplecov', require: false
   gem 'terminal-notifier-guard', require: false
 
@@ -29,7 +29,6 @@ group :development, :test do
   gem 'coveralls'
 
   gem 'overcommit'
-  gem 'ruby_dep', '1.5.0'
 
   platforms :mri, :mingw do
     gem 'pry', require: false
@@ -38,6 +37,5 @@ group :development, :test do
 end
 
 group :test do
-  gem 'files', require: false
   gem 'git', require: false
 end
